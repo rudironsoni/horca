@@ -79,6 +79,13 @@ import {
   deriveGlobalWindowsRuntimeDefaultFromLegacySettings,
   normalizeProjectRuntimePreference
 } from '../shared/project-execution-runtime'
+import {
+  DEFAULT_HERDR_SESSION_NAME,
+  normalizeHerdrBinarySource,
+  normalizeHerdrSessionName,
+  normalizeTerminalBackend,
+  normalizeTerminalBackendActivation
+} from '../shared/terminal-backend'
 import { projectHostSetupProjectionFromRepos } from '../shared/project-host-setup-projection'
 import { isPluginPanelTabKey } from '../shared/plugins/plugin-manifest'
 import type { GitRemoteIdentity } from '../shared/git-remote-identity'
@@ -2475,6 +2482,28 @@ function projectHostSetupCompatibilityStateEqual(
   )
 }
 
+function backfillLegacyTerminalBackendActivations(
+  state: Pick<PersistedState, 'projects' | 'projectHostSetups'>
+): Pick<PersistedState, 'projects' | 'projectHostSetups'> {
+  const hostIdsByProject = new Map<string, Set<ExecutionHostId>>()
+  for (const setup of state.projectHostSetups) {
+    const hostIds = hostIdsByProject.get(setup.projectId) ?? new Set<ExecutionHostId>()
+    hostIds.add(setup.hostId)
+    hostIdsByProject.set(setup.projectId, hostIds)
+  }
+  return {
+    ...state,
+    projects: state.projects.map((project) => {
+      const hostIds = hostIdsByProject.get(project.id) ?? new Set<ExecutionHostId>(['local'])
+      const terminalBackendByHost = { ...project.terminalBackendByHost }
+      for (const hostId of hostIds) {
+        terminalBackendByHost[hostId] ??= { backend: 'orca', state: 'ready' }
+      }
+      return { ...project, terminalBackendByHost }
+    })
+  }
+}
+
 function isRepoBackedProjectHostSetup(
   setup: ProjectHostSetup,
   currentRepoIds: ReadonlySet<string>
@@ -2512,13 +2541,34 @@ function mergeProjectHostSetupCompatibilityState(
     }))
   const projectedProjects = projection.projects.map((project) => {
     const existingProject = existingProjectsById.get(project.id)
-    return existingProject?.localWindowsRuntimePreference
-      ? {
-          ...project,
-          localWindowsRuntimePreference: existingProject.localWindowsRuntimePreference,
-          updatedAt: Math.max(project.updatedAt, existingProject.updatedAt)
-        }
-      : project
+    if (!existingProject) {
+      return project
+    }
+    return {
+      ...project,
+      ...(existingProject.localWindowsRuntimePreference
+        ? { localWindowsRuntimePreference: existingProject.localWindowsRuntimePreference }
+        : {}),
+      ...(existingProject.herdrSessionName
+        ? { herdrSessionName: existingProject.herdrSessionName }
+        : {}),
+      ...(existingProject.terminalBackendPreference
+        ? { terminalBackendPreference: existingProject.terminalBackendPreference }
+        : {}),
+      ...(existingProject.terminalBackendByHost
+        ? {
+            terminalBackendByHost: Object.fromEntries(
+              Object.entries(existingProject.terminalBackendByHost).flatMap(
+                ([hostId, activation]) => {
+                  const normalized = normalizeTerminalBackendActivation(activation)
+                  return normalized ? [[hostId, normalized] as const] : []
+                }
+              )
+            )
+          }
+        : {}),
+      updatedAt: Math.max(project.updatedAt, existingProject.updatedAt)
+    }
   })
   return {
     projects: [...projectedProjects, ...independentProjects],
@@ -3154,6 +3204,7 @@ export class Store {
     })
 
     let result: PersistedState | null = null
+    let backfillLegacyTerminalBackends = false
     try {
       if (fileExistedOnLoad) {
         const readStartedAt = performance.now()
@@ -3164,6 +3215,8 @@ export class Store {
         })
         logPersistenceStartupMilestone('persistence-json-parse-start')
         const parsed = JSON.parse(raw) as PersistedState
+        backfillLegacyTerminalBackends =
+          parsed.settings?.terminalBackendActivationDefaultedToOrca !== true
         logPersistenceStartupMilestone('persistence-json-parse-done')
 
         // Why: secrets are stored encrypted via safeStorage; decrypt at the load boundary so the app sees plaintext.
@@ -3561,6 +3614,14 @@ export class Store {
             localAccountRuntime: migratedLocalAccountRuntime,
             localAccountRuntimeDefaultedToAutoForAllUsers: true,
             ...migratedOsc52Clipboard,
+            terminalBackendDefault: normalizeTerminalBackend(
+              parsed.settings?.terminalBackendDefault
+            ),
+            herdrBinarySource: normalizeHerdrBinarySource(parsed.settings?.herdrBinarySource),
+            herdrSessionName:
+              normalizeHerdrSessionName(parsed.settings?.herdrSessionName) ??
+              DEFAULT_HERDR_SESSION_NAME,
+            terminalBackendActivationDefaultedToOrca: true,
             floatingTerminalEnabled: migratedFloatingTerminalEnabled,
             floatingTerminalDefaultedForAllUsers: true,
             floatingTerminalCwd: migratedFloatingTerminalCwd,
@@ -3882,7 +3943,13 @@ export class Store {
     }
 
     const repos = clearMissingProjectGroupMemberships(result.repos, result.projectGroups ?? [])
-    const projectHostSetupCompatibility = mergeProjectHostSetupCompatibilityState(result, repos)
+    let projectHostSetupCompatibility = mergeProjectHostSetupCompatibilityState(result, repos)
+    if (backfillLegacyTerminalBackends) {
+      projectHostSetupCompatibility = backfillLegacyTerminalBackendActivations(
+        projectHostSetupCompatibility
+      )
+      this.loadNeedsSave = true
+    }
     if (!projectHostSetupCompatibilityStateEqual(result, projectHostSetupCompatibility)) {
       this.loadNeedsSave = true
     }
@@ -4353,6 +4420,29 @@ export class Store {
         project.localWindowsRuntimePreference = normalizeProjectRuntimePreference(
           updates.localWindowsRuntimePreference
         )
+      }
+    }
+    if ('herdrSessionName' in updates) {
+      const sessionName = normalizeHerdrSessionName(updates.herdrSessionName)
+      if (!sessionName) {
+        delete project.herdrSessionName
+      } else {
+        project.herdrSessionName = sessionName
+      }
+    }
+    if ('terminalBackendPreference' in updates) {
+      const preference = updates.terminalBackendPreference
+      if (!preference) {
+        delete project.terminalBackendPreference
+      } else {
+        project.terminalBackendPreference = preference
+      }
+    }
+    if ('terminalBackendByHost' in updates) {
+      if (!updates.terminalBackendByHost) {
+        delete project.terminalBackendByHost
+      } else {
+        project.terminalBackendByHost = structuredClone(updates.terminalBackendByHost)
       }
     }
     project.updatedAt = Date.now()
@@ -6001,6 +6091,10 @@ export class Store {
           { preserveExplicitValue: true }
         )
       )
+    }
+    if ('herdrSessionName' in updates) {
+      // Empty/whitespace clears the shared name, reverting to per-project derived sessions.
+      sanitizedUpdates.herdrSessionName = normalizeHerdrSessionName(updates.herdrSessionName)
     }
     if ('terminalScrollbackRows' in updates) {
       sanitizedUpdates.terminalScrollbackRows = normalizeDesktopTerminalScrollbackRows(

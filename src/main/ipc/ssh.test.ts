@@ -75,6 +75,7 @@ const {
     attach: vi.fn(),
     attachForReconnect: vi.fn().mockResolvedValue({}),
     shutdown: vi.fn(),
+    dispose: vi.fn(),
     providerGeneration: 0
   },
   mockFsProvider: {},
@@ -166,6 +167,10 @@ vi.mock('../ssh/ssh-connection-manager', () => ({
 
 vi.mock('../ssh/ssh-relay-deploy', () => ({
   deployAndLaunchRelay: mockDeployAndLaunchRelay
+}))
+
+vi.mock('../providers/multiplexer/herdr/herdr-provider-factory', () => ({
+  createSshHerdrPtyProvider: (fallback: unknown) => fallback
 }))
 
 vi.mock('../ssh/ssh-relay-reset', () => ({
@@ -311,7 +316,12 @@ describe('SSH IPC handlers', () => {
     markSshRemotePtyLeasesAsync: vi.fn(),
     markSshRemotePtyLeasesForShutdown: vi.fn(),
     markSshRemotePtyLeasesAttachedAsync: vi.fn(),
-    removeSshRemotePtyLeases: vi.fn()
+    removeSshRemotePtyLeases: vi.fn(),
+    getSettings: vi.fn().mockReturnValue({
+      herdrBinarySource: { kind: 'system' },
+      hostSettingOverrides: {},
+      herdrSessionName: undefined as string | undefined
+    })
   }
   const mockWindow = {
     isDestroyed: () => false,

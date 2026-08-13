@@ -125,6 +125,7 @@ inline src/main/providers/local-pty-provider.test.ts
 inline src/main/providers/local-pty-provider.ts
 inline src/main/providers/local-pty-shell-ready.test.ts
 inline src/main/providers/local-pty-shell-ready.ts
+inline src/main/providers/multiplexer/herdr/herdr-daemon-class.ts
 inline src/main/providers/ssh-git-provider.test.ts
 inline src/main/providers/ssh-git-provider.ts
 inline src/main/rate-limits/claude-fetcher.test.ts

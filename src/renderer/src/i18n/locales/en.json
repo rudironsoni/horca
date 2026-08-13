@@ -7049,7 +7049,9 @@
           "hostStateUnknown": "Unknown",
           "nestedHostLabel": "{{value0}} via {{value1}}",
           "hostStateWorkspaceWindowClosed": "Workspace window closed",
-          "hostWorkspaceWindowClosedHelp": "The server is reachable but its Orca window is closed. Open Orca on {{value0}} to use this setup."
+          "hostWorkspaceWindowClosedHelp": "The server is reachable but its Orca window is closed. Open Orca on {{value0}} to use this setup.",
+          "terminalBackend": "Terminal backend",
+          "terminalBackendDescription": "Choose Orca or Herdr for this project."
         },
         "RepositorySourceControlAiActionRows": {
           "548a6e1281": "Command template",
@@ -10569,7 +10571,7 @@
           "allowAccess": "Allow access"
         },
         "TerminalTccAttributionNotice": {
-          "body": "The terminal daemon was started by an Orca install that no longer exists, so macOS can’t attribute its commands to Orca — Accessibility and Automation grants are silently ignored (osascript fails with error -25211). Restarting the daemon fixes this; running terminal sessions will close.",
+          "body": "The terminal daemon was started by an Orca install that no longer exists, so macOS can't attribute its commands to Orca — Accessibility and Automation grants are silently ignored (osascript fails with error -25211). Restarting the daemon fixes this; running terminal sessions will close.",
           "openManageSessions": "Open Manage Sessions",
           "title": "macOS permission grants aren’t reaching terminals"
         },
@@ -10698,6 +10700,44 @@
           "title": "New terminals aren’t being saved",
           "body": "The terminal host stopped responding. Orca kept it rather than ending anything it might still be hosting, but it can’t reach those terminals until the host responds again — reopening a pane retries, and works once it does. New terminals open outside the host and close when you quit Orca. Restarting the host usually clears this, and ends every terminal — both the ones it is still holding and the ones running outside it.",
           "action": "Restart host"
+        },
+        "ProjectTerminalBackendSetting": {
+          "title": "Terminal backend",
+          "active": "Active: {{value0}}",
+          "herdr": "Herdr",
+          "orca": "Orca",
+          "preference": "Project preference",
+          "preferenceDescription": "Changing an active project requires an explicit migration. Running Orca PTYs block migration to Herdr.",
+          "aria": "Project terminal backend",
+          "inherit": "Inherit",
+          "blockedSingular": "Close the {{count}} live Orca terminal before migrating this project to Herdr.",
+          "blockedPlural": "Close the {{count}} live Orca terminals before migrating this project to Herdr."
+        },
+        "TerminalBackendSection": {
+          "title": "Terminal runtime",
+          "description": "Choose which runtime owns new project terminal sessions.",
+          "defaultBackend": "Default backend",
+          "defaultDescription": "Existing projects keep their active backend until you migrate them explicitly.",
+          "defaultAria": "Default terminal backend",
+          "orca": "Orca",
+          "herdr": "Herdr",
+          "installation": "Herdr installation",
+          "installationDescription": "From PATH resolves the stock Herdr executable on each execution host.",
+          "installationAria": "Herdr installation source",
+          "system": "From PATH",
+          "custom": "Custom",
+          "customPath": "Custom Herdr path",
+          "customPathDescription": "Absolute executable path on the execution host.",
+          "customPathAria": "Custom Herdr executable path",
+          "customPathPlaceholder": "/usr/local/bin/herdr",
+          "sessionName": "Shared Herdr session name",
+          "sessionNameDescription": "All projects without an explicit override share this stock Herdr session. Clear it to fall back to per-project sessions.",
+          "sessionNameAria": "Shared Herdr session name",
+          "sessionNamePlaceholder": "orca"
+        },
+        "terminalSearch": {
+          "runtimeTitle": "Terminal runtime",
+          "runtimeDescription": "Choose Orca or Herdr as the terminal backend."
         }
       },
       "right": {

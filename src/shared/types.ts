@@ -54,6 +54,12 @@ import type { TaskSourceContext } from './task-source-context'
 import type { SetupRunnerShell } from './setup-runner-command'
 import type { AiVaultSessionTitle } from './ai-vault-session-title'
 import type { ComputerAwakeMode } from './computer-awake-mode'
+import type {
+  HerdrBinarySource,
+  TerminalBackend,
+  TerminalBackendActivation,
+  TerminalBackendPreference
+} from './terminal-backend'
 
 // Re-exported for backward compat with renderer call sites that import
 // `WorkspaceCreateTelemetrySource` from '../../../shared/types'.
@@ -140,6 +146,12 @@ export type Project = {
   gitRemoteIdentity?: GitRemoteIdentity
   /** Local Windows projects inherit the global runtime default unless this override is set. */
   localWindowsRuntimePreference?: LocalWindowsRuntimePreference
+  /** Stable named Herdr session. Undefined derives a deterministic name from the project id. */
+  herdrSessionName?: string
+  /** Desired backend for project hosts that have not been activated yet. */
+  terminalBackendPreference?: TerminalBackendPreference
+  /** Active backend is durable per host so changing defaults cannot switch live terminals. */
+  terminalBackendByHost?: Partial<Record<ExecutionHostId, TerminalBackendActivation>>
   sourceRepoIds: string[]
   createdAt: number
   updatedAt: number
@@ -147,7 +159,12 @@ export type Project = {
 
 export type ProjectUpdateArgs = {
   projectId: string
-  updates: Partial<Pick<Project, 'localWindowsRuntimePreference'>>
+  updates: {
+    localWindowsRuntimePreference?: Project['localWindowsRuntimePreference']
+    herdrSessionName?: string | null
+    terminalBackendPreference?: TerminalBackendPreference | null
+    terminalBackendByHost?: Project['terminalBackendByHost'] | null
+  }
 }
 
 export type ProjectHostSetupState = 'ready' | 'not-set-up' | 'setting-up' | 'error' | 'unsupported'
@@ -2807,6 +2824,7 @@ export type FloatingTerminalCwdRequest = {
 export type HostSettingOverrides = {
   displayLabel?: string
   defaultWorktreeLocation?: string
+  herdrBinarySource?: HerdrBinarySource
 }
 
 /** Presentation mode for the experimental Agent Dashboard. */
@@ -2817,6 +2835,14 @@ export type GlobalSettings = {
   /** Per-host overrides keyed by ExecutionHostId. Effective value for a
    *  host-varying setting is `host override ?? client default`. */
   hostSettingOverrides?: Partial<Record<ExecutionHostId, HostSettingOverrides>>
+  /** Default for newly activated project hosts. Existing activations remain durable. */
+  terminalBackendDefault: TerminalBackend
+  herdrBinarySource: HerdrBinarySource
+  /** Shared stock herdr session name used when a project has no per-project
+   *  override. Empty/undefined falls back to a per-project derived name. */
+  herdrSessionName?: string
+  /** One-shot guard keeping pre-Herdr projects on Orca. */
+  terminalBackendActivationDefaultedToOrca?: boolean
   nestWorkspaces: boolean
   workspaceDirHistory?: OrcaWorkspaceLayout[]
   refreshLocalBaseRefOnWorktreeCreate: boolean

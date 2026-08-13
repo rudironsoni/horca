@@ -278,6 +278,7 @@ import type {
   SearchResult,
   StatsSummary,
   MemorySnapshot,
+  TerminalLayoutSnapshot,
   TuiAgent,
   ReleaseBuildListResult,
   UpdateCheckOptions,
@@ -1496,6 +1497,7 @@ export type PreloadApi = {
       // Why: main sync-flushes the (worktreeId,tabId,leafId→ptyId) binding before pty:spawn returns to close a SIGKILL race (INVESTIGATION.md).
       tabId?: string
       leafId?: string
+      terminalLayout?: TerminalLayoutSnapshot
       // Why: main fires `agent_started` only on spawn success, so launch metadata rides this field (telemetry-plan.md §Agent launch semantics).
       telemetry?: { agent_kind: AgentKind; launch_source: LaunchSource; request_kind: RequestKind }
     }) => Promise<{
