@@ -274,6 +274,8 @@ jobs:
             runs-on: macos-14
           - name: macos-x86_64
             runs-on: macos-13
+          - name: windows-x86_64
+            runs-on: windows-latest
     runs-on: ${{ matrix.runs-on }}
 
     steps:

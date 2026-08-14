@@ -1,5 +1,6 @@
 {
   "version": "0.8.0",
   "protocol": 19,
-  "schemaVersion": 1
+  "schemaVersion": 1,
+  "windowsTag": "preview-2026-08-04-d78e3d3b5126"
 }

@@ -6,6 +6,7 @@
 //
 // The version/protocol/schema pin lives in config/herdr-version.json and is
 // cross-checked against the runtime contract by herdr-version-pin.test.ts.
+import { execFileSync } from 'node:child_process'
 import { chmodSync, createWriteStream, existsSync, mkdirSync, readFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { dirname, join } from 'node:path'
@@ -23,23 +24,35 @@ function loadPin() {
   return JSON.parse(raw)
 }
 
-function assetNameForHost(version) {
+function osNameForHost() {
   const platform = process.platform
+  if (platform === 'darwin') {
+    return 'macos'
+  }
+  if (platform === 'linux') {
+    return 'linux'
+  }
+  if (platform === 'win32') {
+    return 'windows'
+  }
+  return null
+}
+
+function archNameForHost() {
   const arch = process.arch
-  const osName =
-    platform === 'darwin'
-      ? 'macos'
-      : platform === 'linux'
-        ? 'linux'
-        : platform === 'win32'
-          ? 'windows'
-          : null
-  const archName = arch === 'x64' ? 'x86_64' : arch === 'arm64' ? 'aarch64' : null
+  return arch === 'x64' ? 'x86_64' : arch === 'arm64' ? 'aarch64' : null
+}
+
+function assetNameForHost(version) {
+  const osName = osNameForHost()
+  const archName = archNameForHost()
   if (!osName || !archName) {
-    throw new Error(`No herdr ${version} asset for ${platform}/${arch}`)
+    throw new Error(`No herdr ${version} asset for ${process.platform}/${process.arch}`)
   }
   if (osName === 'windows') {
-    throw new Error('Windows herdr asset acquisition is implemented in the Windows stacked PR')
+    // Why: stable releases ship no Windows archive; the Windows binary lives in
+    // the preview build pinned by config/herdr-version.json#windowsTag.
+    return 'herdr-windows-x86_64.zip'
   }
   return `herdr-${osName}-${archName}`
 }
@@ -60,11 +73,40 @@ async function download(url, destPath) {
   return destPath
 }
 
+// Why: the Windows preview archive bundles herdr.exe with an app-local ConPTY
+// runtime. Extract it with the host's built-in tar (bsdtar handles zip on
+// Windows 10+ and macOS) so no zip dependency is introduced.
+function extractWindowsZip(zipPath, outDir) {
+  const herdrExe = join(outDir, 'herdr.exe')
+  if (existsSync(herdrExe)) {
+    return herdrExe
+  }
+  mkdirSync(outDir, { recursive: true })
+  execFileSync('tar', ['-xf', zipPath, '-C', outDir], { stdio: 'pipe' })
+  if (!existsSync(herdrExe)) {
+    throw new Error(`Extracted ${zipPath} but did not find herdr.exe`)
+  }
+  return herdrExe
+}
+
 async function main() {
   const pin = loadPin()
   const asset = assetNameForHost(pin.version)
   const cacheRoot =
     process.env.ORCA_HERDR_BINARY_CACHE ?? join(homedir(), '.cache', 'orca', 'herdr')
+
+  if (osNameForHost() === 'windows') {
+    if (!pin.windowsTag) {
+      throw new Error('config/herdr-version.json is missing windowsTag for the Windows asset')
+    }
+    const zipPath = join(cacheRoot, pin.windowsTag, asset)
+    const url = `https://github.com/${HERDR_RELEASE_REPO}/releases/download/${pin.windowsTag}/${asset}`
+    await download(url, zipPath)
+    const resolved = extractWindowsZip(zipPath, join(cacheRoot, pin.windowsTag, 'extracted'))
+    process.stdout.write(`${resolved}\n`)
+    return
+  }
+
   const destPath = join(cacheRoot, pin.version, asset)
   const url = `https://github.com/${HERDR_RELEASE_REPO}/releases/download/v${pin.version}/${asset}`
   const resolved = await download(url, destPath)
