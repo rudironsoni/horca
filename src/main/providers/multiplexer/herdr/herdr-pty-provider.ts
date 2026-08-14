@@ -61,6 +61,11 @@ export class HerdrPtyProvider implements IPtyProvider {
     (payload: PtyBackgroundStreamEvent) => void
   >()
   private readonly writeUnavailableListeners = new Set<(payload: { id: string }) => void>()
+  private readonly dataListeners = new Set<(payload: PtyDataEvent) => void>()
+  private readonly replayListeners = new Set<(payload: { id: string; data: string }) => void>()
+  private readonly exitListeners = new Set<
+    (payload: { id: string; code: number; incarnationId?: string }) => void
+  >()
 
   constructor(
     transportForTarget: (target: HerdrPtyTarget) => HerdrHostTransport,
@@ -413,18 +418,21 @@ export class HerdrPtyProvider implements IPtyProvider {
     )
   }
 
-  onData(_callback: (payload: PtyDataEvent) => void): () => void {
-    return () => {}
+  onData(callback: (payload: PtyDataEvent) => void): () => void {
+    this.dataListeners.add(callback)
+    return () => this.dataListeners.delete(callback)
   }
 
-  onReplay(_callback: (payload: { id: string; data: string }) => void): () => void {
-    return () => {}
+  onReplay(callback: (payload: { id: string; data: string }) => void): () => void {
+    this.replayListeners.add(callback)
+    return () => this.replayListeners.delete(callback)
   }
 
   onExit(
-    _callback: (payload: { id: string; code: number; incarnationId?: string }) => void
+    callback: (payload: { id: string; code: number; incarnationId?: string }) => void
   ): () => void {
-    return () => {}
+    this.exitListeners.add(callback)
+    return () => this.exitListeners.delete(callback)
   }
 
   private runtimeFor(target: HerdrPtyTarget) {
@@ -450,11 +458,25 @@ export class HerdrPtyProvider implements IPtyProvider {
     releaseBinding(binding, this.bindings)
   }
 
-  private emitData(_payload: PtyDataEvent): void {}
+  private emitData(payload: PtyDataEvent): void {
+    for (const listener of this.dataListeners) {
+      listener(payload)
+    }
+  }
 
-  private emitExit(_payload: { id: string; code: number; incarnationId?: string }): void {}
+  private emitExit(payload: { id: string; code: number; incarnationId?: string }): void {
+    const incarnationId = payload.incarnationId ?? this.bindings.get(payload.id)?.incarnationId
+    const event = incarnationId ? { ...payload, incarnationId } : payload
+    for (const listener of this.exitListeners) {
+      listener(event)
+    }
+  }
 
-  private emitReplay(_payload: { id: string; data: string }): void {}
+  private emitReplay(payload: { id: string; data: string }): void {
+    for (const listener of this.replayListeners) {
+      listener(payload)
+    }
+  }
 
   advanceGeneration(): number {
     return 0

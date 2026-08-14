@@ -1,7 +1,8 @@
+import { createHash } from 'node:crypto'
 import { EventEmitter } from 'node:events'
 import { createServer, connect, type Socket, type Server } from 'node:net'
 import type { Duplex } from 'node:stream'
-import { homedir } from 'node:os'
+import { homedir, tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { platform } from 'node:process'
 import { HerdrRuntimeError } from './herdr-runtime-contract'
@@ -32,12 +33,22 @@ type PendingRequest = {
 const SOCKET_NAME = 'herdr-daemon'
 const REQUEST_TIMEOUT_MS = 30_000
 
+// Why: macOS/BSD reject unix socket paths longer than the ~104-byte sun_path
+// limit with EINVAL. A deep HOME (isolated e2e profiles, long usernames) can
+// exceed it, so getDefaultSocketPath falls back to a short hashed tmpdir path.
+const SOCKET_PATH_LIMIT = 104
+
 export function getDefaultSocketPath(): string {
   if (platform === 'win32') {
     return `\\\\.\\pipe\\${SOCKET_NAME}`
   }
   const runtimeDir = process.env.XDG_RUNTIME_DIR ?? join(homedir(), '.local', 'share', 'orca')
-  return join(runtimeDir, `${SOCKET_NAME}.sock`)
+  const socketPath = join(runtimeDir, `${SOCKET_NAME}.sock`)
+  if (Buffer.byteLength(socketPath) <= SOCKET_PATH_LIMIT) {
+    return socketPath
+  }
+  const digest = createHash('sha256').update(socketPath).digest('hex').slice(0, 16)
+  return join(tmpdir(), `orca-herdr-${digest}.sock`)
 }
 
 type ServerClient = {

@@ -56,17 +56,32 @@ export async function waitForFirstHerdrFrame(
         const data = decodeFrame(frame)
         binding.cols = frame.width
         binding.rows = frame.height
-        binding.snapshot = frame.full ? data : `${binding.snapshot}${data}`
-        if (!frame.full && binding.snapshot.length > TERMINAL_SCROLLBACK_REPLAY_BYTE_LIMIT) {
-          binding.snapshot = binding.snapshot.slice(
-            binding.snapshot.length - TERMINAL_SCROLLBACK_REPLAY_BYTE_LIMIT
-          )
-        }
         if (first) {
           first = false
           clearTimeout(timeout)
+          binding.snapshot = data
           resolve({ frame, data })
           return
+        }
+        if (frame.full) {
+          // Why: the synthesized frame stream delivers full snapshots (pane.read
+          // windows), not deltas. Emit only the appended tail so the renderer
+          // does not re-render the whole window on every poll.
+          const previous = binding.snapshot
+          binding.snapshot = data
+          const delta = previous && data.startsWith(previous) ? data.slice(previous.length) : data
+          if (!delta) {
+            return
+          }
+          binding.sequenceChars += delta.length
+          callbacks.emitData({ id: binding.id, data: delta, sequenceChars: binding.sequenceChars })
+          return
+        }
+        binding.snapshot = `${binding.snapshot}${data}`
+        if (binding.snapshot.length > TERMINAL_SCROLLBACK_REPLAY_BYTE_LIMIT) {
+          binding.snapshot = binding.snapshot.slice(
+            binding.snapshot.length - TERMINAL_SCROLLBACK_REPLAY_BYTE_LIMIT
+          )
         }
         binding.sequenceChars += data.length
         callbacks.emitData({ id: binding.id, data, sequenceChars: binding.sequenceChars })
