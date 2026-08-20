@@ -1,0 +1,49 @@
+# Fork-only workflow: keeps rudironsoni/orca:upstream-main an exact,
+# fast-forward-only mirror of stablyai/orca:main. Never force-pushes;
+# if upstream rewrites history the job fails loudly instead.
+name: Sync upstream-main mirror
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Hourly, off minute 0 to avoid GitHub cron scheduling contention.
+    - cron: "17 * * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-upstream-main
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    # Guard so the workflow is inert anywhere but this fork.
+    if: github.repository == 'rudironsoni/orca'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out upstream-main
+        uses: actions/checkout@v4
+        with:
+          ref: upstream-main
+          # Full commit graph for the ancestry check; blobless keeps the
+          # hourly checkout of this ~230 MB repo fast.
+          fetch-depth: 0
+          filter: blob:none
+
+      - name: Fetch upstream main
+        run: |
+          git remote add upstream https://github.com/stablyai/orca.git
+          git fetch --no-tags upstream main
+
+      - name: Verify fast-forward
+        run: |
+          if ! git merge-base --is-ancestor HEAD upstream/main; then
+            echo "::error::upstream-main is no longer a fast-forward of stablyai/orca:main." \
+              "Either upstream rewrote history or fork-specific commits landed on upstream-main." \
+              "Refusing to force-push; resolve manually (see docs/FORK_MAINTENANCE.md)."
+            exit 1
+          fi
+
+      - name: Push mirror (fast-forward only)
+        run: git push origin refs/remotes/upstream/main:refs/heads/upstream-main
