@@ -28,7 +28,12 @@ jobs:
       - name: Checkout personal main
         uses: actions/checkout@v6
         with:
-          fetch-depth: 1
+          # Why full history: a shallow (depth-1) clone pushes only the tip
+          # object, so the fork's receive side cannot connect the new tip to
+          # the current mirror and rejects the update as non-fast-forward
+          # (run 32399492042). blob:none keeps the fetch cheap; pushes only
+          # need commits and trees plus the new delta fetched from upstream.
+          fetch-depth: 0
           filter: blob:none
 
       - name: Fast-forward upstream-main
@@ -37,11 +42,11 @@ jobs:
           set -euo pipefail
 
           git remote add upstream https://github.com/stablyai/orca.git
-          git fetch --no-tags --depth=1 upstream main
+          git fetch --no-tags upstream main
           upstream_tip="$(git rev-parse upstream/main)"
 
           mirror_tip=""
-          if git fetch --no-tags --depth=1 origin upstream-main; then
+          if git fetch --no-tags origin upstream-main; then
             mirror_tip="$(git rev-parse origin/upstream-main)"
             if [ "$mirror_tip" = "$upstream_tip" ]; then
               echo "upstream-main already matches stablyai/orca:main ($upstream_tip)."
@@ -83,10 +88,11 @@ jobs:
             refspecs+=("${ref}:${ref}")
           done <<<"$missing"
 
-          # Why depth=1: the fork shares upstream's object network, so the push
-          # only needs each tag's tip — the same mechanics the branch sync above
-          # relies on. A rejected push fails the job; nothing is forced.
-          git fetch --no-tags --depth=1 "$upstream_url" "${refspecs[@]}"
+          # Why no depth limit: the push must carry every object the fork is
+          # missing (e.g. release-branch commits behind a tag), or the server
+          # rejects it for broken connectivity. The full local history plus
+          # upstream/main serve as haves, so only the tag-side delta transfers.
+          git fetch --no-tags "$upstream_url" "${refspecs[@]}"
           git push origin "${refspecs[@]}"
 
           echo "Mirrored ${#refspecs[@]} missing v* tag(s) from upstream."
