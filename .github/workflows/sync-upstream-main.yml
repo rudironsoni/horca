@@ -7,6 +7,8 @@ on:
 
 permissions:
   contents: write
+  # Why: the last step opens the upstream-main -> main merge PR.
+  pull-requests: write
 
 concurrency:
   group: sync-upstream-main
@@ -51,24 +53,41 @@ jobs:
       # Why v* only: the Skill update round trip check resolves v<appVersion>
       # tags from resources/skills/release-mapping.json and fails on a fork
       # missing them (fatal: Not a valid object name v1.4.151). mobile-* and
-      # evidence tags stay out. Only tags absent from origin are pushed —
-      # never forced, never deleted — so an existing divergent tag is left
-      # alone. GITHUB_TOKEN pushes cannot trigger other workflows, so the
-      # tag-triggered release workflows never fire from this mirror step.
+      # evidence tags stay out. Tags present on both remotes must point at the
+      # same object; a divergent tag fails the run and is never force-updated
+      # or deleted — a wrong mirror tag needs a human.
+      #
+      # Trigger audit (2026-08-20, upstream 4e058d4a5): no workflow in this
+      # repo triggers on v* tag pushes — the only push.tags consumers are
+      # mobile-ios-v* and mobile-android-v*, which the v* refspec filter never
+      # matches. GITHUB_TOKEN pushes cannot trigger workflows at all, but a
+      # configured UPSTREAM_SYNC_TOKEN PAT can, so re-run this audit before
+      # adding any tag-triggered workflow.
       - name: Mirror upstream release tags
         shell: bash
         run: |
           set -euo pipefail
+          export LC_ALL=C
 
           upstream_url="https://github.com/stablyai/orca.git"
 
           list_v_tags() {
-            git ls-remote --tags "$1" 'refs/tags/v*' | awk '$2 !~ /\^\{\}$/ { print $2 }' | sort
+            git ls-remote --tags "$1" 'refs/tags/v*' | awk '$2 !~ /\^\{\}$/ { print $2 " " $1 }' | sort
           }
 
-          missing="$(comm -13 <(list_v_tags origin) <(list_v_tags "$upstream_url"))"
+          list_v_tags origin > "$RUNNER_TEMP/origin-tags"
+          list_v_tags "$upstream_url" > "$RUNNER_TEMP/upstream-tags"
+
+          divergent="$(join "$RUNNER_TEMP/origin-tags" "$RUNNER_TEMP/upstream-tags" | awk '$2 != $3 { print $1 " origin=" $2 " upstream=" $3 }')"
+          if [ -n "$divergent" ]; then
+            echo "$divergent"
+            echo "::error title=Tag mirror divergence::The v* tags above exist on both remotes with different objects. Refusing to overwrite; inspect and fix manually."
+            exit 1
+          fi
+
+          missing="$(comm -13 <(awk '{ print $1 }' "$RUNNER_TEMP/origin-tags") <(awk '{ print $1 }' "$RUNNER_TEMP/upstream-tags"))"
           if [ -z "$missing" ]; then
-            echo "All upstream v* tags already exist on origin."
+            echo "All upstream v* tags already exist on origin and match by object id."
             exit 0
           fi
 
@@ -86,3 +105,35 @@ jobs:
           git push origin "${refspecs[@]}"
 
           echo "Mirrored ${#refspecs[@]} missing v* tag(s) from upstream."
+
+      # Why: main takes upstream through merge commits, never rebases
+      # (docs/FORK_MAINTENANCE.md — a rebase already deleted fork work once).
+      # Opening the PR here makes the merge path the default and lets CI and
+      # conflicts surface before anything lands. Merging stays manual, and an
+      # existing open PR follows upstream-main automatically. Caveat: PRs
+      # created by the default token get no PR CI; set UPSTREAM_SYNC_TOKEN
+      # (PAT with pull-requests write) so checks run on the merge PR.
+      - name: Open upstream merge PR when the mirror is ahead of main
+        env:
+          GH_TOKEN: ${{ secrets.UPSTREAM_SYNC_TOKEN || github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          git fetch --no-tags origin main upstream-main
+          ahead="$(git rev-list --count origin/main..origin/upstream-main)"
+          if [ "$ahead" -eq 0 ]; then
+            echo "main already contains upstream-main."
+            exit 0
+          fi
+
+          existing="$(gh pr list --repo "$GITHUB_REPOSITORY" --head upstream-main --base main --state open --json number --jq '.[0].number // empty')"
+          if [ -n "$existing" ]; then
+            echo "Merge PR #$existing is already open and tracks upstream-main."
+            exit 0
+          fi
+
+          gh pr create --repo "$GITHUB_REPOSITORY" \
+            --head upstream-main --base main \
+            --title "chore: merge upstream-main into main" \
+            --body "Automated by Sync Upstream Main: upstream-main is ${ahead} commit(s) ahead of main. Merge with a merge commit after CI passes. Never rebase or force-push main (docs/FORK_MAINTENANCE.md)."
