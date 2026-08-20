@@ -1,5 +1,9 @@
 name: Sync Upstream Main
 
+# Why: keep rudironsoni/orca:upstream-main a SHA-identical mirror of
+# stablyai/orca:main. A rejected push is the signal that history diverged;
+# never force-update the mirror.
+
 on:
   workflow_dispatch:
   schedule:
@@ -20,23 +24,30 @@ jobs:
       - name: Checkout personal main
         uses: actions/checkout@v6
         with:
-          fetch-depth: 0
+          fetch-depth: 1
+          filter: blob:none
 
-      - name: Fast-forward upstream mirror
+      - name: Fast-forward upstream-main
         shell: bash
         run: |
           set -euo pipefail
 
-          git fetch --no-tags origin upstream-main
-          mirror_tip="$(git rev-parse FETCH_HEAD)"
-
           git remote add upstream https://github.com/stablyai/orca.git
-          git fetch --no-tags upstream main
-          upstream_tip="$(git rev-parse FETCH_HEAD)"
+          git fetch --no-tags --depth=1 upstream main
+          upstream_tip="$(git rev-parse upstream/main)"
 
-          if ! git merge-base --is-ancestor "$mirror_tip" "$upstream_tip"; then
-            echo "::error title=Upstream mirror diverged::upstream-main ($mirror_tip) cannot fast-forward to upstream main ($upstream_tip). Refusing to rewrite history."
+          mirror_tip=""
+          if git fetch --no-tags --depth=1 origin upstream-main; then
+            mirror_tip="$(git rev-parse origin/upstream-main)"
+            if [ "$mirror_tip" = "$upstream_tip" ]; then
+              echo "upstream-main already matches stablyai/orca:main ($upstream_tip)."
+              exit 0
+            fi
+          fi
+
+          if ! git push origin "${upstream_tip}:refs/heads/upstream-main"; then
+            echo "::error title=Upstream mirror is not a fast-forward::rudironsoni/orca:upstream-main${mirror_tip:+ ($mirror_tip)} is no longer a fast-forward of stablyai/orca:main ($upstream_tip). The mirror was not updated. Do not force-push; inspect both branches before deciding how to recover."
             exit 1
           fi
 
-          git push origin "$upstream_tip:refs/heads/upstream-main"
+          echo "Updated upstream-main to $upstream_tip."
