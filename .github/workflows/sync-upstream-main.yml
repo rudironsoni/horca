@@ -3,6 +3,10 @@ name: Sync Upstream Main
 # Why: keep rudironsoni/orca:upstream-main a SHA-identical mirror of
 # stablyai/orca:main. A rejected push is the signal that history diverged;
 # never force-update the mirror.
+#
+# Also mirrors upstream's desktop release tags (refs/tags/v*): the Skill
+# update round trip check resolves v<appVersion> tags from
+# resources/skills/release-mapping.json and fails on a fork missing them.
 
 on:
   workflow_dispatch:
@@ -51,3 +55,38 @@ jobs:
           fi
 
           echo "Updated upstream-main to $upstream_tip."
+
+      # Why v* only: desktop release tags are what release-mapping.json needs;
+      # mobile-* and evidence tags stay out. Only tags absent from origin are
+      # pushed — never forced, never deleted — so an existing divergent tag is
+      # left alone. GITHUB_TOKEN pushes cannot trigger other workflows, so the
+      # tag-triggered release workflows never fire from this mirror step.
+      - name: Mirror upstream release tags
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          upstream_url="https://github.com/stablyai/orca.git"
+
+          list_v_tags() {
+            git ls-remote --tags "$1" 'refs/tags/v*' | awk '$2 !~ /\^\{\}$/ { print $2 }' | sort
+          }
+
+          missing="$(comm -13 <(list_v_tags origin) <(list_v_tags "$upstream_url"))"
+          if [ -z "$missing" ]; then
+            echo "All upstream v* tags already exist on origin."
+            exit 0
+          fi
+
+          refspecs=()
+          while IFS= read -r ref; do
+            refspecs+=("${ref}:${ref}")
+          done <<<"$missing"
+
+          # Why depth=1: the fork shares upstream's object network, so the push
+          # only needs each tag's tip — the same mechanics the branch sync above
+          # relies on. A rejected push fails the job; nothing is forced.
+          git fetch --no-tags --depth=1 "$upstream_url" "${refspecs[@]}"
+          git push origin "${refspecs[@]}"
+
+          echo "Mirrored ${#refspecs[@]} missing v* tag(s) from upstream."
