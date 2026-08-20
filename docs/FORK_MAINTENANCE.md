@@ -76,14 +76,33 @@ Upstream-only workflows that need Stably secrets or write to Stably projects
 
 ## Branch protection
 
-Both long-lived branches should carry a GitHub ruleset that blocks force
-pushes ("Block force pushes") and deletion ("Restrict deletions"), and nothing
-else:
+Use active branch rulesets with no bypass actors.
 
-- `main`: prefer changes through PRs; the ruleset stops history rewrites.
-- `upstream-main`: no PR requirement — it is a machine-maintained mirror and
-  the sync workflow must keep making ordinary fast-forward pushes, which these
-  two rules do not block.
+Protect `main` with:
+
+- "Restrict deletions" and "Block force pushes".
+- "Require a pull request before merging" with zero required approvals.
+- The unique GitHub Actions `verify` status check. Do not require the branch to
+  be up to date; updating an `upstream-main -> main` PR would contaminate the
+  mirror.
+- "Require a merge type" with only "Merge" allowed. Squash and rebase merges
+  do not make the upstream commits ancestors of `main`.
+
+Leave linear history, merge queue, signed commits, deployments, branch locking,
+and update restrictions off for `main`.
+
+Protect `upstream-main` with only "Restrict deletions" and "Block force
+pushes". Do not require PRs, checks, a merge type, or update restrictions: the
+sync workflow must keep making ordinary fast-forward pushes.
+
+Keep "Always suggest updating pull request branches" off. After both rulesets
+are active, enable "Automatically delete head branches"; deletion protection
+keeps the long-lived `upstream-main` PR head intact.
+
+A human-owned PAT cannot distinguish an accidental manual fast-forward from the
+sync workflow. Such a push makes the next sync fail loudly if it diverges from
+upstream. A dedicated GitHub App plus an update restriction is optional future
+hardening.
 
 Configuring rulesets requires repository admin access (Settings → Rules →
 Rulesets), which automation tokens on this fork do not have.
@@ -117,16 +136,26 @@ inspect the branch history instead of rewriting the mirror.
 
 ## Update personal main
 
+Use the automated `upstream-main -> main` PR and select the merge-commit method
+after `verify` passes. Direct pushes, squash merges, and rebase merges into
+published `main` are not allowed.
+
+### Resolve an upstream merge conflict
+
+Do not use GitHub's conflict editor on the direct merge PR, and never merge
+`main` into `upstream-main`. Resolve on a temporary branch instead:
+
 ```bash
 git fetch origin
-git switch main
-git merge origin/upstream-main
-git push origin main
+git switch -c sync/upstream-YYYY-MM-DD origin/main
+git merge --no-ff origin/upstream-main
+# Resolve conflicts, then complete the merge commit.
+git push -u origin sync/upstream-YYYY-MM-DD
 ```
 
-Merge upstream updates into published `main`. Do not rebase or force-push this
-long-lived branch — see "Never rewrite main" above. Prefer merging through the
-automated `upstream-main -> main` PR so CI runs before the merge lands.
+Open `sync/upstream-YYYY-MM-DD -> main` and merge it after `verify` passes. The
+temporary merge commit contains the real `upstream-main` SHA as an ancestor
+without changing the mirror.
 
 ## Start fork-specific work
 
