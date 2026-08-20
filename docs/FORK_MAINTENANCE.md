@@ -6,8 +6,19 @@ This fork keeps two long-lived branches:
 - `main` is the personal distribution and may contain fork-only changes.
 
 Never commit to `upstream-main`, merge `main` into it, or use it as a development
-branch. The scheduled `Sync Upstream Main` workflow updates it every hour at
-minute 17 and can also be run manually.
+branch. The invariant is:
+
+```text
+rudironsoni/orca:upstream-main == stablyai/orca:main
+```
+
+The scheduled `Sync Upstream Main` workflow lives only on personal `main`. It
+updates the mirror every hour at minute 17 and can also be run manually. Do not
+add that workflow, or other fork-only files, to `upstream-main`.
+
+Before opening an upstream pull request, read
+[`.github/CONTRIBUTING.md`](../.github/CONTRIBUTING.md) on current
+`stablyai/orca:main`.
 
 ## Remotes
 
@@ -77,6 +88,8 @@ git fetch upstream
 git rebase upstream/main
 git push --force-with-lease
 ```
+
+Never use unrestricted `--force`.
 
 Rebasing keeps a temporary contribution focused on current upstream history.
 Merging is preferred for personal `main` because it preserves the published
