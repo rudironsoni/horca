@@ -35,6 +35,13 @@ jobs:
           # need commits and trees plus the new delta fetched from upstream.
           fetch-depth: 0
           filter: blob:none
+          # Why: GITHUB_TOKEN may not push commits whose history touches
+          # .github/workflows (run 32406389294 rejected every such tag, and a
+          # future upstream workflow change would break the branch sync the
+          # same way). Set UPSTREAM_SYNC_TOKEN to a fork-owned fine-grained
+          # PAT with contents + workflows write to lift the restriction; the
+          # default token still handles non-workflow syncs.
+          token: ${{ secrets.UPSTREAM_SYNC_TOKEN || github.token }}
 
       - name: Fast-forward upstream-main
         shell: bash
