@@ -21,6 +21,13 @@ jobs:
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          # Why: GITHUB_TOKEN may not push commits whose history touches
+          # .github/workflows (run 32406389294 rejected every such tag, and an
+          # upstream workflow change would break the branch sync the same
+          # way). Set UPSTREAM_SYNC_TOKEN to a fork-owned fine-grained PAT
+          # with contents + workflows write to lift the restriction; the
+          # default token still handles non-workflow syncs.
+          token: ${{ secrets.UPSTREAM_SYNC_TOKEN || github.token }}
 
       - name: Fast-forward upstream mirror
         shell: bash
@@ -40,3 +47,42 @@ jobs:
           fi
 
           git push origin "$upstream_tip:refs/heads/upstream-main"
+
+      # Why v* only: the Skill update round trip check resolves v<appVersion>
+      # tags from resources/skills/release-mapping.json and fails on a fork
+      # missing them (fatal: Not a valid object name v1.4.151). mobile-* and
+      # evidence tags stay out. Only tags absent from origin are pushed —
+      # never forced, never deleted — so an existing divergent tag is left
+      # alone. GITHUB_TOKEN pushes cannot trigger other workflows, so the
+      # tag-triggered release workflows never fire from this mirror step.
+      - name: Mirror upstream release tags
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          upstream_url="https://github.com/stablyai/orca.git"
+
+          list_v_tags() {
+            git ls-remote --tags "$1" 'refs/tags/v*' | awk '$2 !~ /\^\{\}$/ { print $2 }' | sort
+          }
+
+          missing="$(comm -13 <(list_v_tags origin) <(list_v_tags "$upstream_url"))"
+          if [ -z "$missing" ]; then
+            echo "All upstream v* tags already exist on origin."
+            exit 0
+          fi
+
+          refspecs=()
+          while IFS= read -r ref; do
+            refspecs+=("${ref}:${ref}")
+          done <<<"$missing"
+
+          # Why no depth limit: the push must carry every object the fork is
+          # missing (e.g. release-branch commits behind a tag), or the server
+          # rejects it for broken connectivity. The full local history plus
+          # the fetched upstream refs serve as haves, so only the tag-side
+          # delta transfers.
+          git fetch --no-tags "$upstream_url" "${refspecs[@]}"
+          git push origin "${refspecs[@]}"
+
+          echo "Mirrored ${#refspecs[@]} missing v* tag(s) from upstream."
