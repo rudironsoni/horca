@@ -71,7 +71,7 @@ export type UpdateStatus = (
       // checks straightforward.
       changelog: ChangelogData | null
     }
-  // Why updatesDisabledReason: downstream distributions (Humpback) ship without an
+  // Why updatesDisabledReason: downstream distributions (Horca) ship without an
   // in-app updater; the renderer must explain where updates come from instead of
   // implying a completed check. Optional field keeps remote wire compatibility.
   | {

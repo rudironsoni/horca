@@ -2,7 +2,7 @@
 setlocal
 set "SCRIPT_DIR=%~dp0"
 REM Why %~n0: downstream distributions ship this same shim under their own CLI
-REM name (e.g. humpback.cmd beside humpback.exe), so the native launcher name
+REM name (e.g. horca.cmd beside horca.exe), so the native launcher name
 REM derives from the shim's own basename.
 set "LAUNCHER=%SCRIPT_DIR%%~n0.exe"
 

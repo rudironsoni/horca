@@ -14,7 +14,7 @@ internal static class OrcaCliLauncher
             string resourcesDirectory = Directory.GetParent(launcherDirectory).FullName;
             string appDirectory = Directory.GetParent(resourcesDirectory).FullName;
             // Why: downstream distributions ship this launcher under their own CLI
-            // name beside a matching app executable (humpback.exe -> Humpback.exe);
+            // name beside a matching app executable (horca.exe -> Horca.exe);
             // Windows path lookup is case-insensitive, so the launcher's own
             // basename resolves the right app for every distribution.
             string launcherBaseName = Path.GetFileNameWithoutExtension(launcherPath);

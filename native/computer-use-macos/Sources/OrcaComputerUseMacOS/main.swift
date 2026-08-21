@@ -4103,7 +4103,7 @@ private func isAuthorizedAgentPeer(_ pid: pid_t) -> Bool {
 // Why derived: the helper ships inside every distribution's app under the
 // bundle id "<owner app id>.computer-use" (config/scripts/build-computer-macos.mjs),
 // so the trusted owner comes from the helper's own identity — a downstream
-// build (e.g. com.rudironsoni.humpback) must authorize its own main app, never
+// build (e.g. com.rudironsoni.horca) must authorize its own main app, never
 // the other distribution's. Official Orca is the fallback for bare launches.
 private let trustedOwnerBundleId: String = {
     let helperSuffix = ".computer-use"

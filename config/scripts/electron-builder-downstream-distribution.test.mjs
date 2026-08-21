@@ -74,15 +74,15 @@ describe('electron-builder downstream distribution config', () => {
 
   it('applies the downstream identity to macOS and Windows packaging', () => {
     withDownstreamEnv((config) => {
-      expect(config.appId).toBe('com.rudironsoni.humpback')
-      expect(config.productName).toBe('Humpback')
-      expect(config.protocols).toEqual([{ name: 'Humpback', schemes: ['humpback'] }])
-      expect(config.win.executableName).toBe('Humpback')
-      expect(config.nsis.artifactName).toBe('humpback-windows-x64-setup.${ext}')
-      expect(config.dmg.artifactName).toBe('humpback-macos-${arch}.${ext}')
-      expect(JSON.stringify(config.mac.extraResources)).toContain('"to":"bin/humpback"')
-      expect(JSON.stringify(config.win.extraResources)).toContain('"to":"bin/humpback.cmd"')
-      expect(JSON.stringify(config.win.extraResources)).toContain('"to":"bin/humpback.exe"')
+      expect(config.appId).toBe('com.rudironsoni.horca')
+      expect(config.productName).toBe('Horca')
+      expect(config.protocols).toEqual([{ name: 'Horca', schemes: ['horca'] }])
+      expect(config.win.executableName).toBe('Horca')
+      expect(config.nsis.artifactName).toBe('horca-windows-x64-setup.${ext}')
+      expect(config.dmg.artifactName).toBe('horca-macos-${arch}.${ext}')
+      expect(JSON.stringify(config.mac.extraResources)).toContain('"to":"bin/horca"')
+      expect(JSON.stringify(config.win.extraResources)).toContain('"to":"bin/horca.cmd"')
+      expect(JSON.stringify(config.win.extraResources)).toContain('"to":"bin/horca.exe"')
     })
   })
 
@@ -99,19 +99,19 @@ describe('electron-builder downstream distribution config', () => {
 
   // Why: official ORCA_MAC_RELEASE builds take their version from package.json
   // (release-cut owns it) and must keep discarding ORCA_LOCAL_BUILD_VERSION,
-  // while downstream releases are versioned <upstream-core>-humpback.<N> via
+  // while downstream releases are versioned <upstream-core>-horca.<N> via
   // that same variable.
   it('honors ORCA_LOCAL_BUILD_VERSION for downstream release builds only', () => {
     withDownstreamEnv(
-      { ORCA_MAC_RELEASE: '1', ORCA_LOCAL_BUILD_VERSION: '1.4.178-humpback.1' },
+      { ORCA_MAC_RELEASE: '1', ORCA_LOCAL_BUILD_VERSION: '1.4.178-horca.1' },
       (config) => {
-        expect(config.extraMetadata).toEqual({ version: '1.4.178-humpback.1' })
+        expect(config.extraMetadata).toEqual({ version: '1.4.178-horca.1' })
         expect(config.mac.hardenedRuntime).toBe(true)
         expect(config.mac.notarize).toBe(true)
         expect(config.forceCodeSigning).toBe(true)
       }
     )
-    withEnv({ ORCA_MAC_RELEASE: '1', ORCA_LOCAL_BUILD_VERSION: '1.4.178-humpback.1' }, (config) => {
+    withEnv({ ORCA_MAC_RELEASE: '1', ORCA_LOCAL_BUILD_VERSION: '1.4.178-horca.1' }, (config) => {
       expect(config.extraMetadata).toBeUndefined()
     })
   })
@@ -121,30 +121,26 @@ describe('electron-builder downstream distribution config', () => {
   // include would make uninstalling one app destroy the other's live daemon.
   it('gives each distribution an uninstaller that only touches its own daemon host', () => {
     withDownstreamEnv((config) => {
-      expect(config.nsis.include.endsWith('daemon-host-uninstall-humpback.nsh')).toBe(true)
+      expect(config.nsis.include.endsWith('daemon-host-uninstall-horca.nsh')).toBe(true)
     })
     const officialInclude = readFileSync(
       join(process.cwd(), 'config', 'nsis', 'daemon-host-uninstall.nsh'),
       'utf8'
     )
-    const humpbackInclude = readFileSync(
-      join(process.cwd(), 'config', 'nsis', 'daemon-host-uninstall-humpback.nsh'),
+    const horcaInclude = readFileSync(
+      join(process.cwd(), 'config', 'nsis', 'daemon-host-uninstall-horca.nsh'),
       'utf8'
     )
     const official = distributionIdentities.official
-    const humpback = distributionIdentities.humpback
+    const horca = distributionIdentities.horca
     expect(officialInclude).toContain(`taskkill /F /IM ${official.windowsTerminalDaemonImageName}`)
     expect(officialInclude).toContain(
       `$LOCALAPPDATA\\${official.windowsDaemonHostRootName}\\daemon-host`
     )
-    expect(humpbackInclude).toContain(`taskkill /F /IM ${humpback.windowsTerminalDaemonImageName}`)
-    expect(humpbackInclude).toContain(
-      `$LOCALAPPDATA\\${humpback.windowsDaemonHostRootName}\\daemon-host`
-    )
-    expect(humpbackInclude).not.toContain(
-      `taskkill /F /IM ${official.windowsTerminalDaemonImageName}`
-    )
-    expect(humpbackInclude).not.toContain(
+    expect(horcaInclude).toContain(`taskkill /F /IM ${horca.windowsTerminalDaemonImageName}`)
+    expect(horcaInclude).toContain(`$LOCALAPPDATA\\${horca.windowsDaemonHostRootName}\\daemon-host`)
+    expect(horcaInclude).not.toContain(`taskkill /F /IM ${official.windowsTerminalDaemonImageName}`)
+    expect(horcaInclude).not.toContain(
       `"$LOCALAPPDATA\\${official.windowsDaemonHostRootName}\\daemon-host"`
     )
   })

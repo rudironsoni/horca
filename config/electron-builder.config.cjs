@@ -41,7 +41,7 @@ const isLinuxArm64Release = process.env.ORCA_LINUX_ARM64_RELEASE === '1'
 // unchanged.
 const isDownstreamBuild = process.env.ORCA_DOWNSTREAM_BUILD === '1'
 const distributionIdentity = require('../src/shared/distribution-identity.json')[
-  isDownstreamBuild ? 'humpback' : 'official'
+  isDownstreamBuild ? 'horca' : 'official'
 ]
 // Why downstream release builds keep ORCA_LOCAL_BUILD_VERSION: the official
 // ORCA_MAC_RELEASE path takes its version from package.json (release-cut owns
@@ -382,7 +382,7 @@ module.exports = {
   },
   nsis: {
     artifactName: isDownstreamBuild
-      ? 'humpback-windows-x64-setup.${ext}'
+      ? 'horca-windows-x64-setup.${ext}'
       : 'orca-windows-setup.${ext}',
     shortcutName: '${productName}',
     uninstallDisplayName: '${productName}',
@@ -396,7 +396,7 @@ module.exports = {
     include: resolve(
       __dirname,
       'nsis',
-      isDownstreamBuild ? 'daemon-host-uninstall-humpback.nsh' : 'daemon-host-uninstall.nsh'
+      isDownstreamBuild ? 'daemon-host-uninstall-horca.nsh' : 'daemon-host-uninstall.nsh'
     )
   },
   mac: {
@@ -487,7 +487,7 @@ module.exports = {
   // silently downgrading to ad-hoc artifacts that look shippable in CI logs.
   forceCodeSigning: isMacRelease,
   dmg: {
-    artifactName: isDownstreamBuild ? 'humpback-macos-${arch}.${ext}' : 'orca-macos-${arch}.${ext}'
+    artifactName: isDownstreamBuild ? 'horca-macos-${arch}.${ext}' : 'orca-macos-${arch}.${ext}'
   },
   linux: {
     // Why: Ubuntu desktop ships GNOME Orca as the `orca` package and /usr/bin/orca.
