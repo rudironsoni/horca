@@ -11,16 +11,16 @@
     "windowsDaemonHostRootName": "Orca",
     "windowsTerminalDaemonImageName": "orca-terminal-daemon.exe"
   },
-  "humpback": {
-    "distribution": "humpback",
-    "productName": "Humpback",
-    "appId": "com.rudironsoni.humpback",
-    "appUserModelId": "com.rudironsoni.humpback",
-    "protocol": "humpback",
-    "publicCli": "humpback",
-    "stateRootDirName": ".humpback",
+  "horca": {
+    "distribution": "horca",
+    "productName": "Horca",
+    "appId": "com.rudironsoni.horca",
+    "appUserModelId": "com.rudironsoni.horca",
+    "protocol": "horca",
+    "publicCli": "horca",
+    "stateRootDirName": ".horca",
     "updaterEnabled": false,
-    "windowsDaemonHostRootName": "Humpback",
-    "windowsTerminalDaemonImageName": "humpback-terminal-daemon.exe"
+    "windowsDaemonHostRootName": "Horca",
+    "windowsTerminalDaemonImageName": "horca-terminal-daemon.exe"
   }
 }

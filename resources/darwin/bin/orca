@@ -20,7 +20,7 @@ fi
 
 CONTENTS="$APP_PATH/Contents"
 # Why: downstream distributions ship this same launcher inside a differently
-# named bundle (e.g. Humpback.app), so the executable name must come from the
+# named bundle (e.g. Horca.app), so the executable name must come from the
 # bundle itself rather than being hardcoded.
 BUNDLE_EXECUTABLE="$(/usr/bin/defaults read "$CONTENTS/Info" CFBundleExecutable 2>/dev/null || echo "Orca")"
 ELECTRON="$CONTENTS/MacOS/$BUNDLE_EXECUTABLE"

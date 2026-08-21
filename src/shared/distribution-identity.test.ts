@@ -38,20 +38,20 @@ describe('distribution identity contract', () => {
   // a shared value would make the two installed apps collide on that OS or
   // on-disk identity (see docs/FORK_MAINTENANCE.md).
   it('gives the downstream distribution a fully distinct identity', () => {
-    expect(DISTRIBUTION_IDENTITIES.humpback).toEqual({
-      distribution: 'humpback',
-      productName: 'Humpback',
-      appId: 'com.rudironsoni.humpback',
-      appUserModelId: 'com.rudironsoni.humpback',
-      protocol: 'humpback',
-      publicCli: 'humpback',
-      stateRootDirName: '.humpback',
+    expect(DISTRIBUTION_IDENTITIES.horca).toEqual({
+      distribution: 'horca',
+      productName: 'Horca',
+      appId: 'com.rudironsoni.horca',
+      appUserModelId: 'com.rudironsoni.horca',
+      protocol: 'horca',
+      publicCli: 'horca',
+      stateRootDirName: '.horca',
       updaterEnabled: false,
-      windowsDaemonHostRootName: 'Humpback',
-      windowsTerminalDaemonImageName: 'humpback-terminal-daemon.exe'
+      windowsDaemonHostRootName: 'Horca',
+      windowsTerminalDaemonImageName: 'horca-terminal-daemon.exe'
     })
     const official = DISTRIBUTION_IDENTITIES.official
-    const humpback = DISTRIBUTION_IDENTITIES.humpback
+    const horca = DISTRIBUTION_IDENTITIES.horca
     for (const key of [
       'productName',
       'appId',
@@ -62,9 +62,7 @@ describe('distribution identity contract', () => {
       'windowsDaemonHostRootName',
       'windowsTerminalDaemonImageName'
     ] as const) {
-      expect(humpback[key], `humpback ${key} must not collide with official`).not.toBe(
-        official[key]
-      )
+      expect(horca[key], `horca ${key} must not collide with official`).not.toBe(official[key])
     }
   })
 
@@ -89,8 +87,8 @@ describe('distribution identity contract', () => {
   })
 
   it('honors the test override used where the define pass is skipped', () => {
-    globalWithOverride.ORCA_DISTRIBUTION = 'humpback'
-    expect(getActiveDistribution()).toBe('humpback')
-    expect(getDistributionIdentity()).toBe(DISTRIBUTION_IDENTITIES.humpback)
+    globalWithOverride.ORCA_DISTRIBUTION = 'horca'
+    expect(getActiveDistribution()).toBe('horca')
+    expect(getDistributionIdentity()).toBe(DISTRIBUTION_IDENTITIES.horca)
   })
 })

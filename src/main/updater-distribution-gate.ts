@@ -2,7 +2,7 @@ import type { UpdateStatus } from '../shared/update-status-types'
 import { getDistributionIdentity } from '../shared/distribution-identity'
 
 /**
- * The single update-capability gate for downstream distributions (Humpback).
+ * The single update-capability gate for downstream distributions (Horca).
  * When the active distribution disables the updater, no updater path may
  * contact the official Orca release feed, onorca.dev nudge/changelog services,
  * or the electron-updater machinery — updates ship via Homebrew/GitHub

@@ -8,7 +8,7 @@ const repoRoot = path.resolve(import.meta.dirname, '../..')
 // Why distribution-scoped: the helper .app carries its own TCC identity, so
 // side-by-side distributions need distinct helper bundle ids and names.
 const distributionIdentity = require('../../src/shared/distribution-identity.json')[
-  process.env.ORCA_DOWNSTREAM_BUILD === '1' ? 'humpback' : 'official'
+  process.env.ORCA_DOWNSTREAM_BUILD === '1' ? 'horca' : 'official'
 ]
 const packagePath = path.join(repoRoot, 'native', 'computer-use-macos')
 const binaryPath = path.join(packagePath, '.build', 'release', 'orca-computer-use-macos')

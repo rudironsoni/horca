@@ -62,7 +62,7 @@ const ORCA_DIAGNOSTICS_TOKEN_URL_LITERAL =
 // src/shared/distribution-identity.json. Official builds and every other path
 // substitute 'official', leaving upstream behavior unchanged.
 const ORCA_DISTRIBUTION_LITERAL = JSON.stringify(
-  process.env.ORCA_DOWNSTREAM_BUILD === '1' ? 'humpback' : 'official'
+  process.env.ORCA_DOWNSTREAM_BUILD === '1' ? 'horca' : 'official'
 )
 
 function createStartupDiagnosticsBanner(chunkName: string): string {

@@ -13,13 +13,13 @@
  * `distribution-identity.test.ts` keeps the two in sync.
  *
  * The active distribution is selected at compile time: electron-vite
- * substitutes `ORCA_DISTRIBUTION` ('humpback' when ORCA_DOWNSTREAM_BUILD=1 is
+ * substitutes `ORCA_DISTRIBUTION` ('horca' when ORCA_DOWNSTREAM_BUILD=1 is
  * set at build time, 'official' otherwise). Vitest and tsc-compiled entry
  * points skip the define pass, so those fall back to a
  * `globalThis.ORCA_DISTRIBUTION` override, then 'official'.
  */
 
-export type OrcaDistribution = 'official' | 'humpback'
+export type OrcaDistribution = 'official' | 'horca'
 
 export type DistributionIdentity = {
   distribution: OrcaDistribution
@@ -49,17 +49,17 @@ export const DISTRIBUTION_IDENTITIES: Record<OrcaDistribution, DistributionIdent
     windowsDaemonHostRootName: 'Orca',
     windowsTerminalDaemonImageName: 'orca-terminal-daemon.exe'
   },
-  humpback: {
-    distribution: 'humpback',
-    productName: 'Humpback',
-    appId: 'com.rudironsoni.humpback',
-    appUserModelId: 'com.rudironsoni.humpback',
-    protocol: 'humpback',
-    publicCli: 'humpback',
-    stateRootDirName: '.humpback',
+  horca: {
+    distribution: 'horca',
+    productName: 'Horca',
+    appId: 'com.rudironsoni.horca',
+    appUserModelId: 'com.rudironsoni.horca',
+    protocol: 'horca',
+    publicCli: 'horca',
+    stateRootDirName: '.horca',
     updaterEnabled: false,
-    windowsDaemonHostRootName: 'Humpback',
-    windowsTerminalDaemonImageName: 'humpback-terminal-daemon.exe'
+    windowsDaemonHostRootName: 'Horca',
+    windowsTerminalDaemonImageName: 'horca-terminal-daemon.exe'
   }
 }
 

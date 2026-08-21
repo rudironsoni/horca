@@ -35,7 +35,7 @@ const distributionIdentities = JSON.parse(
   readFileSync(path.join(repoRoot, 'src', 'shared', 'distribution-identity.json'), 'utf8')
 )
 const defaultBundleId =
-  distributionIdentities[process.env.ORCA_DOWNSTREAM_BUILD === '1' ? 'humpback' : 'official'].appId
+  distributionIdentities[process.env.ORCA_DOWNSTREAM_BUILD === '1' ? 'horca' : 'official'].appId
 
 const args = process.argv.slice(2)
 const bundleId = readArg('--bundle-id') ?? defaultBundleId

@@ -1,13 +1,13 @@
 # Fork maintenance
 
-This fork ships a personal downstream distribution named **Humpback** —
+This fork ships a personal downstream distribution named **Horca** —
 side-by-side installable with official Orca on macOS and Windows, built from
 this repository's `main` when `ORCA_DOWNSTREAM_BUILD=1` is set at build time.
 The identity contract, state isolation rules, updater gating, and
 official-service audit live in
-[`reference/humpback-distribution.md`](./reference/humpback-distribution.md).
-Humpback releases (tagged `v<upstream-core>-humpback.<N>`) live only in
-`rudironsoni/orca-builds`; never create Humpback tags — or plain `vX.Y.Z`
+[`reference/horca-distribution.md`](./reference/horca-distribution.md).
+Horca releases (tagged `v<upstream-core>-horca.<N>`) live only in
+`rudironsoni/orca-builds`; never create Horca tags — or plain `vX.Y.Z`
 tags, which belong to the mirrored upstream namespace — on this repository.
 
 This fork keeps two long-lived branches:

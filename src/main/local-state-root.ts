@@ -4,7 +4,7 @@ import { getDistributionIdentity } from '../shared/distribution-identity'
 
 /**
  * Root directory for distribution-owned local application state:
- * official -> ~/.orca, humpback -> ~/.humpback.
+ * official -> ~/.orca, horca -> ~/.horca.
  *
  * Side-by-side installs must never share state that either app writes for
  * itself — credential stores and safeStorage-encrypted files especially, since

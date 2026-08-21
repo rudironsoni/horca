@@ -39,13 +39,13 @@ describe('updater distribution gate', () => {
   })
 
   it('downstream builds disable the in-app updater capability', async () => {
-    vi.stubGlobal('ORCA_DISTRIBUTION', 'humpback')
+    vi.stubGlobal('ORCA_DISTRIBUTION', 'horca')
     const { isInAppUpdaterEnabled } = await import('./updater-distribution-gate')
     expect(isInAppUpdaterEnabled()).toBe(false)
   })
 
   it('downstream setup never touches feeds, handlers, nudge polling, or scheduled checks', async () => {
-    vi.stubGlobal('ORCA_DISTRIBUTION', 'humpback')
+    vi.stubGlobal('ORCA_DISTRIBUTION', 'horca')
     const send = vi.fn()
 
     const { setupAutoUpdater, getUpdateStatus } = await import('./updater')
@@ -61,7 +61,7 @@ describe('updater distribution gate', () => {
   })
 
   it('downstream manual check reports the explanatory status without contacting any feed', async () => {
-    vi.stubGlobal('ORCA_DISTRIBUTION', 'humpback')
+    vi.stubGlobal('ORCA_DISTRIBUTION', 'horca')
     const send = vi.fn()
 
     const { setupAutoUpdater, checkForUpdatesFromMenu } = await import('./updater')
@@ -82,7 +82,7 @@ describe('updater distribution gate', () => {
   })
 
   it('downstream remote server update support degrades to updater-unavailable', async () => {
-    vi.stubGlobal('ORCA_DISTRIBUTION', 'humpback')
+    vi.stubGlobal('ORCA_DISTRIBUTION', 'horca')
     const send = vi.fn()
 
     const { setupAutoUpdater, getRemoteServerUpdateSupport } = await import('./updater')
@@ -96,7 +96,7 @@ describe('updater distribution gate', () => {
   })
 
   it('downstream release picker refuses to list official builds', async () => {
-    vi.stubGlobal('ORCA_DISTRIBUTION', 'humpback')
+    vi.stubGlobal('ORCA_DISTRIBUTION', 'horca')
 
     const { listAvailableReleaseBuilds } = await import('./updater')
 
