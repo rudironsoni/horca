@@ -75,7 +75,7 @@
     "openOrca": "Abrir Orca",
     "quit": "Salir",
     "minimizeNotice": {
-      "body": "Orca sigue ejecutándose en la bandeja del sistema"
+      "body": "{{appName}} sigue ejecutándose en la bandeja del sistema"
     },
     "activityWaiting": "Orca: actividad en espera",
     "activityWaitingSuffix": "activity waiting"

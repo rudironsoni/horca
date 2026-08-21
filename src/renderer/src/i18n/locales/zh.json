@@ -75,7 +75,7 @@
     "openOrca": "打开 Orca",
     "quit": "退出",
     "minimizeNotice": {
-      "body": "Orca 仍在系统托盘中运行"
+      "body": "{{appName}} 仍在系统托盘中运行"
     },
     "activityWaiting": "Orca - 活动等待中",
     "activityWaitingSuffix": "等待活动"

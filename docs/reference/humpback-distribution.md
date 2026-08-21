@@ -69,13 +69,26 @@ protocol REGISTRATION is per-distribution.
 
 **Windows collision audit:** executable name, installer/uninstaller identity,
 AppUserModelID, protocol registration, CLI shim (`humpback.cmd` +
-`humpback.exe` launcher resolving the app by its own basename), appData, and
-the relocated daemon host (dir + image name + per-distribution NSIS uninstall
-include `config/nsis/daemon-host-uninstall-humpback.nsh`) are all
-distribution-scoped. The daemon named pipe embeds a hash of the
-`userData`-scoped runtime dir, so pipes never collide. `ORCA_CLI_COMMAND` (an
-orchestration hint constrained to `orca`/`orca-ide`) is intentionally
-unchanged; it is agent-facing guidance, not an OS identity.
+`humpback.exe` launcher resolving the app by its own basename), appData, the
+relocated daemon host (dir + image name + per-distribution NSIS uninstall
+include `config/nsis/daemon-host-uninstall-humpback.nsh`), the mobile-pairing
+firewall rule (`Humpback.MobilePairing` — a shared name would let one app's
+repair delete the other's rule), and the non-ASCII-path speech-model cache
+under `%ProgramData%\<productName>` are all distribution-scoped. The daemon
+named pipe embeds a hash of the `userData`-scoped runtime dir, so pipes never
+collide. `ORCA_CLI_COMMAND` (an orchestration hint constrained to
+`orca`/`orca-ide`) is intentionally unchanged; it is agent-facing guidance,
+not an OS identity.
+
+**macOS helper identity:** the Computer Use helper's peer-trust check derives
+its owner from the helper's own bundle id (`<appId>.computer-use` →
+`<appId>`), so each distribution's helper authorizes only its own main app.
+The `orca-notification-status` helper embeds the distribution's appId as its
+`CFBundleIdentifier` (macOS keys notification records to it); the build
+script defaults from `ORCA_DOWNSTREAM_BUILD` like electron-builder does.
+Remaining host-scoped remote roots (`~/.orca-remote`, `~/.orca-relay`,
+`~/.orca-wsl`) are versioned/instance-keyed wire contracts shared across
+client instances by design and stay unchanged.
 
 ## Updater
 
