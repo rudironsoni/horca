@@ -71,7 +71,14 @@ export type UpdateStatus = (
       // checks straightforward.
       changelog: ChangelogData | null
     }
-  | { state: 'not-available'; userInitiated?: boolean }
+  // Why updatesDisabledReason: downstream distributions (Humpback) ship without an
+  // in-app updater; the renderer must explain where updates come from instead of
+  // implying a completed check. Optional field keeps remote wire compatibility.
+  | {
+      state: 'not-available'
+      userInitiated?: boolean
+      updatesDisabledReason?: 'downstream-distribution'
+    }
   | { state: 'downloading'; percent: number; version: string; activeNudgeId?: string }
   | { state: 'downloaded'; version: string; releaseUrl?: string; activeNudgeId?: string }
   | {

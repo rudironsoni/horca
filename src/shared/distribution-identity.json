@@ -1,0 +1,26 @@
+{
+  "official": {
+    "distribution": "official",
+    "productName": "Orca",
+    "appId": "com.stablyai.orca",
+    "appUserModelId": "com.stablyai.orca",
+    "protocol": "orca",
+    "publicCli": "orca",
+    "stateRootDirName": ".orca",
+    "updaterEnabled": true,
+    "windowsDaemonHostRootName": "Orca",
+    "windowsTerminalDaemonImageName": "orca-terminal-daemon.exe"
+  },
+  "humpback": {
+    "distribution": "humpback",
+    "productName": "Humpback",
+    "appId": "com.rudironsoni.humpback",
+    "appUserModelId": "com.rudironsoni.humpback",
+    "protocol": "humpback",
+    "publicCli": "humpback",
+    "stateRootDirName": ".humpback",
+    "updaterEnabled": false,
+    "windowsDaemonHostRootName": "Humpback",
+    "windowsTerminalDaemonImageName": "humpback-terminal-daemon.exe"
+  }
+}

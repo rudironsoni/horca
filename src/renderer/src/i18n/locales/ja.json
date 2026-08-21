@@ -75,7 +75,7 @@
     "openOrca": "Orca を開く",
     "quit": "終了",
     "minimizeNotice": {
-      "body": "Orca はシステムトレイで実行中です"
+      "body": "{{appName}} はシステムトレイで実行中です"
     },
     "activityWaiting": "Orca - アクティビティ待機中",
     "activityWaitingSuffix": "件のアクティビティが待機中"
