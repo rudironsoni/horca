@@ -68,15 +68,25 @@ runs hourly at minute 17 (plus manual dispatch) and does three things:
    Tags present in both repositories are compared by object id: a divergent tag
    fails the run loudly and is never overwritten.
 3. Opens an `upstream-main -> main` merge PR when the mirror is ahead of
-   `main`. The PR is never merged automatically; let CI run and merge it with a
-   merge commit.
+   `main`. `Merge upstream sync PR` merges it with a merge commit after the
+   required `PR Checks / verify` result succeeds.
+
+The merge workflow runs when `PR Checks` completes and reconciles open sync PRs
+hourly at minute 37. The reconciliation path picks up an already-green PR when
+the workflow is first installed or an event is missed. It revalidates the
+repository, same-repository `upstream-main -> main` refs, exact head SHA,
+successful `verify` result, and mergeability immediately before merging.
+Failed checks, conflicts, changed heads, and missing credentials leave the PR
+open.
 
 The workflow authenticates with `secrets.UPSTREAM_SYNC_TOKEN` when configured,
 falling back to the default Actions token. The default token cannot push tags
 whose history touches `.github/workflows` (GitHub rejects them without the
 `workflows` permission) and PRs it creates do not trigger PR CI. Configure
 `UPSTREAM_SYNC_TOKEN` as a fork-owned fine-grained PAT with contents,
-workflows, and pull-requests write on this repository to lift both limits.
+workflows, and pull-requests write on this repository to lift both limits. The
+merge workflow requires this PAT rather than falling back to `GITHUB_TOKEN`, so
+the resulting push to `main` triggers normal downstream workflows.
 
 Do not add the sync workflow, or other fork-only files, to `upstream-main`.
 
@@ -146,7 +156,7 @@ inspect the branch history instead of rewriting the mirror.
 
 ## Update personal main
 
-Use the automated `upstream-main -> main` PR and select the merge-commit method
+Use the automated `upstream-main -> main` PR; CI selects the merge-commit method
 after `verify` passes. Direct pushes, squash merges, and rebase merges into
 published `main` are not allowed.
 

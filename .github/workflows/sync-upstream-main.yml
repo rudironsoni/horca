@@ -116,8 +116,9 @@ jobs:
       # Why: main takes upstream through merge commits, never rebases
       # (docs/FORK_MAINTENANCE.md — a rebase already deleted fork work once).
       # Opening the PR here makes the merge path the default and lets CI and
-      # conflicts surface before anything lands. Merging stays manual, and an
-      # existing open PR follows upstream-main automatically. Caveat: PRs
+      # conflicts surface before anything lands. The merge workflow lands it
+      # after verify passes; an existing open PR follows upstream-main
+      # automatically. Caveat: PRs
       # created by the default token get no PR CI; set UPSTREAM_SYNC_TOKEN
       # (PAT with pull-requests write) so checks run on the merge PR.
       - name: Open upstream merge PR when the mirror is ahead of main
@@ -143,4 +144,4 @@ jobs:
           gh pr create --repo "$GITHUB_REPOSITORY" \
             --head upstream-main --base main \
             --title "chore: merge upstream-main into main" \
-            --body "Automated by Sync Upstream Main: upstream-main is ${ahead} commit(s) ahead of main. Merge with a merge commit after CI passes. Never rebase or force-push main (docs/FORK_MAINTENANCE.md)."
+            --body "Automated by Sync Upstream Main: upstream-main is ${ahead} commit(s) ahead of main. CI merges this with a merge commit after verify passes. Never rebase or force-push main (docs/FORK_MAINTENANCE.md)."
