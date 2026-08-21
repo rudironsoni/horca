@@ -17,6 +17,7 @@ import { homedir } from 'node:os'
 import { basename, dirname, isAbsolute, join, relative, resolve } from 'node:path'
 import { promisify } from 'node:util'
 import type { CliInstallMethod, CliInstallStatus } from '../../shared/cli-install-types'
+import { getDistributionIdentity } from '../../shared/distribution-identity'
 import { expandWindowsEnvironmentVariables } from '../../shared/windows-environment-expansion'
 import { buildAppImageCliWrapper } from './appimage-cli-wrapper'
 import { getBundledLauncherPath, LINUX_CLI_COMMAND_NAME } from './bundled-cli-launcher-path'
@@ -28,7 +29,10 @@ import {
 } from './windows-user-path-registry'
 
 const execFileAsync = promisify(execFile)
-const DEFAULT_MAC_COMMAND_PATH = '/usr/local/bin/orca'
+// Why distribution-scoped: a downstream install must register its own public
+// command and never overwrite or shadow the official `orca` command.
+const PUBLIC_CLI_COMMAND_NAME = getDistributionIdentity().publicCli
+const DEFAULT_MAC_COMMAND_PATH = `/usr/local/bin/${PUBLIC_CLI_COMMAND_NAME}`
 const DEV_COMMAND_NAME = 'orca-dev'
 const LEGACY_LINUX_COMMAND_NAME = 'orca'
 const DEV_LAUNCHER_DIR = ['cli', 'bin']
@@ -88,7 +92,7 @@ export class CliInstaller {
       return DEV_COMMAND_NAME
     }
     // Why: packaged Linux uses `orca-ide` to avoid shadowing GNOME Orca's /usr/bin/orca.
-    return this.platform === 'linux' ? LINUX_CLI_COMMAND_NAME : 'orca'
+    return this.platform === 'linux' ? LINUX_CLI_COMMAND_NAME : PUBLIC_CLI_COMMAND_NAME
   }
 
   constructor(options: CliInstallerOptions = {}) {
@@ -110,7 +114,7 @@ export class CliInstaller {
     const candidateMacPath = options.defaultMacCommandPath ?? DEFAULT_MAC_COMMAND_PATH
     this.macCommandPath = existsSync(dirname(candidateMacPath))
       ? candidateMacPath
-      : join(this.homePath, '.local', 'bin', 'orca')
+      : join(this.homePath, '.local', 'bin', PUBLIC_CLI_COMMAND_NAME)
     this.privilegedRunner = options.privilegedRunner ?? runMacPrivilegedCommand
     this.userPathReader = options.userPathReader ?? readWindowsUserPathRegistry
     this.userPathMutationReader =
