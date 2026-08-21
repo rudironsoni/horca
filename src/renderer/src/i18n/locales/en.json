@@ -2152,7 +2152,8 @@
         "a4650b0dc4": "Could Not Use Local Build",
         "b1e390250d": "Could not complete the local build switch.",
         "d29740d175": "The selected build could not be used.",
-        "37d45c9ec1": "Choose Another Build"
+        "37d45c9ec1": "Choose Another Build",
+        "8e0c186b72": "Updates for {{value0}} ship through Homebrew and GitHub Releases."
       },
       "WorktreeJumpPalette": {
         "ac037cfac2": "Move",
@@ -6812,7 +6813,8 @@
           "31fd7150cf": "Checking for updates...",
           "3394d1f663": "checking",
           "d69a09b672": "Updates are checked automatically on launch.",
-          "7173352632": "idle"
+          "7173352632": "idle",
+          "85122b0570": "In-app updates are disabled for {{value0}} builds. Install updates through Homebrew or from GitHub Releases."
         },
         "GeneralWorkspaceSettingsSection": {
           "3d538a98f7": "Choose apps available from a workspace's Open in menu.",
