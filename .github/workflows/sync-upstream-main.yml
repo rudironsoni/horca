@@ -36,16 +36,23 @@ jobs:
         run: |
           set -euo pipefail
 
-          git fetch --no-tags origin upstream-main
-          mirror_tip="$(git rev-parse FETCH_HEAD)"
-
           git remote add upstream https://github.com/stablyai/orca.git
           git fetch --no-tags upstream main
           upstream_tip="$(git rev-parse FETCH_HEAD)"
 
-          if ! git merge-base --is-ancestor "$mirror_tip" "$upstream_tip"; then
-            echo "::error title=Upstream mirror diverged::upstream-main ($mirror_tip) cannot fast-forward to upstream main ($upstream_tip). Refusing to rewrite history."
-            exit 1
+          # Why tolerate a missing mirror: merging the upstream-main -> main PR
+          # deletes the head branch when "automatically delete head branches" is
+          # enabled (observed after PR #17), which used to hard-fail every later
+          # sync and silently stall the mirror. Recreate the branch at the
+          # upstream tip; the divergence guard only applies when a mirror exists.
+          if git fetch --no-tags origin upstream-main; then
+            mirror_tip="$(git rev-parse FETCH_HEAD)"
+            if ! git merge-base --is-ancestor "$mirror_tip" "$upstream_tip"; then
+              echo "::error title=Upstream mirror diverged::upstream-main ($mirror_tip) cannot fast-forward to upstream main ($upstream_tip). Refusing to rewrite history."
+              exit 1
+            fi
+          else
+            echo "::warning title=Upstream mirror missing::upstream-main does not exist on origin (deleted by a merged sync PR?); recreating it at upstream main ($upstream_tip)."
           fi
 
           git push origin "$upstream_tip:refs/heads/upstream-main"
