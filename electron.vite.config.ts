@@ -57,6 +57,13 @@ const ORCA_DIAGNOSTICS_TOKEN_URL_LITERAL =
   typeof orcaDiagnosticsTokenUrl === 'string' && orcaDiagnosticsTokenUrl.length > 0
     ? JSON.stringify(orcaDiagnosticsTokenUrl)
     : 'null'
+// Why: downstream personal-distribution builds (ORCA_DOWNSTREAM_BUILD=1, used
+// by the fork's packaging repo) resolve every externally visible identity from
+// src/shared/distribution-identity.json. Official builds and every other path
+// substitute 'official', leaving upstream behavior unchanged.
+const ORCA_DISTRIBUTION_LITERAL = JSON.stringify(
+  process.env.ORCA_DOWNSTREAM_BUILD === '1' ? 'humpback' : 'official'
+)
 
 function createStartupDiagnosticsBanner(chunkName: string): string {
   return `
@@ -268,7 +275,8 @@ export const electronViteConfig: UserConfig = {
     define: {
       ORCA_BUILD_IDENTITY: ORCA_BUILD_IDENTITY_LITERAL,
       ORCA_POSTHOG_WRITE_KEY: ORCA_POSTHOG_WRITE_KEY_LITERAL,
-      ORCA_DIAGNOSTICS_TOKEN_URL: ORCA_DIAGNOSTICS_TOKEN_URL_LITERAL
+      ORCA_DIAGNOSTICS_TOKEN_URL: ORCA_DIAGNOSTICS_TOKEN_URL_LITERAL,
+      ORCA_DISTRIBUTION: ORCA_DISTRIBUTION_LITERAL
     },
     // Why: @xterm/headless declares "exports": null in package.json, which
     // prevents Vite's default resolver from finding the CJS entry. Point
@@ -287,9 +295,15 @@ export const electronViteConfig: UserConfig = {
       externalizeDeps: {
         exclude: ['@electron-toolkit/preload']
       }
+    },
+    define: {
+      ORCA_DISTRIBUTION: ORCA_DISTRIBUTION_LITERAL
     }
   },
   renderer: {
+    define: {
+      ORCA_DISTRIBUTION: ORCA_DISTRIBUTION_LITERAL
+    },
     resolve: {
       alias: {
         '@renderer': resolve('src/renderer/src'),
