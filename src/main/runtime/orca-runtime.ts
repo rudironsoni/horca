@@ -3118,6 +3118,7 @@ export class OrcaRuntimeService {
   private pendingAggregatePtyControllerInventoryRefresh: {
     promise: Promise<PtyControllerInventory | null>
     resolvedWorktrees: ResolvedWorktree[]
+    targetWorktreeId: string | null
   } | null = null
   private leaves = new Map<string, RuntimeLeafRecord>()
   // Why: PTY output is a per-keystroke hot path. Looking up affected leaves by
@@ -32484,13 +32485,26 @@ export class OrcaRuntimeService {
     if (connectionId === undefined) {
       const pending = this.pendingAggregatePtyControllerInventoryRefresh
       if (pending) {
-        this.mergeResolvedWorktrees(pending.resolvedWorktrees, resolvedWorktrees)
-        return this.scopePtyControllerInventory(await pending.promise, targetWorktreeId)
+        const compatibleScope =
+          pending.targetWorktreeId === null ||
+          (targetWorktreeId !== null &&
+            runtimeWorktreeIdsEqual(pending.targetWorktreeId, targetWorktreeId))
+        if (compatibleScope) {
+          this.mergeResolvedWorktrees(pending.resolvedWorktrees, resolvedWorktrees)
+          return this.scopePtyControllerInventory(await pending.promise, targetWorktreeId)
+        }
+        await pending.promise
+        return this.refreshPtyWorktreeRecordsWithControllerInventory(
+          resolvedWorktrees,
+          targetWorktreeId,
+          deadline,
+          connectionId
+        )
       }
       const aggregateResolvedWorktrees = [...resolvedWorktrees]
       const promise = this.performPtyControllerInventoryRefresh(
         aggregateResolvedWorktrees,
-        null,
+        targetWorktreeId,
         deadline,
         connectionId
       ).finally(() => {
@@ -32500,7 +32514,8 @@ export class OrcaRuntimeService {
       })
       this.pendingAggregatePtyControllerInventoryRefresh = {
         promise,
-        resolvedWorktrees: aggregateResolvedWorktrees
+        resolvedWorktrees: aggregateResolvedWorktrees,
+        targetWorktreeId
       }
       return this.scopePtyControllerInventory(await promise, targetWorktreeId)
     }
