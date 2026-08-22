@@ -50,6 +50,38 @@ describe('legacy worker renderer recovery', () => {
     await vi.waitFor(() => expect(reconcile).toHaveBeenCalledTimes(2))
   })
 
+  it('serializes recovery when the provider is already ready', async () => {
+    let releaseFirstReconcile!: () => void
+    const firstReconcile = new Promise<void>((resolve) => {
+      releaseFirstReconcile = resolve
+    })
+    let activeReconciles = 0
+    let maxActiveReconciles = 0
+    const reconcile = vi.fn(async () => {
+      activeReconciles += 1
+      maxActiveReconciles = Math.max(maxActiveReconciles, activeReconciles)
+      if (reconcile.mock.calls.length === 1) {
+        await firstReconcile
+      }
+      activeReconciles -= 1
+    })
+
+    const startup = recoverLegacyWorkerTerminalsForRendererStartup({
+      firstWindowStartupServicesReady: Promise.resolve(),
+      managedWslCliStartupBarrierReady: Promise.resolve(),
+      localPtyProviderStartupReady: Promise.resolve(),
+      reconcile,
+      onDeferredRecoveryError: vi.fn()
+    })
+
+    await vi.waitFor(() => expect(reconcile).toHaveBeenCalledTimes(1))
+    expect(maxActiveReconciles).toBe(1)
+    releaseFirstReconcile()
+    await startup
+    await vi.waitFor(() => expect(reconcile).toHaveBeenCalledTimes(2))
+    expect(maxActiveReconciles).toBe(1)
+  })
+
   it('contains provider startup rejection after initial recovery', async () => {
     const providerError = new Error('provider failed')
     const reconcile = vi.fn().mockResolvedValue(undefined)

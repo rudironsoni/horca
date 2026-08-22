@@ -697,6 +697,11 @@ jobs:
           HEAD="${{ github.event.pull_request.head.sha }}"
           CHANGED="$(git diff --name-only --diff-filter=AMCR --merge-base "$BASE" "$HEAD")"
           TEST_FILES="$(printf '%s\n' "$CHANGED" | grep -E '^tests/e2e/.*\.spec\.ts$' || true)"
+          if printf '%s\n' "$CHANGED" | grep -qx 'tests/e2e/helpers/startup-exec-readiness-oracle.ts'; then
+            TEST_FILES="$(printf '%s\n%s\n%s\n' "$TEST_FILES" \
+              'tests/e2e/ssh-startup-exec-readiness.spec.ts' \
+              'tests/e2e/paired-startup-exec-readiness.spec.ts' | sort -u)"
+          fi
           if printf '%s\n' "$CHANGED" | grep -Eq '^src/(main/ephemeral-vm-(runtime-(service|provisioning-persistence)|failed-start-cleanup)|shared/(ephemeral-vm-runtime-(store|feature-store|rollback-projection|runtimes)|ephemeral-vm-recipes|orca-yaml-hook-types))\.ts$'; then
             TEST_FILES="$(printf '%s\n%s\n' "$TEST_FILES" 'tests/e2e/ephemeral-vm-provisioned-root.spec.ts' | sort -u)"
           fi

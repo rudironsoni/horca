@@ -9,6 +9,12 @@ type LegacyWorkerRendererRecoveryOptions = {
 export async function recoverLegacyWorkerTerminalsForRendererStartup(
   options: LegacyWorkerRendererRecoveryOptions
 ): Promise<void> {
+  let reconcileTail = Promise.resolve()
+  const enqueueReconcile = (): Promise<void> => {
+    const next = reconcileTail.then(() => options.reconcile()).then(() => undefined)
+    reconcileTail = next.catch(() => undefined)
+    return next
+  }
   const providerStartupResult = options.localPtyProviderStartupReady.then(
     () => ({ ok: true as const }),
     (error: unknown) => ({ ok: false as const, error })
@@ -22,11 +28,11 @@ export async function recoverLegacyWorkerTerminalsForRendererStartup(
       if (!result.ok) {
         throw result.error
       }
-      await options.reconcile()
+      await enqueueReconcile()
     })
     .catch(options.onDeferredRecoveryError)
   try {
-    await options.reconcile()
+    await enqueueReconcile()
   } catch (error) {
     options.onDeferredRecoveryError(error)
   }
