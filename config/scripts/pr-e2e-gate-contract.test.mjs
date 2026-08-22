@@ -179,6 +179,12 @@ describe('PR E2E gate contract', () => {
     expect(changedInstall.run).toContain('openssh-client')
   })
 
+  it('routes startup readiness oracle edits through both execution hosts', () => {
+    expect(filterStep.run).toContain('tests/e2e/helpers/startup-exec-readiness-oracle.ts')
+    expect(filterStep.run).toContain("'tests/e2e/ssh-startup-exec-readiness.spec.ts'")
+    expect(filterStep.run).toContain("'tests/e2e/paired-startup-exec-readiness.spec.ts'")
+  })
+
   it('scopes the VM rollback oracle to the PR range and recipe schema authorities', () => {
     expect(rollbackStep.run).toContain('--merge-base "$BASE_SHA" "$HEAD_SHA"')
     expect(rollbackStep.run).toContain('src/shared/ephemeral-vm-recipes.ts')
