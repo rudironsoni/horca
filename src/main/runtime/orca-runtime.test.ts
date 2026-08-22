@@ -13483,6 +13483,58 @@ describe('OrcaRuntimeService', () => {
     ).toBeNull()
   })
 
+  it('coalesces concurrent aggregate inventory for fresh terminal liveness', async () => {
+    const ptyId = `${TEST_WORKTREE_ID}@@coalesced-pty`
+    const processInventory = deferred<
+      {
+        id: string
+        worktreeId: string
+        cwd: string
+        title: string
+      }[]
+    >()
+    const listProcesses = vi.fn(() => processInventory.promise)
+    const runtime = createRuntime()
+    runtime.setPtyController({
+      write: () => true,
+      kill: () => true,
+      getForegroundProcess: async () => null,
+      listProcesses
+    })
+    const internals = runtime as unknown as {
+      refreshPtyWorktreeRecordsWithControllerInventory: (
+        worktrees: [],
+        targetWorktreeId: string | null,
+        deadline: number | undefined,
+        connectionId: undefined
+      ) => Promise<unknown>
+    }
+
+    const backgroundRefresh = internals.refreshPtyWorktreeRecordsWithControllerInventory(
+      [],
+      null,
+      undefined,
+      undefined
+    )
+    const terminalList = runtime.listTerminals(`id:${TEST_WORKTREE_ID}`, undefined, {
+      requireFreshPtyLiveness: true
+    })
+    processInventory.resolve([
+      {
+        id: ptyId,
+        worktreeId: TEST_WORKTREE_ID,
+        cwd: TEST_WORKTREE_PATH,
+        title: 'Coalesced'
+      }
+    ])
+
+    await expect(backgroundRefresh).resolves.not.toBeNull()
+    await expect(terminalList).resolves.toMatchObject({
+      terminals: [expect.objectContaining({ ptyId, worktreeId: TEST_WORKTREE_ID })]
+    })
+    expect(listProcesses).toHaveBeenCalledTimes(1)
+  })
+
   it('keeps restored receipts outside a targeted worktree scan', async () => {
     const secondWorktreeId = `${TEST_REPO_ID}::/tmp/worktree-b`
     const runtime = new OrcaRuntimeService(store)

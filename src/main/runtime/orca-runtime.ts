@@ -3115,6 +3115,10 @@ export class OrcaRuntimeService {
   private readonly terminalFocusNavigationCoalescer =
     new TerminalFocusNavigationCoalescer<RuntimeTerminalFocus>()
   private pendingMobileSessionPtyInventoryRefresh: Promise<Set<string> | null> | null = null
+  private pendingAggregatePtyControllerInventoryRefresh: {
+    promise: Promise<PtyControllerInventory | null>
+    resolvedWorktrees: ResolvedWorktree[]
+  } | null = null
   private leaves = new Map<string, RuntimeLeafRecord>()
   // Why: PTY output is a per-keystroke hot path. Looking up affected leaves by
   // ptyId keeps active TUI redraws independent of the total open terminal count.
@@ -32477,6 +32481,68 @@ export class OrcaRuntimeService {
         }
       }
     }
+    if (connectionId === undefined) {
+      const pending = this.pendingAggregatePtyControllerInventoryRefresh
+      if (pending) {
+        this.mergeResolvedWorktrees(pending.resolvedWorktrees, resolvedWorktrees)
+        return this.scopePtyControllerInventory(await pending.promise, targetWorktreeId)
+      }
+      const aggregateResolvedWorktrees = [...resolvedWorktrees]
+      const promise = this.performPtyControllerInventoryRefresh(
+        aggregateResolvedWorktrees,
+        null,
+        deadline,
+        connectionId
+      ).finally(() => {
+        if (this.pendingAggregatePtyControllerInventoryRefresh?.promise === promise) {
+          this.pendingAggregatePtyControllerInventoryRefresh = null
+        }
+      })
+      this.pendingAggregatePtyControllerInventoryRefresh = {
+        promise,
+        resolvedWorktrees: aggregateResolvedWorktrees
+      }
+      return this.scopePtyControllerInventory(await promise, targetWorktreeId)
+    }
+    return this.performPtyControllerInventoryRefresh(
+      resolvedWorktrees,
+      targetWorktreeId,
+      deadline,
+      connectionId
+    )
+  }
+
+  private mergeResolvedWorktrees(target: ResolvedWorktree[], additions: ResolvedWorktree[]): void {
+    for (const addition of additions) {
+      if (!target.some((candidate) => runtimeWorktreeIdsEqual(candidate.id, addition.id))) {
+        target.push(addition)
+      }
+    }
+  }
+
+  private scopePtyControllerInventory(
+    inventory: PtyControllerInventory | null,
+    targetWorktreeId: string | null
+  ): PtyControllerInventory | null {
+    if (!inventory || !targetWorktreeId) {
+      return inventory
+    }
+    const livePtyIds = new Set<string>()
+    for (const ptyId of inventory.allLivePtyIds) {
+      const worktreeId = this.ptysById.get(ptyId)?.worktreeId ?? inferWorktreeIdFromPtyId(ptyId)
+      if (worktreeId && runtimeWorktreeIdsEqual(worktreeId, targetWorktreeId)) {
+        livePtyIds.add(ptyId)
+      }
+    }
+    return { ...inventory, livePtyIds }
+  }
+
+  private async performPtyControllerInventoryRefresh(
+    resolvedWorktrees: ResolvedWorktree[],
+    targetWorktreeId: string | null,
+    deadline: number | undefined,
+    connectionId: string | null | undefined
+  ): Promise<PtyControllerInventory | null> {
     if (!this.ptyController?.listProcesses) {
       return null
     }
