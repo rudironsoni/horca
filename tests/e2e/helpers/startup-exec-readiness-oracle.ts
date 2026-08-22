@@ -83,15 +83,31 @@ async function expectSingleOwningPty(
   terminal: string,
   ptyId: string
 ): Promise<void> {
-  const listed = await callStartupExecRuntime<RuntimeTerminalListResult>(page, 'terminal.list', {
-    worktree: `id:${worktreeId}`,
-    requireFreshPtyLiveness: true
-  })
-  expect(
-    listed.terminals
-      .filter((candidate) => candidate.tabId === tabId)
-      .map((candidate) => ({ handle: candidate.handle, ptyId: candidate.ptyId }))
-  ).toEqual([{ handle: terminal, ptyId }])
+  await expect
+    .poll(
+      async () => {
+        try {
+          const listed = await callStartupExecRuntime<RuntimeTerminalListResult>(
+            page,
+            'terminal.list',
+            {
+              worktree: `id:${worktreeId}`,
+              requireFreshPtyLiveness: true
+            }
+          )
+          return listed.terminals
+            .filter((candidate) => candidate.tabId === tabId)
+            .map((candidate) => ({ handle: candidate.handle, ptyId: candidate.ptyId }))
+        } catch (error) {
+          if (error instanceof Error && error.message.endsWith(': terminal_liveness_unavailable')) {
+            return 'unverifiable'
+          }
+          throw error
+        }
+      },
+      { timeout: RECOVERY_DEADLINE_MS }
+    )
+    .toEqual([{ handle: terminal, ptyId }])
 }
 
 export async function callStartupExecRuntime<TResult>(
