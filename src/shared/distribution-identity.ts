@@ -21,6 +21,8 @@
 
 export type OrcaDistribution = 'official' | 'horca'
 
+declare const ORCA_DISTRIBUTION: OrcaDistribution
+
 export type DistributionIdentity = {
   distribution: OrcaDistribution
   productName: string
