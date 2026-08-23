@@ -68,6 +68,7 @@ export const DISTRIBUTION_IDENTITIES: Record<OrcaDistribution, DistributionIdent
 export function getActiveDistribution(): OrcaDistribution {
   // Why typeof-guarded: tsc-compiled entry points (packaged CLI) skip the
   // define pass, leaving the identifier undeclared at runtime.
+  // oxlint-disable-next-line unicorn/no-typeof-undefined -- Safe undeclared build-define probe.
   if (typeof ORCA_DISTRIBUTION !== 'undefined') {
     return ORCA_DISTRIBUTION
   }
