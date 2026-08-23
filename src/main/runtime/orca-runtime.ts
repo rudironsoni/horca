@@ -371,7 +371,7 @@ import {
   type ExecutionHostId
 } from '../../shared/execution-host'
 import { preservedBranchCleanupScopeKey } from '../../shared/preserved-branch-cleanup'
-import { getRegisteredSshState } from '../ipc/ssh'
+import { getRegisteredSshState } from '../ssh/ssh-target-registry'
 import type {
   AgentProviderSessionMetadata,
   SleepingAgentLaunchConfig
@@ -570,7 +570,10 @@ import {
 } from '../../shared/tui-agent-config'
 import { resolveDraftPasteReadyTimeoutMs } from '../../shared/draft-paste-ready-timeout'
 import { createDraftPasteReadyScanner } from '../../shared/draft-paste-ready-scanner'
-import { detectInstalledAgentsWithShellPathHydration, detectRemoteAgents } from '../ipc/preflight'
+import {
+  detectInstalledAgentsWithShellPathHydration,
+  detectRemoteAgents
+} from '../preflight/agent-detection'
 import {
   markCodexProjectTrusted,
   markCopilotFolderTrusted,
@@ -653,7 +656,8 @@ import {
 } from '../ports/workspace-port-ownership'
 import { advertisedUrlWatcher } from '../ports/advertised-url-watcher'
 import type { AutomationService } from '../automations/service'
-import { RuntimeBrowserCommands } from './orca-runtime-browser'
+import type { RuntimeBrowserCommands } from './orca-runtime-browser'
+import { createRuntimeBrowserCommands } from './runtime-browser-commands-factory'
 import { RemoteRuntimeTerminalCreateIdempotency } from './remote-runtime-terminal-create-idempotency'
 import { deriveRemoteRuntimeTerminalCreateHandle } from './remote-runtime-terminal-create-identity'
 import {
@@ -727,11 +731,13 @@ import {
 } from '../../shared/claude-agent-teams-tmux-compat'
 import { joinWorktreeRelativePath } from './runtime-relative-paths'
 import { collectMemorySnapshot } from '../memory/collector'
-import { app, BrowserWindow, ipcMain, Notification } from 'electron'
+import type { BrowserWindow } from 'electron'
+import { getAppEnvironment } from '../../shared/app-environment'
+import { getRuntimeDesktopSurface } from './runtime-desktop-surface'
 import { RendererPublicationThrottle } from '../window/renderer-publication-throttle'
 import type { AgentBrowserBridge } from '../browser/agent-browser-bridge'
 import type { BrowserBackend } from '../browser/browser-backend'
-import { BrowserError } from '../browser/cdp-bridge'
+import { BrowserError } from '../browser/browser-error'
 import {
   getPRForBranch,
   getPRForBranchOutcome,
@@ -1130,14 +1136,7 @@ import {
 } from '../worktree-removal-repo-owner'
 import { prefetchWorktreeCreateBase } from '../worktree-create-base-prefetch'
 import { prepareLocalWorktreeRootForRepo } from '../worktree-root-preparation'
-import {
-  closeLocalWatcherForWorktreePath,
-  closeRemoteWatcherForWorktreePath,
-  forgetLocalWatcherRemovalSnapshot,
-  forgetRemoteWatcherRemovalSnapshot,
-  restoreLocalWatcherAfterFailedRemoval,
-  restoreRemoteWatcherAfterFailedRemoval
-} from '../ipc/filesystem-watcher'
+import { getWorktreeWatcherRemoval } from '../ipc/worktree-watcher-removal'
 import { acquireWatcherRemovalGate } from '../ipc/watcher-removal-gate'
 import {
   createWatcherRemovalDeadline,
@@ -3926,7 +3925,7 @@ export class OrcaRuntimeService {
         return
       }
       await applyAgentStatusHooksEnabled(settings.agentStatusHooksEnabled !== false, settings, {
-        shouldHydrateShellPath: app.isPackaged,
+        shouldHydrateShellPath: getAppEnvironment().isPackaged(),
         onInstallError: recordManagedHookInstallFailure,
         shouldContinue: (agent) => {
           const current = this.store?.getSettings()
@@ -4234,13 +4233,12 @@ export class OrcaRuntimeService {
     return { projectId, workspaceMode: 'new_per_run', workspaceId: null }
   }
 
-  // Why: lazy initialization — the DB path depends on Electron's userData
-  // which may not be finalized until after app.ready. Also allows unit tests
-  // to inject an in-memory DB without touching the filesystem.
+  // Why: lazy initialization — the DB path depends on userData, which on the desktop
+  // is not finalized until after app.ready. Also allows unit tests to inject an
+  // in-memory DB without touching the filesystem.
   getOrchestrationDb(): OrchestrationDb {
     if (!this._orchestrationDb) {
-      const { app } = require('electron')
-      const dbPath = join(app.getPath('userData'), 'orchestration.db')
+      const dbPath = join(getAppEnvironment().getPath('userData'), 'orchestration.db')
       this._orchestrationDb = new OrchestrationDb(dbPath)
       this.ensureOrchestrationFederationRelay()
       this.scheduleRestoredMessageRepoints()
@@ -5001,7 +4999,10 @@ export class OrcaRuntimeService {
     signal?: AbortSignal
   ): Promise<AgentSkillShareOperation> {
     const selectedSkills = selectDiscoveredSkills(discoveredSkills, request.skillSelectors)
-    const operationRoot = join(app.getPath('userData'), 'agent-skill-share-operations')
+    const operationRoot = join(
+      getAppEnvironment().getPath('userData'),
+      'agent-skill-share-operations'
+    )
     const cloud = this.requireSkillCloudService()
     const preparations = new SkillSharePreparationService(
       operationRoot,
@@ -5010,7 +5011,7 @@ export class OrcaRuntimeService {
         createShare: (packageId, input) => cloud.createShare(packageId, input)
       },
       {
-        installStateDirectory: join(app.getPath('userData'), 'skill-installs')
+        installStateDirectory: join(getAppEnvironment().getPath('userData'), 'skill-installs')
       }
     )
     let preparationId: string | null = null
@@ -5217,7 +5218,7 @@ export class OrcaRuntimeService {
       if (sshTarget) {
         return installSkillBundleOnSshHost({
           provider: sshTarget.provider,
-          userDataPath: app.getPath('userData'),
+          userDataPath: getAppEnvironment().getPath('userData'),
           request: {
             ...request,
             destination:
@@ -5226,14 +5227,14 @@ export class OrcaRuntimeService {
                 : request.destination
           },
           workspace: sshTarget.workspace,
-          requireHttps: app.isPackaged,
+          requireHttps: getAppEnvironment().isPackaged(),
           signal: controller.signal,
           onProgress: reportProgress
         })
       }
       await this.skillTransactionRecovery
       const allowedDownloadOrigins = ['https://storage.googleapis.com']
-      if (!app.isPackaged && process.env.ORCA_SKILL_PACKAGE_DOWNLOAD_ORIGINS) {
+      if (!getAppEnvironment().isPackaged() && process.env.ORCA_SKILL_PACKAGE_DOWNLOAD_ORIGINS) {
         allowedDownloadOrigins.push(
           ...process.env.ORCA_SKILL_PACKAGE_DOWNLOAD_ORIGINS.split(',')
             .map((origin) => origin.trim())
@@ -5242,9 +5243,9 @@ export class OrcaRuntimeService {
       }
       return await executeSkillBundleInstallRequest(request, {
         authority: this.skillInstallDestinationAuthority(runtimeId),
-        stateDirectory: app.getPath('userData'),
+        stateDirectory: getAppEnvironment().getPath('userData'),
         allowedDownloadOrigins: [...new Set(allowedDownloadOrigins)],
-        requireHttps: app.isPackaged,
+        requireHttps: getAppEnvironment().isPackaged(),
         resolveStagedUpload: (uploadId, identity) =>
           this.requireSkillUploadSessions().take(uploadId, identity),
         detectProviders: detectInstalledAgentsWithShellPathHydration,
@@ -5281,7 +5282,7 @@ export class OrcaRuntimeService {
     if (sshTarget) {
       return installSkillOnSshHost({
         provider: sshTarget.provider,
-        userDataPath: app.getPath('userData'),
+        userDataPath: getAppEnvironment().getPath('userData'),
         request: {
           ...request,
           destination:
@@ -5290,13 +5291,13 @@ export class OrcaRuntimeService {
               : request.destination
         },
         workspace: sshTarget.workspace,
-        requireHttps: app.isPackaged,
+        requireHttps: getAppEnvironment().isPackaged(),
         signal
       })
     }
     await this.skillTransactionRecovery
     const allowedDownloadOrigins = ['https://storage.googleapis.com']
-    if (!app.isPackaged && process.env.ORCA_SKILL_PACKAGE_DOWNLOAD_ORIGINS) {
+    if (!getAppEnvironment().isPackaged() && process.env.ORCA_SKILL_PACKAGE_DOWNLOAD_ORIGINS) {
       allowedDownloadOrigins.push(
         ...process.env.ORCA_SKILL_PACKAGE_DOWNLOAD_ORIGINS.split(',')
           .map((origin) => origin.trim())
@@ -5305,9 +5306,9 @@ export class OrcaRuntimeService {
     }
     return executeSkillInstallRequest(request, {
       authority: this.skillInstallDestinationAuthority(runtimeId),
-      stateDirectory: app.getPath('userData'),
+      stateDirectory: getAppEnvironment().getPath('userData'),
       allowedDownloadOrigins: [...new Set(allowedDownloadOrigins)],
-      requireHttps: app.isPackaged,
+      requireHttps: getAppEnvironment().isPackaged(),
       resolveStagedUpload: (uploadId, identity) =>
         this.requireSkillUploadSessions().take(uploadId, identity),
       detectProviders: detectInstalledAgentsWithShellPathHydration,
@@ -5338,7 +5339,7 @@ export class OrcaRuntimeService {
     await this.skillTransactionRecovery
     return previewSharedSkillInstall(request, {
       authority: this.skillInstallDestinationAuthority(runtimeId),
-      stateDirectory: app.getPath('userData'),
+      stateDirectory: getAppEnvironment().getPath('userData'),
       detectProviders: detectInstalledAgentsWithShellPathHydration,
       resolveProviderRootOverrides: (destination) =>
         this.resolveSkillProviderRootOverrides(destination)
@@ -5366,7 +5367,7 @@ export class OrcaRuntimeService {
     const runtimeId = this.getStatus().runtimeId
     return previewSharedSkillBundleInstall(request, {
       authority: this.skillInstallDestinationAuthority(runtimeId),
-      stateDirectory: app.getPath('userData'),
+      stateDirectory: getAppEnvironment().getPath('userData'),
       detectProviders: detectInstalledAgentsWithShellPathHydration,
       resolveProviderRootOverrides: (destination) =>
         this.resolveSkillProviderRootOverrides(destination)
@@ -5392,7 +5393,7 @@ export class OrcaRuntimeService {
     await this.skillTransactionRecovery
     return removeSharedSkillInstall(request, {
       authority: this.skillInstallDestinationAuthority(runtimeId),
-      stateDirectory: app.getPath('userData'),
+      stateDirectory: getAppEnvironment().getPath('userData'),
       detectProviders: detectInstalledAgentsWithShellPathHydration,
       resolveProviderRootOverrides: (destination) =>
         this.resolveSkillProviderRootOverrides(destination)
@@ -5411,7 +5412,7 @@ export class OrcaRuntimeService {
     await this.skillTransactionRecovery
     const runtimeId = this.getStatus().runtimeId
     const [installs, worktrees] = await Promise.all([
-      listManagedSkillInstalls(join(app.getPath('userData'), 'skill-installs'), {
+      listManagedSkillInstalls(join(getAppEnvironment().getPath('userData'), 'skill-installs'), {
         observeReceipt: async (receipt) => {
           if (!receipt.wslDistro) {
             return nativeSkillInstallFilesystem.observeSkill(
@@ -5707,7 +5708,11 @@ export class OrcaRuntimeService {
       throw new Error('skill-upload-service-disposed')
     }
     this.skillUploadSessions ??= new SkillUploadSessionService(
-      join(app.getPath('userData'), 'skill-installs', SKILL_UPLOAD_STAGING_ROOT_NAME)
+      join(
+        getAppEnvironment().getPath('userData'),
+        'skill-installs',
+        SKILL_UPLOAD_STAGING_ROOT_NAME
+      )
     )
     return this.skillUploadSessions
   }
@@ -10227,11 +10232,11 @@ export class OrcaRuntimeService {
     const results = await Promise.allSettled([
       connectionId
         ? drainBeforeWatcherRemoval(
-            closeRemoteWatcherForWorktreePath(connectionId, worktreePath),
+            getWorktreeWatcherRemoval().closeRemote(connectionId, worktreePath),
             deadline,
             `remote watcher close for ${worktreePath}`
           )
-        : closeLocalWatcherForWorktreePath(worktreePath, deadline),
+        : getWorktreeWatcherRemoval().closeLocal(worktreePath, deadline),
       drainBeforeWatcherRemoval(
         this.fileCommands.closeFileExplorerWatchersForPath(worktreePath, connectionId),
         deadline,
@@ -10253,16 +10258,16 @@ export class OrcaRuntimeService {
   ): Promise<void> => {
     await Promise.all([
       connectionId
-        ? restoreRemoteWatcherAfterFailedRemoval(connectionId, worktreePath)
-        : restoreLocalWatcherAfterFailedRemoval(worktreePath),
+        ? getWorktreeWatcherRemoval().restoreRemote(connectionId, worktreePath)
+        : getWorktreeWatcherRemoval().restoreLocal(worktreePath),
       this.fileCommands.restoreFileExplorerWatchersAfterFailedRemoval(worktreePath, connectionId)
     ])
   }
   forgetFileWatchersAfterRemoval = (worktreePath: string, connectionId?: string): void => {
     if (connectionId) {
-      forgetRemoteWatcherRemovalSnapshot(connectionId, worktreePath)
+      getWorktreeWatcherRemoval().forgetRemote(connectionId, worktreePath)
     } else {
-      forgetLocalWatcherRemovalSnapshot(worktreePath)
+      getWorktreeWatcherRemoval().forgetLocal(worktreePath)
     }
     this.fileCommands.forgetFileExplorerWatchersAfterRemoval(worktreePath, connectionId)
   }
@@ -14357,13 +14362,9 @@ export class OrcaRuntimeService {
     const body = input.body ?? ''
     let delivered = false
     try {
-      if (Notification.isSupported()) {
-        new Notification({ title, body }).show()
-        delivered = true
-      }
+      delivered = getRuntimeDesktopSurface().showNotification({ title, body })
     } catch {
-      // Headless serve has no notification display; the mobile relay below
-      // still runs.
+      // A host with no notification display still relays to paired clients below.
     }
     this.dispatchMobileNotification({ type: 'notification', source: 'plugin', title, body })
     return { delivered }
@@ -28395,7 +28396,7 @@ export class OrcaRuntimeService {
     // creates the tab and replies with the tabId so we can resolve the handle.
     const reply = await new Promise<{ tabId: string; title: string }>((resolve, reject) => {
       const timer = setTimeout(() => {
-        ipcMain.removeListener('terminal:tabCreateReply', handler)
+        getRuntimeDesktopSurface().removeIpcListener('terminal:tabCreateReply', handler)
         reject(new Error('Terminal creation timed out'))
       }, 10_000)
 
@@ -28407,14 +28408,14 @@ export class OrcaRuntimeService {
           return
         }
         clearTimeout(timer)
-        ipcMain.removeListener('terminal:tabCreateReply', handler)
+        getRuntimeDesktopSurface().removeIpcListener('terminal:tabCreateReply', handler)
         if (r.error) {
           reject(new Error(r.error))
         } else {
           resolve({ tabId: r.tabId!, title: r.title ?? launchOpts.title ?? '' })
         }
       }
-      ipcMain.on('terminal:tabCreateReply', handler)
+      getRuntimeDesktopSurface().onIpc('terminal:tabCreateReply', handler)
       win.webContents.send('terminal:requestTabCreate', {
         requestId,
         worktreeId,
@@ -28766,7 +28767,7 @@ export class OrcaRuntimeService {
       const requestId = randomUUID()
       const reply = await new Promise<{ tabId: string; title: string }>((resolve, reject) => {
         const timer = setTimeout(() => {
-          ipcMain.removeListener('terminal:tabCreateReply', handler)
+          getRuntimeDesktopSurface().removeIpcListener('terminal:tabCreateReply', handler)
           opts.signal?.removeEventListener('abort', onAbort)
           reject(new Error('Terminal creation timed out'))
         }, 10_000)
@@ -28774,7 +28775,7 @@ export class OrcaRuntimeService {
         // its shell) stays alive for the host and mirrors on reconnect (#7718).
         const onAbort = (): void => {
           clearTimeout(timer)
-          ipcMain.removeListener('terminal:tabCreateReply', handler)
+          getRuntimeDesktopSurface().removeIpcListener('terminal:tabCreateReply', handler)
           reject(new Error('client_disconnected'))
         }
 
@@ -28786,7 +28787,7 @@ export class OrcaRuntimeService {
             return
           }
           clearTimeout(timer)
-          ipcMain.removeListener('terminal:tabCreateReply', handler)
+          getRuntimeDesktopSurface().removeIpcListener('terminal:tabCreateReply', handler)
           opts.signal?.removeEventListener('abort', onAbort)
           if (r.error) {
             reject(new Error(r.error))
@@ -28795,7 +28796,7 @@ export class OrcaRuntimeService {
           }
         }
         opts.signal?.addEventListener('abort', onAbort, { once: true })
-        ipcMain.on('terminal:tabCreateReply', handler)
+        getRuntimeDesktopSurface().onIpc('terminal:tabCreateReply', handler)
         win.webContents.send('terminal:requestTabCreate', {
           requestId,
           worktreeId,
@@ -38176,7 +38177,7 @@ export class OrcaRuntimeService {
 
   // ── Browser automation ──
 
-  private readonly browserCommands = new RuntimeBrowserCommands({
+  private readonly browserCommands = createRuntimeBrowserCommands({
     getAgentBrowserBridge: () => this.agentBrowserBridge,
     resolveWorktreeSelector: (selector) => this.resolveWorktreeSelector(selector),
     getAuthoritativeWindow: () => this.getAuthoritativeWindow(),
@@ -38653,10 +38654,7 @@ export class OrcaRuntimeService {
     if (this.authoritativeWindowId === null) {
       return null
     }
-    if (!BrowserWindow?.fromId) {
-      return null
-    }
-    const win = BrowserWindow.fromId(this.authoritativeWindowId)
+    const win = getRuntimeDesktopSurface().findWindowById(this.authoritativeWindowId)
     return win && !win.isDestroyed() ? win : null
   }
 }
