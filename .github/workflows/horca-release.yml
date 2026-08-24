@@ -6,9 +6,13 @@ name: Release Horca
 # never created unless macOS arm64 + macOS x64 + Windows x64 all built
 # and passed verification.
 #
-# Dispatch manually for the first cut, or let horca-check-source.yml call it.
+# A merge (or any push) to main starts a release. Dispatch and
+# horca-check-source.yml still work as backups. Concurrent runs queue;
+# they must not cancel a notarization already in flight.
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
     inputs:
       sha:
@@ -33,6 +37,10 @@ on:
 
 permissions:
   contents: write
+
+concurrency:
+  group: horca-release
+  cancel-in-progress: false
 
 jobs:
   prepare:

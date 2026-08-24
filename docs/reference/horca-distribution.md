@@ -31,10 +31,10 @@ sync).
 | Windows per-user install dir | `%LOCALAPPDATA%\Programs\orca` | `%LOCALAPPDATA%\Programs\Horca` |
 | Windows daemon image | orca-terminal-daemon.exe | horca-terminal-daemon.exe |
 
-Horca packaging explicitly disables electron-builder publishing; in-repo
-workflows (`horca-build.yml`, `horca-release.yml`) assemble and upload
-GitHub Releases tagged `v<core>-horca.<N>` on this repository. Official
-mirrored `vX.Y.Z` git tags stay tags, not GitHub Releases. Horca Windows
+Horca packaging explicitly disables electron-builder publishing; a push
+to `main` runs `horca-release.yml`, which calls `horca-build.yml` and
+uploads GitHub Releases tagged `v<core>-horca.<N>` on this repository.
+Official mirrored `vX.Y.Z` git tags stay tags, not GitHub Releases. Horca Windows
 installers are currently unsigned (no Stably `publisherName`, no SignPath
 identity); the electron-updater Windows signature pin is dropped only for
 downstream builds, which never run the updater anyway.
