@@ -392,7 +392,8 @@ module.exports = {
     // by ${isUpdated} inside so it never runs during an update's uninstallOldVersion.
     // Each distribution gets its own include: the image and folder names differ
     // (see src/shared/distribution-identity.json) and an uninstaller must only
-    // ever kill its own distribution's daemon.
+    // ever kill its own distribution's daemon. The Horca include also re-pins
+    // APP_FILENAME so oneClick NSIS does not install into Programs\orca.
     include: resolve(
       __dirname,
       'nsis',

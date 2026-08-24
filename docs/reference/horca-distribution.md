@@ -28,6 +28,7 @@ sync).
 | local state root | `~/.orca` | `~/.horca` |
 | updater | enabled | disabled |
 | Windows daemon-host dir | `%LOCALAPPDATA%\Orca` | `%LOCALAPPDATA%\Horca` |
+| Windows per-user install dir | `%LOCALAPPDATA%\Programs\orca` | `%LOCALAPPDATA%\Programs\Horca` |
 | Windows daemon image | orca-terminal-daemon.exe | horca-terminal-daemon.exe |
 
 Horca packaging explicitly disables electron-builder publishing; releases
@@ -70,6 +71,9 @@ protocol REGISTRATION is per-distribution.
 **Windows collision audit:** executable name, installer/uninstaller identity,
 AppUserModelID, protocol registration, CLI shim (`horca.cmd` +
 `horca.exe` launcher resolving the app by its own basename), appData, the
+per-user install directory (`%LOCALAPPDATA%\Programs\Horca` — electron-builder
+oneClick would otherwise use package.json `name` and land in `Programs\orca`;
+`config/nsis/daemon-host-uninstall-horca.nsh` redefines `APP_FILENAME`), the
 relocated daemon host (dir + image name + per-distribution NSIS uninstall
 include `config/nsis/daemon-host-uninstall-horca.nsh`), the mobile-pairing
 firewall rule (`Horca.MobilePairing` — a shared name would let one app's

@@ -144,4 +144,19 @@ describe('electron-builder downstream distribution config', () => {
       `"$LOCALAPPDATA\\${official.windowsDaemonHostRootName}\\daemon-host"`
     )
   })
+
+  // Why: oneClick NSIS names the per-user folder from package.json `name`
+  // (`orca`). Horca must re-pin APP_FILENAME or it installs on top of Orca.
+  it('pins the Horca per-user install folder away from official Orca', () => {
+    const officialInclude = readFileSync(
+      join(process.cwd(), 'config', 'nsis', 'daemon-host-uninstall.nsh'),
+      'utf8'
+    )
+    const horcaInclude = readFileSync(
+      join(process.cwd(), 'config', 'nsis', 'daemon-host-uninstall-horca.nsh'),
+      'utf8'
+    )
+    expect(officialInclude).not.toContain('!define /redef APP_FILENAME')
+    expect(horcaInclude).toContain('!define /redef APP_FILENAME "${PRODUCT_FILENAME}"')
+  })
 })
