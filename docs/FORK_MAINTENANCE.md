@@ -108,8 +108,8 @@ math and detectors filter `/^v\d+\.\d+\.\d+-horca\.\d+$/` only.
 | Workflow | Purpose |
 | --- | --- |
 | `horca-build.yml` | Prove or produce the three verified artifacts. Dispatch or `workflow_call` only — never `push` to `main`, never PR Checks. |
-| `horca-release.yml` | Compute `v<core>-horca.<N>`, call the build, then draft → 3 assets → undraft. The git tag is `--target` the source commit. |
-| `horca-check-source.yml` | Every 6 hours, compare `main` HEAD to the latest Horca release `Source-SHA`. Unchanged → Linux-only exit. Changed → call `horca-release.yml`. Refuses to bootstrap. |
+| `horca-release.yml` | Runs on every push to `main`. Compute `v<core>-horca.<N>`, call the build, then draft → 3 assets → undraft. The git tag is `--target` the source commit. Concurrent runs queue. |
+| `horca-check-source.yml` | Backup every 6 hours: compare `main` HEAD to the latest Horca release `Source-SHA`. Unchanged → Linux-only exit. Changed → call `horca-release.yml`. Refuses to bootstrap if no Horca release exists yet. |
 
 Homebrew staging lives in `config/horca-homebrew/` and is copied once into
 `rudironsoni/homebrew-tap`. The tap stays a separate repository; its bump
@@ -125,14 +125,14 @@ workflow already pulls from GitHub Releases on this repo.
    workflow. Required input: Horca version (`<core>-horca.N`, matching
    `package.json` at the SHA). Optional: commit SHA (defaults to the
    dispatched ref).
-3. Cut the first release manually: Actions → **Release Horca** → Run
-   workflow. Automation never bootstraps a first release.
-4. After the first published `v*-horca.*` release, leave
-   `horca-check-source.yml` on. It will cut the next release when `main`
-   moves.
+3. A merge to `main` starts **Release Horca** (including the merge that
+   lands this trigger). Dispatch remains available. Hourly
+   `upstream-main` merges also cut a release.
+4. `horca-check-source.yml` is a backup if a push event is missed. It
+   still will not bootstrap a first release by itself.
 5. After the first in-repo release is verified, archive
    `rudironsoni/orca-builds` (do not delete) and close leftover packaging
-   PRs there. Push-on-main in that repo is obsolete.
+   PRs there.
 
 ## Branch protection
 

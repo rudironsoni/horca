@@ -31,6 +31,17 @@ describe('in-repo Horca release workflows', () => {
     expect(build.on.pull_request).toBeUndefined()
   })
 
+  it('releases on every push to main', () => {
+    expect(release.on.push).toEqual({ branches: ['main'] })
+    expect(release.on.workflow_dispatch).toBeDefined()
+    expect(release.on.workflow_call).toBeDefined()
+    expect(release.on.pull_request).toBeUndefined()
+    expect(release.concurrency).toEqual({
+      group: 'horca-release',
+      'cancel-in-progress': false
+    })
+  })
+
   it('gates every Horca job to rudironsoni/orca', () => {
     for (const [name, job] of Object.entries({
       ...build.jobs,
