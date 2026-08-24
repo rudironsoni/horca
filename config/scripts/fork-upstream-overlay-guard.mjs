@@ -8,14 +8,22 @@ import { pathToFileURL } from 'node:url'
 export const DENIED_OVERLAY_PREFIXES = ['tests/e2e/']
 
 export const FORK_ONLY_PATHS = new Set([
+  '.github/workflows/horca-build.yml',
+  '.github/workflows/horca-check-source.yml',
+  '.github/workflows/horca-release.yml',
   '.github/workflows/merge-upstream-main.yml',
   '.github/workflows/sync-upstream-main.yml',
+  'config/horca-homebrew/.github/workflows/bump-horca-cask.yml',
+  'config/horca-homebrew/Casks/horca.rb',
+  'config/horca-homebrew/README-horca.md',
   'config/nsis/daemon-host-uninstall-horca.nsh',
   'config/scripts/electron-builder-downstream-distribution.test.mjs',
   'config/scripts/electron-vite-parallel-targets.test.mjs',
   'config/scripts/fork-scheduled-qa-workflow.test.mjs',
   'config/scripts/fork-upstream-overlay-guard.mjs',
   'config/scripts/fork-upstream-overlay-guard.test.mjs',
+  'config/scripts/horca-prepare-release.sh',
+  'config/scripts/horca-release-workflows.test.mjs',
   'config/scripts/merge-upstream-main-workflow.test.mjs',
   'docs/FORK_MAINTENANCE.md',
   'docs/reference/horca-distribution.md',

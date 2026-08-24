@@ -1,0 +1,158 @@
+name: Release Horca
+
+# Cuts one atomic Horca release on this repository: computes the next
+# v<core>-horca.<N> tag, builds AND verifies every platform via
+# horca-build.yml, then publishes a single GitHub Release. A release is
+# never created unless macOS arm64 + macOS x64 + Windows x64 all built
+# and passed verification.
+#
+# Dispatch manually for the first cut, or let horca-check-source.yml call it.
+
+on:
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: 'Commit SHA to release (default: current main HEAD)'
+        required: false
+  workflow_call:
+    inputs:
+      sha:
+        type: string
+        required: true
+    secrets:
+      MAC_CERTS:
+        required: true
+      MAC_CERTS_PASSWORD:
+        required: true
+      APPLE_ID:
+        required: true
+      APPLE_APP_SPECIFIC_PASSWORD:
+        required: true
+      APPLE_TEAM_ID:
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  prepare:
+    if: github.repository == 'rudironsoni/orca'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
+      tag: ${{ steps.meta.outputs.tag }}
+      source_sha: ${{ steps.meta.outputs.source_sha }}
+      upstream_sha: ${{ steps.meta.outputs.upstream_sha }}
+    steps:
+      # fetch-depth 0 so origin/upstream-main is available for the ancestor check.
+      - name: Checkout (full history)
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Fetch the upstream-main mirror
+        run: git fetch origin upstream-main:refs/remotes/origin/upstream-main
+
+      - name: Compute version, provenance, and release notes
+        id: meta
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BUILDS_REPO: ${{ github.repository }}
+          NOTES_PATH: ${{ github.workspace }}/release-notes.md
+        run: |
+          set -euo pipefail
+          SOURCE_SHA=$(git rev-parse HEAD)
+          export SOURCE_SHA
+          bash config/scripts/horca-prepare-release.sh
+
+      - name: Refuse to overwrite an existing release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.meta.outputs.tag }}
+        run: |
+          set -euo pipefail
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "::error::release $TAG already exists"
+            exit 1
+          fi
+
+      - name: Upload release notes
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-notes
+          path: release-notes.md
+          if-no-files-found: error
+          retention-days: 30
+
+  build:
+    if: github.repository == 'rudironsoni/orca'
+    needs: prepare
+    uses: ./.github/workflows/horca-build.yml
+    with:
+      sha: ${{ needs.prepare.outputs.source_sha }}
+      version: ${{ needs.prepare.outputs.version }}
+    secrets: inherit
+
+  publish:
+    if: github.repository == 'rudironsoni/orca'
+    needs: [prepare, build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      # Atomicity: exactly the three verified artifacts, nothing speculative,
+      # and never an updater feed manifest.
+      - name: Verify the complete artifact set
+        run: |
+          set -euo pipefail
+          cd artifacts
+          for file in horca-macos-arm64.dmg horca-macos-x64.dmg horca-windows-x64-setup.exe release-notes.md; do
+            [ -f "$file" ] || { echo "::error::missing $file"; exit 1; }
+          done
+          if ls ./*.yml >/dev/null 2>&1 || ls ./*.blockmap >/dev/null 2>&1; then
+            echo "::error::updater feed files must never be released"
+            exit 1
+          fi
+          grep -q '^Source-SHA: ${{ needs.prepare.outputs.source_sha }}$' release-notes.md
+          grep -q '^Upstream-SHA: ${{ needs.prepare.outputs.upstream_sha }}$' release-notes.md
+          sha256sum ./*.dmg ./*.exe
+
+      # Draft-then-undraft so a failed asset upload can never leave a visible
+      # half-release; the draft is deleted on any failure. --target pins the
+      # git tag at the source commit, not at a later main tip.
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ needs.prepare.outputs.tag }}
+          VERSION: ${{ needs.prepare.outputs.version }}
+          SOURCE_SHA: ${{ needs.prepare.outputs.source_sha }}
+        run: |
+          set -euo pipefail
+          cd artifacts
+          cleanup() {
+            echo "::error::publishing failed; deleting draft $TAG"
+            gh release delete "$TAG" --repo "$GITHUB_REPOSITORY" --yes || true
+          }
+          trap cleanup ERR
+          gh release create "$TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$SOURCE_SHA" \
+            --draft \
+            --title "Horca $VERSION" \
+            --notes-file release-notes.md \
+            horca-macos-arm64.dmg \
+            horca-macos-x64.dmg \
+            horca-windows-x64-setup.exe
+          # All three assets must be fully uploaded before the release is visible.
+          asset_count=$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets | length')
+          [ "$asset_count" = "3" ] || { echo "::error::expected 3 assets, found $asset_count"; exit 1; }
+          gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --draft=false
+          trap - ERR
+          echo "Published $TAG from $GITHUB_REPOSITORY@$SOURCE_SHA"
