@@ -30,6 +30,10 @@ on:
 
 jobs:
   rehearse:
+    # Why the repository check: this job submits requests to Stably's SignPath
+    # organization with SIGNPATH_API_TOKEN; forks have neither the secret nor
+    # the SignPath project, so it must only run in the canonical repo.
+    if: github.repository == 'stablyai/orca'
     # Why: SignPath origin verification requires GitHub-hosted runners, and
     # windows-2022 matches the real release job's build environment.
     runs-on: windows-2022

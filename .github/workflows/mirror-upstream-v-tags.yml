@@ -1,0 +1,73 @@
+name: Mirror upstream v* tags
+
+# Fork Shepherd does not copy tags. The skill-update round-trip resolves
+# v<appVersion> from resources/skills/release-mapping.json and fails when
+# those tags are missing. Horca tags (v*-horca.N) stay on this fork only.
+
+on:
+  schedule:
+    - cron: '19 * * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: mirror-upstream-v-tags
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  mirror:
+    if: github.repository == 'rudironsoni/orca'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.FORK_SYNC_PAT || secrets.UPSTREAM_SYNC_TOKEN }}
+
+      - name: Mirror upstream desktop release tags
+        shell: bash
+        run: |
+          set -euo pipefail
+          export LC_ALL=C
+
+          upstream_url="https://github.com/stablyai/orca.git"
+
+          list_v_tags() {
+            # Horca tags (v*-horca.N) live only on this fork and must never
+            # enter the inner-join compare against stablyai/orca desktop tags.
+            git ls-remote --tags "$1" 'refs/tags/v*' | awk '$2 !~ /\^\{\}$/ && $2 !~ /-horca\./ { print $2 " " $1 }' | sort
+          }
+
+          list_v_tags origin > "$RUNNER_TEMP/origin-tags"
+          list_v_tags "$upstream_url" > "$RUNNER_TEMP/upstream-tags"
+
+          divergent="$(join "$RUNNER_TEMP/origin-tags" "$RUNNER_TEMP/upstream-tags" | awk '$2 != $3 { print $1 " origin=" $2 " upstream=" $3 }')"
+          if [ -n "$divergent" ]; then
+            echo "$divergent"
+            echo "::error title=Tag mirror divergence::The v* tags above exist on both remotes with different objects. Refusing to overwrite; inspect and fix manually."
+            exit 1
+          fi
+
+          missing="$(comm -13 <(awk '{ print $1 }' "$RUNNER_TEMP/origin-tags") <(awk '{ print $1 }' "$RUNNER_TEMP/upstream-tags"))"
+          if [ -z "$missing" ]; then
+            echo "All upstream v* tags already exist on origin and match by object id."
+            exit 0
+          fi
+
+          refspecs=()
+          while IFS= read -r ref; do
+            refspecs+=("${ref}:${ref}")
+          done <<<"$missing"
+
+          # Why no depth limit: the push must carry every object the fork is
+          # missing (e.g. release-branch commits behind a tag), or the server
+          # rejects it for broken connectivity. The full local history plus
+          # the fetched upstream refs serve as haves, so only the tag-side
+          # delta transfers.
+          git fetch --no-tags "$upstream_url" "${refspecs[@]}"
+          git push origin "${refspecs[@]}"
+
+          echo "Mirrored ${#refspecs[@]} missing v* tag(s) from upstream."
