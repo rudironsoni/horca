@@ -107,7 +107,7 @@ math and detectors filter `/^v\d+\.\d+\.\d+-horca\.\d+$/` only.
 
 | Workflow | Purpose |
 | --- | --- |
-| `horca-build.yml` | Prove or produce the three verified artifacts. Dispatch or `workflow_call` only — never `push` to `main`, never PR Checks. |
+| `horca-build.yml` | Runs on every push to `main` (and dispatch / `workflow_call`). Produces the three verified artifacts. Never PR Checks. Apple secrets are optional at the call boundary so a missing secret does not kill the reusable workflow before jobs start. |
 | `horca-release.yml` | Runs on every push to `main`. Compute `v<core>-horca.<N>`, call the build, then draft → 3 assets → undraft. The git tag is `--target` the source commit. Concurrent runs queue. |
 | `horca-check-source.yml` | Backup every 6 hours: compare `main` HEAD to the latest Horca release `Source-SHA`. Unchanged → Linux-only exit. Changed → call `horca-release.yml`. Refuses to bootstrap if no Horca release exists yet. |
 
@@ -125,9 +125,9 @@ workflow already pulls from GitHub Releases on this repo.
    workflow. Required input: Horca version (`<core>-horca.N`, matching
    `package.json` at the SHA). Optional: commit SHA (defaults to the
    dispatched ref).
-3. A merge to `main` starts **Release Horca** (including the merge that
-   lands this trigger). Dispatch remains available. Hourly
-   `upstream-main` merges also cut a release.
+3. A merge to `main` starts **Build Horca** and **Release Horca**.
+   Dispatch remains available. Hourly `upstream-main` merges also cut a
+   release.
 4. `horca-check-source.yml` is a backup if a push event is missed. It
    still will not bootstrap a first release by itself.
 5. After the first in-repo release is verified, archive

@@ -23,12 +23,17 @@ describe('in-repo Horca release workflows', () => {
   const homebrewCask = read('config/horca-homebrew/Casks/horca.rb')
   const homebrewBump = read('config/horca-homebrew/.github/workflows/bump-horca-cask.yml')
 
-  it('builds only from dispatch or workflow_call, never push or pull_request', () => {
+  it('builds on every push to main, dispatch, or workflow_call', () => {
+    expect(build.on.push).toEqual({ branches: ['main'] })
     expect(build.on.workflow_dispatch).toBeDefined()
     expect(build.on.workflow_call).toBeDefined()
-    expect(build.on.workflow_dispatch.inputs.version.required).toBe(true)
-    expect(build.on.push).toBeUndefined()
+    expect(build.on.workflow_dispatch.inputs.version.required).toBe(false)
     expect(build.on.pull_request).toBeUndefined()
+    expect(build.on.workflow_call.secrets.MAC_CERTS.required).toBe(false)
+    expect(build.concurrency).toEqual({
+      group: 'horca-build',
+      'cancel-in-progress': false
+    })
   })
 
   it('releases on every push to main', () => {
@@ -36,6 +41,7 @@ describe('in-repo Horca release workflows', () => {
     expect(release.on.workflow_dispatch).toBeDefined()
     expect(release.on.workflow_call).toBeDefined()
     expect(release.on.pull_request).toBeUndefined()
+    expect(release.on.workflow_call.secrets.MAC_CERTS.required).toBe(false)
     expect(release.concurrency).toEqual({
       group: 'horca-release',
       'cancel-in-progress': false

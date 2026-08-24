@@ -3,18 +3,22 @@ name: Build Horca
 # Builds and verifies every Horca release target — macOS arm64, macOS x64,
 # Windows x64 — from ONE exact commit of this repository. Never creates a
 # Release; publishing is horca-release.yml's job so a partially built version
-# can never ship. Dispatch to prove the pipeline; horca-release.yml calls this
-# with a pinned SHA + version.
+# can never ship. Push to main, dispatch, or horca-release.yml calling this
+# with a pinned SHA + version. Apple secrets are optional at the workflow
+# boundary so a missing secret starts jobs (macOS then fail-closes) instead
+# of killing the reusable call with zero steps.
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
     inputs:
       sha:
         description: 'Commit SHA to build (default: the dispatched ref)'
         required: false
       version:
-        description: 'Horca version (<upstream-core>-horca.<N>, e.g. 1.4.178-horca.1)'
-        required: true
+        description: 'Horca version (<upstream-core>-horca.<N>, e.g. 1.4.178-horca.1). Empty on push: next N is computed.'
+        required: false
   workflow_call:
     inputs:
       sha:
@@ -25,18 +29,22 @@ on:
         required: true
     secrets:
       MAC_CERTS:
-        required: true
+        required: false
       MAC_CERTS_PASSWORD:
-        required: true
+        required: false
       APPLE_ID:
-        required: true
+        required: false
       APPLE_APP_SPECIFIC_PASSWORD:
-        required: true
+        required: false
       APPLE_TEAM_ID:
-        required: true
+        required: false
 
 permissions:
   contents: read
+
+concurrency:
+  group: horca-build
+  cancel-in-progress: false
 
 jobs:
   validate:
@@ -60,6 +68,7 @@ jobs:
         env:
           INPUT_SHA: ${{ inputs.sha }}
           INPUT_VERSION: ${{ inputs.version }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           SHA=$(git rev-parse HEAD)
@@ -71,17 +80,38 @@ jobs:
             echo "::error::checked out $SHA, expected $INPUT_SHA"
             exit 1
           fi
-          if [ -z "${INPUT_VERSION:-}" ]; then
-            echo "::error::version is required"
-            exit 1
+          # Upstream core = package.json version with any prerelease suffix stripped.
+          core=$(node -p "require('./package.json').version.split('-')[0]")
+          if [ -n "${INPUT_VERSION:-}" ]; then
+            VERSION=$INPUT_VERSION
+          else
+            # Push/dispatch with no version: next N for this core (same rule as prepare).
+            releases_ndjson=$(gh api "repos/$GITHUB_REPOSITORY/releases" --paginate \
+              --jq '.[] | {tag_name, draft}' || true)
+            max_n=$(CORE="$core" node -e '
+              let data = ""
+              process.stdin.on("data", (c) => (data += c))
+              process.stdin.on("end", () => {
+                const corePattern = new RegExp(
+                  `^v${process.env.CORE.replace(/\./g, "\\.")}-horca\\.(\\d+)$`
+                )
+                let maxN = 0
+                for (const line of data.split("\n")) {
+                  if (!line.trim()) continue
+                  const release = JSON.parse(line)
+                  if (release.draft) continue
+                  const match = corePattern.exec(release.tag_name)
+                  if (match) maxN = Math.max(maxN, Number(match[1]))
+                }
+                process.stdout.write(String(maxN))
+              })
+            ' <<<"$releases_ndjson")
+            VERSION="${core}-horca.$((max_n + 1))"
           fi
-          VERSION=$INPUT_VERSION
           if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+-horca\.[0-9]+$ ]]; then
             echo "::error::version must match <upstream-core>-horca.<N>, got: $VERSION"
             exit 1
           fi
-          # Upstream core = package.json version with any prerelease suffix stripped.
-          core=$(node -p "require('./package.json').version.split('-')[0]")
           if [[ "$VERSION" != "$core-horca."* ]]; then
             echo "::error::version core must be $core (from package.json at $SHA), got: $VERSION"
             exit 1
