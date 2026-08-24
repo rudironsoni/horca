@@ -74,6 +74,9 @@ AppUserModelID, protocol registration, CLI shim (`horca.cmd` +
 per-user install directory (`%LOCALAPPDATA%\Programs\Horca` — electron-builder
 oneClick would otherwise use package.json `name` and land in `Programs\orca`;
 `config/nsis/daemon-host-uninstall-horca.nsh` redefines `APP_FILENAME`), the
+`horca:` protocol (electron-builder NSIS never writes `protocols`; the Horca
+include registers `HKCU\Software\Classes\horca` at install and deletes it on
+real uninstall), the
 relocated daemon host (dir + image name + per-distribution NSIS uninstall
 include `config/nsis/daemon-host-uninstall-horca.nsh`), the mobile-pairing
 firewall rule (`Horca.MobilePairing` — a shared name would let one app's

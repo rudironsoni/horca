@@ -159,4 +159,25 @@ describe('electron-builder downstream distribution config', () => {
     expect(officialInclude).not.toContain('!define /redef APP_FILENAME')
     expect(horcaInclude).toContain('!define /redef APP_FILENAME "${PRODUCT_FILENAME}"')
   })
+
+  // Why: electron-builder NSIS never consumes `protocols`. Horca must write
+  // horca: itself and must not register orca: (official Orca's scheme).
+  it('registers the Horca URL protocol from the NSIS include', () => {
+    const officialInclude = readFileSync(
+      join(process.cwd(), 'config', 'nsis', 'daemon-host-uninstall.nsh'),
+      'utf8'
+    )
+    const horcaInclude = readFileSync(
+      join(process.cwd(), 'config', 'nsis', 'daemon-host-uninstall-horca.nsh'),
+      'utf8'
+    )
+    expect(officialInclude).not.toContain('!macro customInstall')
+    expect(officialInclude).not.toContain('Software\\Classes\\horca')
+    expect(horcaInclude).toContain('!macro customInstall')
+    expect(horcaInclude).toContain('Software\\Classes\\horca')
+    expect(horcaInclude).toContain('URL Protocol')
+    expect(horcaInclude).toContain('"$appExe" "%1"')
+    expect(horcaInclude).toContain('DeleteRegKey SHELL_CONTEXT "Software\\Classes\\horca"')
+    expect(horcaInclude).not.toContain('Software\\Classes\\orca')
+  })
 })
