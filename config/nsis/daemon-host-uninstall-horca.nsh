@@ -9,6 +9,14 @@
 ; src/shared/distribution-identity.json (windowsTerminalDaemonImageName /
 ; windowsDaemonHostRootName) and daemon-host-relocation.ts. See the official
 ; include for the full relocation rationale and the ${isUpdated} guard.
+;
+; Why APP_FILENAME is redefined: electron-builder's oneClick per-user NSIS
+; sets APP_FILENAME from package.json name (`orca`), so Horca would install
+; into %LOCALAPPDATA%\Programs\orca and overwrite an official Orca tree.
+; PRODUCT_FILENAME is already Horca (win.executableName).
+!macro customHeader
+  !define /redef APP_FILENAME "${PRODUCT_FILENAME}"
+!macroend
 !macro customUnInstall
   ${ifNot} ${isUpdated}
     nsExec::Exec 'taskkill /F /IM horca-terminal-daemon.exe'

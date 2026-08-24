@@ -35759,12 +35759,16 @@ describe('OrcaRuntimeService', () => {
         to: terminal.handle,
         subject: 'wait for idle'
       })
+      // Why: Node 26 CI shards reuse a worker. A leftover timer from another
+      // file must not look like a mailbox poll; the contract is that notify's
+      // one-shot 2s repair does not leave an extra timer behind.
+      const timersBeforeNotify = vi.getTimerCount()
       runtime.notifyMessageArrived(terminal.handle, 'status')
       await Promise.resolve()
 
       await vi.advanceTimersByTimeAsync(20_000)
       expect(pendingReads).not.toHaveBeenCalled()
-      expect(vi.getTimerCount()).toBe(0)
+      expect(vi.getTimerCount()).toBeLessThanOrEqual(timersBeforeNotify)
 
       runtime.onPtyData('pty-1', '\x1b]0;Codex done\x07', 101)
       expect(pendingReads).toHaveBeenCalledTimes(1)

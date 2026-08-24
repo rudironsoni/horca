@@ -238,7 +238,14 @@ async function main() {
       throw new Error('daemon readiness did not publish the expected PID ownership record')
     }
     log('PID ownership record matches the ready daemon')
-    if (!existsSync(socketPath)) {
+    // Why: Windows named pipes are not filesystem entries. existsSync(\\\\.\\pipe\\...)
+    // is racy and false-negatives after ready (native-smoke 32747211303). Probe
+    // the endpoint instead, matching daemon-health.ts.
+    const endpointReady =
+      process.platform === 'win32'
+        ? (await probeEndpoint(socketPath)) === 'connected'
+        : existsSync(socketPath)
+    if (!endpointReady) {
       throw new Error('daemon did not publish its endpoint at the canonical socket path')
     }
     log('endpoint published at the canonical socket path')

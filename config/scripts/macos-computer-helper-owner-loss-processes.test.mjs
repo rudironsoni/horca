@@ -133,25 +133,32 @@ describeMacOS('macOS helper owner-loss benchmark process cleanup', () => {
       writeFileSync(${JSON.stringify(childPidPath)}, String(child.pid))
       setInterval(() => {}, 1000)
     `
-    const result = spawnBenchmarkProcess(process.execPath, ['-e', fixture], {
+    // Why: spawnSync+timeout both races the pid file (100ms) and blocks the
+    // Vitest 5s budget (5s). Wait for child.pid, then validate the live group.
+    const launcher = spawn(process.execPath, ['-e', fixture], {
       env: { ...process.env, [environmentName]: environmentValue },
       stdio: 'ignore',
-      timeout: 100
+      detached: true
     })
+    if (launcher.pid == null) {
+      throw new Error('failed to spawn timed-out trial group launcher')
+    }
+    spawnedPids.add(launcher.pid)
+    await expect.poll(() => existsSync(childPidPath)).toBe(true)
     const childPid = Number(readFileSync(childPidPath, 'utf8'))
     spawnedPids.add(childPid)
     const environmentFragment = `${environmentName}=${environmentValue}`
     const groupState = { stopped: false }
 
     expect(() =>
-      signalValidatedProcessGroup(result.pid, `${environmentName}=wrong`, 'SIGSTOP')
+      signalValidatedProcessGroup(launcher.pid, `${environmentName}=wrong`, 'SIGSTOP')
     ).toThrow('Benchmark process group no longer belongs to this trial')
     expect(() => process.kill(childPid, 0)).not.toThrow()
     expect(
-      signalValidatedProcessGroup(result.pid, environmentFragment, 'SIGSTOP', groupState)
+      signalValidatedProcessGroup(launcher.pid, environmentFragment, 'SIGSTOP', groupState)
     ).toBe(true)
     expect(
-      signalValidatedProcessGroup(result.pid, environmentFragment, 'SIGKILL', groupState)
+      signalValidatedProcessGroup(launcher.pid, environmentFragment, 'SIGKILL', groupState)
     ).toBe(true)
     await expect
       .poll(() => {
