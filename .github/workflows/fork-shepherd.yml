@@ -28,6 +28,9 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.FORK_SYNC_PAT || secrets.UPSTREAM_SYNC_TOKEN }}
+          # checkout@v6 persists a credentials helper; fork-shepherd also sets
+          # http.extraheader. Two Authorization headers → GitHub 400.
+          persist-credentials: false
 
       - name: Run Fork Shepherd
         id: sync

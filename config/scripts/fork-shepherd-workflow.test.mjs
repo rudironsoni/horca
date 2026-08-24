@@ -38,6 +38,7 @@ describe('fork-shepherd workflow', () => {
   it('authenticates checkout and the action with the same PAT', () => {
     const checkout = job.steps.find((step) => step.uses?.startsWith('actions/checkout@'))
     expect(checkout.with.token).toBe('${{ secrets.FORK_SYNC_PAT || secrets.UPSTREAM_SYNC_TOKEN }}')
+    expect(checkout.with['persist-credentials']).toBe(false)
     expect(shepherd.with.github_token).toBe(
       '${{ secrets.FORK_SYNC_PAT || secrets.UPSTREAM_SYNC_TOKEN }}'
     )
