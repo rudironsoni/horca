@@ -19,8 +19,26 @@ const syncWorkflow = parse(
 )
 
 describe('fork upstream overlay guard', () => {
+  const horcaReleaseForkOnlyPaths = [
+    '.github/workflows/horca-build.yml',
+    '.github/workflows/horca-check-source.yml',
+    '.github/workflows/horca-release.yml',
+    'config/horca-homebrew/.github/workflows/bump-horca-cask.yml',
+    'config/horca-homebrew/Casks/horca.rb',
+    'config/horca-homebrew/README-horca.md',
+    'config/scripts/horca-prepare-release.sh',
+    'config/scripts/horca-release-workflows.test.mjs'
+  ]
+
   it('keeps the allowlist internally consistent', () => {
     expect(allowlistIntegrityErrors()).toEqual([])
+  })
+
+  it('lists in-repo Horca release files as fork-only', () => {
+    for (const relativePath of horcaReleaseForkOnlyPaths) {
+      expect(FORK_ONLY_PATHS.has(relativePath)).toBe(true)
+      expect(classifyForkPath(relativePath, 'fork-only')).toBe('allowed')
+    }
   })
 
   it('denies dual-tree patches under tests/e2e', () => {

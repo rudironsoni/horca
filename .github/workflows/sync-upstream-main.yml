@@ -79,7 +79,9 @@ jobs:
           upstream_url="https://github.com/stablyai/orca.git"
 
           list_v_tags() {
-            git ls-remote --tags "$1" 'refs/tags/v*' | awk '$2 !~ /\^\{\}$/ { print $2 " " $1 }' | sort
+            # Horca tags (v*-horca.N) live only on this fork and must never
+            # enter the inner-join compare against stablyai/orca desktop tags.
+            git ls-remote --tags "$1" 'refs/tags/v*' | awk '$2 !~ /\^\{\}$/ && $2 !~ /-horca\./ { print $2 " " $1 }' | sort
           }
 
           list_v_tags origin > "$RUNNER_TEMP/origin-tags"

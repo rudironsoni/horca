@@ -6,9 +6,10 @@ this repository's `main` when `ORCA_DOWNSTREAM_BUILD=1` is set at build time.
 The identity contract, state isolation rules, updater gating, and
 official-service audit live in
 [`reference/horca-distribution.md`](./reference/horca-distribution.md).
-Horca releases (tagged `v<upstream-core>-horca.<N>`) live only in
-`rudironsoni/orca-builds`; never create Horca tags — or plain `vX.Y.Z`
-tags, which belong to the mirrored upstream namespace — on this repository.
+Horca GitHub Releases live on this repository and are tagged only
+`v<upstream-core>-horca.<N>` (example: `v1.4.178-horca.1`). Never create a
+plain `vX.Y.Z` tag — those belong to the mirrored upstream desktop
+namespace and are copied here as git tags, not GitHub Releases.
 
 This fork keeps two long-lived branches:
 
@@ -62,11 +63,12 @@ runs hourly at minute 17 (plus manual dispatch) and does three things:
 1. Fast-forwards `upstream-main` to `stablyai/orca:main`. It refuses to push
    anything that is not a fast-forward; a rejected push means history diverged
    and a human must look.
-2. Mirrors upstream desktop release tags (`refs/tags/v*`). The Skill update
-   round trip check resolves `v<appVersion>` tags from
-   `resources/skills/release-mapping.json` and fails on a fork missing them.
-   Tags present in both repositories are compared by object id: a divergent tag
-   fails the run loudly and is never overwritten.
+2. Mirrors upstream desktop release tags (`refs/tags/v*`), excluding
+   `*-horca.*` so a fork-only Horca tag can never be treated as an upstream
+   desktop tag. The Skill update round trip check resolves `v<appVersion>`
+   tags from `resources/skills/release-mapping.json` and fails on a fork
+   missing them. Tags present in both repositories are compared by object
+   id: a divergent tag fails the run loudly and is never overwritten.
 3. Opens an `upstream-main -> main` merge PR when the mirror is ahead of
    `main`. `Merge upstream sync PR` merges it with a merge commit after the
    required `PR Checks / verify` result succeeds.
@@ -92,7 +94,45 @@ Do not add the sync workflow, or other fork-only files, to `upstream-main`.
 
 Upstream-only workflows that need Stably secrets or write to Stably projects
 (`track-community-prs`, release, Homebrew, signed builds) stay scoped to
-`stablyai/orca` so they do not fail on this fork.
+`stablyai/orca` so they do not fail on this fork. Official `release-cut.yml`
+and `release-mac-build.yml` stay official-only; Horca publishing uses the
+fork-only workflows below.
+
+## Horca releases
+
+Horca jobs run only on `rudironsoni/orca` (`if: github.repository ==
+'rudironsoni/orca'`). A further fork does not inherit notarized publishing.
+`releases/latest` on this repository is the latest Horca release. Version
+math and detectors filter `/^v\d+\.\d+\.\d+-horca\.\d+$/` only.
+
+| Workflow | Purpose |
+| --- | --- |
+| `horca-build.yml` | Prove or produce the three verified artifacts. Dispatch or `workflow_call` only — never `push` to `main`, never PR Checks. |
+| `horca-release.yml` | Compute `v<core>-horca.<N>`, call the build, then draft → 3 assets → undraft. The git tag is `--target` the source commit. |
+| `horca-check-source.yml` | Every 6 hours, compare `main` HEAD to the latest Horca release `Source-SHA`. Unchanged → Linux-only exit. Changed → call `horca-release.yml`. Refuses to bootstrap. |
+
+Homebrew staging lives in `config/horca-homebrew/` and is copied once into
+`rudironsoni/homebrew-tap`. The tap stays a separate repository; its bump
+workflow already pulls from GitHub Releases on this repo.
+
+### Runbook
+
+1. Copy these Actions secrets from `rudironsoni/orca-builds` onto this
+   repository (same names). The macOS job fail-closes if any are missing:
+   `MAC_CERTS`, `MAC_CERTS_PASSWORD`, `APPLE_ID`,
+   `APPLE_APP_SPECIFIC_PASSWORD`, `APPLE_TEAM_ID`.
+2. Prove the pipeline without publishing: Actions → **Build Horca** → Run
+   workflow. Required input: Horca version (`<core>-horca.N`, matching
+   `package.json` at the SHA). Optional: commit SHA (defaults to the
+   dispatched ref).
+3. Cut the first release manually: Actions → **Release Horca** → Run
+   workflow. Automation never bootstraps a first release.
+4. After the first published `v*-horca.*` release, leave
+   `horca-check-source.yml` on. It will cut the next release when `main`
+   moves.
+5. After the first in-repo release is verified, archive
+   `rudironsoni/orca-builds` (do not delete) and close leftover packaging
+   PRs there. Push-on-main in that repo is obsolete.
 
 ## Branch protection
 

@@ -31,8 +31,10 @@ sync).
 | Windows per-user install dir | `%LOCALAPPDATA%\Programs\orca` | `%LOCALAPPDATA%\Programs\Horca` |
 | Windows daemon image | orca-terminal-daemon.exe | horca-terminal-daemon.exe |
 
-Horca packaging explicitly disables electron-builder publishing; releases
-are assembled and uploaded by `rudironsoni/orca-builds`. Horca Windows
+Horca packaging explicitly disables electron-builder publishing; in-repo
+workflows (`horca-build.yml`, `horca-release.yml`) assemble and upload
+GitHub Releases tagged `v<core>-horca.<N>` on this repository. Official
+mirrored `vX.Y.Z` git tags stay tags, not GitHub Releases. Horca Windows
 installers are currently unsigned (no Stably `publisherName`, no SignPath
 identity); the electron-updater Windows signature pin is dropped only for
 downstream builds, which never run the updater anyway.
@@ -119,7 +121,7 @@ separate project.
 
 - **PostHog telemetry** (`src/main/telemetry/client.ts`): transmits only when
   CI injects both `ORCA_BUILD_IDENTITY` (stable/rc) and
-  `ORCA_POSTHOG_WRITE_KEY`. `orca-builds` injects neither → compile-time null
+  `ORCA_POSTHOG_WRITE_KEY`. Horca workflows inject neither → compile-time null
   → `track()` is a no-op. No new gate added.
 - **Diagnostics uploads** (`src/main/observability/diagnostic-upload-endpoint.ts`):
   require `ORCA_DIAGNOSTICS_TOKEN_URL` plus official build identity; both are
