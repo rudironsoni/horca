@@ -41,6 +41,8 @@ export const ALLOWED_OVERLAY_PATHS = new Set([
   'config/electron-builder.config.cjs',
   'config/scripts/build-computer-macos.mjs',
   'config/scripts/build-notification-status-macos.mjs',
+  'config/scripts/daemon-boot-smoke.mjs',
+  'config/scripts/macos-computer-helper-owner-loss-processes.test.mjs',
   'config/scripts/pr-e2e-gate-contract.test.mjs',
   'config/scripts/run-electron-vite-targets-in-parallel.mjs',
   'config/tsconfig.cli.json',

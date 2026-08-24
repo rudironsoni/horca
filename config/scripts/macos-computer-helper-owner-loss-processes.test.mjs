@@ -133,10 +133,13 @@ describeMacOS('macOS helper owner-loss benchmark process cleanup', () => {
       writeFileSync(${JSON.stringify(childPidPath)}, String(child.pid))
       setInterval(() => {}, 1000)
     `
+    // Why: spawnSync kills the launcher at timeout. 100ms is often shorter than
+    // cold `node -e` + grandchild spawn on a loaded macOS runner, so child.pid
+    // was never written (mac-native-owner-smoke 32747211303).
     const result = spawnBenchmarkProcess(process.execPath, ['-e', fixture], {
       env: { ...process.env, [environmentName]: environmentValue },
       stdio: 'ignore',
-      timeout: 100
+      timeout: 5_000
     })
     const childPid = Number(readFileSync(childPidPath, 'utf8'))
     spawnedPids.add(childPid)
