@@ -14,6 +14,7 @@ import {
   isWindowsSignatureMismatchFailure
 } from '../../../shared/updater-windows-signature-check'
 import { getReleaseNotesUrlForVersion } from '../../../shared/release-channel'
+import { getDistributionIdentity } from '../../../shared/distribution-identity'
 import { translate } from '@/i18n/i18n'
 
 // ── Helpers ──────────────────────────────────────────────────────────
@@ -502,7 +503,16 @@ export function UpdateCard() {
       return (
         <CompactCardContent
           icon="check"
-          text={translate('auto.components.UpdateCard.ea2a41adbe', "You're on the latest version.")}
+          // Why: downstream distributions disable the in-app updater; "latest version" would imply a feed check that never ran.
+          text={
+            status.updatesDisabledReason
+              ? translate(
+                  'auto.components.UpdateCard.8e0c186b72',
+                  'Updates for {{value0}} ship through Homebrew and GitHub Releases.',
+                  { value0: getDistributionIdentity().productName }
+                )
+              : translate('auto.components.UpdateCard.ea2a41adbe', "You're on the latest version.")
+          }
         />
       )
     }

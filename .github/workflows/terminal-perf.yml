@@ -51,6 +51,7 @@ on:
 jobs:
   terminal-perf:
     name: terminal scale perf
+    if: github.event_name != 'schedule' || github.repository == 'stablyai/orca'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:

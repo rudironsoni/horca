@@ -33,8 +33,24 @@ const isWinAdhoc = process.env.ORCA_WIN_ADHOC === '1'
 const isWinDevChannel = isWinHourly || isWinDaily || isWinAdhoc
 const isMacRelease = process.env.ORCA_MAC_RELEASE === '1' || isMacHourly || isMacDaily || isMacAdhoc
 const isLinuxArm64Release = process.env.ORCA_LINUX_ARM64_RELEASE === '1'
+// Why: ORCA_DOWNSTREAM_BUILD=1 packages a downstream personal distribution
+// (fork-only; see docs/FORK_MAINTENANCE.md) that must install side by side
+// with official Orca. Every externally visible identity resolves from the
+// shared distribution contract so the two apps never collide. When the
+// variable is absent this file must produce the official configuration
+// unchanged.
+const isDownstreamBuild = process.env.ORCA_DOWNSTREAM_BUILD === '1'
+const distributionIdentity = require('../src/shared/distribution-identity.json')[
+  isDownstreamBuild ? 'horca' : 'official'
+]
+// Why downstream release builds keep ORCA_LOCAL_BUILD_VERSION: the official
+// ORCA_MAC_RELEASE path takes its version from package.json (release-cut owns
+// it), but downstream releases version as <upstream-core>-<distribution>.<N>
+// and the packaging repo passes that via ORCA_LOCAL_BUILD_VERSION.
 const localBuildVersion =
-  isMacRelease || isWinDevChannel ? undefined : process.env.ORCA_LOCAL_BUILD_VERSION
+  !isDownstreamBuild && (isMacRelease || isWinDevChannel)
+    ? undefined
+    : process.env.ORCA_LOCAL_BUILD_VERSION
 const isHourlyChannel = isMacHourly || isWinHourly
 const isDailyChannel = isMacDaily || isWinDaily
 const isAdhocChannel = isMacAdhoc || isWinAdhoc
@@ -58,7 +74,9 @@ const devChannelRepo = isHourlyChannel
     : isAdhocChannel
       ? 'orca-adhoc'
       : null
-const appId = 'com.stablyai.orca'
+const appId = distributionIdentity.appId
+const productName = distributionIdentity.productName
+const publicCliName = distributionIdentity.publicCli
 const featureWallResources = {
   from: 'resources/onboarding/feature-wall',
   to: 'onboarding/feature-wall'
@@ -103,8 +121,8 @@ const winSpeechNativeResource = {
 /** @type {import('electron-builder').Configuration} */
 module.exports = {
   appId,
-  productName: 'Orca',
-  protocols: [{ name: 'Orca', schemes: ['orca'] }],
+  productName,
+  protocols: [{ name: productName, schemes: [distributionIdentity.protocol] }],
   ...(devChannelBuildVersion
     ? { extraMetadata: { version: devChannelBuildVersion } }
     : localBuildVersion
@@ -300,7 +318,10 @@ module.exports = {
       chmodSync(join(resourcesDir, filename), 0o755)
     }
     if (context.electronPlatformName === 'darwin') {
-      await signMacComputerUseHelper(join(resourcesDir, 'Orca Computer Use.app'), context.packager)
+      await signMacComputerUseHelper(
+        join(resourcesDir, `${productName} Computer Use.app`),
+        context.packager
+      )
       await signMacStandaloneHelper(
         join(resourcesDir, '..', 'MacOS', 'orca-notification-status'),
         'orca-notification-status',
@@ -314,7 +335,7 @@ module.exports = {
     }
   },
   win: {
-    executableName: 'Orca',
+    executableName: productName,
     // Why: Windows installers are signed after electron-builder packaging by
     // SignPath, so the packager cannot infer the updater publisherName.
     //
@@ -326,20 +347,27 @@ module.exports = {
     // name is absent. An unsigned build that still claimed 'SignPath Foundation'
     // would therefore reject its own channel's next build — and its way back to
     // stable with it. Dropping it is what makes dev→dev and dev→stable work.
-    ...(isWinDevChannel
+    //
+    // Why downstream drops it too: SignPath Foundation is the official Orca
+    // publisher identity and must never be claimed by a downstream build,
+    // signed or not.
+    ...(isWinDevChannel || isDownstreamBuild
       ? { verifyUpdateCodeSignature: false }
       : { signtoolOptions: { publisherName: 'SignPath Foundation' } }),
     extraResources: [
       ...commonExtraResources,
       ...createPackagedRuntimeNodeModuleResources('win32'),
       winSpeechNativeResource,
+      // Why the launchers keep their source names but ship under the public CLI
+      // name: both resolve their targets from their own on-disk basename, so
+      // one source works for every distribution.
       {
         from: 'resources/win32/bin/orca.cmd',
-        to: 'bin/orca.cmd'
+        to: `bin/${publicCliName}.cmd`
       },
       {
         from: 'native/windows-cli-launcher/.build/orca.exe',
-        to: 'bin/orca.exe'
+        to: `bin/${publicCliName}.exe`
       },
       {
         from: 'node_modules/agent-browser/bin/agent-browser-win32-x64.exe',
@@ -353,34 +381,39 @@ module.exports = {
     ]
   },
   nsis: {
-    artifactName: 'orca-windows-setup.${ext}',
+    artifactName: isDownstreamBuild
+      ? 'horca-windows-x64-setup.${ext}'
+      : 'orca-windows-setup.${ext}',
     shortcutName: '${productName}',
     uninstallDisplayName: '${productName}',
     createDesktopShortcut: 'always',
     // Why: on a real uninstall, stop and remove the relocated terminal daemon
     // (which lives outside the install dir under LOCALAPPDATA by design). Guarded
     // by ${isUpdated} inside so it never runs during an update's uninstallOldVersion.
-    include: resolve(__dirname, 'nsis', 'daemon-host-uninstall.nsh')
+    // Each distribution gets its own include: the image and folder names differ
+    // (see src/shared/distribution-identity.json) and an uninstaller must only
+    // ever kill its own distribution's daemon. The Horca include also re-pins
+    // APP_FILENAME so oneClick NSIS does not install into Programs\orca, and
+    // writes the horca: URL protocol (electron-builder NSIS never does).
+    include: resolve(
+      __dirname,
+      'nsis',
+      isDownstreamBuild ? 'daemon-host-uninstall-horca.nsh' : 'daemon-host-uninstall.nsh'
+    )
   },
   mac: {
     icon: 'resources/build/icon.icns',
     entitlements: 'resources/build/entitlements.mac.plist',
     entitlementsInherit: 'resources/build/entitlements.mac.plist',
     extendInfo: {
-      NSAppleEventsUsageDescription:
-        'Orca allows terminal-launched developer tools to automate local apps when you request it.',
-      NSBluetoothAlwaysUsageDescription:
-        'Orca allows terminal-launched developer tools to access Bluetooth devices when you request it.',
-      NSBluetoothPeripheralUsageDescription:
-        'Orca allows terminal-launched developer tools to access Bluetooth devices when you request it.',
+      NSAppleEventsUsageDescription: `${productName} allows terminal-launched developer tools to automate local apps when you request it.`,
+      NSBluetoothAlwaysUsageDescription: `${productName} allows terminal-launched developer tools to access Bluetooth devices when you request it.`,
+      NSBluetoothPeripheralUsageDescription: `${productName} allows terminal-launched developer tools to access Bluetooth devices when you request it.`,
       NSCameraUsageDescription: "Application requests access to the device's camera.",
-      NSLocationUsageDescription:
-        'Orca allows terminal-launched developer tools to access location when you request it.',
-      NSLocalNetworkUsageDescription:
-        'Orca allows terminal-launched developer tools to discover and connect to local development servers when you request it.',
+      NSLocationUsageDescription: `${productName} allows terminal-launched developer tools to access location when you request it.`,
+      NSLocalNetworkUsageDescription: `${productName} allows terminal-launched developer tools to discover and connect to local development servers when you request it.`,
       NSMicrophoneUsageDescription: "Application requests access to the device's microphone.",
-      NSAudioCaptureUsageDescription:
-        'Orca allows terminal-launched developer tools to capture desktop audio when you request it.',
+      NSAudioCaptureUsageDescription: `${productName} allows terminal-launched developer tools to capture desktop audio when you request it.`,
       NSBonjourServices: ['_http._tcp', '_https._tcp'],
       NSDocumentsFolderUsageDescription:
         "Application requests access to the user's Documents folder.",
@@ -405,8 +438,10 @@ module.exports = {
       ...createPackagedRuntimeNodeModuleResources('darwin'),
       macSpeechNativeResource,
       {
+        // Why: the launcher reads CFBundleExecutable at run time, so the same
+        // source script serves every distribution under its public CLI name.
         from: 'resources/darwin/bin/orca',
-        to: 'bin/orca'
+        to: `bin/${publicCliName}`
       },
       {
         from: 'node_modules/agent-browser/bin/agent-browser-darwin-${arch}',
@@ -419,8 +454,10 @@ module.exports = {
         to: 'serve-sim'
       },
       {
-        from: 'native/computer-use-macos/.build/release/Orca Computer Use.app',
-        to: 'Orca Computer Use.app'
+        // Why distribution-scoped: the helper .app carries its own TCC identity
+        // (see config/scripts/build-computer-macos.mjs).
+        from: `native/computer-use-macos/.build/release/${productName} Computer Use.app`,
+        to: `${productName} Computer Use.app`
       },
       featureWallResources
     ],
@@ -452,7 +489,7 @@ module.exports = {
   // silently downgrading to ad-hoc artifacts that look shippable in CI logs.
   forceCodeSigning: isMacRelease,
   dmg: {
-    artifactName: 'orca-macos-${arch}.${ext}'
+    artifactName: isDownstreamBuild ? 'horca-macos-${arch}.${ext}' : 'orca-macos-${arch}.${ext}'
   },
   linux: {
     // Why: Ubuntu desktop ships GNOME Orca as the `orca` package and /usr/bin/orca.
@@ -540,19 +577,25 @@ module.exports = {
   // on Intel Macs. The beforeBuild hook performs Orca's targeted rebuild and
   // returns false so electron-builder does not rebuild optional cpu-features.
   npmRebuild: true,
-  publish: {
-    provider: 'github',
-    owner: 'stablyai',
-    repo: devChannelRepo ?? 'orca',
-    releaseType: devChannelRepo ? 'prerelease' : 'release'
-  }
+  // Why downstream disables publishing outright: downstream artifacts are
+  // uploaded explicitly by the fork's packaging repo, and no downstream build
+  // may ever publish to official Stably destinations — even when a caller
+  // forgets --publish never.
+  publish: isDownstreamBuild
+    ? null
+    : {
+        provider: 'github',
+        owner: 'stablyai',
+        repo: devChannelRepo ?? 'orca',
+        releaseType: devChannelRepo ? 'prerelease' : 'release'
+      }
 }
 
 function chmodUnixCliLaunchers(resourcesDir, electronPlatformName) {
   if (electronPlatformName === 'win32') {
     return
   }
-  for (const launcherName of ['orca', 'orca-ide']) {
+  for (const launcherName of [publicCliName, 'orca-ide']) {
     const launcherPath = join(resourcesDir, 'bin', launcherName)
     if (!existsSync(launcherPath)) {
       continue
