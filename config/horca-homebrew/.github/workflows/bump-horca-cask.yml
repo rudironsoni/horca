@@ -1,0 +1,108 @@
+name: Bump horca cask
+
+# Pull-based cask automation: polls the latest Horca release on
+# rudironsoni/orca (v*-horca.* only) and, when the cask is behind, downloads
+# the DMGs, recomputes sha256, updates Casks/horca.rb, runs brew style +
+# audit, and commits with this repository's own GITHUB_TOKEN. No
+# cross-repository write credentials anywhere.
+
+on:
+  schedule:
+    - cron: '43 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    # macOS runner: brew style/audit need a working Homebrew.
+    runs-on: macos-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout tap
+        uses: actions/checkout@v6
+
+      - name: Read latest Horca release
+        id: latest
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          release_json=$(gh api repos/rudironsoni/orca/releases --paginate \
+            --jq '[.[] | select(.draft|not) | select(.tag_name | test("^v[0-9]+\\.[0-9]+\\.[0-9]+-horca\\.[0-9]+$"))] | sort_by(.created_at) | last // empty') || true
+          if [ -z "$release_json" ] || [ "$release_json" = "null" ]; then
+            echo "::notice::no Horca release published yet"
+            echo "version=" >>"$GITHUB_OUTPUT"
+            exit 0
+          fi
+          tag=$(printf '%s\n' "$release_json" | jq -r .tag_name)
+          if ! [[ "$tag" =~ ^v([0-9]+\.[0-9]+\.[0-9]+-horca\.[0-9]+)$ ]]; then
+            echo "::error::latest Horca release tag does not look like a Horca tag: $tag"
+            exit 1
+          fi
+          echo "version=${BASH_REMATCH[1]}" >>"$GITHUB_OUTPUT"
+
+      - name: Compare with the cask
+        id: compare
+        if: steps.latest.outputs.version != ''
+        env:
+          VERSION: ${{ steps.latest.outputs.version }}
+        run: |
+          set -euo pipefail
+          current=$(sed -n 's/^  version "\(.*\)".*$/\1/p' Casks/horca.rb | head -1)
+          echo "cask version: $current, latest release: $VERSION"
+          if [ "$current" = "$VERSION" ]; then
+            echo "changed=false" >>"$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >>"$GITHUB_OUTPUT"
+          fi
+
+      - name: Update cask
+        if: steps.compare.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.latest.outputs.version }}
+        run: |
+          set -euo pipefail
+          for arch in arm64 x64; do
+            gh release download "v$VERSION" \
+              --repo rudironsoni/orca \
+              --pattern "horca-macos-$arch.dmg" \
+              --dir /tmp/horca-bump
+          done
+          sha_arm64=$(shasum -a 256 /tmp/horca-bump/horca-macos-arm64.dmg | cut -d' ' -f1)
+          sha_x64=$(shasum -a 256 /tmp/horca-bump/horca-macos-x64.dmg | cut -d' ' -f1)
+
+          # Replace version and the two sha256 values (arm line, then intel line).
+          sed -i '' \
+            -e "s|^  version \".*$|  version \"$VERSION\"|" \
+            -e "s|^  sha256 arm:   \".*\",$|  sha256 arm:   \"$sha_arm64\",|" \
+            -e "s|^         intel: \".*\"$|         intel: \"$sha_x64\"|" \
+            Casks/horca.rb
+
+          grep -q "version \"$VERSION\"" Casks/horca.rb
+          grep -q "$sha_arm64" Casks/horca.rb
+          grep -q "$sha_x64" Casks/horca.rb
+
+      - name: Style and audit
+        if: steps.compare.outputs.changed == 'true'
+        run: |
+          set -euo pipefail
+          brew style --cask "$PWD/Casks/horca.rb"
+          brew audit --cask "$PWD/Casks/horca.rb" || {
+            echo "::warning::brew audit reported issues; review before relying on this bump"
+            exit 1
+          }
+
+      - name: Commit and push
+        if: steps.compare.outputs.changed == 'true'
+        env:
+          VERSION: ${{ steps.latest.outputs.version }}
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add Casks/horca.rb
+          git commit -m "horca $VERSION"
+          git push

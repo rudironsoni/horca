@@ -11,6 +11,7 @@ permissions:
 jobs:
   linux-x11:
     name: Linux X11 terminal IME
+    if: github.event_name != 'schedule' || github.repository == 'stablyai/orca'
     runs-on: ubuntu-22.04
     timeout-minutes: 25
 
