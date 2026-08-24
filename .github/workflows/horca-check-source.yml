@@ -1,0 +1,71 @@
+name: Check for new Horca source
+
+# Cheap pull-based detector: compares this repo's main HEAD against the
+# Source-SHA of the latest published Horca release (v*-horca.* only).
+# Unchanged source exits on a Linux runner in seconds — macOS runners never
+# start for unchanged source. Changed source triggers the full atomic
+# release flow.
+#
+# The FIRST release is deliberately manual (dispatch horca-release.yml):
+# automation only continues an already-proven pipeline, it never bootstraps.
+
+on:
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  detect:
+    if: github.repository == 'rudironsoni/orca'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      changed: ${{ steps.compare.outputs.changed }}
+      sha: ${{ steps.compare.outputs.sha }}
+    steps:
+      - name: Compare main HEAD against the latest Horca release Source-SHA
+        id: compare
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          head_sha=$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq .sha)
+          echo "$GITHUB_REPOSITORY main HEAD: $head_sha"
+
+          # Why not /releases/latest: a stray non-Horca release (or a mirrored
+          # official tag that someone published) must never drive automation.
+          release_json=$(gh api "repos/$GITHUB_REPOSITORY/releases" --paginate \
+            --jq '[.[] | select(.draft|not) | select(.tag_name | test("^v[0-9]+\\.[0-9]+\\.[0-9]+-horca\\.[0-9]+$"))] | sort_by(.created_at) | last // empty')
+          if [ -z "$release_json" ] || [ "$release_json" = "null" ]; then
+            echo "::notice::no published Horca release yet; the first release must be cut manually via horca-release.yml"
+            echo "changed=false" >>"$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          tag=$(printf '%s\n' "$release_json" | jq -r .tag_name)
+          release_body=$(printf '%s\n' "$release_json" | jq -r .body)
+          last_source=$(printf '%s\n' "$release_body" | sed -n 's/^Source-SHA: \([0-9a-f]\{40\}\)\r\?$/\1/p' | head -1)
+          if [ -z "$last_source" ]; then
+            echo "::error::latest Horca release $tag has no Source-SHA provenance marker; refusing to automate on top of it"
+            exit 1
+          fi
+          echo "latest Horca release: $tag Source-SHA: $last_source"
+
+          if [ "$head_sha" = "$last_source" ]; then
+            echo "Source unchanged; nothing to do."
+            echo "changed=false" >>"$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >>"$GITHUB_OUTPUT"
+            echo "sha=$head_sha" >>"$GITHUB_OUTPUT"
+          fi
+
+  release:
+    needs: detect
+    if: github.repository == 'rudironsoni/orca' && needs.detect.outputs.changed == 'true'
+    uses: ./.github/workflows/horca-release.yml
+    with:
+      sha: ${{ needs.detect.outputs.sha }}
+    secrets: inherit
