@@ -27,6 +27,7 @@ describe('fork upstream overlay guard', () => {
     'config/horca-homebrew/Casks/horca.rb',
     'config/horca-homebrew/README-horca.md',
     'config/scripts/horca-prepare-release.sh',
+    'config/scripts/horca-prepare-release.test.mjs',
     'config/scripts/horca-release-workflows.test.mjs'
   ]
 

@@ -23,6 +23,7 @@ export const FORK_ONLY_PATHS = new Set([
   'config/scripts/fork-upstream-overlay-guard.mjs',
   'config/scripts/fork-upstream-overlay-guard.test.mjs',
   'config/scripts/horca-prepare-release.sh',
+  'config/scripts/horca-prepare-release.test.mjs',
   'config/scripts/horca-release-workflows.test.mjs',
   'config/scripts/merge-upstream-main-workflow.test.mjs',
   'docs/FORK_MAINTENANCE.md',
