@@ -25,15 +25,15 @@ on:
         required: true
     secrets:
       MAC_CERTS:
-        required: true
+        required: false
       MAC_CERTS_PASSWORD:
-        required: true
+        required: false
       APPLE_ID:
-        required: true
+        required: false
       APPLE_APP_SPECIFIC_PASSWORD:
-        required: true
+        required: false
       APPLE_TEAM_ID:
-        required: true
+        required: false
 
 permissions:
   contents: write
