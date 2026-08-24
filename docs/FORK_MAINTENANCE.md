@@ -177,6 +177,32 @@ Open `sync/upstream-YYYY-MM-DD -> main` and merge it after `verify` passes. The
 temporary merge commit contains the real `upstream-main` SHA as an ancestor
 without changing the mirror.
 
+When both sides independently landed the same edit, take the `upstream-main`
+version. A leftover one-line fork delta is enough to conflict the next time
+the mirror touches that file. PR #52 stalled this way: fork PR #33 and
+upstream #15166 both wrapped `expectSingleOwningPty` in
+`tests/e2e/helpers/startup-exec-readiness-oracle.ts`, and Git stopped on the
+timeout (`RECOVERY_DEADLINE_MS` vs `30_000`). The helper now matches the
+mirror again.
+
+### Keep overlays off high-churn upstream files
+
+Do not leave long-lived patches in files `upstream-main` also owns under
+`tests/e2e/`. Put fork-only specs, fixtures, and timing wrappers in new files
+the mirror never touches.
+
+`config/scripts/fork-upstream-overlay-guard.mjs` is the ratchet:
+
+- Dual-tree diffs must stay on its overlay allowlist.
+- Files that exist only on personal `main` must stay on its fork-only list.
+- Dual-tree patches under `tests/e2e/` are denied even if someone adds them
+  to the allowlist.
+
+Hourly `Sync Upstream Main` runs the guard against `origin/main` and
+`origin/upstream-main` so a new helper overlay fails before it can dirty the
+next merge PR. Update the lists in the same commit as a new Horca file or an
+accepted overlay.
+
 ## Start fork-specific work
 
 ```bash

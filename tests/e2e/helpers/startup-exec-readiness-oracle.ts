@@ -98,7 +98,7 @@ async function expectSingleOwningPty(
           .filter((candidate) => candidate.tabId === tabId)
           .map((candidate) => ({ handle: candidate.handle, ptyId: candidate.ptyId }))
       },
-      { timeout: RECOVERY_DEADLINE_MS }
+      { timeout: 30_000 }
     )
     .toEqual([{ handle: terminal, ptyId }])
 }

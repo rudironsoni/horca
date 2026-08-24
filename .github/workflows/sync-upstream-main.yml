@@ -113,6 +113,18 @@ jobs:
 
           echo "Mirrored ${#refspecs[@]} missing v* tag(s) from upstream."
 
+      # Why: a leftover fork patch in tests/e2e/helpers turned the same poll
+      # wrapper into a merge conflict (PR #52). Fail the sync before opening
+      # another dirty upstream-main -> main PR.
+      - name: Guard fork overlays against high-churn upstream files
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin main upstream-main
+          node config/scripts/fork-upstream-overlay-guard.mjs \
+            --ours origin/main \
+            --theirs origin/upstream-main
+
       # Why: main takes upstream through merge commits, never rebases
       # (docs/FORK_MAINTENANCE.md — a rebase already deleted fork work once).
       # Opening the PR here makes the merge path the default and lets CI and
