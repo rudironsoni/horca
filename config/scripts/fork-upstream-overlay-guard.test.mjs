@@ -40,7 +40,11 @@ describe('fork upstream overlay guard', () => {
     expect(classifyForkPath('docs/new-horca-note.md', 'fork-only')).toBe('unexpected')
     expect(
       formatForkOverlayFailures([
-        { filePath: 'tests/e2e/helpers/startup-exec-readiness-oracle.ts', kind: 'overlay', status: 'denied' },
+        {
+          filePath: 'tests/e2e/helpers/startup-exec-readiness-oracle.ts',
+          kind: 'overlay',
+          status: 'denied'
+        },
         { filePath: 'docs/FORK_MAINTENANCE.md', kind: 'fork-only', status: 'allowed' }
       ])
     ).toEqual(['denied overlay: tests/e2e/helpers/startup-exec-readiness-oracle.ts'])

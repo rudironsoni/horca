@@ -126,9 +126,7 @@ export function allowlistIntegrityErrors() {
 }
 
 function gitLines(args) {
-  return execFileSync('git', args, { encoding: 'utf8' })
-    .split('\n')
-    .filter(Boolean)
+  return execFileSync('git', args, { encoding: 'utf8' }).split('\n').filter(Boolean)
 }
 
 export function inspectForkOverlay(ours, theirs) {
@@ -145,7 +143,11 @@ export function inspectForkOverlay(ours, theirs) {
       continue
     }
     if (onOurs && !onTheirs) {
-      findings.push({ filePath, kind: 'fork-only', status: classifyForkPath(filePath, 'fork-only') })
+      findings.push({
+        filePath,
+        kind: 'fork-only',
+        status: classifyForkPath(filePath, 'fork-only')
+      })
       continue
     }
     findings.push({ filePath, kind: 'upstream-only', status: 'unexpected' })
