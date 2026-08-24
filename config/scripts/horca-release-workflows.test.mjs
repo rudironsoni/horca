@@ -7,7 +7,8 @@ const projectDir = resolve(import.meta.dirname, '../..')
 const read = (relativePath) => readFileSync(join(projectDir, relativePath), 'utf8')
 const workflow = (name) => parse(read(join('.github', 'workflows', name)))
 const horcaRepoGate = "github.repository == 'rudironsoni/orca'"
-const horcaTagPattern = String.raw`^v[0-9]+\.[0-9]+\.[0-9]+-horca\.[0-9]+$`
+// jq string literals escape dots as \\. — this is the source form in the workflows.
+const horcaTagJqTest = 'test("^v[0-9]+\\\\.[0-9]+\\\\.[0-9]+-horca\\\\.[0-9]+$")'
 
 function checkoutSteps(job) {
   return (job.steps ?? []).filter((step) => step.uses?.startsWith('actions/checkout@'))
@@ -75,8 +76,9 @@ describe('in-repo Horca release workflows', () => {
     expect(checkSource.on.schedule).toEqual([{ cron: '17 */6 * * *' }])
     expect(checkSource.on.push).toBeUndefined()
     const compare = checkSource.jobs.detect.steps.find((step) => step.id === 'compare')
-    expect(compare.run).toContain(horcaTagPattern)
-    expect(compare.run).not.toContain('/releases/latest')
+    expect(compare.run).toContain(horcaTagJqTest)
+    expect(compare.run).not.toMatch(/gh api .*\/releases\/latest/)
+    expect(compare.run).toContain('/releases" --paginate')
     expect(compare.run).toContain('the first release must be cut manually')
     expect(compare.run).toContain('changed=false')
     expect(checkSource.jobs.release.if).toContain("needs.detect.outputs.changed == 'true'")
@@ -94,7 +96,7 @@ describe('in-repo Horca release workflows', () => {
     )
     expect(homebrewCask).toContain('regex(/^v(\\d+(?:\\.\\d+)+-horca\\.\\d+)$/i)')
     expect(homebrewBump).toContain('repos/rudironsoni/orca/releases')
-    expect(homebrewBump).toContain(horcaTagPattern)
+    expect(homebrewBump).toContain(horcaTagJqTest)
     expect(homebrewBump).toContain('--repo rudironsoni/orca')
     expect(homebrewBump).not.toContain('orca-builds')
   })
