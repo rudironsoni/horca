@@ -81,6 +81,8 @@ describe('in-repo Horca release workflows', () => {
     ).toContain('updater feed files must never be released')
     expect(prepareScript).toMatch(/\/\^v\\d\+\\\.\\d\+\\\.\\d\+-horca\\\.\\d\+\$\//)
     expect(prepareScript).toContain('Source-Repo: rudironsoni/orca')
+    expect(prepareScript).toContain('git merge-base origin/upstream-main "$SOURCE_SHA"')
+    expect(prepareScript).not.toContain('merge upstream-main into main before releasing')
   })
 
   it('detects source changes from Horca tags only and refuses to bootstrap', () => {

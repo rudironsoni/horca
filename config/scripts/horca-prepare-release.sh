@@ -28,12 +28,13 @@ NOTES_PATH="${NOTES_PATH:-release-notes.md}"
 git rev-parse --verify --quiet "$SOURCE_SHA^{commit}" >/dev/null || fail "SOURCE_SHA $SOURCE_SHA not found in this checkout"
 
 # --- Provenance -------------------------------------------------------------
-# Upstream-SHA is the tip of the mirrored upstream branch. The release is only
-# valid when the source commit fully contains it — releasing a fork main that
-# lags its own recorded upstream would make the provenance markers lie.
-UPSTREAM_SHA=$(git rev-parse origin/upstream-main) || fail "origin/upstream-main is missing; fetch all branches"
-git merge-base --is-ancestor "$UPSTREAM_SHA" "$SOURCE_SHA" ||
-  fail "origin/upstream-main ($UPSTREAM_SHA) is not an ancestor of SOURCE_SHA ($SOURCE_SHA); merge upstream-main into main before releasing"
+# Upstream-SHA is the newest origin/upstream-main commit actually contained by
+# SOURCE_SHA. Hourly sync can move the mirror tip ahead of main; claiming that
+# tip when it is not an ancestor would lie. Unrelated histories still fail.
+git rev-parse --verify --quiet origin/upstream-main^{commit} >/dev/null ||
+  fail "origin/upstream-main is missing; fetch all branches"
+UPSTREAM_SHA=$(git merge-base origin/upstream-main "$SOURCE_SHA") ||
+  fail "SOURCE_SHA ($SOURCE_SHA) shares no history with origin/upstream-main"
 
 # --- Version ----------------------------------------------------------------
 # Upstream core = package.json version at SOURCE_SHA with any prerelease
