@@ -16,12 +16,20 @@ jobs:
     if: github.repository == 'rudironsoni/orca'
     runs-on: ubuntu-latest
     steps:
+      - name: Skip overlay ratchet off main
+        if: github.event_name == 'pull_request' && github.event.pull_request.base.ref != 'main'
+        run: |
+          echo "Overlay ratchet compares the whole tree to stablyai/orca main."
+          echo "It runs on PRs into main and on workflow_dispatch; this PR targets ${{ github.event.pull_request.base.ref }}."
+
       - name: Checkout
+        if: github.event_name != 'pull_request' || github.event.pull_request.base.ref == 'main'
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Compare the fork overlay to stablyai/orca main
+        if: github.event_name != 'pull_request' || github.event.pull_request.base.ref == 'main'
         shell: bash
         run: |
           set -euo pipefail

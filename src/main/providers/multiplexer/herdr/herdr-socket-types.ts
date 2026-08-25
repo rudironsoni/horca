@@ -207,12 +207,16 @@ export type HerdrSocketTransportOptions = {
   sessionName: string
   timeoutMs?: number
   socketPath?: string
-  commandFor?: (args: string[]) => { file: string; args: string[]; env?: NodeJS.ProcessEnv }
-  serverCommandFor?: (sessionName: string) => {
-    file: string
+  commandFor?: (
     args: string[]
-    env?: NodeJS.ProcessEnv
-  }
+  ) =>
+    | { file: string; args: string[]; env?: NodeJS.ProcessEnv }
+    | Promise<{ file: string; args: string[]; env?: NodeJS.ProcessEnv }>
+  serverCommandFor?: (
+    sessionName: string
+  ) =>
+    | { file: string; args: string[]; env?: NodeJS.ProcessEnv }
+    | Promise<{ file: string; args: string[]; env?: NodeJS.ProcessEnv }>
   reconnection?: {
     enabled: boolean
     initialDelayMs: number

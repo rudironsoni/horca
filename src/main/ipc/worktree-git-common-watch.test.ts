@@ -621,37 +621,33 @@ describe('worktree git-common narrow watch (local native platforms)', () => {
   })
 
   it('re-arms the native stream when the root is replaced with the same child names', async () => {
-    vi.useFakeTimers()
-    const restorePerformanceNow = vi
-      .spyOn(nodePerformance, 'now')
-      .mockImplementation(() => Date.now())
-    try {
-      installSubscribeMock()
-      const commonDir = await makeCommonDir(true)
-      const worktreesDir = join(commonDir, 'worktrees')
-      const retainedEntry = join(worktreesDir, 'same-child')
-      await mkdir(retainedEntry)
-      const received: WorktreeBasePollEvent[][] = []
-      await startWatch(commonDir, received)
-      const staleSubscription = narrowSubscription()
+    // Why: fake timers fire the reconciliation timeout but do not flush the
+    // poller's real fs I/O, so the existence interval never arms.
+    installSubscribeMock()
+    const commonDir = await makeCommonDir(true)
+    const worktreesDir = join(commonDir, 'worktrees')
+    const retainedEntry = join(worktreesDir, 'same-child')
+    await mkdir(retainedEntry)
+    const received: WorktreeBasePollEvent[][] = []
+    await startWatch(commonDir, received)
+    const staleSubscription = narrowSubscription()
 
-      await replaceWorktreesRoot(commonDir, worktreesDir, retainedEntry)
-      await vi.advanceTimersByTimeAsync(POLL_MS * RECONCILIATION_TICKS * 4)
-      expect(subscribeMock).toHaveBeenCalledTimes(3)
-      expect(staleSubscription.unsubscribe).toHaveBeenCalledOnce()
+    await replaceWorktreesRoot(commonDir, worktreesDir, retainedEntry)
+    await vi.waitFor(
+      () => {
+        expect(subscribeMock).toHaveBeenCalledTimes(3)
+        expect(staleSubscription.unsubscribe).toHaveBeenCalledOnce()
+      },
+      { timeout: POLL_MS * RECONCILIATION_TICKS * 8 }
+    )
 
-      const beforeStaleEvent = received.length
-      staleSubscription.callback(null, [{ type: 'update', path: retainedEntry }])
-      expect(received).toHaveLength(beforeStaleEvent)
+    const beforeStaleEvent = received.length
+    staleSubscription.callback(null, [{ type: 'update', path: retainedEntry }])
+    expect(received).toHaveLength(beforeStaleEvent)
 
-      const immediateEntry = join(worktreesDir, 'after-rearm')
-      narrowSubscriptions()[1].callback(null, [{ type: 'create', path: immediateEntry }])
-      expect(received.flat()).toContainEqual({ type: 'create', path: immediateEntry })
-    } finally {
-      await Promise.all(cleanups.splice(0).map((cleanup) => cleanup()))
-      restorePerformanceNow.mockRestore()
-      vi.useRealTimers()
-    }
+    const immediateEntry = join(worktreesDir, 'after-rearm')
+    narrowSubscriptions()[1].callback(null, [{ type: 'create', path: immediateEntry }])
+    expect(received.flat()).toContainEqual({ type: 'create', path: immediateEntry })
   })
 
   it('disposes an in-flight stale resubscribe and fences its interruption hook', async () => {
