@@ -220,8 +220,11 @@ describe('in-repo Horca release workflows', () => {
       'Casks/${CASK_TOKEN}.rb'
     )
     expect(bumpCask.jobs.bump.steps.find((step) => step.name === 'Style and audit').run).toContain(
-      'Casks/${CASK_TOKEN}.rb'
+      'config/scripts/horca-brew-style-cask.sh'
     )
+    expect(
+      bumpCask.jobs.bump.steps.find((step) => step.name === 'Style and audit').env.TAP_DIR
+    ).toBe('${{ github.workspace }}/homebrew-tap')
     expect(homebrewBump).not.toContain('workflow_call:')
   })
 
@@ -305,6 +308,10 @@ describe('in-repo Horca release workflows', () => {
     expect(homebrewBump).toContain('select(.prerelease)')
     expect(homebrewBump).toContain('Casks/horca@beta.rb')
     expect(homebrewBump).toContain('--repo rudironsoni/orca')
+    expect(homebrewBump).toContain('brew --repository rudironsoni/tap')
+    expect(homebrewBump).toContain('HOMEBREW_NO_REQUIRE_TAP_TRUST=1')
+    expect(homebrewBump).not.toContain('$PWD/Casks/horca.rb')
+    expect(homebrewBump).not.toContain('$PWD/Casks/horca@beta.rb')
     expect(homebrewBump).not.toContain('orca-builds')
     expect(homebrewBump).not.toMatch(/\/releases\/latest/)
 

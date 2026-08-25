@@ -33,6 +33,8 @@ describe('fork upstream overlay guard', () => {
     'config/horca-homebrew/Casks/horca.rb',
     'config/horca-homebrew/Casks/horca@beta.rb',
     'config/horca-homebrew/README-horca.md',
+    'config/scripts/horca-brew-style-cask.sh',
+    'config/scripts/horca-brew-style-cask.test.mjs',
     'config/scripts/horca-bump-homebrew-cask.sh',
     'config/scripts/horca-bump-homebrew-cask.test.mjs',
     'config/scripts/horca-prepare-release.sh',

@@ -91,8 +91,14 @@ jobs:
         if: steps.compare.outputs.changed == 'true'
         run: |
           set -euo pipefail
-          brew style --cask "$PWD/Casks/horca.rb"
-          brew audit --cask "$PWD/Casks/horca.rb" || {
+          # Homebrew 5+ rejects cask files outside Library/Taps/<user>/homebrew-<repo>.
+          tap_link="$(brew --repository rudironsoni/tap)"
+          mkdir -p "$(dirname "$tap_link")"
+          rm -rf "$tap_link"
+          ln -s "$PWD" "$tap_link"
+          export HOMEBREW_NO_REQUIRE_TAP_TRUST=1 HOMEBREW_NO_AUTO_UPDATE=1
+          brew style --cask rudironsoni/tap/horca
+          brew audit --cask rudironsoni/tap/horca || {
             echo "::warning::brew audit reported issues; review before relying on this bump"
             exit 1
           }
@@ -186,8 +192,14 @@ jobs:
         if: steps.compare.outputs.changed == 'true'
         run: |
           set -euo pipefail
-          brew style --cask "$PWD/Casks/horca@beta.rb"
-          brew audit --cask "$PWD/Casks/horca@beta.rb" || {
+          # Homebrew 5+ rejects cask files outside Library/Taps/<user>/homebrew-<repo>.
+          tap_link="$(brew --repository rudironsoni/tap)"
+          mkdir -p "$(dirname "$tap_link")"
+          rm -rf "$tap_link"
+          ln -s "$PWD" "$tap_link"
+          export HOMEBREW_NO_REQUIRE_TAP_TRUST=1 HOMEBREW_NO_AUTO_UPDATE=1
+          brew style --cask "rudironsoni/tap/horca@beta"
+          brew audit --cask "rudironsoni/tap/horca@beta" || {
             echo "::warning::brew audit reported issues; review before relying on this bump"
             exit 1
           }
