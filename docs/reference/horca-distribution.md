@@ -34,8 +34,9 @@ re-conflict with Horca identity hunks.
 | Windows daemon image | orca-terminal-daemon.exe | horca-terminal-daemon.exe |
 
 Horca packaging explicitly disables electron-builder publishing; a push
-to `main` runs `horca-release.yml`, which calls `horca-build.yml` and
-uploads GitHub Releases tagged `v<core>-horca.<N>` on this repository.
+to `main` runs `horca-release.yml`, which calls `horca-build.yml`, uploads
+GitHub Releases tagged `v<core>-horca.<N>` on this repository, then calls
+`bump-horca-cask.yml` and waits until the Homebrew tap matches that tag.
 Official mirrored `vX.Y.Z` git tags stay tags, not GitHub Releases. Horca Windows
 installers are currently unsigned (no Stably `publisherName`, no SignPath
 identity); the electron-updater Windows signature pin is dropped only for

@@ -24,12 +24,15 @@ const overlayWorkflow = parse(
 
 describe('fork upstream overlay guard', () => {
   const horcaReleaseForkOnlyPaths = [
+    '.github/workflows/bump-horca-cask.yml',
     '.github/workflows/horca-build.yml',
     '.github/workflows/horca-check-source.yml',
     '.github/workflows/horca-release.yml',
     'config/horca-homebrew/.github/workflows/bump-horca-cask.yml',
     'config/horca-homebrew/Casks/horca.rb',
     'config/horca-homebrew/README-horca.md',
+    'config/scripts/horca-bump-homebrew-cask.sh',
+    'config/scripts/horca-bump-homebrew-cask.test.mjs',
     'config/scripts/horca-prepare-release.sh',
     'config/scripts/horca-prepare-release.test.mjs',
     'config/scripts/horca-release-workflows.test.mjs'

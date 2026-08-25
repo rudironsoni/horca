@@ -19,8 +19,9 @@ brew install --cask rudironsoni/tap/horca
 
 - Horca's in-app updater is intentionally disabled; `brew upgrade --cask horca`
   is the update path (the cask sets no `auto_updates`).
-- The cask is bumped automatically by the `bump-horca-cask` workflow, which
-  polls the latest Horca release on `rudironsoni/orca` and commits with this
-  repository's own `GITHUB_TOKEN`. No cross-repository write credentials exist.
+- The cask is bumped by Release Horca on `rudironsoni/orca` (it calls
+  `bump-horca-cask.yml` and waits). This tap's scheduled `bump-horca-cask`
+  workflow is a 6-hour backup: it polls `v*-horca.*` releases and commits
+  with this repository's own `GITHUB_TOKEN`.
 - `brew zap horca` removes only Horca-owned state; an installed official
   Orca (app, `~/.orca`, Application Support, Keychain, TCC grants) survives.

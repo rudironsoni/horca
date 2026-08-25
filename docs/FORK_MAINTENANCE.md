@@ -106,14 +106,17 @@ release. Version math and detectors filter `/^v\d+\.\d+\.\d+-horca\.\d+$/` only.
 | Workflow | Purpose |
 | --- | --- |
 | `horca-build.yml` | Dispatch / `workflow_call` only. Produces the three verified artifacts. Never PR Checks. Not started by push to `main` (that double-notarized with `horca-release.yml`). Apple secrets are optional at the call boundary. |
-| `horca-release.yml` | Runs on every push to `main`. Compute `v<core>-horca.<N>` from the newest `stablyai/orca` main commit actually contained by the source SHA, call the build, then draft → 3 assets → undraft. Concurrent runs queue. |
+| `horca-release.yml` | Runs on every push to `main`. Compute `v<core>-horca.<N>` from the newest `stablyai/orca` main commit actually contained by the source SHA, call the build, draft → 3 assets → undraft, then call `bump-horca-cask.yml` and wait. Concurrent runs queue. |
+| `bump-horca-cask.yml` | Dispatch / `workflow_call` only. After a published Horca tag, rewrites `rudironsoni/homebrew-tap` `Casks/horca.rb` (version + sha256) and pushes. `FORK_SYNC_PAT` must be able to push to that tap. |
 | `horca-check-source.yml` | Backup every 6 hours: compare `main` HEAD to the latest Horca release `Source-SHA`. Unchanged → Linux-only exit. Changed → call `horca-release.yml`. Refuses to bootstrap if no Horca release exists yet. |
 
 Release attaches the build workflow's Actions artifacts to this repository's GitHub Release; it does not package again.
 
 Homebrew staging lives in `config/horca-homebrew/` and is copied once into
-`rudironsoni/homebrew-tap`. The tap stays a separate repository; its bump
-workflow already pulls from GitHub Releases on this repo.
+`rudironsoni/homebrew-tap`. The tap stays a separate repository. Release
+Horca calls `.github/workflows/bump-horca-cask.yml` (same `uses:` wait as
+the build) so the cask matches the tag that just shipped. The tap's own
+scheduled copy remains a 6-hour backup.
 
 ### Runbook
 
@@ -124,7 +127,8 @@ workflow already pulls from GitHub Releases on this repo.
 2. Prove the pipeline without publishing: Actions → **Build Horca** → Run
    workflow. Optional inputs: Horca version (`<core>-horca.N`) and commit SHA.
 3. A merge (or Shepherd push) to `main` starts **Release Horca** only.
-   Dispatch remains available.
+   After the GitHub Release is undrafted, that run calls **Bump horca cask**
+   and waits. Dispatch remains available.
 4. `horca-check-source.yml` is a backup if a push event is missed. It
    still will not bootstrap a first release by itself.
 5. After the first in-repo release is verified, archive
@@ -141,7 +145,8 @@ Applied by `.github/workflows/horca-repo-admin.yml` using `FORK_SYNC_PAT`
   auto-delete toggle; **Workflows** write so Shepherd can push upstream merges
   that touch `.github/workflows`. Same token on checkout and the action. The
   default `GITHUB_TOKEN` cannot push workflow files and PRs it creates do not
-  trigger PR CI.
+  trigger PR CI. The token must also be able to push to
+  `rudironsoni/homebrew-tap` so Release Horca can bump the cask.
 - Labels: `sync-conflict` (cleanup), `sync-bot` (unused while PR monitor is
   off), `backport-to-*` as needed.
 - Ruleset on `main` (`refs/heads/main`): **block force-push** and **restrict

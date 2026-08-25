@@ -17,9 +17,11 @@ function checkoutSteps(job) {
 describe('in-repo Horca release workflows', () => {
   const build = workflow('horca-build.yml')
   const release = workflow('horca-release.yml')
+  const bumpCask = workflow('bump-horca-cask.yml')
   const checkSource = workflow('horca-check-source.yml')
   const tagMirror = workflow('mirror-upstream-v-tags.yml')
   const prepareScript = read('config/scripts/horca-prepare-release.sh')
+  const bumpScript = read('config/scripts/horca-bump-homebrew-cask.sh')
   const homebrewCask = read('config/horca-homebrew/Casks/horca.rb')
   const homebrewBump = read('config/horca-homebrew/.github/workflows/bump-horca-cask.yml')
 
@@ -52,6 +54,7 @@ describe('in-repo Horca release workflows', () => {
     for (const [name, job] of Object.entries({
       ...build.jobs,
       ...release.jobs,
+      ...bumpCask.jobs,
       ...checkSource.jobs
     })) {
       expect(job.if, name).toContain(horcaRepoGate)
@@ -73,6 +76,7 @@ describe('in-repo Horca release workflows', () => {
   it('grants Actions token scopes for artifact upload and download', () => {
     expect(build.permissions).toEqual({ contents: 'read', actions: 'write' })
     expect(release.permissions).toEqual({ contents: 'write', actions: 'write' })
+    expect(bumpCask.permissions).toEqual({ contents: 'read' })
   })
 
   it('uploads only the three Horca binaries from the build workflow', () => {
@@ -174,6 +178,34 @@ describe('in-repo Horca release workflows', () => {
     const mirror = tagMirror.jobs.mirror.steps.find((step) => step.run?.includes('list_v_tags'))
     expect(mirror.run).toContain(' !~ /-horca\\./')
     expect(tagMirror.on.schedule).toEqual([{ cron: '19 * * * *' }])
+  })
+
+  it('waits on bump-horca-cask after the GitHub Release is published', () => {
+    expect(release.jobs.build.uses).toBe('./.github/workflows/horca-build.yml')
+    expect(release.jobs['bump-cask'].uses).toBe('./.github/workflows/bump-horca-cask.yml')
+    expect(release.jobs['bump-cask'].needs).toEqual(['prepare', 'publish'])
+    expect(release.jobs['bump-cask']['continue-on-error']).toBeUndefined()
+    expect(release.jobs['bump-cask'].with.version).toBe('${{ needs.prepare.outputs.version }}')
+    expect(release.jobs['bump-cask'].secrets.FORK_SYNC_PAT).toBe('${{ secrets.FORK_SYNC_PAT }}')
+
+    expect(bumpCask.on.push).toBeUndefined()
+    expect(bumpCask.on.workflow_call.inputs.version.required).toBe(true)
+    expect(bumpCask.on.workflow_call.secrets.FORK_SYNC_PAT.required).toBe(true)
+    expect(bumpCask.concurrency).toEqual({
+      group: 'bump-horca-cask',
+      'cancel-in-progress': false
+    })
+    const tapCheckout = checkoutSteps(bumpCask.jobs.bump).find(
+      (step) => step.with?.repository === 'rudironsoni/homebrew-tap'
+    )
+    expect(tapCheckout.with.path).toBe('homebrew-tap')
+    expect(tapCheckout.with.token).toBe('${{ secrets.FORK_SYNC_PAT }}')
+    expect(bumpCask.jobs.bump.steps.find((step) => step.id === 'update').run).toContain(
+      'config/scripts/horca-bump-homebrew-cask.sh'
+    )
+    expect(bumpScript).toContain('--repo rudironsoni/orca')
+    expect(bumpScript).not.toContain('orca-builds')
+    expect(homebrewBump).not.toContain('workflow_call:')
   })
 
   it('points Homebrew staging at Horca releases on this repository', () => {

@@ -2,9 +2,10 @@ name: Release Horca
 
 # Cuts one atomic Horca release on this repository: computes the next
 # v<core>-horca.<N> tag, builds AND verifies every platform via
-# horca-build.yml, then publishes a single GitHub Release. A release is
-# never created unless macOS arm64 + macOS x64 + Windows x64 all built
-# and passed verification.
+# horca-build.yml, publishes a single GitHub Release, then calls
+# bump-horca-cask.yml and waits so the Homebrew tap matches that release.
+# A release is never created unless macOS arm64 + macOS x64 + Windows x64
+# all built and passed verification.
 #
 # A merge (or any push) to main starts a release. Dispatch and
 # horca-check-source.yml still work as backups. Concurrent runs queue;
@@ -176,3 +177,14 @@ jobs:
           gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --draft=false
           trap - ERR
           echo "Published $TAG from $GITHUB_REPOSITORY@$SOURCE_SHA"
+
+  # Same reusable-workflow wait as `build`: this job does not finish until
+  # the tap bump succeeds (or no-ops if Casks/horca.rb is already current).
+  bump-cask:
+    if: github.repository == 'rudironsoni/orca' && (github.event_name != 'push' || !contains(github.event.head_commit.message, '[skip horca-release]'))
+    needs: [prepare, publish]
+    uses: ./.github/workflows/bump-horca-cask.yml
+    with:
+      version: ${{ needs.prepare.outputs.version }}
+    secrets:
+      FORK_SYNC_PAT: ${{ secrets.FORK_SYNC_PAT }}
