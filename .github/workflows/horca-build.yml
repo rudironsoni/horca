@@ -3,8 +3,8 @@ name: Build Horca
 # Builds and verifies every Horca release target — macOS arm64, macOS x64,
 # Windows x64 — from ONE exact commit of this repository. Never creates a
 # Release; publishing is horca-release.yml's job so a partially built version
-# can never ship. Dispatch or horca-release.yml calling this
-# with a pinned SHA + version. Apple secrets are optional at the workflow
+# can never ship. Dispatch or horca-release.yml / horca-beta-release.yml
+# calling this with a pinned SHA + version. Apple secrets are optional at the workflow
 # boundary so a missing secret starts jobs (macOS then fail-closes) instead
 # of killing the reusable call with zero steps.
 
@@ -15,7 +15,7 @@ on:
         description: 'Commit SHA to build (default: the dispatched ref)'
         required: false
       version:
-        description: 'Horca version (<upstream-core>-horca.<N>, e.g. 1.4.178-horca.1). Empty on push: next N is computed.'
+        description: 'Horca version (<core>-horca.<N> or <core>-horca.<N>-beta.<M>, e.g. 1.4.178-horca.1). Empty on dispatch: next stable N is computed.'
         required: false
   workflow_call:
     inputs:
@@ -41,8 +41,10 @@ permissions:
   contents: read
   actions: write
 
+# Nested callers inherit github.workflow / github.ref, so a beta
+# notarization on feature/* does not serialize behind a stable one.
 concurrency:
-  group: horca-build
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -107,8 +109,8 @@ jobs:
             ' <<<"$releases_ndjson")
             VERSION="${core}-horca.$((max_n + 1))"
           fi
-          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+-horca\.[0-9]+$ ]]; then
-            echo "::error::version must match <upstream-core>-horca.<N>, got: $VERSION"
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+-horca\.[0-9]+(-beta\.[0-9]+)?$ ]]; then
+            echo "::error::version must match <core>-horca.<N> or <core>-horca.<N>-beta.<M> (got ${VERSION})"
             exit 1
           fi
           if [[ "$VERSION" != "$core-horca."* ]]; then

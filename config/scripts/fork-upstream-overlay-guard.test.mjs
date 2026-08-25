@@ -25,11 +25,13 @@ const overlayWorkflow = parse(
 describe('fork upstream overlay guard', () => {
   const horcaReleaseForkOnlyPaths = [
     '.github/workflows/bump-horca-cask.yml',
+    '.github/workflows/horca-beta-release.yml',
     '.github/workflows/horca-build.yml',
     '.github/workflows/horca-check-source.yml',
     '.github/workflows/horca-release.yml',
     'config/horca-homebrew/.github/workflows/bump-horca-cask.yml',
     'config/horca-homebrew/Casks/horca.rb',
+    'config/horca-homebrew/Casks/horca@beta.rb',
     'config/horca-homebrew/README-horca.md',
     'config/scripts/horca-bump-homebrew-cask.sh',
     'config/scripts/horca-bump-homebrew-cask.test.mjs',
@@ -86,6 +88,13 @@ describe('fork upstream overlay guard', () => {
       .split(' ')
     // Merge commits are Shepherd catching main up; overlay-guard.yml is the live check.
     if (tokens.length !== 2) {
+      return
+    }
+    const parentFiles = execFileSync('git', ['ls-tree', '-r', '--name-only', tokens[1]], {
+      encoding: 'utf8'
+    })
+    // Squash commits on already-Horca main are not the original overlay vs upstream.
+    if (parentFiles.includes('docs/FORK_MAINTENANCE.md')) {
       return
     }
     expect(formatForkOverlayFailures(inspectForkOverlay('HEAD', tokens[1]))).toEqual([])

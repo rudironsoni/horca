@@ -1,22 +1,33 @@
 name: Bump horca cask
 
-# Called by horca-release.yml after the GitHub Release is visible, so the
-# tap matches the version that just shipped. The caller waits: this is a
-# reusable workflow, same pattern as horca-build.yml. Dispatch retries a
-# bump without cutting another release. Never on push (that would race
-# the release). The copy in config/horca-homebrew is the tap's 6h backup.
+# Called by horca-release.yml / horca-beta-release.yml after the GitHub
+# Release is visible, so the tap matches the version that just shipped.
+# The caller waits: this is a reusable workflow, same pattern as
+# horca-build.yml. Dispatch retries a bump without cutting another
+# release. Never on push (that would race the release). The copy in
+# config/horca-homebrew is the tap's 6h backup. CASK_TOKEN selects
+# Casks/horca.rb or Casks/horca@beta.rb; a missing tap file is copied
+# from this repo's staging path first.
 
 on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Horca version to bump the tap to (<core>-horca.<N>)'
+        description: 'Horca version to bump the tap to'
         required: true
+      cask_token:
+        description: 'Cask token (horca or horca@beta)'
+        required: false
+        default: 'horca'
   workflow_call:
     inputs:
       version:
         type: string
         required: true
+      cask_token:
+        type: string
+        required: false
+        default: 'horca'
     secrets:
       FORK_SYNC_PAT:
         required: true
@@ -25,7 +36,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: bump-horca-cask
+  group: bump-horca-cask-${{ inputs.cask_token || 'horca' }}
   cancel-in-progress: false
 
 jobs:
@@ -51,31 +62,35 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ inputs.version }}
+          CASK_TOKEN: ${{ inputs.cask_token || 'horca' }}
           TAP_DIR: ${{ github.workspace }}/homebrew-tap
         run: bash config/scripts/horca-bump-homebrew-cask.sh
 
       - name: Style and audit
         if: steps.update.outputs.changed == 'true'
         working-directory: homebrew-tap
+        env:
+          CASK_TOKEN: ${{ inputs.cask_token || 'horca' }}
         run: |
           set -euo pipefail
-          brew style --cask "$PWD/Casks/horca.rb"
-          brew audit --cask "$PWD/Casks/horca.rb"
+          brew style --cask "$PWD/Casks/${CASK_TOKEN}.rb"
+          brew audit --cask "$PWD/Casks/${CASK_TOKEN}.rb"
 
       - name: Commit and push
         if: steps.update.outputs.changed == 'true'
         working-directory: homebrew-tap
         env:
           VERSION: ${{ inputs.version }}
+          CASK_TOKEN: ${{ inputs.cask_token || 'horca' }}
         run: |
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
           git fetch origin main
           git rebase origin/main
-          git add Casks/horca.rb
+          git add "Casks/${CASK_TOKEN}.rb"
           git diff --cached --quiet && exit 0
-          git commit -m "horca $VERSION"
+          git commit -m "${CASK_TOKEN} $VERSION"
           git push origin HEAD:main || {
             git pull --rebase origin main
             git push origin HEAD:main

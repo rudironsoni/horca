@@ -36,8 +36,16 @@ re-conflict with Horca identity hunks.
 Horca packaging explicitly disables electron-builder publishing; a push
 to `main` runs `horca-release.yml`, which calls `horca-build.yml`, uploads
 GitHub Releases tagged `v<core>-horca.<N>` on this repository, then calls
-`bump-horca-cask.yml` and waits until the Homebrew tap matches that tag.
-Official mirrored `vX.Y.Z` git tags stay tags, not GitHub Releases. Horca Windows
+`bump-horca-cask.yml` and waits until the Homebrew tap's `horca` cask matches
+that tag. Pushes to conventional `feature/**` / `fix/**` / `hotfix/**` /
+`feat/**` / `bugfix/**` / `perf/**` / `refactor/**` branches run
+`horca-beta-release.yml` instead: same three assets, GitHub **prerelease**
+`v<core>-horca.<nextN>-beta.<M>` (nextN is 1 + max stable N; betas never
+increment stable N), then `horca@beta` on the tap
+(`brew install --cask rudironsoni/tap/horca@beta`, `conflicts_with cask:
+"horca"`). Skip with `[skip horca-beta]` or `[skip horca-release]`.
+`/releases/latest` and `horca-check-source.yml` stay on stable. Official
+mirrored `vX.Y.Z` git tags stay tags, not GitHub Releases. Horca Windows
 installers are currently unsigned (no Stably `publisherName`, no SignPath
 identity); the electron-updater Windows signature pin is dropped only for
 downstream builds, which never run the updater anyway.
