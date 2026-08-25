@@ -113,23 +113,21 @@ Release attaches the build workflow's Actions artifacts to this repository's Git
 
 Homebrew staging lives in `config/horca-homebrew/` and is copied once into
 `rudironsoni/homebrew-tap`. The tap stays a separate repository; its bump
-workflow already pulls from GitHub Releases on this repo.
+workflow pulls from GitHub Releases on this repo (`v*-horca.*` only). The
+cask URL is `rudironsoni/orca`, never `orca-builds`.
 
 ### Runbook
 
-1. Copy these Actions secrets from `rudironsoni/orca-builds` onto this
-   repository (same names). The macOS job fail-closes if any are missing:
+1. Apple notarization secrets live on this repository:
    `MAC_CERTS`, `MAC_CERTS_PASSWORD`, `APPLE_ID`,
-   `APPLE_APP_SPECIFIC_PASSWORD`, `APPLE_TEAM_ID`.
+   `APPLE_APP_SPECIFIC_PASSWORD`, `APPLE_TEAM_ID`. The macOS job fail-closes
+   if any are missing.
 2. Prove the pipeline without publishing: Actions → **Build Horca** → Run
    workflow. Optional inputs: Horca version (`<core>-horca.N`) and commit SHA.
 3. A merge (or Shepherd push) to `main` starts **Release Horca** only.
    Dispatch remains available.
 4. `horca-check-source.yml` is a backup if a push event is missed. It
    still will not bootstrap a first release by itself.
-5. After the first in-repo release is verified, archive
-   `rudironsoni/orca-builds` (do not delete) and close leftover packaging
-   PRs there.
 
 ## Secrets, labels, rulesets
 
