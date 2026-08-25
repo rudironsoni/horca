@@ -1,6 +1,5 @@
 import { ipcMain, Menu, Notification, type BrowserWindow } from 'electron'
 import { getDistributionIdentity } from '../../shared/distribution-identity'
-import { translateMain } from '../i18n/main-i18n'
 import type { Store } from '../persistence'
 import { resolveWindowCloseAction } from './window-close-decision'
 import type { CreateMainWindowOptions } from './main-window-contracts'
@@ -76,11 +75,7 @@ export function installMainWindowCloseLifecycle(args: {
       try {
         new Notification({
           title: getDistributionIdentity().productName,
-          body: translateMain(
-            'tray.minimizeNotice.body',
-            '{{appName}} is still running in the system tray',
-            { appName: getDistributionIdentity().productName }
-          )
+          body: `${getDistributionIdentity().productName} is still running in the system tray`
         }).show()
       } catch {
         // Notification is best-effort — never block hiding the window.

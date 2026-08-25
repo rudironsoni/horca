@@ -69,10 +69,6 @@ export function getUpdateCardAriaLabel(status: UpdateStatus): string {
       return 'Update ready to install'
     case 'error':
       return 'Update error'
-    default: {
-      const exhaustive: never = status.state
-      return exhaustive
-    }
   }
 }
 
