@@ -181,6 +181,9 @@ describe('in-repo Horca release workflows', () => {
       'https://github.com/rudironsoni/orca/releases/download/v#{version}/horca-macos-#{arch}.dmg'
     )
     expect(homebrewCask).toContain('regex(/^v(\\d+(?:\\.\\d+)+-horca\\.\\d+)$/i)')
+    expect(homebrewCask).not.toContain('orca-builds')
+    expect(homebrewCask).not.toContain('0.0.0-horca.0')
+    expect(homebrewCask).not.toContain('REPLACE_WITH')
     expect(homebrewBump).toContain('repos/rudironsoni/orca/releases')
     expect(homebrewBump).toContain(horcaTagJqTest)
     expect(homebrewBump).toContain('--repo rudironsoni/orca')
