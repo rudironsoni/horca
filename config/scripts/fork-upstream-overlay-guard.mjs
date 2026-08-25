@@ -83,6 +83,7 @@ export const ALLOWED_OVERLAY_PATHS = new Set([
   'src/main/speech/openai-api-key-store.ts',
   'src/main/startup/dev-instance-identity.ts',
   'src/main/tray/system-tray.ts',
+  'src/main/updater-test-harness.ts',
   'src/main/updater.ts',
   'src/main/window/createMainWindow.ts',
   'src/main/window/main-window-close-lifecycle.ts',
