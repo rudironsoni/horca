@@ -52,6 +52,15 @@ const withDownstreamEnv = (extraEnv, assert) =>
     : withEnv({ ORCA_DOWNSTREAM_BUILD: '1', ...extraEnv }, assert)
 
 describe('electron-builder downstream distribution config', () => {
+  it('keeps downstream identity out of the upstream electron-builder config', () => {
+    const source = readFileSync(
+      join(process.cwd(), 'config', 'electron-builder.config.cjs'),
+      'utf8'
+    )
+    expect(source).not.toContain('ORCA_DOWNSTREAM_BUILD')
+    expect(source).toContain("require('./electron-builder-downstream.cjs')")
+  })
+
   // Why: when ORCA_DOWNSTREAM_BUILD is absent the generated configuration must
   // stay the official one — identifiers, protocol, publish destination, and
   // Windows publisher identity all unchanged.

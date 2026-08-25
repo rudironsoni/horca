@@ -15,7 +15,7 @@ describe('fork-shepherd workflow', () => {
     (step) => step.name === 'Guard fork overlays against high-churn upstream files'
   )
 
-  it('covers branch sync, PR monitor, backport, cleanup, and sync-bot', () => {
+  it('covers branch sync, backport, cleanup, and sync-bot; PR monitor stays off', () => {
     expect(parsed.on.schedule).toEqual([{ cron: '17 * * * *' }])
     expect(parsed.on.workflow_dispatch).toBeDefined()
     expect(parsed.on.push).toEqual({ branches: ['main'] })
@@ -24,9 +24,9 @@ describe('fork-shepherd workflow', () => {
     expect(shepherd.uses).toBe('FasterApiWeb/fork-shepherd@v1')
     expect(shepherd.with.upstream_repo).toBe('stablyai/orca')
     expect(shepherd.with.sync_branches).toBe('main')
-    expect(shepherd.with.monitor_all_prs).toBe('true')
+    expect(shepherd.with.monitor_all_prs).toBe('false')
     expect(shepherd.with.enable_branch_sync).toBe('true')
-    expect(shepherd.with.enable_pr_monitor).toBe('true')
+    expect(shepherd.with.enable_pr_monitor).toBe('false')
     expect(shepherd.with.enable_backport).toBe('true')
     expect(shepherd.with.enable_cleanup).toBe('true')
     expect(shepherd.with.bot_name).toBe('sync-bot')

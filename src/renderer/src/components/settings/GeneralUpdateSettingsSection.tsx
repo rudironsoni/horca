@@ -11,7 +11,7 @@ import { getUpdateCheckClickOptions, getUpdateCheckHint } from '@/lib/update-che
 import { GeneralRemoteServerUpdates } from './GeneralRemoteServerUpdates'
 import { ReleaseChannelSection } from './ReleaseChannelSection'
 import { getReleaseNotesUrlForVersion } from '../../../../shared/release-channel'
-import { getDistributionIdentity } from '../../../../shared/distribution-identity'
+import { downstreamUpdatesDisabledCopy } from '../../../../shared/distribution-update-copy'
 
 export function GeneralUpdateSettingsSection(): React.JSX.Element {
   const updateStatus = useAppStore((s) => s.updateStatus)
@@ -204,11 +204,7 @@ export function GeneralUpdateSettingsSection(): React.JSX.Element {
             // Why: downstream distributions deliberately disable the in-app updater;
             // "latest version" would imply a completed feed check that never ran.
             (updateStatus.updatesDisabledReason
-              ? translate(
-                  'auto.components.settings.GeneralUpdateSettingsSection.85122b0570',
-                  'In-app updates are disabled for {{value0}} builds. Install updates through Homebrew or from GitHub Releases.',
-                  { value0: getDistributionIdentity().productName }
-                )
+              ? downstreamUpdatesDisabledCopy('settings')
               : translate(
                   'auto.components.settings.GeneralUpdateSettingsSection.f40d88390d',
                   'You’re on the latest version.'

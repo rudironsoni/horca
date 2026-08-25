@@ -5,7 +5,9 @@ import { pathToFileURL } from 'node:url'
 // Why: PR #52 conflicted because a fork timeout patch sat in an upstream e2e
 // helper that later received the same poll wrapper. Dual-tree edits there will
 // keep colliding; new fork specs belong in files upstream does not own.
-export const DENIED_OVERLAY_PREFIXES = ['tests/e2e/']
+// Locale JSON is the same class of hazard (issue #64): one-line Horca string
+// deltas conflict every time upstream ships translations.
+export const DENIED_OVERLAY_PREFIXES = ['tests/e2e/', 'src/renderer/src/i18n/locales/']
 
 export const FORK_ONLY_PATHS = new Set([
   '.github/workflows/fork-overlay-guard.yml',
@@ -15,6 +17,7 @@ export const FORK_ONLY_PATHS = new Set([
   '.github/workflows/horca-check-source.yml',
   '.github/workflows/horca-release.yml',
   '.github/workflows/mirror-upstream-v-tags.yml',
+  'config/electron-builder-downstream.cjs',
   'config/horca-homebrew/.github/workflows/bump-horca-cask.yml',
   'config/horca-homebrew/Casks/horca.rb',
   'config/horca-homebrew/README-horca.md',
@@ -36,7 +39,9 @@ export const FORK_ONLY_PATHS = new Set([
   'src/shared/distribution-identity.json',
   'src/shared/distribution-identity.test.ts',
   'src/shared/distribution-identity.ts',
-  'src/shared/horca-pairing.test.ts'
+  'src/shared/horca-pairing.test.ts',
+  'src/shared/distribution-update-copy.ts',
+  'src/shared/distribution-update-copy.test.ts'
 ])
 
 export const ALLOWED_OVERLAY_PATHS = new Set([
@@ -52,7 +57,6 @@ export const ALLOWED_OVERLAY_PATHS = new Set([
   'config/scripts/build-computer-macos.mjs',
   'config/scripts/build-notification-status-macos.mjs',
   'config/scripts/run-electron-vite-targets-in-parallel.mjs',
-  'config/tsconfig.cli.json',
   'config/tsconfig.tc.web.json',
   'electron.vite.config.ts',
   'native/computer-use-macos/Sources/OrcaComputerUseMacOS/main.swift',
@@ -61,7 +65,8 @@ export const ALLOWED_OVERLAY_PATHS = new Set([
   'resources/win32/bin/orca.cmd',
   'src/main/bitbucket/credential-store.ts',
   'src/main/cli/bundled-cli-launcher-path.ts',
-  'src/main/cli/cli-installer.ts',
+  'src/main/cli/cli-install-constants.ts',
+  'src/main/cli/cli-install-location.ts',
   'src/main/cli/windows-launcher-asset.test.ts',
   'src/main/computer/macos-computer-use-permissions.ts',
   'src/main/computer/macos-native-provider-paths.ts',
@@ -80,13 +85,10 @@ export const ALLOWED_OVERLAY_PATHS = new Set([
   'src/main/tray/system-tray.ts',
   'src/main/updater.ts',
   'src/main/window/createMainWindow.ts',
-  'src/renderer/src/components/UpdateCard.tsx',
+  'src/main/window/main-window-close-lifecycle.ts',
+  'src/renderer/src/components/maintenance/update-card/UpdateCardStateContent.tsx',
+  'src/renderer/src/components/maintenance/update-card/update-card-visibility.ts',
   'src/renderer/src/components/settings/GeneralUpdateSettingsSection.tsx',
-  'src/renderer/src/i18n/locales/en.json',
-  'src/renderer/src/i18n/locales/es.json',
-  'src/renderer/src/i18n/locales/ja.json',
-  'src/renderer/src/i18n/locales/ko.json',
-  'src/renderer/src/i18n/locales/zh.json',
   'src/renderer/src/web/web-pairing.ts',
   'src/shared/orca-cli-command-name.ts',
   'src/shared/pairing.ts',

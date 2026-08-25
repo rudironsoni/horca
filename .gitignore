@@ -39,6 +39,7 @@ package-lock.json
 .vscode/
 .idea/
 .serena/
+.playwright-mcp/
 *.swp
 *.swo
 *~

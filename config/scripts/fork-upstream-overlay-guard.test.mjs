@@ -46,12 +46,14 @@ describe('fork upstream overlay guard', () => {
     expect(FORK_ONLY_PATHS.has('.github/workflows/horca-repo-admin.yml')).toBe(true)
   })
 
-  it('denies dual-tree patches under tests/e2e', () => {
-    expect(DENIED_OVERLAY_PREFIXES).toEqual(['tests/e2e/'])
+  it('denies dual-tree patches under tests/e2e and locale JSON catalogs', () => {
+    expect(DENIED_OVERLAY_PREFIXES).toEqual(['tests/e2e/', 'src/renderer/src/i18n/locales/'])
     expect(isDeniedOverlayPath('tests/e2e/helpers/startup-exec-readiness-oracle.ts')).toBe(true)
     expect(classifyForkPath('tests/e2e/helpers/startup-exec-readiness-oracle.ts', 'overlay')).toBe(
       'denied'
     )
+    expect(isDeniedOverlayPath('src/renderer/src/i18n/locales/en.json')).toBe(true)
+    expect(classifyForkPath('src/renderer/src/i18n/locales/en.json', 'overlay')).toBe('denied')
     expect(classifyForkPath('src/main/runtime/orca-runtime.ts', 'overlay')).toBe('unexpected')
     expect(classifyForkPath('src/shared/pairing.ts', 'overlay')).toBe('allowed')
     expect(classifyForkPath('src/renderer/src/web/web-pairing.ts', 'overlay')).toBe('allowed')

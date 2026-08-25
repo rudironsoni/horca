@@ -102,7 +102,7 @@
     "openOrca": "Open Orca",
     "quit": "Quit",
     "minimizeNotice": {
-      "body": "{{appName}} is still running in the system tray"
+      "body": "Orca is still running in the system tray"
     },
     "activityWaiting": "Orca - activity waiting",
     "activityWaitingSuffix": "activity waiting"
@@ -303,7 +303,10 @@
             "9d6e531da6": "Workspace no longer exists.",
             "changedSinceConfirmation": "Workspace changed after confirmation. Refresh to review it before removing.",
             "hostCollision": "Error: this workspace exists on multiple hosts at the same path",
-            "hostUnresolved": "Orca cannot tell which host owns this workspace. Refresh projects and review it again."
+            "hostUnresolved": "Orca cannot tell which host owns this workspace. Refresh projects and review it again.",
+            "gitStatusUnavailable": "Orca couldn't check this workspace's git status. Try again, or delete it from its host-specific sidebar or project list.",
+            "gitStatusUnavailableOlderPeer": "Orca couldn't match this git-status failure to a host. Update the older connected peer, or delete the workspace from its host-specific sidebar or project list.",
+            "forceNeedsApproval": "Review and confirm this workspace before force deleting it."
           }
         },
         "worktrees": {
@@ -2152,8 +2155,7 @@
         "a4650b0dc4": "Could Not Use Local Build",
         "b1e390250d": "Could not complete the local build switch.",
         "d29740d175": "The selected build could not be used.",
-        "37d45c9ec1": "Choose Another Build",
-        "8e0c186b72": "Updates for {{value0}} ship through Homebrew and GitHub Releases."
+        "37d45c9ec1": "Choose Another Build"
       },
       "WorktreeJumpPalette": {
         "ac037cfac2": "Move",
@@ -3755,13 +3757,9 @@
             }
           },
           "CaffeinateStatusSegment": {
-            "on": "On",
-            "auto": "Agent",
-            "off": "Off",
             "active": "Active",
             "inactive": "Inactive",
-            "ariaLabel": "Caffeinate, {{status}}",
-            "title": "Caffeinate",
+            "ariaLabel": "{{title}}, {{status}}",
             "onDescription": "Keep this computer awake continuously",
             "autoDescription": "Stay awake while an agent is working",
             "offDescription": "Allow normal system sleep behavior"
@@ -4355,7 +4353,8 @@
           "27672470d9": "Opening the link does not install anything. Review the immutable version first.",
           "66cff7a804": "https://app.orca.dev/skills/share/…",
           "93eb0fe8c7": "Orca skill link",
-          "releaseNotes": "Release notes:"
+          "releaseNotes": "Release notes:",
+          "targetHeader": "Installation Target"
         },
         "SkillInstallTargetFields": {
           "8e6a972229": "No workspaces are known on this machine.",
@@ -4374,6 +4373,10 @@
           "0785d0a503": "— update required",
           "8562dd1e6e": "This computer",
           "b8a0b706ad": "Machine"
+        },
+        "SkillInstallWorkspaceCombobox": {
+          "search": "Search workspaces...",
+          "empty": "No workspaces found."
         },
         "SkillShareReviewContent": {
           "e3caf6baeb": "Revoking this link blocks future access. It does not remove copies already installed on recipients’ machines.",
@@ -4575,7 +4578,15 @@
           "supportingFileWarning": "The selected skills include {{fileCount}} beyond SKILL.md.",
           "agentAccessWarning": "Skills contain instructions your agent may follow. Continue only if you trust the source of this share link.",
           "fileBinary": "binary",
-          "fileRunnable": "runnable"
+          "fileRunnable": "runnable",
+          "agentsCountBadge": "{{count}} selected",
+          "agentsCountLabel": "{{count}} {{label}}",
+          "targetAgentsHeader": "Target Agents",
+          "deselectAll": "Deselect optional",
+          "selectAll": "Select all",
+          "canonicalHeader": "Standard Agents (Always Included)",
+          "canonicalExplanation": "These agents natively read {{root}}, which Orca installs to by default:",
+          "additionalAgentsHeader": "Additional Agent Directories"
         },
         "filter": {
           "allAgents": "All agents",
@@ -6825,8 +6836,7 @@
           "31fd7150cf": "Checking for updates...",
           "3394d1f663": "checking",
           "d69a09b672": "Updates are checked automatically on launch.",
-          "7173352632": "idle",
-          "85122b0570": "In-app updates are disabled for {{value0}} builds. Install updates through Homebrew or from GitHub Releases."
+          "7173352632": "idle"
         },
         "GeneralWorkspaceSettingsSection": {
           "3d538a98f7": "Choose apps available from a workspace's Open in menu.",
@@ -16233,6 +16243,11 @@
           "measuringSizes": "Scanning sizes",
           "measureSizesFailed": "Could not scan workspace sizes",
           "selectedCount": "{{value0}} selected",
+          "gitStatusCheckFailed": "Git status check failed",
+          "gitStatusUnverified": "Git status could not be verified",
+          "deleteAnyway": "Delete anyway",
+          "forceDeleteProjectionOne": "{{count}} workspace currently shows risk and may need a force delete",
+          "forceDeleteProjectionMany": "{{count}} workspaces currently show risk and may need a force delete",
           "selectionWithheldOne": "1 selected workspace is hidden by the current filters and was deselected.",
           "selectionWithheld": "{{value0}} selected workspaces are hidden by the current filters and were deselected.",
           "selectAllCountOne": "Select 1 safety-checked workspace",

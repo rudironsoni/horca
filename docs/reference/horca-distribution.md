@@ -15,9 +15,11 @@ and behaves exactly as before.
 All externally visible identity resolves from one contract:
 `src/shared/distribution-identity.ts` (runtime) mirrored by
 `src/shared/distribution-identity.json` (consumed by
-`config/electron-builder.config.cjs` and
+`config/electron-builder-downstream.cjs` and
 `config/scripts/build-computer-macos.mjs`; an equality test keeps them in
-sync).
+sync). `config/electron-builder.config.cjs` stays the upstream file plus a
+wrap that applies that post-processor, so packaging tweaks upstream do not
+re-conflict with Horca identity hunks.
 
 | Field | Official | Horca |
 | --- | --- | --- |

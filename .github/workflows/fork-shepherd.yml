@@ -40,10 +40,14 @@ jobs:
           upstream_repo: stablyai/orca
           sync_branches: main
           pr_label: sync-bot
-          monitor_all_prs: 'true'
+          monitor_all_prs: 'false'
           backport_prefix: backport-to-
           enable_branch_sync: 'true'
-          enable_pr_monitor: 'true'
+          # FasterApiWeb/fork-shepherd@v1 captures log_info stdout from get_open_prs
+          # ("::notice::Monitoring all open PRs...") as a PR number, then
+          # `git rev-parse origin/open` exits 128 and aborts before cleanup.
+          # Re-enable when that capture is fixed.
+          enable_pr_monitor: 'false'
           enable_backport: 'true'
           enable_cleanup: 'true'
           conflict_label: sync-conflict
