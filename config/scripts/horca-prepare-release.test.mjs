@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process'
-import { chmodSync, mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
+import { chmodSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
@@ -17,11 +17,34 @@ function git(cwd, ...args) {
   ).trim()
 }
 
-function writeFakeGh(binDir) {
+function writeFakeGh(binDir, ndjson = '') {
   const ghPath = join(binDir, 'gh')
-  writeFileSync(ghPath, '#!/bin/sh\nexit 0\n')
+  writeFileSync(
+    ghPath,
+    `#!/bin/sh
+cat <<'GH_NDJSON'
+${ndjson}
+GH_NDJSON
+`
+  )
   chmodSync(ghPath, 0o755)
   return ghPath
+}
+
+function seedPrepareRepo() {
+  const root = mkdtempSync(join(tmpdir(), 'horca-prepare-'))
+  const binDir = join(root, 'bin')
+  mkdirSync(binDir)
+  git(root, 'init', '-b', 'main')
+  writeFileSync(join(root, 'package.json'), '{"version":"1.4.178"}\n')
+  git(root, 'add', 'package.json')
+  git(root, 'commit', '-m', 'base')
+  const contained = git(root, 'rev-parse', 'HEAD')
+  git(root, 'update-ref', 'refs/remotes/origin/upstream-main', contained)
+  writeFileSync(join(root, 'horca.txt'), 'fork\n')
+  git(root, 'add', 'horca.txt')
+  git(root, 'commit', '-m', 'horca only')
+  return { root, binDir, source: git(root, 'rev-parse', 'HEAD') }
 }
 
 function runPrepare(cwd, env) {
@@ -103,6 +126,104 @@ describe('horca-prepare-release provenance', () => {
       throw new Error('expected prepare to fail')
     } catch (error) {
       expect(String(error.stderr ?? error.message)).toMatch(/shares no history/)
+    }
+  })
+})
+
+describe('horca-prepare-release channel versions', () => {
+  const stableAndBetaNdjson = [
+    '{"tag_name":"v1.4.178-horca.1","body":"","draft":false,"created_at":"2026-01-01T00:00:00Z"}',
+    '{"tag_name":"v1.4.178-horca.2-beta.1","body":"","draft":false,"created_at":"2026-01-02T00:00:00Z"}'
+  ].join('\n')
+
+  it('ignores beta tags when computing the next stable N', () => {
+    const { root, binDir, source } = seedPrepareRepo()
+    writeFakeGh(binDir, stableAndBetaNdjson)
+
+    const output = runPrepare(root, {
+      PATH: `${binDir}:${process.env.PATH}`,
+      SOURCE_SHA: source,
+      BUILDS_REPO: 'rudironsoni/orca',
+      NOTES_PATH: join(root, 'release-notes.md'),
+      HORCA_UPSTREAM_TIP_REF: 'origin/upstream-main'
+    })
+
+    expect(output).toMatch(/^version=1\.4\.178-horca\.2$/m)
+    expect(output).not.toContain('beta')
+  })
+
+  it('uses the pending stable N and next M for beta', () => {
+    const { root, binDir, source } = seedPrepareRepo()
+    writeFakeGh(binDir, stableAndBetaNdjson)
+
+    const output = runPrepare(root, {
+      PATH: `${binDir}:${process.env.PATH}`,
+      SOURCE_SHA: source,
+      BUILDS_REPO: 'rudironsoni/orca',
+      NOTES_PATH: join(root, 'release-notes.md'),
+      HORCA_UPSTREAM_TIP_REF: 'origin/upstream-main',
+      HORCA_CHANNEL: 'beta',
+      HORCA_BRANCH: 'feature/beta-math'
+    })
+
+    expect(output).toContain('version=1.4.178-horca.2-beta.2')
+    expect(output).toContain('tag=v1.4.178-horca.2-beta.2')
+    const notes = readFileSync(join(root, 'release-notes.md'), 'utf8')
+    expect(notes).toContain('Channel: beta')
+    expect(notes).toContain('Branch: feature/beta-math')
+    expect(notes).toContain('brew install --cask rudironsoni/tap/horca@beta')
+    expect(notes).not.toContain('rudironsoni/tap/horca`')
+  })
+
+  it('starts beta.1 on the pending N when no betas exist yet', () => {
+    const { root, binDir, source } = seedPrepareRepo()
+    writeFakeGh(binDir, '')
+
+    const output = runPrepare(root, {
+      PATH: `${binDir}:${process.env.PATH}`,
+      SOURCE_SHA: source,
+      BUILDS_REPO: 'rudironsoni/orca',
+      NOTES_PATH: join(root, 'release-notes.md'),
+      HORCA_UPSTREAM_TIP_REF: 'origin/upstream-main',
+      HORCA_CHANNEL: 'beta'
+    })
+
+    expect(output).toContain('version=1.4.178-horca.1-beta.1')
+  })
+
+  it('ignores draft betas and betas for an already-released N', () => {
+    const { root, binDir, source } = seedPrepareRepo()
+    writeFakeGh(
+      binDir,
+      [
+        '{"tag_name":"v1.4.178-horca.1","body":"","draft":false,"created_at":"2026-01-01T00:00:00Z"}',
+        '{"tag_name":"v1.4.178-horca.2-beta.1","body":"","draft":true,"created_at":"2026-01-02T00:00:00Z"}',
+        '{"tag_name":"v1.4.178-horca.1-beta.9","body":"","draft":false,"created_at":"2026-01-03T00:00:00Z"}'
+      ].join('\n')
+    )
+
+    const output = runPrepare(root, {
+      PATH: `${binDir}:${process.env.PATH}`,
+      SOURCE_SHA: source,
+      BUILDS_REPO: 'rudironsoni/orca',
+      NOTES_PATH: join(root, 'release-notes.md'),
+      HORCA_UPSTREAM_TIP_REF: 'origin/upstream-main',
+      HORCA_CHANNEL: 'beta'
+    })
+
+    expect(output).toContain('version=1.4.178-horca.2-beta.1')
+  })
+
+  it('rejects an unknown HORCA_CHANNEL', () => {
+    try {
+      runPrepare(process.cwd(), {
+        SOURCE_SHA: 'a'.repeat(40),
+        BUILDS_REPO: 'rudironsoni/orca',
+        HORCA_CHANNEL: 'nightly'
+      })
+      throw new Error('expected prepare to fail')
+    } catch (error) {
+      expect(String(error.stderr ?? error.message)).toMatch(/stable or beta/)
     }
   })
 })

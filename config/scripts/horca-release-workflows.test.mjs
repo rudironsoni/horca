@@ -17,12 +17,14 @@ function checkoutSteps(job) {
 describe('in-repo Horca release workflows', () => {
   const build = workflow('horca-build.yml')
   const release = workflow('horca-release.yml')
+  const betaRelease = workflow('horca-beta-release.yml')
   const bumpCask = workflow('bump-horca-cask.yml')
   const checkSource = workflow('horca-check-source.yml')
   const tagMirror = workflow('mirror-upstream-v-tags.yml')
   const prepareScript = read('config/scripts/horca-prepare-release.sh')
   const bumpScript = read('config/scripts/horca-bump-homebrew-cask.sh')
   const homebrewCask = read('config/horca-homebrew/Casks/horca.rb')
+  const homebrewBetaCask = read('config/horca-homebrew/Casks/horca@beta.rb')
   const homebrewBump = read('config/horca-homebrew/.github/workflows/bump-horca-cask.yml')
 
   it('builds on dispatch or workflow_call, not on push to main', () => {
@@ -33,9 +35,12 @@ describe('in-repo Horca release workflows', () => {
     expect(build.on.pull_request).toBeUndefined()
     expect(build.on.workflow_call.secrets.MAC_CERTS.required).toBe(false)
     expect(build.concurrency).toEqual({
-      group: 'horca-build',
+      group: '${{ github.workflow }}-${{ github.ref }}',
       'cancel-in-progress': false
     })
+    const validateRun = build.jobs.validate.steps.find((step) => step.id === 'check').run
+    expect(validateRun).toContain('(-beta\\.[0-9]+)?')
+    expect(validateRun).toContain('<core>-horca.<N>-beta.<M>')
   })
 
   it('releases on every push to main', () => {
@@ -54,6 +59,7 @@ describe('in-repo Horca release workflows', () => {
     for (const [name, job] of Object.entries({
       ...build.jobs,
       ...release.jobs,
+      ...betaRelease.jobs,
       ...bumpCask.jobs,
       ...checkSource.jobs
     })) {
@@ -146,6 +152,7 @@ describe('in-repo Horca release workflows', () => {
     expect(publish.run).toContain(
       'gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --draft=false'
     )
+    expect(publish.run).not.toContain('--prerelease')
     expect(release.jobs.prepare.steps.find((step) => step.id === 'meta').env.BUILDS_REPO).toBe(
       '${{ github.repository }}'
     )
@@ -186,13 +193,15 @@ describe('in-repo Horca release workflows', () => {
     expect(release.jobs['bump-cask'].needs).toEqual(['prepare', 'publish'])
     expect(release.jobs['bump-cask']['continue-on-error']).toBeUndefined()
     expect(release.jobs['bump-cask'].with.version).toBe('${{ needs.prepare.outputs.version }}')
+    expect(release.jobs['bump-cask'].with.cask_token).toBe('horca')
     expect(release.jobs['bump-cask'].secrets.FORK_SYNC_PAT).toBe('${{ secrets.FORK_SYNC_PAT }}')
 
     expect(bumpCask.on.push).toBeUndefined()
     expect(bumpCask.on.workflow_call.inputs.version.required).toBe(true)
+    expect(bumpCask.on.workflow_call.inputs.cask_token.default).toBe('horca')
     expect(bumpCask.on.workflow_call.secrets.FORK_SYNC_PAT.required).toBe(true)
     expect(bumpCask.concurrency).toEqual({
-      group: 'bump-horca-cask',
+      group: "bump-horca-cask-${{ inputs.cask_token || 'horca' }}",
       'cancel-in-progress': false
     })
     const tapCheckout = checkoutSteps(bumpCask.jobs.bump).find(
@@ -204,8 +213,71 @@ describe('in-repo Horca release workflows', () => {
       'config/scripts/horca-bump-homebrew-cask.sh'
     )
     expect(bumpScript).toContain('--repo rudironsoni/orca')
+    expect(bumpScript).toContain('CASK_TOKEN=${CASK_TOKEN:-horca}')
+    expect(bumpScript).toContain('horca@beta')
     expect(bumpScript).not.toContain('orca-builds')
+    expect(bumpCask.jobs.bump.steps.find((step) => step.name === 'Commit and push').run).toContain(
+      'Casks/${CASK_TOKEN}.rb'
+    )
+    expect(bumpCask.jobs.bump.steps.find((step) => step.name === 'Style and audit').run).toContain(
+      'Casks/${CASK_TOKEN}.rb'
+    )
     expect(homebrewBump).not.toContain('workflow_call:')
+  })
+
+  it('releases Horca betas from conventional branches as GitHub prereleases', () => {
+    expect(betaRelease.on.push.branches).toEqual([
+      'feature/**',
+      'feat/**',
+      'fix/**',
+      'bugfix/**',
+      'hotfix/**',
+      'perf/**',
+      'refactor/**'
+    ])
+    expect(betaRelease.on.push.branches).not.toContain('main')
+    expect(betaRelease.on.push.branches.join('\n')).not.toMatch(/cursor|chore|docs|release/)
+    expect(betaRelease.on.workflow_call).toBeUndefined()
+    expect(betaRelease.on.pull_request).toBeUndefined()
+    expect(betaRelease.concurrency).toEqual({
+      group: 'horca-beta-release-${{ github.ref }}',
+      'cancel-in-progress': true
+    })
+    expect(release.concurrency).toEqual({
+      group: 'horca-release',
+      'cancel-in-progress': false
+    })
+
+    const skipGate = betaRelease.jobs.prepare.if
+    expect(skipGate).toContain(horcaRepoGate)
+    expect(skipGate).toContain('[skip horca-beta]')
+    expect(skipGate).toContain('[skip horca-release]')
+
+    const meta = betaRelease.jobs.prepare.steps.find((step) => step.id === 'meta')
+    expect(meta.env.HORCA_CHANNEL).toBe('beta')
+    expect(meta.env.HORCA_BRANCH).toBe('${{ github.ref_name }}')
+    expect(betaRelease.jobs.build.uses).toBe('./.github/workflows/horca-build.yml')
+    expect(betaRelease.jobs.build.secrets).toBe('inherit')
+    expect(betaRelease.jobs['bump-cask'].uses).toBe('./.github/workflows/bump-horca-cask.yml')
+    expect(betaRelease.jobs['bump-cask'].needs).toEqual(['prepare', 'publish'])
+    expect(betaRelease.jobs['bump-cask'].with.cask_token).toBe('horca@beta')
+    expect(betaRelease.jobs['bump-cask'].with.version).toBe('${{ needs.prepare.outputs.version }}')
+
+    const publish = betaRelease.jobs.publish.steps.find(
+      (step) => step.name === 'Publish prerelease'
+    )
+    expect(publish.run).toContain('--prerelease')
+    expect(publish.run).toContain('--target "$SOURCE_SHA"')
+    expect(publish.run).toContain('--draft')
+    expect(publish.run).toContain('horca-macos-arm64.dmg')
+    expect(publish.run).toContain('Horca $VERSION (beta)')
+    expect(
+      betaRelease.jobs.publish.steps.find(
+        (step) => step.name === 'Verify the complete artifact set'
+      ).run
+    ).toContain('Channel: beta')
+    expect(prepareScript).toContain('HORCA_CHANNEL')
+    expect(prepareScript).toMatch(/\/\^v\\d\+\\\.\\d\+\\\.\\d\+-horca\\\.\\d\+\$\//)
   })
 
   it('points Homebrew staging at Horca releases on this repository', () => {
@@ -227,7 +299,25 @@ describe('in-repo Horca release workflows', () => {
     )
     expect(homebrewBump).toContain('repos/rudironsoni/orca/releases')
     expect(homebrewBump).toContain(horcaTagJqTest)
+    expect(homebrewBump).toContain(
+      'test("^v[0-9]+\\\\.[0-9]+\\\\.[0-9]+-horca\\\\.[0-9]+-beta\\\\.[0-9]+$")'
+    )
+    expect(homebrewBump).toContain('select(.prerelease)')
+    expect(homebrewBump).toContain('Casks/horca@beta.rb')
     expect(homebrewBump).toContain('--repo rudironsoni/orca')
     expect(homebrewBump).not.toContain('orca-builds')
+    expect(homebrewBump).not.toMatch(/\/releases\/latest/)
+
+    expect(homebrewBetaCask).toContain('cask "horca@beta"')
+    expect(homebrewBetaCask).toContain('conflicts_with cask: "horca"')
+    expect(homebrewBetaCask).not.toMatch(/^\s*auto_updates\b/m)
+    expect(homebrewBetaCask).toContain('strategy :github_releases')
+    expect(homebrewBetaCask).toContain('next unless release["prerelease"]')
+    expect(homebrewBetaCask).toContain('regex(/^v(\\d+(?:\\.\\d+)+-horca\\.\\d+-beta\\.\\d+)$/i)')
+    expect(homebrewBetaCask).not.toContain('strategy :github_latest')
+    expect(homebrewBetaCask).toContain(
+      'https://github.com/rudironsoni/orca/releases/download/v#{version}/horca-macos-#{arch}.dmg'
+    )
+    expect(homebrewBetaCask).toContain('depends_on macos: :big_sur')
   })
 })

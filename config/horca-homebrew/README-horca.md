@@ -17,11 +17,21 @@ bundle id (`com.rudironsoni.horca`), URL protocol (`horca:`), CLI
 brew install --cask rudironsoni/tap/horca
 ```
 
+Beta (same `Horca.app` / bundle id; uninstall stable first, or the other way
+around — the casks `conflicts_with` each other):
+
+```bash
+brew install --cask rudironsoni/tap/horca@beta
+```
+
 - Horca's in-app updater is intentionally disabled; `brew upgrade --cask horca`
-  is the update path (the cask sets no `auto_updates`).
-- The cask is bumped by Release Horca on `rudironsoni/orca` (it calls
-  `bump-horca-cask.yml` and waits). This tap's scheduled `bump-horca-cask`
-  workflow is a 6-hour backup: it polls `v*-horca.*` releases and commits
-  with this repository's own `GITHUB_TOKEN`.
-- `brew zap horca` removes only Horca-owned state; an installed official
-  Orca (app, `~/.orca`, Application Support, Keychain, TCC grants) survives.
+  (or `horca@beta`) is the update path (neither cask sets `auto_updates`).
+- The stable cask is bumped by Release Horca on `rudironsoni/orca` (it calls
+  `bump-horca-cask.yml` with `cask_token: horca` and waits). Release Horca
+  beta does the same for `Casks/horca@beta.rb`. This tap's scheduled
+  `bump-horca-cask` workflow is a 6-hour backup: it polls stable
+  `v*-horca.*` and prerelease `v*-horca.*-beta.*` (never `/releases/latest`)
+  and commits with this repository's own `GITHUB_TOKEN`.
+- `brew zap horca` / `brew zap horca@beta` removes only Horca-owned state; an
+  installed official Orca (app, `~/.orca`, Application Support, Keychain, TCC
+  grants) survives.

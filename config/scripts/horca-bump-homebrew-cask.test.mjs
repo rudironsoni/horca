@@ -18,6 +18,17 @@ const SAMPLE_CASK = `cask "horca" do
 end
 `
 
+const SAMPLE_BETA_CASK = `cask "horca@beta" do
+  arch arm: "arm64", intel: "x64"
+
+  version "0.0.0-horca.0-beta.0"
+  sha256 arm:   "REPLACE_WITH_ARM64_SHA256",
+         intel: "REPLACE_WITH_X64_SHA256"
+
+  url "https://github.com/rudironsoni/orca/releases/download/v#{version}/horca-macos-#{arch}.dmg"
+end
+`
+
 function writeFakeGh(binDir) {
   const ghPath = join(binDir, 'gh')
   writeFileSync(
@@ -117,5 +128,101 @@ describe('horca-bump-homebrew-cask', () => {
         TAP_DIR: tapDir
       })
     ).toThrow(/horca/)
+  })
+
+  it('rejects a beta version when bumping the stable cask', () => {
+    const root = mkdtempSync(join(tmpdir(), 'horca-bump-stable-beta-'))
+    const tapDir = join(root, 'tap')
+    mkdirSync(join(tapDir, 'Casks'), { recursive: true })
+    writeFileSync(join(tapDir, 'Casks/horca.rb'), SAMPLE_CASK)
+    writeFileSync(join(tapDir, 'Casks/horca@beta.rb'), SAMPLE_BETA_CASK)
+
+    expect(() =>
+      runBump(root, {
+        VERSION: '1.4.178-horca.2-beta.1',
+        TAP_DIR: tapDir,
+        CASK_TOKEN: 'horca'
+      })
+    ).toThrow(/horca\.<N>/)
+    expect(readFileSync(join(tapDir, 'Casks/horca@beta.rb'), 'utf8')).toBe(SAMPLE_BETA_CASK)
+    expect(readFileSync(join(tapDir, 'Casks/horca.rb'), 'utf8')).toBe(SAMPLE_CASK)
+  })
+
+  it('rejects a stable version when bumping horca@beta', () => {
+    const root = mkdtempSync(join(tmpdir(), 'horca-bump-beta-stable-'))
+    const tapDir = join(root, 'tap')
+    mkdirSync(join(tapDir, 'Casks'), { recursive: true })
+    writeFileSync(join(tapDir, 'Casks/horca.rb'), SAMPLE_CASK)
+    writeFileSync(join(tapDir, 'Casks/horca@beta.rb'), SAMPLE_BETA_CASK)
+
+    expect(() =>
+      runBump(root, {
+        VERSION: '1.4.178-horca.2',
+        TAP_DIR: tapDir,
+        CASK_TOKEN: 'horca@beta'
+      })
+    ).toThrow(/beta/)
+    expect(readFileSync(join(tapDir, 'Casks/horca.rb'), 'utf8')).toBe(SAMPLE_CASK)
+  })
+
+  it('rewrites only horca@beta.rb for a beta version', () => {
+    const root = mkdtempSync(join(tmpdir(), 'horca-bump-beta-'))
+    const binDir = join(root, 'bin')
+    const tapDir = join(root, 'tap')
+    mkdirSync(binDir)
+    mkdirSync(join(tapDir, 'Casks'), { recursive: true })
+    writeFakeGh(binDir)
+    writeFileSync(join(tapDir, 'Casks/horca.rb'), SAMPLE_CASK)
+    writeFileSync(join(tapDir, 'Casks/horca@beta.rb'), SAMPLE_BETA_CASK)
+    const outputPath = join(root, 'github-output')
+    writeFileSync(outputPath, '')
+
+    runBump(root, {
+      PATH: `${binDir}:${process.env.PATH}`,
+      VERSION: '1.4.178-horca.2-beta.1',
+      TAP_DIR: tapDir,
+      CASK_TOKEN: 'horca@beta',
+      GITHUB_OUTPUT: outputPath
+    })
+
+    const shaArm = createHash('sha256').update('arm-dmg').digest('hex')
+    const shaX64 = createHash('sha256').update('x64-dmg').digest('hex')
+    const betaCask = readFileSync(join(tapDir, 'Casks/horca@beta.rb'), 'utf8')
+    expect(betaCask).toContain('version "1.4.178-horca.2-beta.1"')
+    expect(betaCask).toContain(`sha256 arm:   "${shaArm}",`)
+    expect(betaCask).toContain(`intel: "${shaX64}"`)
+    expect(readFileSync(join(tapDir, 'Casks/horca.rb'), 'utf8')).toBe(SAMPLE_CASK)
+    expect(readFileSync(outputPath, 'utf8')).toContain('changed=true')
+  })
+
+  it('copies a missing tap cask from staging then fills version and sha256', () => {
+    const root = mkdtempSync(join(tmpdir(), 'horca-bump-copy-'))
+    const binDir = join(root, 'bin')
+    const tapDir = join(root, 'tap')
+    const stagingDir = join(root, 'staging')
+    mkdirSync(binDir)
+    mkdirSync(join(tapDir, 'Casks'), { recursive: true })
+    mkdirSync(stagingDir)
+    writeFakeGh(binDir)
+    writeFileSync(join(tapDir, 'Casks/horca.rb'), SAMPLE_CASK)
+    writeFileSync(join(stagingDir, 'horca@beta.rb'), SAMPLE_BETA_CASK)
+    const outputPath = join(root, 'github-output')
+    writeFileSync(outputPath, '')
+
+    runBump(root, {
+      PATH: `${binDir}:${process.env.PATH}`,
+      VERSION: '1.4.178-horca.2-beta.1',
+      TAP_DIR: tapDir,
+      CASK_TOKEN: 'horca@beta',
+      STAGING_CASK: join(stagingDir, 'horca@beta.rb'),
+      GITHUB_OUTPUT: outputPath
+    })
+
+    expect(readFileSync(join(tapDir, 'Casks/horca@beta.rb'), 'utf8')).toContain(
+      'version "1.4.178-horca.2-beta.1"'
+    )
+    expect(readFileSync(join(tapDir, 'Casks/horca.rb'), 'utf8')).toBe(SAMPLE_CASK)
+    expect(readFileSync(join(stagingDir, 'horca@beta.rb'), 'utf8')).toBe(SAMPLE_BETA_CASK)
+    expect(readFileSync(outputPath, 'utf8')).toContain('changed=true')
   })
 })

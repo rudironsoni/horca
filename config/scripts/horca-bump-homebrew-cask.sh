@@ -1,20 +1,44 @@
 #!/usr/bin/env bash
-# Rewrite Casks/horca.rb in TAP_DIR to VERSION using sha256s of the published
-# macOS DMGs on rudironsoni/orca. Writes changed=true|false to GITHUB_OUTPUT.
+# Rewrite Casks/${CASK_TOKEN}.rb in TAP_DIR to VERSION using sha256s of the
+# published macOS DMGs on rudironsoni/orca. Writes changed=true|false to
+# GITHUB_OUTPUT. Missing tap files are copied from this repo's staging cask.
 set -euo pipefail
 
 VERSION=${VERSION:?VERSION is required}
 TAP_DIR=${TAP_DIR:-.}
-CASK="$TAP_DIR/Casks/horca.rb"
+CASK_TOKEN=${CASK_TOKEN:-horca}
+repo_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
+STAGING_CASK=${STAGING_CASK:-"$repo_root/config/horca-homebrew/Casks/${CASK_TOKEN}.rb"}
 
-if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+-horca\.[0-9]+$ ]]; then
-  echo "::error::version must match <upstream-core>-horca.<N>, got: $VERSION" >&2
+case "$CASK_TOKEN" in
+  horca)
+    version_re='^[0-9]+\.[0-9]+\.[0-9]+-horca\.[0-9]+$'
+    version_hint='<upstream-core>-horca.<N>'
+    ;;
+  horca@beta)
+    version_re='^[0-9]+\.[0-9]+\.[0-9]+-horca\.[0-9]+-beta\.[0-9]+$'
+    version_hint='<upstream-core>-horca.<N>-beta.<M>'
+    ;;
+  *)
+    echo "::error::CASK_TOKEN must be horca or horca@beta, got: $CASK_TOKEN" >&2
+    exit 1
+    ;;
+esac
+
+if ! [[ "$VERSION" =~ $version_re ]]; then
+  echo "::error::version must match $version_hint for $CASK_TOKEN, got: $VERSION" >&2
   exit 1
 fi
 
+CASK="$TAP_DIR/Casks/${CASK_TOKEN}.rb"
 if [ ! -f "$CASK" ]; then
-  echo "::error::missing cask at $CASK" >&2
-  exit 1
+  if [ -f "$STAGING_CASK" ]; then
+    mkdir -p "$(dirname "$CASK")"
+    cp "$STAGING_CASK" "$CASK"
+  else
+    echo "::error::missing cask at $CASK and no staging file at $STAGING_CASK" >&2
+    exit 1
+  fi
 fi
 
 current=$(sed -n 's/^  version "\(.*\)".*$/\1/p' "$CASK" | head -1)

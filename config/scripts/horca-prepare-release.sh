@@ -8,10 +8,12 @@
 # releases (v*-horca.* only).
 #
 # Env:
-#   SOURCE_SHA   full 40-char commit being released
-#   BUILDS_REPO  owner/name of the repo that holds Horca GitHub Releases
-#                (this repository: rudironsoni/orca)
-#   NOTES_PATH   where to write the release notes body
+#   SOURCE_SHA     full 40-char commit being released
+#   BUILDS_REPO    owner/name of the repo that holds Horca GitHub Releases
+#                  (this repository: rudironsoni/orca)
+#   NOTES_PATH     where to write the release notes body
+#   HORCA_CHANNEL  stable (default) or beta
+#   HORCA_BRANCH   branch name recorded in beta notes
 #
 # Outputs (appended to $GITHUB_OUTPUT when set, and always printed):
 #   version, tag, source_sha, upstream_sha
@@ -25,6 +27,8 @@ fail() {
 [[ "${SOURCE_SHA:-}" =~ ^[0-9a-f]{40}$ ]] || fail "SOURCE_SHA must be a full 40-char SHA, got: ${SOURCE_SHA:-<empty>}"
 [ -n "${BUILDS_REPO:-}" ] || fail "BUILDS_REPO is required"
 NOTES_PATH="${NOTES_PATH:-release-notes.md}"
+CHANNEL="${HORCA_CHANNEL:-stable}"
+[[ "$CHANNEL" == "stable" || "$CHANNEL" == "beta" ]] || fail "HORCA_CHANNEL must be stable or beta, got: $CHANNEL"
 
 git rev-parse --verify --quiet "$SOURCE_SHA^{commit}" >/dev/null || fail "SOURCE_SHA $SOURCE_SHA not found in this checkout"
 
@@ -45,8 +49,9 @@ UPSTREAM_SHA=$(git merge-base "$UPSTREAM_TIP" "$SOURCE_SHA") ||
 
 # --- Version ----------------------------------------------------------------
 # Upstream core = package.json version at SOURCE_SHA with any prerelease
-# suffix stripped. N is 1 + the highest already-released N for that core
-# (resets automatically when the core changes). Plain vX.Y.Z tags are
+# suffix stripped. N is 1 + the highest already-released stable N for that
+# core (resets automatically when the core changes). Betas never increment
+# that N; they use the pending N plus -beta.<M>. Plain vX.Y.Z tags are
 # ignored — they belong to the mirrored upstream namespace.
 core=$(git show "$SOURCE_SHA:package.json" | node -e '
   let data = ""
@@ -56,42 +61,63 @@ core=$(git show "$SOURCE_SHA:package.json" | node -e '
 [[ "$core" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || fail "could not derive upstream core version, got: $core"
 
 # One release per NDJSON line; node below consumes the stream once for both
-# the next N and the previous release's provenance markers.
+# the next version and the previous release's provenance markers.
 releases_ndjson=$(gh api "repos/$BUILDS_REPO/releases" --paginate \
   --jq '.[] | {tag_name, body, draft, created_at}' || true)
 
-release_meta=$(CORE="$core" node -e '
+release_meta=$(CORE="$core" HORCA_CHANNEL="$CHANNEL" node -e '
   let data = ""
   process.stdin.on("data", (c) => (data += c))
   process.stdin.on("end", () => {
+    const channel = process.env.HORCA_CHANNEL
     const releases = data
       .split("\n")
       .filter((line) => line.trim().length > 0)
       .map((line) => JSON.parse(line))
-      .filter((r) => !r.draft && /^v\d+\.\d+\.\d+-horca\.\d+$/.test(r.tag_name))
+      .filter((r) => !r.draft)
+    const stableReleases = releases.filter((r) =>
+      /^v\d+\.\d+\.\d+-horca\.\d+$/.test(r.tag_name)
+    )
     const corePattern = new RegExp(
       `^v${process.env.CORE.replace(/\./g, "\\.")}-horca\\.(\\d+)$`
     )
     let maxN = 0
-    for (const release of releases) {
+    for (const release of stableReleases) {
       const match = corePattern.exec(release.tag_name)
       if (match) maxN = Math.max(maxN, Number(match[1]))
     }
-    releases.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-    const prev = releases[0]
+    const nextN = maxN + 1
+    const byCreated = (list) =>
+      [...list].sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+    let version
+    let prev
+    if (channel === "beta") {
+      const betaPattern = new RegExp(
+        `^v${process.env.CORE.replace(/\./g, "\\.")}-horca\\.${nextN}-beta\\.(\\d+)$`
+      )
+      const betas = releases.filter((r) => betaPattern.test(r.tag_name))
+      let maxM = 0
+      for (const release of betas) {
+        const match = betaPattern.exec(release.tag_name)
+        if (match) maxM = Math.max(maxM, Number(match[1]))
+      }
+      version = `${process.env.CORE}-horca.${nextN}-beta.${maxM + 1}`
+      prev = byCreated(betas)[0] ?? byCreated(stableReleases)[0]
+    } else {
+      version = `${process.env.CORE}-horca.${nextN}`
+      prev = byCreated(stableReleases)[0]
+    }
     const marker = (name) =>
       prev ? ((prev.body ?? "").match(new RegExp(`^${name}: ([0-9a-f]{40})$`, "m")) || [])[1] ?? "" : ""
     process.stdout.write(
-      [maxN, prev ? prev.tag_name : "", marker("Source-SHA"), marker("Upstream-SHA")].join("\n")
+      [version, prev ? prev.tag_name : "", marker("Source-SHA"), marker("Upstream-SHA")].join("\n")
     )
   })
 ' <<<"$releases_ndjson")
-max_n=$(sed -n 1p <<<"$release_meta")
+version=$(sed -n 1p <<<"$release_meta")
 prev_tag=$(sed -n 2p <<<"$release_meta")
 prev_source=$(sed -n 3p <<<"$release_meta")
 prev_upstream=$(sed -n 4p <<<"$release_meta")
-
-version="$core-horca.$((max_n + 1))"
 tag="v$version"
 
 # --- Changelog sections ------------------------------------------------------
@@ -117,11 +143,23 @@ if [ -z "$horca_commits" ]; then
   horca_commits="- No Horca-only changes in this release."
 fi
 
-# --- Notes body ---------------------------------------------------------------
-cat >"$NOTES_PATH" <<EOF
-Source-Repo: rudironsoni/orca
+if [ "$CHANNEL" = "beta" ]; then
+  notes_headers="Source-Repo: rudironsoni/orca
 Source-SHA: $SOURCE_SHA
 Upstream-SHA: $UPSTREAM_SHA
+Channel: beta
+Branch: ${HORCA_BRANCH:-}"
+  brew_cask="rudironsoni/tap/horca@beta"
+else
+  notes_headers="Source-Repo: rudironsoni/orca
+Source-SHA: $SOURCE_SHA
+Upstream-SHA: $UPSTREAM_SHA"
+  brew_cask="rudironsoni/tap/horca"
+fi
+
+# --- Notes body ---------------------------------------------------------------
+cat >"$NOTES_PATH" <<EOF
+$notes_headers
 
 ## Upstream changes
 
@@ -138,7 +176,7 @@ $horca_commits
 
 ## Install
 
-- macOS: \`brew install --cask rudironsoni/tap/horca\`, or download the DMG for your architecture.
+- macOS: \`brew install --cask $brew_cask\`, or download the DMG for your architecture.
 - Windows: download and run \`horca-windows-x64-setup.exe\`.
 
 The in-app updater is intentionally disabled for Horca; update via Homebrew or these releases.
