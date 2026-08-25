@@ -184,6 +184,13 @@ describe('in-repo Horca release workflows', () => {
     expect(homebrewCask).not.toContain('orca-builds')
     expect(homebrewCask).not.toContain('0.0.0-horca.0')
     expect(homebrewCask).not.toContain('REPLACE_WITH')
+    expect(homebrewCask).toContain('version "1.4.178-horca.1"')
+    expect(homebrewCask).toContain(
+      '9ce7f01743ef39bec28d3fe2bd5088fb82285f04082e6e987a557913ab9188b0'
+    )
+    expect(homebrewCask).toContain(
+      '6d81181bfbb99f51f91c64329c3df871539fb68cddf6bc5f967337f6e472d0bc'
+    )
     expect(homebrewBump).toContain('repos/rudironsoni/orca/releases')
     expect(homebrewBump).toContain(horcaTagJqTest)
     expect(homebrewBump).toContain('--repo rudironsoni/orca')
