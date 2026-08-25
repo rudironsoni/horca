@@ -90,6 +90,7 @@ export const ALLOWED_OVERLAY_PATHS = new Set([
   'src/renderer/src/components/maintenance/update-card/UpdateCardStateContent.tsx',
   'src/renderer/src/components/maintenance/update-card/update-card-visibility.ts',
   'src/renderer/src/components/settings/GeneralUpdateSettingsSection.tsx',
+  'src/renderer/src/lib/palette-match/palette-match-performance.test.ts',
   'src/renderer/src/web/web-pairing.ts',
   'src/shared/orca-cli-command-name.ts',
   'src/shared/pairing.ts',

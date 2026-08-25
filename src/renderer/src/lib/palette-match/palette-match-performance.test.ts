@@ -91,7 +91,9 @@ const WORST_QUERY = Array.from({ length: tokenCount }, (_, index) =>
 
 function percentile95(samples: number[]): number {
   const sorted = [...samples].sort((a, b) => a - b)
-  return sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * 0.95))]
+  // Why: floor(n*0.95) for n=10 is the max, so one GHA spike fails a ceiling
+  // meant for order-of-magnitude regressions (228ms vs 220ms on Node 26).
+  return sorted[Math.floor(0.95 * (sorted.length - 1))]
 }
 
 describe('palette matcher performance budget', () => {
