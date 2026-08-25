@@ -27,7 +27,7 @@ cask "horca" do
   # No auto_updates: Horca's in-app updater is intentionally disabled; this
   # cask (or a GitHub Releases download) is the only update path.
 
-  depends_on macos: ">= :big_sur"
+  depends_on macos: :big_sur
 
   app "Horca.app"
   binary "#{appdir}/Horca.app/Contents/Resources/bin/horca"

@@ -177,6 +177,8 @@ describe('in-repo Horca release workflows', () => {
   })
 
   it('points Homebrew staging at Horca releases on this repository', () => {
+    expect(homebrewCask).toContain('depends_on macos: :big_sur')
+    expect(homebrewCask).not.toContain('depends_on macos: ">=')
     expect(homebrewCask).toContain(
       'https://github.com/rudironsoni/orca/releases/download/v#{version}/horca-macos-#{arch}.dmg'
     )
