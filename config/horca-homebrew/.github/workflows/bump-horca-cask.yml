@@ -1,10 +1,12 @@
 name: Bump horca cask
 
-# Pull-based cask automation: polls the latest Horca release on
-# rudironsoni/orca (v*-horca.* only) and, when the cask is behind, downloads
-# the DMGs, recomputes sha256, updates Casks/horca.rb, runs brew style +
-# audit, and commits with this repository's own GITHUB_TOKEN. No
-# cross-repository write credentials anywhere.
+# Tap-side 6h backup. Release Horca on rudironsoni/orca calls
+# .github/workflows/bump-horca-cask.yml and waits so a just-published
+# tag is on the cask immediately. This copy still polls v*-horca.*
+# releases and, when behind, downloads the DMGs, recomputes sha256,
+# updates Casks/horca.rb, runs brew style + audit, and commits with
+# this repository's own GITHUB_TOKEN. No cross-repository write
+# credentials anywhere.
 
 on:
   schedule:

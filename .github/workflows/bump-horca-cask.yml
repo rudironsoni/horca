@@ -1,0 +1,82 @@
+name: Bump horca cask
+
+# Called by horca-release.yml after the GitHub Release is visible, so the
+# tap matches the version that just shipped. The caller waits: this is a
+# reusable workflow, same pattern as horca-build.yml. Dispatch retries a
+# bump without cutting another release. Never on push (that would race
+# the release). The copy in config/horca-homebrew is the tap's 6h backup.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Horca version to bump the tap to (<core>-horca.<N>)'
+        required: true
+  workflow_call:
+    inputs:
+      version:
+        type: string
+        required: true
+    secrets:
+      FORK_SYNC_PAT:
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bump-horca-cask
+  cancel-in-progress: false
+
+jobs:
+  bump:
+    if: github.repository == 'rudironsoni/orca'
+    runs-on: macos-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout this repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Checkout Homebrew tap
+        uses: actions/checkout@v6
+        with:
+          repository: rudironsoni/homebrew-tap
+          path: homebrew-tap
+          token: ${{ secrets.FORK_SYNC_PAT }}
+
+      - name: Update cask
+        id: update
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+          TAP_DIR: ${{ github.workspace }}/homebrew-tap
+        run: bash config/scripts/horca-bump-homebrew-cask.sh
+
+      - name: Style and audit
+        if: steps.update.outputs.changed == 'true'
+        working-directory: homebrew-tap
+        run: |
+          set -euo pipefail
+          brew style --cask "$PWD/Casks/horca.rb"
+          brew audit --cask "$PWD/Casks/horca.rb"
+
+      - name: Commit and push
+        if: steps.update.outputs.changed == 'true'
+        working-directory: homebrew-tap
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git fetch origin main
+          git rebase origin/main
+          git add Casks/horca.rb
+          git diff --cached --quiet && exit 0
+          git commit -m "horca $VERSION"
+          git push origin HEAD:main || {
+            git pull --rebase origin main
+            git push origin HEAD:main
+          }
