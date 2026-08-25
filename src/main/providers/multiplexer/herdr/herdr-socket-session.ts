@@ -2,19 +2,17 @@ import type { HerdrSocketConnectionOptions } from './herdr-socket-connection'
 import {
   herdrServerEnvironment,
   parseHerdrSessionList,
-  startDetachedHerdrCommand
+  startDetachedHerdrCommand,
+  type HerdrCommand,
+  type HerdrCommandFactory
 } from './herdr-cli-session'
 import { runProcess } from '../../../../shared/child-process/run-process'
 import { assertHerdrSchemaCompatible, type HerdrApiSchema } from './herdr-runtime-contract'
 import { ensureStockHerdrSession, type HerdrListedSession } from './herdr-stock-session'
 
 export type HerdrSocketSessionOptions = HerdrSocketConnectionOptions & {
-  commandFor?: (args: string[]) => { file: string; args: string[]; env?: NodeJS.ProcessEnv }
-  serverCommandFor?: (sessionName: string) => {
-    file: string
-    args: string[]
-    env?: NodeJS.ProcessEnv
-  }
+  commandFor?: HerdrCommandFactory
+  serverCommandFor?: (sessionName: string) => HerdrCommand | Promise<HerdrCommand>
 }
 
 export class HerdrSocketSessionManager {
@@ -65,14 +63,13 @@ export class HerdrSocketSessionManager {
     const command = this.options.serverCommandFor
       ? await this.options.serverCommandFor(sessionName)
       : await (async () => {
-          const base = this.options.commandFor?.(['--session', sessionName, 'server']) ?? {
+          const base = await (this.options.commandFor?.(['--session', sessionName, 'server']) ?? {
             file: 'herdr',
             args: ['--session', sessionName, 'server']
-          }
-          const resolved = await base
+          })
           return {
-            ...resolved,
-            env: herdrServerEnvironment(resolved.env)
+            ...base,
+            env: herdrServerEnvironment(base.env)
           }
         })()
     await startDetachedHerdrCommand(command)
