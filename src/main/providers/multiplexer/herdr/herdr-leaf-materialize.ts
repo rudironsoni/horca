@@ -8,10 +8,8 @@ import {
   paneBindingMapKey
 } from './herdr-binding-metadata'
 import { findHerdrWorkspaceForWorktree, type HerdrProjectHostGraph } from './ensure-herdr-workspace'
-import { collectHerdrPaneIds } from './herdr-tab-layout'
 import type { HerdrHostTransport, HerdrSessionSnapshot } from './herdr-runtime-contract'
 import { unwrapHerdrResponse } from './herdr-runtime-contract'
-import type { LayoutNode } from './herdr-socket-types'
 
 export async function materializeHerdrLeafPane(args: {
   transport: HerdrHostTransport
@@ -35,8 +33,19 @@ export async function materializeHerdrLeafPane(args: {
   // Why: the Orca session is the only authority on which panes exist. A bare
   // pane is reusable, and a pane whose orca_binding names a leaf the session
   // no longer models is a stale leftover of a previous run. Reclaiming it
-  // must never mint a new herdr tab; layout.apply below would.
+  // must never mint a new herdr tab.
   const desiredBindings = desiredLeafBindings(args.project.id, args.graph)
+  const selfBinding = orcaPaneBinding(args.project.id, args.leafId)
+  const alreadyMine = workspacePanes.find(
+    (pane) => pane.tokens?.[ORCA_BINDING_TOKEN] === selfBinding
+  )
+  if (alreadyMine) {
+    args.paneIdsBySessionAndBinding.set(
+      paneBindingMapKey(args.sessionName, selfBinding),
+      alreadyMine.pane_id
+    )
+    return alreadyMine.pane_id
+  }
   const reusable =
     workspacePanes.find(
       (pane) => !claimedPaneIds.has(pane.pane_id) && !pane.tokens?.[ORCA_BINDING_TOKEN]
@@ -48,36 +57,7 @@ export async function materializeHerdrLeafPane(args: {
   if (reusable) {
     return claimMaterializedPane(args, reusable, snapshot)
   }
-  if (!workspace) {
-    return null
-  }
-  const applied = unwrapHerdrResponse<{
-    layout: { root?: LayoutNode }
-    workspace_id: string
-    tab_id: string
-  }>(
-    await args.transport.request(args.sessionName, 'layout.apply', {
-      workspace_id: workspace.workspace_id,
-      tab_label: 'Terminal',
-      root: { type: 'pane', cwd: args.cwd },
-      focus: false
-    })
-  )
-  const paneIds: string[] = []
-  collectHerdrPaneIds(applied.layout?.root, paneIds)
-  const paneId = paneIds[0]
-  if (!paneId) {
-    return null
-  }
-  const pane = snapshot.panes.find((candidate) => candidate.pane_id === paneId) ?? {
-    pane_id: paneId,
-    tab_id: applied.tab_id,
-    workspace_id: applied.workspace_id
-  }
-  if (!snapshot.panes.includes(pane)) {
-    snapshot.panes.push(pane)
-  }
-  return claimMaterializedPane(args, pane, snapshot)
+  return null
 }
 
 function desiredLeafBindings(

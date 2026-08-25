@@ -75,6 +75,17 @@ function stockTransport() {
         const rootPane = { pane_id: 'w1:p1', tab_id: 'w1:t1', workspace_id: 'w1' }
         return { id: 'workspace', result: { workspace, tab, root_pane: rootPane } }
       }
+      if (method === 'tab.rename') {
+        const input = params as { tab_id: string; label: string }
+        const existing = snapshot.tabs.find((candidate) => candidate.tab_id === input.tab_id)
+        if (existing) {
+          existing.label = input.label
+        }
+        return { id: 'tab-rename', result: { type: 'ok' } }
+      }
+      if (method === 'tab.close') {
+        return { id: 'tab-close', result: { type: 'ok' } }
+      }
       if (method === 'workspace.report_metadata') {
         const input = params as { workspace_id: string; tokens: Record<string, string> }
         const workspace = snapshot.workspaces.find(
@@ -155,16 +166,30 @@ describe('Herdr workspace dedupe', () => {
     expect(host.snapshot.workspaces).toHaveLength(1)
   })
 
-  it('does not reuse the sole workspace pane when it is still claimed', async () => {
+  it('reclaims the create-path pane when the binding map is empty', async () => {
     const host = stockTransport()
     const manager = new HerdrRuntimeManager(host.transport)
     await manager.reconcileProjectHost(singleLeafGraph())
     const map = (manager as unknown as { paneIdsBySessionAndBinding: Map<string, string> })
       .paneIdsBySessionAndBinding
     map.clear()
-    for (const workspace of host.snapshot.workspaces) {
-      delete workspace.tokens
-    }
+
+    const paneId = await manager.materializeLeafPane(project(), 'leaf-1', '/repo', {
+      id: 'worktree-1',
+      path: '/repo',
+      displayName: 'repo'
+    })
+
+    expect(paneId).toBe('w1:p1')
+    expect(
+      host.requestMock.mock.calls.filter(([, method]) => method === 'layout.apply')
+    ).toHaveLength(0)
+  })
+
+  it('does not mint a sibling herdr tab for a leaf the session does not model', async () => {
+    const host = stockTransport()
+    const manager = new HerdrRuntimeManager(host.transport)
+    await manager.reconcileProjectHost(singleLeafGraph())
 
     const paneId = await manager.materializeLeafPane(project(), 'existing-leaf', '/repo', {
       id: 'worktree-1',
@@ -172,12 +197,9 @@ describe('Herdr workspace dedupe', () => {
       displayName: 'repo'
     })
 
-    expect(paneId).toBe('w1:p2')
+    expect(paneId).toBeNull()
     expect(
       host.requestMock.mock.calls.filter(([, method]) => method === 'layout.apply')
-    ).toHaveLength(1)
-    expect(
-      host.requestMock.mock.calls.filter(([, method]) => method === 'workspace.create')
-    ).toHaveLength(1)
+    ).toHaveLength(0)
   })
 })

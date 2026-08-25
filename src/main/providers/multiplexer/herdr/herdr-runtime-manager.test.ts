@@ -38,6 +38,96 @@ describe('HerdrRuntimeManager stock reconciliation', () => {
     )
   })
 
+  it('renames the stock workspace.create tab to the Orca title', async () => {
+    const host = stockTransport()
+    const manager = new HerdrRuntimeManager(host.transport)
+    await manager.reconcileProjectHost({
+      ...singleLeafGraph(),
+      tabsByWorktreeId: {
+        'worktree-1': [{ ...tab(), title: 'Terminal 1' }]
+      }
+    })
+
+    expect(host.snapshot.tabs).toHaveLength(1)
+    expect(host.snapshot.tabs[0]?.label).toBe('Terminal 1')
+    expect(
+      host.requestMock.mock.calls.filter(([, method]) => method === 'tab.create')
+    ).toHaveLength(0)
+    expect(
+      host.requestMock.mock.calls.filter(([, method]) => method === 'layout.apply')
+    ).toHaveLength(0)
+    const rename = host.requestMock.mock.calls.find(([, method]) => method === 'tab.rename')
+    expect(rename?.[2]).toEqual({ tab_id: 'w1:t1', label: 'Terminal 1' })
+  })
+
+  it('renames the stock worktree.open tab to the Orca title', async () => {
+    const host = stockTransport()
+    const manager = new HerdrRuntimeManager(host.transport)
+    await manager.reconcileProjectHost({
+      ...singleLeafGraph(),
+      worktrees: [
+        {
+          id: 'worktree-1',
+          instanceId: 'instance-1',
+          path: '/repo',
+          displayName: 'repo',
+          repoPath: '/repo-root'
+        }
+      ],
+      tabsByWorktreeId: {
+        'worktree-1': [{ ...tab(), title: 'Terminal 1' }]
+      }
+    })
+
+    expect(
+      host.requestMock.mock.calls.filter(([, method]) => method === 'worktree.open')
+    ).toHaveLength(1)
+    expect(host.snapshot.tabs).toHaveLength(1)
+    expect(host.snapshot.tabs[0]?.label).toBe('Terminal 1')
+    expect(
+      host.requestMock.mock.calls.filter(([, method]) => method === 'tab.create')
+    ).toHaveLength(0)
+  })
+
+  it('closes an unbound stock leftover tab next to the Orca-owned tab', async () => {
+    const worktree = {
+      id: 'worktree-1',
+      instanceId: 'instance-1',
+      path: '/repo',
+      displayName: 'repo'
+    }
+    const host = stockTransport({
+      workspaces: [
+        {
+          workspace_id: 'w1',
+          label: 'repo',
+          cwd: '/repo'
+        }
+      ],
+      tabs: [
+        { tab_id: 'w1:t1', workspace_id: 'w1', label: 'Terminal 1' },
+        { tab_id: 'w1:t2', workspace_id: 'w1', label: '1' }
+      ],
+      panes: [
+        { pane_id: 'w1:p1', tab_id: 'w1:t1', workspace_id: 'w1' },
+        { pane_id: 'w1:p2', tab_id: 'w1:t2', workspace_id: 'w1' }
+      ]
+    })
+    const manager = new HerdrRuntimeManager(host.transport)
+    await manager.reconcileProjectHost({
+      ...singleLeafGraph(),
+      worktrees: [worktree],
+      tabsByWorktreeId: {
+        'worktree-1': [{ ...tab(), title: 'Terminal 1' }]
+      }
+    })
+
+    expect(host.snapshot.tabs.map((candidate) => candidate.label)).toEqual(['Terminal 1'])
+    expect(host.requestMock.mock.calls.filter(([, method]) => method === 'tab.close')).toEqual([
+      expect.arrayContaining(['tab.close', { tab_id: 'w1:t2' }])
+    ])
+  })
+
   it('reconciles into the shared Orca session when a sharedName is configured', async () => {
     const host = stockTransport()
     const manager = new HerdrRuntimeManager(host.transport, () => 'orca')

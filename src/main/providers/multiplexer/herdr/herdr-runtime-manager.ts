@@ -21,7 +21,7 @@ import {
   orcaWorkspaceBinding,
   collectLeafIds
 } from './herdr-binding-metadata'
-import { ensureTabLayout } from './herdr-tab-layout'
+import { closeUnboundStockHerdrTabs, ensureTabLayout } from './herdr-tab-layout'
 import { materializeHerdrLeafPane } from './herdr-leaf-materialize'
 import type { HerdrBindingAgentState } from './herdr-pty-binding-queries'
 import {
@@ -194,6 +194,12 @@ export class HerdrRuntimeManager {
             }
           }
         }
+        await closeUnboundStockHerdrTabs(
+          this.transport,
+          sessionName,
+          workspace.workspace_id,
+          snapshot
+        )
       }
 
       rememberOrcaPaneBindings(

@@ -23,6 +23,7 @@ import type {
   HerdrWorkspace
 } from './herdr-runtime-contract'
 import { HerdrRuntimeError, unwrapHerdrResponse } from './herdr-runtime-contract'
+import { orcaTabTitle, syncHerdrTabLabel } from './herdr-tab-layout'
 
 export type HerdrWorktreeDescriptor = Pick<
   Worktree,
@@ -132,6 +133,7 @@ export async function ensureStockHerdrWorkspace(
       created.root_pane,
       snapshot
     )
+    await syncHerdrTabLabel(transport, sessionName, created.tab, orcaTabTitle(firstTab))
   }
   return created.workspace
 }
@@ -166,6 +168,10 @@ async function openStockWorktree(
   await reportOrcaWorkspaceBinding(transport, sessionName, workspace.workspace_id, binding)
   workspace.tokens = { ...workspace.tokens, [ORCA_BINDING_TOKEN]: binding }
   if (alreadyOpen) {
+    const existingTab = snapshot.tabs.find((candidate) => candidate.tab_id === tab.tab_id) ?? tab
+    if (firstTab) {
+      await syncHerdrTabLabel(transport, sessionName, existingTab, orcaTabTitle(firstTab))
+    }
     return workspace
   }
   snapshot.workspaces.push(workspace)
@@ -175,6 +181,7 @@ async function openStockWorktree(
   const firstLeafId = firstTerminalLeafId(firstRoot)
   if (firstTab && firstLeafId) {
     await claimOrcaPaneBinding(transport, sessionName, projectId, firstLeafId, rootPane, snapshot)
+    await syncHerdrTabLabel(transport, sessionName, tab, orcaTabTitle(firstTab))
   }
   return workspace
 }

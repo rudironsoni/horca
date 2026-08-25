@@ -115,7 +115,7 @@ export function stockTransport(
       }
       if (method === 'workspace.create') {
         const workspace = { workspace_id: 'w1', label: 'repo' }
-        const createdTab = { tab_id: 'w1:t1', workspace_id: 'w1', label: 'Terminal' }
+        const createdTab = { tab_id: 'w1:t1', workspace_id: 'w1', label: '1' }
         const rootPane = { pane_id: 'w1:p1', tab_id: 'w1:t1', workspace_id: 'w1' }
         return {
           id: 'workspace',
@@ -144,13 +144,38 @@ export function stockTransport(
         }
       }
       if (method === 'tab.create') {
+        const input = params as { workspace_id?: string; label?: string }
+        const created = {
+          tab_id: `w1:t-${snapshot.tabs.length + 1}`,
+          workspace_id: input.workspace_id ?? 'w1',
+          label: input.label ?? '1'
+        }
+        const rootPane = {
+          pane_id: `w1:p-${snapshot.panes.length + 1}`,
+          tab_id: created.tab_id,
+          workspace_id: created.workspace_id
+        }
         return {
           id: 'tab',
           result: {
-            tab: { tab_id: 'w1:t1', workspace_id: 'w1', label: '1' },
-            root_pane: { pane_id: 'w1:p1', tab_id: 'w1:t1', workspace_id: 'w1' }
+            tab: created,
+            root_pane: rootPane
           }
         }
+      }
+      if (method === 'tab.rename') {
+        const input = params as { tab_id: string; label: string }
+        const existing = snapshot.tabs.find((candidate) => candidate.tab_id === input.tab_id)
+        if (existing) {
+          existing.label = input.label
+        }
+        return { id: 'tab-rename', result: { type: 'ok' } }
+      }
+      if (method === 'tab.close') {
+        const input = params as { tab_id: string }
+        snapshot.tabs = snapshot.tabs.filter((candidate) => candidate.tab_id !== input.tab_id)
+        snapshot.panes = snapshot.panes.filter((pane) => pane.tab_id !== input.tab_id)
+        return { id: 'tab-close', result: { type: 'ok' } }
       }
       if (method === 'pane.split') {
         return {
