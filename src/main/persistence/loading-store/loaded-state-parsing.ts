@@ -32,6 +32,7 @@ import {
   normalizeSshPtyConsumerRecovery
 } from '../leasing-ssh-ptys/ssh-normalization'
 import {
+  backfillLegacyTerminalBackendActivations,
   mergeProjectHostSetupCompatibilityState,
   projectHostSetupCompatibilityStateEqual
 } from '../tracking-repos/project-host-compatibility'
@@ -79,6 +80,7 @@ export class LoadedStateParsingOperations {
     })
 
     let result: PersistedState | null = null
+    let backfillLegacyTerminalBackends = false
     try {
       if (fileExistedOnLoad) {
         const readStartedAt = performance.now()
@@ -89,6 +91,8 @@ export class LoadedStateParsingOperations {
         })
         logPersistenceStartupMilestone('persistence-json-parse-start')
         const parsed = JSON.parse(raw) as PersistedState
+        backfillLegacyTerminalBackends =
+          parsed.settings?.terminalBackendActivationDefaultedToOrca !== true
         logPersistenceStartupMilestone('persistence-json-parse-done')
 
         // Why: secrets are stored encrypted via safeStorage; decrypt at the load boundary so the app sees plaintext.
@@ -202,7 +206,13 @@ export class LoadedStateParsingOperations {
     }
 
     const repos = clearMissingProjectGroupMemberships(result.repos, result.projectGroups ?? [])
-    const projectHostSetupCompatibility = mergeProjectHostSetupCompatibilityState(result, repos)
+    let projectHostSetupCompatibility = mergeProjectHostSetupCompatibilityState(result, repos)
+    if (backfillLegacyTerminalBackends) {
+      projectHostSetupCompatibility = backfillLegacyTerminalBackendActivations(
+        projectHostSetupCompatibility
+      )
+      this.runtime.loadNeedsSave = true
+    }
     if (!projectHostSetupCompatibilityStateEqual(result, projectHostSetupCompatibility)) {
       this.runtime.loadNeedsSave = true
     }

@@ -8,6 +8,7 @@ import type { AdoptStablePaneResult } from '../ipc/spawn-types'
 import type { PtyBindingSourceExpectation } from '../../../persistence'
 import type { PtyRuntimeControllerDeps } from './controller-deps'
 import type { TuiAgent } from '../../../../shared/tui-agent'
+import type { TerminalLayoutSnapshot } from '../../../../shared/terminal-tab-types'
 import type { AgentProviderSessionMetadata } from '../../../../shared/agent-session-resume'
 import type { StartupCommandDelivery } from '../../../../shared/codex-startup-delivery'
 import type {
@@ -101,6 +102,7 @@ export type RuntimePtySpawnArgs = {
   preAllocatedHandle?: string
   tabId?: string
   leafId?: string
+  terminalLayout?: TerminalLayoutSnapshot
   sessionId?: string
   isNewSession?: boolean
   persistHostSessionBinding?: boolean

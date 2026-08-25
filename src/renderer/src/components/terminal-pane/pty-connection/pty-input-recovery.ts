@@ -64,6 +64,7 @@ export function installPtyInputRecovery(session: ConnectPanePtySession): void {
     // and the main-side guard short-circuits.
     tabId: session.deps.tabId,
     leafId: session.pane.leafId,
+    terminalLayout: useAppStore.getState().terminalLayoutsByTabId[session.deps.tabId],
     activate: session.deps.isActiveRef.current && session.deps.isVisibleRef.current,
     ...(session.shellOverride ? { shellOverride: session.shellOverride } : {}),
     ...(session.projectRuntime ? { projectRuntime: session.projectRuntime } : {}),

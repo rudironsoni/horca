@@ -6,7 +6,6 @@ import { observeTerminalBracketedPasteModeOutput } from '../terminal-bracketed-p
 import type { PtyDataMeta } from '../pty-dispatcher'
 import { sendTerminalOscColorQueryReplies } from '../terminal-capability-replies'
 
-import { shouldWritePtyOutputForeground } from './foreground-output-scan'
 import { registerE2eTerminalPtyDataInjection } from './e2e-terminal-pty-harness'
 
 import type { ConnectPanePtySession } from './connect-pane-pty-session'
@@ -69,8 +68,7 @@ export function bindLiveDataCallback(session: ConnectPanePtySession): void {
       session.reportError(codexBackfillNotice)
     }
     // Why: split panes have visible-but-inactive panes the user watches; throttle only when the pane or whole document is hidden.
-    const foreground =
-      shouldWritePtyOutputForeground(session.deps.isVisibleRef.current) && meta?.background !== true
+    const foreground = session.shouldWritePtyOutputForeground() && meta?.background !== true
     // Why: latch the hidden-delivery gate from the byte path too, covering a PTY id that arrives after the initial sync (no-op when current).
     if (!foreground) {
       session.syncHiddenRendererPtyDelivery()
@@ -141,7 +139,7 @@ export function bindLiveDataCallback(session: ConnectPanePtySession): void {
       session.transport.getPtyId() === session.hiddenOutputRestorePtyId
     const skipBackgroundAlternateScreenFrame =
       meta?.background === true &&
-      shouldWritePtyOutputForeground(session.deps.isVisibleRef.current) &&
+      session.shouldWritePtyOutputForeground() &&
       session.pane.terminal.buffer.active.type === 'alternate' &&
       !containsStatefulRendererQuery(orderedRendererData)
     if (skipBackgroundAlternateScreenFrame) {

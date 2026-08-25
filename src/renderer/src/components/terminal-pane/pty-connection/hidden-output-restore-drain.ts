@@ -7,7 +7,6 @@ import {
   HIDDEN_OUTPUT_RESTORE_FOREGROUND_TIMEOUT_MS,
   HIDDEN_OUTPUT_RESTORE_REMOTE_REARM_MAX
 } from './hidden-output-restore-limits'
-import { shouldWritePtyOutputForeground } from './foreground-output-scan'
 import { isRemoteRuntimePtyId } from './paired-parked-terminal-restore'
 
 import type { ConnectPanePtySession } from './connect-pane-pty-session'
@@ -103,7 +102,7 @@ export function bindHiddenOutputRestoreDrain(session: ConnectPanePtySession): vo
     if (
       session.disposed ||
       session.hiddenOutputRestoreForegroundDeadlineTimer !== null ||
-      !shouldWritePtyOutputForeground(session.deps.isVisibleRef.current) ||
+      !session.shouldWritePtyOutputForeground() ||
       (isRemoteRuntimePtyId(session.hiddenOutputRestorePtyId) &&
         session.hiddenOutputRestoreLegacyPtyId !== session.hiddenOutputRestorePtyId &&
         typeof session.transport.serializeBufferOutcome === 'function') ||
@@ -124,7 +123,7 @@ export function bindHiddenOutputRestoreDrain(session: ConnectPanePtySession): vo
         session.disposed ||
         session.hiddenOutputRestoreGeneration !== deadlineGeneration ||
         session.hiddenOutputRestorePtyId !== ptyId ||
-        !shouldWritePtyOutputForeground(session.deps.isVisibleRef.current)
+        !session.shouldWritePtyOutputForeground()
       ) {
         return
       }

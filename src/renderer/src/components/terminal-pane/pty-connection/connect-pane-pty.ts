@@ -13,7 +13,7 @@ import { makePaneKey } from '../../../../../shared/stable-pane-id'
 import type { AgentType } from '../../../../../shared/agent-status-types'
 import { resolveCommittedTitleAgentType } from '@/lib/pane-agent-evidence'
 
-import { shouldWritePtyOutputForeground } from './foreground-output-scan'
+import { shouldWritePtyOutputForeground, USER_ATTENTION_TTL_MS } from './foreground-output-scan'
 import { exposeE2eTerminalPtyOutputDebug } from './e2e-terminal-pty-harness'
 import type { PanePtyBinding } from './pane-pty-binding'
 import type { ConnectPanePtySession } from './connect-pane-pty-session'
@@ -50,6 +50,15 @@ export function connectPanePty(
   const session = { pane, manager, deps } as ConnectPanePtySession
   session.shouldRefreshForegroundSynchronously = (): boolean =>
     !session.manager.hasWebglRenderer(session.pane.id)
+  // Why: user attention (focus, recent input) overrides workspace visibility
+  // tracking: a pane with attention must render foreground even when
+  // isVisible/visibilityState say hidden (macOS occlusion bug, background tab).
+  session.lastTerminalInputAt = Number.NEGATIVE_INFINITY
+  session.shouldWritePtyOutputForeground = (): boolean =>
+    shouldWritePtyOutputForeground(
+      session.deps.isVisibleRef.current,
+      performance.now() - session.lastTerminalInputAt <= USER_ATTENTION_TTL_MS
+    )
   const state = useAppStore.getState()
   const unifiedTab = state.getTab?.(deps.tabId)
   const initialOwnerWorktreeId =
@@ -166,7 +175,7 @@ export function connectPanePty(
       return
     }
     writeTerminalOutput(session.pane.terminal, session.idleAgentTerminalModeReset, {
-      foreground: shouldWritePtyOutputForeground(session.deps.isVisibleRef.current)
+      foreground: session.shouldWritePtyOutputForeground()
     })
   }
   // Why: passphrase-gate waits register a teardown here so dispose() can
@@ -175,6 +184,18 @@ export function connectPanePty(
   // forever, since the subscriber's `disposed` check only fires when the
   // store next emits — which may never happen after disconnect.
   session.waitTeardowns = []
+  // Why: focus on the terminal (click, tab navigation) proves user attention
+  // even without keystrokes. Update lastTerminalInputAt so output renders as foreground.
+  const terminalElement = session.pane.terminal.element
+  if (terminalElement && typeof terminalElement.addEventListener === 'function') {
+    const onFocus = (): void => {
+      session.lastTerminalInputAt = performance.now()
+    }
+    terminalElement.addEventListener('focus', onFocus, { capture: true })
+    session.waitTeardowns.push(() =>
+      terminalElement.removeEventListener('focus', onFocus, { capture: true })
+    )
+  }
   // Why: startup commands must only run once — in the pane they were
   // targeted at. Capture `deps.startup` into a local and clear the field on
   // the (already spread-copied) `deps` so nothing else inside this function

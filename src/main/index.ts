@@ -55,6 +55,7 @@ import {
   getLocalPtyProvider,
   getSshPtyProvider,
   registerHeadlessPtyRuntime,
+  setHerdrStore,
   type CodexHomeLaunchContext
 } from './ipc/pty'
 import {
@@ -1051,11 +1052,14 @@ function startTerminalRuntimeStartupServices(): WindowsDesktopStartupServices {
       logStartupMilestone('startup-service-start', { service: 'daemon-pty-provider' })
       // Why: only GUI-spawned macOS daemons watch for login-session death; a headless
       // serve daemon must survive its spawning session ending (SSH disconnect).
-      await initDaemonPtyProvider(signal, {
-        macosLoginSessionWatch: process.platform === 'darwin' && !isServeMode
-      })
-      // Why: a retained shell keeps its launch-time Codex home even when the current routing lane changes.
-      if (codexRuntimeHome && hasRecordedManagedHostCodexPane()) {
+      await initDaemonPtyProvider(
+        signal,
+        {
+          macosLoginSessionWatch: process.platform === 'darwin' && !isServeMode
+        },
+        store
+      )
+      if (codexRuntimeHome?.isHostSystemDefaultRealHome() && hasRecordedManagedHostCodexPane()) {
         const livePtyIds = await listLiveDaemonPtyIds()
         if (livePtyIds) {
           reconcileCodexPaneAccountsWithLivePtys(livePtyIds)
@@ -2346,6 +2350,7 @@ void app.whenReady().then(async () => {
       )
     }
   }
+  setHerdrStore(store)
   wslHookRelayManager.setManagedHookSettingsResolver(() => store?.getSettings() ?? null)
   logStartupMilestone('store-loaded')
   // Why: apply initial fallback WSL distro from store settings for global git/CLI calls.

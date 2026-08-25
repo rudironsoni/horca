@@ -22,10 +22,7 @@ import {
   FOREGROUND_IMMEDIATE_BUDGET_CHARS,
   consumeForegroundImmediateBudget
 } from './foreground-output-budgets'
-import {
-  shouldWritePtyOutputForeground,
-  consumeInactiveForegroundImmediateBudget
-} from './foreground-output-scan'
+import { consumeInactiveForegroundImmediateBudget } from './foreground-output-scan'
 import { isRemoteRuntimePtyId } from './paired-parked-terminal-restore'
 
 import type { ConnectPanePtySession } from './connect-pane-pty-session'
@@ -141,7 +138,7 @@ export function bindForegroundOutputRefresh(session: ConnectPanePtySession): voi
     }
     if (isRemoteRuntimePtyId(ptyId) && session.canUseHiddenOutputSnapshot(ptyId)) {
       session.transport.setOutputPaused?.(
-        !session.disposed && !shouldWritePtyOutputForeground(session.deps.isVisibleRef.current)
+        !session.disposed && !session.shouldWritePtyOutputForeground()
       )
       return
     }
@@ -156,8 +153,7 @@ export function bindForegroundOutputRefresh(session: ConnectPanePtySession): voi
     ) {
       return
     }
-    const shouldHide =
-      !session.disposed && !shouldWritePtyOutputForeground(session.deps.isVisibleRef.current)
+    const shouldHide = !session.disposed && !session.shouldWritePtyOutputForeground()
     const isFirstSyncForPty = session.hiddenDeliverySyncedPtyId !== ptyId
     session.hiddenDeliverySyncedPtyId = ptyId
     if (shouldHide) {

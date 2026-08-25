@@ -22,4 +22,7 @@ export type PanePtyBinding = IDisposable & {
   markShortcutTerminalInputSent: () => void
   reconcileIfSessionDead: (liveSessionIds: Set<string>, snapshotRequestedAt?: number) => void
   reconcileIfSessionMissing: (hasPty: HasPty, livenessRequestedAt?: number) => void
+  /** Mark recent user attention (click, focus, window focus) so output renders
+   *  as foreground even if workspace visibility tracking says hidden. */
+  markUserAttention: () => void
 }

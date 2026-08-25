@@ -167,6 +167,8 @@ export type RuntimeTerminalInteractiveWait = {
 export type RuntimeTerminalShow = RuntimeTerminalSummary & {
   paneRuntimeId: number
   ptyId: string | null
+  /** Absent on hosts that predate terminal backend reporting. */
+  backend?: 'orca' | 'herdr'
   rendererGraphEpoch: number
   /** Null means evaluated with no wait; absent means not evaluated. */
   agentWait?: RuntimeTerminalInteractiveWait | null
