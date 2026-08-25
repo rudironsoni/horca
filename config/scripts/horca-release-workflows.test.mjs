@@ -96,6 +96,16 @@ describe('in-repo Horca release workflows', () => {
     ])
   })
 
+  it('does not treat Horca.exe as Orca.exe in the Windows protocol check', () => {
+    const silentInstall = build.jobs['build-windows'].steps.find(
+      (step) => step.name === 'Silent-install and verify OS registration'
+    )
+    expect(silentInstall.run).toContain("'*\\Horca.exe*'")
+    expect(silentInstall.run).toContain("'*\\Orca.exe*'")
+    expect(silentInstall.run).not.toMatch(/-like '\*Orca\.exe\*'/)
+    expect(silentInstall.run).not.toMatch(/-notlike '\*Horca\.exe\*'/)
+  })
+
   it('reuses named build artifacts in publish and never packages again', () => {
     const publish = release.jobs.publish
     const publishText = JSON.stringify(publish)

@@ -421,8 +421,9 @@ jobs:
             Fail 'horca: protocol key not registered under HKCU:\Software\Classes'
           }
           $command = (Get-ItemProperty -Path 'HKCU:\Software\Classes\horca\shell\open\command' -ErrorAction SilentlyContinue).'(default)'
-          if ($command -notlike '*Horca.exe*') { Fail "horca: protocol command is '$command'" }
-          if ($command -like '*Orca.exe*') { Fail "horca: protocol command points at Orca.exe: '$command'" }
+          # -like is case-insensitive, so *Orca.exe* also matches Horca.exe.
+          if ($command -notlike '*\Horca.exe*') { Fail "horca: protocol command is '$command'" }
+          if ($command -like '*\Orca.exe*') { Fail "horca: protocol command points at Orca.exe: '$command'" }
 
           $uninstallEntries = Get-ChildItem 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall' |
             Get-ItemProperty |
