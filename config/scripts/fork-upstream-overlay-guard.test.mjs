@@ -74,12 +74,12 @@ describe('fork upstream overlay guard', () => {
     ).toEqual(['denied overlay: tests/e2e/helpers/startup-exec-readiness-oracle.ts'])
   })
 
-  it('runs the live three-dot comparison when the upstream mirror ref exists', () => {
+  it('runs the live three-dot comparison against fetched stablyai/orca main', () => {
     let findings
     try {
-      findings = inspectForkOverlay('HEAD', 'origin/upstream-main')
+      findings = inspectForkOverlay('HEAD', 'upstream/main')
     } catch (error) {
-      if (String(error).includes('origin/upstream-main')) {
+      if (String(error).includes('upstream/main')) {
         return
       }
       throw error
