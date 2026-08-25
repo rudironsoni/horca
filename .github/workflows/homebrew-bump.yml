@@ -37,7 +37,11 @@ jobs:
     runs-on: ubuntu-latest
     # Why: only desktop tags have the macOS DMGs this workflow downloads.
     # A mobile tag such as `mobile-v0.0.1` must never rewrite either cask.
+    # Why the repository check: this job mints a stablyai GitHub App token
+    # (BUFO_BOT_PRIVATE_KEY) and pushes to stablyai/homebrew-orca; forks have
+    # neither the secret nor tap access, so it must only run in the canonical repo.
     if: >
+      github.repository == 'stablyai/orca' &&
       inputs.tag != '' &&
       startsWith(inputs.tag, 'v')
     permissions:

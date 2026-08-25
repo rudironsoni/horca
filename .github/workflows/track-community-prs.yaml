@@ -15,6 +15,9 @@ permissions:
 
 jobs:
   track-community-pr:
+    # Why: this job mints a stablyai GitHub App token and writes to
+    # stablyai's project board. On this fork it has no secrets and always fails.
+    if: github.repository == 'stablyai/orca'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

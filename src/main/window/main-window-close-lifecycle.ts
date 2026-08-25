@@ -1,4 +1,5 @@
 import { ipcMain, Menu, Notification, type BrowserWindow } from 'electron'
+import { getDistributionIdentity } from '../../shared/distribution-identity'
 import { translateMain } from '../i18n/main-i18n'
 import type { Store } from '../persistence'
 import { resolveWindowCloseAction } from './window-close-decision'
@@ -74,10 +75,11 @@ export function installMainWindowCloseLifecycle(args: {
     if (store.getUI().trayMinimizeNoticeShown !== true) {
       try {
         new Notification({
-          title: 'Orca',
+          title: getDistributionIdentity().productName,
           body: translateMain(
             'tray.minimizeNotice.body',
-            'Orca is still running in the system tray'
+            '{{appName}} is still running in the system tray',
+            { appName: getDistributionIdentity().productName }
           )
         }).show()
       } catch {

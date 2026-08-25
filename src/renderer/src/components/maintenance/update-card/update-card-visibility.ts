@@ -1,4 +1,5 @@
 import type { UpdateStatus } from '../../../../../shared/update-status-types'
+import { downstreamUpdatesDisabledCopy } from '../../../../../shared/distribution-update-copy'
 
 export function isUpdateCardVisible({
   status,
@@ -57,7 +58,9 @@ export function getUpdateCardAriaLabel(status: UpdateStatus): string {
     case 'checking':
       return 'Checking for updates'
     case 'not-available':
-      return "You're on the latest version"
+      return status.updatesDisabledReason
+        ? downstreamUpdatesDisabledCopy('aria')
+        : "You're on the latest version"
     case 'available':
       return 'Update available'
     case 'downloading':
@@ -66,6 +69,10 @@ export function getUpdateCardAriaLabel(status: UpdateStatus): string {
       return 'Update ready to install'
     case 'error':
       return 'Update error'
+    default: {
+      const exhaustive: never = status.state
+      return exhaustive
+    }
   }
 }
 
