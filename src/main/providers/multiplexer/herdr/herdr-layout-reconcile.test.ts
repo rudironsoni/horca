@@ -116,6 +116,7 @@ describe('applyTabLayout', () => {
     expect(applyCall?.params.workspace_id).toBe(WORKSPACE)
     expect(applyCall?.params.tab_label).toBe('T')
     expect(applyCall?.params.focus).toBe(false)
+    expect(applyCall?.params).not.toHaveProperty('tab_id')
     expect(snapshot.panes.map((pane) => pane.pane_id)).toEqual(['w1:p1', 'w1:p2'])
     expect(snapshot.panes[0].tokens?.[ORCA_BINDING_TOKEN]).toBe(orcaPaneBinding(PROJECT, 'l1'))
     expect(snapshot.panes[1].tokens?.[ORCA_BINDING_TOKEN]).toBe(orcaPaneBinding(PROJECT, 'l2'))
@@ -138,6 +139,36 @@ describe('applyTabLayout', () => {
       makeSnapshot()
     )
     expect(calls.find((call) => call.method === 'layout.apply')?.params.tab_label).toBe('Custom')
+  })
+
+  it('passes the adopted herdr tab_id so layout.apply does not mint a sibling tab', async () => {
+    const { transport, calls } = makeTransport({
+      'layout.apply': () => ({
+        layout: {
+          tab_id: 't-existing',
+          workspace_id: WORKSPACE,
+          root: {
+            type: 'split',
+            direction: 'right',
+            ratio: 0.5,
+            first: { type: 'pane', pane_id: 'w1:p1' },
+            second: { type: 'pane', pane_id: 'w1:p2' }
+          }
+        }
+      }),
+      'pane.report_metadata': () => ({ ok: true })
+    })
+    await applyTabLayout(
+      transport,
+      SESSION,
+      PROJECT,
+      WORKSPACE,
+      tab,
+      root,
+      makeSnapshot(),
+      't-existing'
+    )
+    expect(calls.find((call) => call.method === 'layout.apply')?.params.tab_id).toBe('t-existing')
   })
 
   it('returns null when layout.apply fails so the caller falls back to pane.split', async () => {

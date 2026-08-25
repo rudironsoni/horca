@@ -43,6 +43,18 @@ describe('collectHerdrSurfaceActions', () => {
     ).toEqual([])
   })
 
+  it('does not rename the Orca tab when Herdr reports a stock default label', () => {
+    const previous = snapshot({
+      tabs: [{ tab_id: 'w1:t1', workspace_id: 'w1', label: 'Terminal 1' }],
+      panes: [{ pane_id: 'w1:p1', tab_id: 'w1:t1', workspace_id: 'w1' }]
+    })
+    const current = snapshot({
+      tabs: [{ tab_id: 'w1:t1', workspace_id: 'w1', label: '1' }],
+      panes: [{ pane_id: 'w1:p1', tab_id: 'w1:t1', workspace_id: 'w1' }]
+    })
+    expect(collectHerdrSurfaceActions(previous, current, identities)).toEqual([])
+  })
+
   it('renames the Orca tab when the Herdr tab label changes', () => {
     const previous = snapshot({
       tabs: [{ tab_id: 'w1:t1', workspace_id: 'w1', label: 'old' }],

@@ -69,6 +69,9 @@ export function transport(closeBeforeFrame = false, failMethod?: string) {
       if (method === 'pane.report_metadata') {
         return { id: 'pane-metadata', result: { type: 'ok' } }
       }
+      if (method === 'tab.rename' || method === 'tab.close') {
+        return { id: method, result: { type: 'ok' } }
+      }
       if (method === 'pane.read') {
         return {
           id: 'read',
