@@ -1,4 +1,5 @@
 import crypto from 'node:crypto'
+import { spawnProcess } from '../../../../shared/child-process/run-process'
 import type {
   HerdrHostTransport,
   HerdrResponse,
@@ -14,7 +15,9 @@ import {
 import { HerdrSocketEventConnection } from './herdr-socket-events'
 import {
   createHerdrSessionControlController,
-  herdrSessionControlArgs
+  createHerdrSessionControlFromOpen,
+  herdrSessionControlArgs,
+  herdrSessionControlStreamFromProcess
 } from './herdr-session-control'
 import type {
   EventMatch,
@@ -147,9 +150,16 @@ export class HerdrSocketTransport implements HerdrHostTransport {
     if (!this.options.commandFor) {
       throw new Error('Stock Herdr terminal control requires a herdr command')
     }
-    return createHerdrSessionControlController(
-      this.options.commandFor(herdrSessionControlArgs(sessionName, target, options))
-    )
+    const command = this.options.commandFor(herdrSessionControlArgs(sessionName, target, options))
+    if (command instanceof Promise) {
+      return createHerdrSessionControlFromOpen(async () => {
+        const resolved = await command
+        return herdrSessionControlStreamFromProcess(
+          spawnProcess({ program: resolved.file, args: resolved.args, env: resolved.env })
+        )
+      })
+    }
+    return createHerdrSessionControlController(command)
   }
 
   onEvent(listener: (event: HerdrSocketEvent) => void): () => void {
