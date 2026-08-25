@@ -37,6 +37,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: horca-release
@@ -106,11 +107,25 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: Download all artifacts
+      # Same-run reuse: named artifacts from prepare + horca-build.yml only.
+      # Never package here — electron-builder stays in the build workflow.
+      - name: Download macOS DMGs
         uses: actions/download-artifact@v4
         with:
+          name: horca-macos-dmgs
           path: artifacts
-          merge-multiple: true
+
+      - name: Download Windows installer
+        uses: actions/download-artifact@v4
+        with:
+          name: horca-windows-setup
+          path: artifacts
+
+      - name: Download release notes
+        uses: actions/download-artifact@v4
+        with:
+          name: release-notes
+          path: artifacts
 
       # Atomicity: exactly the three verified artifacts, nothing speculative,
       # and never an updater feed manifest.

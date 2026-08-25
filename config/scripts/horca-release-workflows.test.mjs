@@ -70,9 +70,63 @@ describe('in-repo Horca release workflows', () => {
     }
   })
 
+  it('grants Actions token scopes for artifact upload and download', () => {
+    expect(build.permissions).toEqual({ contents: 'read', actions: 'write' })
+    expect(release.permissions).toEqual({ contents: 'write', actions: 'write' })
+  })
+
+  it('uploads only the three Horca binaries from the build workflow', () => {
+    const uploads = Object.values(build.jobs).flatMap((job) =>
+      (job.steps ?? []).filter((step) => step.uses?.startsWith('actions/upload-artifact@'))
+    )
+    expect(uploads.map((step) => step.with.name).sort()).toEqual([
+      'horca-macos-dmgs',
+      'horca-windows-setup'
+    ])
+    const paths = uploads.flatMap((step) =>
+      String(step.with.path)
+        .split('\n')
+        .map((line) => line.trim())
+        .filter(Boolean)
+    )
+    expect(paths.sort()).toEqual([
+      'dist/horca-macos-arm64.dmg',
+      'dist/horca-macos-x64.dmg',
+      'dist/horca-windows-x64-setup.exe'
+    ])
+  })
+
+  it('reuses named build artifacts in publish and never packages again', () => {
+    const publish = release.jobs.publish
+    const publishText = JSON.stringify(publish)
+    expect(publishText).not.toMatch(/electron-builder/)
+    expect(publishText).not.toMatch(/build:mac/)
+    expect(publishText).not.toMatch(/build:release/)
+
+    const downloads = publish.steps.filter((step) =>
+      step.uses?.startsWith('actions/download-artifact@')
+    )
+    expect(downloads.map((step) => step.with.name).sort()).toEqual([
+      'horca-macos-dmgs',
+      'horca-windows-setup',
+      'release-notes'
+    ])
+    expect(downloads.every((step) => step.with.path === 'artifacts')).toBe(true)
+    expect(downloads.some((step) => step.with.name == null)).toBe(false)
+
+    const notesUpload = release.jobs.prepare.steps.find((step) =>
+      step.uses?.startsWith('actions/upload-artifact@')
+    )
+    expect(notesUpload.with.name).toBe('release-notes')
+  })
+
   it('publishes a Horca tag at the source commit and never updater feeds', () => {
     const publish = release.jobs.publish.steps.find((step) => step.name === 'Publish release')
     expect(publish.run).toContain('gh release create "$TAG"')
+    expect(publish.run).toContain('--repo "$GITHUB_REPOSITORY"')
+    expect(publish.run).toContain('horca-macos-arm64.dmg')
+    expect(publish.run).toContain('horca-macos-x64.dmg')
+    expect(publish.run).toContain('horca-windows-x64-setup.exe')
     expect(publish.run).toContain('--target "$SOURCE_SHA"')
     expect(publish.run).toContain('--draft')
     expect(publish.run).toContain(

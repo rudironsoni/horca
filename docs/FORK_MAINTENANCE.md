@@ -109,6 +109,8 @@ release. Version math and detectors filter `/^v\d+\.\d+\.\d+-horca\.\d+$/` only.
 | `horca-release.yml` | Runs on every push to `main`. Compute `v<core>-horca.<N>` from the newest `stablyai/orca` main commit actually contained by the source SHA, call the build, then draft → 3 assets → undraft. Concurrent runs queue. |
 | `horca-check-source.yml` | Backup every 6 hours: compare `main` HEAD to the latest Horca release `Source-SHA`. Unchanged → Linux-only exit. Changed → call `horca-release.yml`. Refuses to bootstrap if no Horca release exists yet. |
 
+Release attaches the build workflow's Actions artifacts to this repository's GitHub Release; it does not package again.
+
 Homebrew staging lives in `config/horca-homebrew/` and is copied once into
 `rudironsoni/homebrew-tap`. The tap stays a separate repository; its bump
 workflow already pulls from GitHub Releases on this repo.
