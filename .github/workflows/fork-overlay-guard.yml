@@ -1,0 +1,31 @@
+name: Fork overlay guard
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: fork-overlay-guard-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  guard:
+    if: github.repository == 'rudironsoni/orca'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Compare the fork overlay to stablyai/orca main
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags https://github.com/stablyai/orca.git main
+          node config/scripts/fork-upstream-overlay-guard.mjs \
+            --ours HEAD \
+            --theirs FETCH_HEAD

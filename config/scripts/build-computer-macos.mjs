@@ -1,11 +1,19 @@
 import { spawnSync } from 'node:child_process'
 import { chmodSync, copyFileSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
+import { createRequire } from 'node:module'
 import path from 'node:path'
 
+const require = createRequire(import.meta.url)
 const repoRoot = path.resolve(import.meta.dirname, '../..')
+// Why distribution-scoped: the helper .app carries its own TCC identity, so
+// side-by-side distributions need distinct helper bundle ids and names.
+const distributionIdentity = require('../../src/shared/distribution-identity.json')[
+  process.env.ORCA_DOWNSTREAM_BUILD === '1' ? 'horca' : 'official'
+]
 const packagePath = path.join(repoRoot, 'native', 'computer-use-macos')
 const binaryPath = path.join(packagePath, '.build', 'release', 'orca-computer-use-macos')
-const appPath = path.join(packagePath, '.build', 'release', 'Orca Computer Use.app')
+const displayName = `${distributionIdentity.productName} Computer Use`
+const appPath = path.join(packagePath, '.build', 'release', `${displayName}.app`)
 const appExecutablePath = path.join(appPath, 'Contents', 'MacOS', 'orca-computer-use-macos')
 const appIconPath = path.join(appPath, 'Contents', 'Resources', 'AppIcon.icns')
 const entitlementsPath = path.join(
@@ -14,8 +22,8 @@ const entitlementsPath = path.join(
   'build',
   'entitlements.computer-use.mac.plist'
 )
-const bundleId = process.env.ORCA_COMPUTER_MACOS_BUNDLE_ID ?? 'com.stablyai.orca.computer-use'
-const displayName = 'Orca Computer Use'
+const bundleId =
+  process.env.ORCA_COMPUTER_MACOS_BUNDLE_ID ?? `${distributionIdentity.appId}.computer-use`
 const signingIdentity = resolveSigningIdentity()
 const universalTriples = ['arm64-apple-macosx', 'x86_64-apple-macosx']
 
@@ -123,9 +131,9 @@ function infoPlist() {
   <key>LSUIElement</key>
   <true/>
   <key>NSAccessibilityUsageDescription</key>
-  <string>Orca Computer Use needs Accessibility permission to read and interact with app interfaces when you ask Orca to use apps.</string>
+  <string>${escapePlist(displayName)} needs Accessibility permission to read and interact with app interfaces when you ask ${escapePlist(distributionIdentity.productName)} to use apps.</string>
   <key>NSScreenCaptureUsageDescription</key>
-  <string>Orca Computer Use needs Screen Recording permission to capture app windows when you ask Orca to inspect your screen.</string>
+  <string>${escapePlist(displayName)} needs Screen Recording permission to capture app windows when you ask ${escapePlist(distributionIdentity.productName)} to inspect your screen.</string>
 </dict>
 </plist>
 `
