@@ -42,7 +42,7 @@ action: `secrets.FORK_SYNC_PAT`.
 | Feature | When | What it does |
 | --- | --- | --- |
 | Branch sync | hourly `:17`, `workflow_dispatch` | Merges `stablyai/orca` `main` into `main` (`merge_strategy: merge`) |
-| PR monitor | disabled | `FasterApiWeb/fork-shepherd@v1` treats its own `::notice::` log line as a PR and dies with `origin/open`. That abort runs *before* cleanup, so a red monitor also leaves `sync-conflict` issues open. Re-enable when the action stops capturing `log_info` stdout. |
+| PR monitor | off | `fork-shepherd@v1` `get_open_prs` writes a notice to stdout, then parses that line as a PR (`origin/open`, exit 128). |
 | Backport | `pull_request_target` closed (merged) | Copies a merged PR onto branches named by `backport-to-<branch>` labels |
 | Cleanup | schedule / dispatch / push to `main` | Closes stale `sync-conflict` issues when the conflict is gone |
 | Overlay ratchet | schedule / dispatch only | Fetches `stablyai/orca` `main` and fails the job if overlays grew |
