@@ -227,6 +227,10 @@ export function createUpdaterMocks(): UpdaterMocks {
 
   /** Shared `beforeEach` body: fresh module registry plus every mock back to its default. */
   const resetUpdaterMocks = () => {
+    // Why: drop a previous test's 24h queue before resetModules. useRealTimers()
+    // alone leaves those callbacks; they then fire into the next test (3 checks).
+    vi.clearAllTimers()
+    vi.useRealTimers()
     vi.resetModules()
     autoUpdaterMock.reset()
     nativeUpdaterMock.on.mockReset()
@@ -254,8 +258,6 @@ export function createUpdaterMocks(): UpdaterMocks {
       close: closeLocalBuildFeedMock
     })
     vi.unstubAllGlobals()
-    // Why: useRealTimers() does not drop the fake-timer queue. A previous test's
-    // 24h auto-check then fires into the next test's mock (3 calls instead of 2).
     vi.clearAllTimers()
     vi.useRealTimers()
   }

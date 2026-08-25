@@ -84,8 +84,9 @@ not own (`src/shared/distribution-update-copy.ts` for updater strings;
 `config/scripts/fork-upstream-overlay-guard.mjs` is the ratchet: overlays
 must stay on its allowlist, fork-only files on its fork-only list, and
 `tests/e2e/` plus locale JSON are denied even if added to the allowlist.
-Pull requests run `.github/workflows/horca_overlay_guard.yml` (not
-`pull_request_target`).
+Pull requests into `main` run `.github/workflows/horca_overlay_guard.yml` (not
+`pull_request_target`). PRs into other branches skip that tree-wide compare
+so in-flight feature work is not blocked by overlays the base already has.
 
 When both sides independently landed the same edit, take the upstream
 version. A leftover one-line fork delta is enough to conflict the next time

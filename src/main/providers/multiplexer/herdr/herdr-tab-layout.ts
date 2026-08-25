@@ -19,7 +19,7 @@ import {
 } from './herdr-binding-metadata'
 import type { LayoutApplyResult, LayoutNode } from './herdr-socket-types'
 
-export function orcaTabTitle(tab: Pick<TerminalTab, 'title' | 'customTitle'>): string {
+export function orcaTabTitle(tab: { title: string; customTitle?: string | null }): string {
   return tab.customTitle ?? tab.title
 }
 

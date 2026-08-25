@@ -141,6 +141,25 @@ describe('applyTabLayout', () => {
     expect(calls.find((call) => call.method === 'layout.apply')?.params.tab_label).toBe('Custom')
   })
 
+  it('uses title for tab_label when customTitle is omitted', async () => {
+    const { transport, calls } = makeTransport({
+      'layout.apply': () => ({
+        layout: { root: { type: 'pane', pane_id: 'w1:p1' }, tab_id: 't1' }
+      }),
+      'pane.report_metadata': () => ({ ok: true })
+    })
+    await applyTabLayout(
+      transport,
+      SESSION,
+      PROJECT,
+      WORKSPACE,
+      { title: 'T', startupCwd: '/x' },
+      { type: 'leaf', leafId: 'l1' },
+      makeSnapshot()
+    )
+    expect(calls.find((call) => call.method === 'layout.apply')?.params.tab_label).toBe('T')
+  })
+
   it('passes the adopted herdr tab_id so layout.apply does not mint a sibling tab', async () => {
     const { transport, calls } = makeTransport({
       'layout.apply': () => ({

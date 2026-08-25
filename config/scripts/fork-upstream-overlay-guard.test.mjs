@@ -133,6 +133,8 @@ describe('fork upstream overlay guard', () => {
 
   it('runs the overlay guard on pull requests against fetched upstream main', () => {
     expect(overlayWorkflow.on.pull_request).toBeDefined()
-    expect(overlayWorkflow.jobs.guard.steps.at(-1).run).toContain('--theirs FETCH_HEAD')
+    const compare = overlayWorkflow.jobs.guard.steps.at(-1)
+    expect(compare.run).toContain('--theirs FETCH_HEAD')
+    expect(compare.if).toContain("github.event.pull_request.base.ref == 'main'")
   })
 })
