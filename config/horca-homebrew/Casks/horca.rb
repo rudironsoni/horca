@@ -1,17 +1,12 @@
 # Horca — personal downstream distribution of Orca, installable side by
 # side with the official Orca app (distinct app name, bundle id, protocol,
 # CLI, and state root; see rudironsoni/orca docs/reference/horca-distribution.md).
-#
-# BOOTSTRAP: version and sha256 below are placeholders until the first
-# Horca release exists on rudironsoni/orca. Fill them manually once
-# (shasum -a 256 <dmg>), or run the bump-horca-cask workflow; afterwards
-# the scheduled bump workflow keeps them current.
 cask "horca" do
   arch arm: "arm64", intel: "x64"
 
-  version "0.0.0-horca.0" # REPLACE_WITH_FIRST_RELEASE
-  sha256 arm:   "REPLACE_WITH_ARM64_SHA256",
-         intel: "REPLACE_WITH_X64_SHA256"
+  version "1.4.178-horca.1"
+  sha256 arm:   "9ce7f01743ef39bec28d3fe2bd5088fb82285f04082e6e987a557913ab9188b0",
+         intel: "6d81181bfbb99f51f91c64329c3df871539fb68cddf6bc5f967337f6e472d0bc"
 
   url "https://github.com/rudironsoni/orca/releases/download/v#{version}/horca-macos-#{arch}.dmg"
   name "Horca"
@@ -27,7 +22,7 @@ cask "horca" do
   # No auto_updates: Horca's in-app updater is intentionally disabled; this
   # cask (or a GitHub Releases download) is the only update path.
 
-  depends_on macos: ">= :big_sur"
+  depends_on macos: :big_sur
 
   app "Horca.app"
   binary "#{appdir}/Horca.app/Contents/Resources/bin/horca"
@@ -35,8 +30,6 @@ cask "horca" do
   # Zap removes ONLY Horca-owned state, keyed on the Horca bundle id and
   # product name. Official Orca's app, ~/.orca, Application Support/Orca,
   # Keychain items, caches, preferences, and TCC grants must survive a zap.
-  # Paths must be re-verified against a real install before first publication
-  # (Phase 2 human acceptance) — never copy Orca's zap stanza.
   zap trash: [
     "~/.horca",
     "~/Library/Application Support/Horca",
