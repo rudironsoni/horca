@@ -77,6 +77,7 @@ export const ALLOWED_OVERLAY_PATHS = new Set([
   'src/main/computer/macos-native-provider-paths.ts',
   'src/main/daemon/daemon-host-relocation.ts',
   'src/main/ipc/notification-system-settings-link.ts',
+  'src/main/ipc/worktree-git-common-watch.test.ts',
   'src/main/jira/site-credential-store.ts',
   'src/main/keybindings/keybinding-file.ts',
   'src/main/linear/linear-credential-paths.ts',
