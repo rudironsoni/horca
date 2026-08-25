@@ -8,6 +8,12 @@ import { normalizeTerminalCustomThemes } from '../../../shared/terminal-custom-t
 import { projectSourceControlAiToLegacyCommitMessageAi } from '../../../shared/source-control-ai'
 import { normalizeUiLanguage } from '../../../shared/ui-language'
 import { stripRetiredGlobalSettings } from '../applying-settings/terminal-settings-migrations'
+import {
+  DEFAULT_HERDR_SESSION_NAME,
+  normalizeHerdrBinarySource,
+  normalizeHerdrSessionName,
+  normalizeTerminalBackend
+} from '../../../shared/terminal-backend'
 import { readLegacySidekickFlag } from '../applying-settings/onboarding-normalization'
 import type { PersistedState } from '../../../shared/persisted-state-types'
 import type { PreparedLoadedTerminalSettings } from './prepare-loaded-terminal-settings'
@@ -133,6 +139,15 @@ export function normalizeLoadedGlobalSettings(
     voice: {
       ...getDefaultVoiceSettings(),
       ...parsed.settings?.voice
-    }
+    },
+    terminalBackendDefault: normalizeTerminalBackend(parsed.settings?.terminalBackendDefault),
+    herdrBinarySource: normalizeHerdrBinarySource(parsed.settings?.herdrBinarySource),
+    herdrSessionName:
+      normalizeHerdrSessionName(parsed.settings?.herdrSessionName) ??
+      (parsed.settings?.herdrSessionName === undefined &&
+      parsed.settings?.terminalBackendActivationDefaultedToOrca === true
+        ? undefined
+        : DEFAULT_HERDR_SESSION_NAME),
+    terminalBackendActivationDefaultedToOrca: true
   }
 }

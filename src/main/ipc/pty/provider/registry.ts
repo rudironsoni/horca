@@ -1,6 +1,8 @@
 import { LocalPtyProvider } from '../../../providers/local-pty-provider'
 import type { IPtyProvider } from '../../../providers/types'
 import { parseAppSshPtyId, toAppSshPtyId, toRelaySshPtyId } from '../../../providers/ssh-pty-id'
+import type { Store } from '../../../persistence'
+import { HerdrPtyProvider } from '../../../providers/multiplexer/herdr/herdr-pty-provider'
 import { ptyOwnership } from './ownership-state'
 
 // ─── Provider Registry ──────────────────────────────────────────────
@@ -16,10 +18,11 @@ export type RegisteredPtyProvider = {
 }
 
 export function registeredPtyProviders(): RegisteredPtyProvider[] {
-  return [
-    { provider: localProvider, connectionId: null },
-    ...Array.from(sshProviders, ([connectionId, provider]) => ({ provider, connectionId }))
-  ]
+  const providers: RegisteredPtyProvider[] = [{ provider: localProvider, connectionId: null }]
+  for (const [connectionId, provider] of sshProviders) {
+    providers.push({ provider, connectionId })
+  }
+  return providers
 }
 
 export function getProvider(connectionId: string | null | undefined): IPtyProvider {
@@ -38,7 +41,7 @@ export function getProviderForPty(ptyId: string): IPtyProvider {
   if (connectionId === undefined) {
     const parsedSshId = parseAppSshPtyId(ptyId)
     if (parsedSshId) {
-      // Why: disconnected SSH PTYs retain their encoded owner and must never fall through to the HUB-local provider.
+      // Why: disconnected SSH PTYs retain their encoded owner and must never fall through to the local provider.
       return getProvider(parsedSshId.connectionId)
     }
     return localProvider
@@ -117,15 +120,25 @@ export function getSshPtyProvider(connectionId: string): IPtyProvider | undefine
   return sshProviders.get(connectionId)
 }
 
-/** Get the installed PTY provider (for direct access in tests/runtime).
- *  After daemon init this may be a DaemonPtyAdapter/DaemonPtyRouter, not LocalPtyProvider;
- *  callers needing LocalPtyProvider-specific methods must type-narrow or import the class. */
+/** Get the installed local PTY provider (herdr when selected, orca otherwise). */
 export function getLocalPtyProvider(): IPtyProvider {
   return localProvider
 }
 
-/** Replace the local PTY provider with a daemon-backed one.
- *  Call before registerPtyHandlers so the IPC layer routes through the daemon. */
+/** Replace the PTY provider (primarily for tests).
+ *  Call before registerPtyHandlers so the IPC layer routes through the provider. */
 export function setLocalPtyProvider(provider: IPtyProvider): void {
   localProvider = provider
+}
+
+// Why: herdr is opt-in. daemon-init owns construction and disposal.
+export function setHerdrStore(_store: Store): void {
+  // Provider construction and disposal are owned by daemon-init.
+}
+
+export function getHerdrProvider(): HerdrPtyProvider {
+  if (localProvider instanceof HerdrPtyProvider) {
+    return localProvider
+  }
+  throw new Error('Herdr provider is not installed')
 }

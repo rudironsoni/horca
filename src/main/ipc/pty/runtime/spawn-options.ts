@@ -20,6 +20,7 @@ import { CLAUDE_AUTH_ENV_VARS } from '../../../claude-accounts/environment'
 import { LEGACY_TERMINAL_SHIM_REMOTE_ENV_KEYS } from '../../../pty/legacy-terminal-shim-dir'
 import { resolveStablePaneOwner } from '../pane/stable-owner'
 import { getStartupTerminalColorQueryReplyColors } from '../../terminal-startup-color-query-replies'
+import { isTerminalLayoutSnapshot } from '../ipc/terminal-layout-snapshot'
 import {
   makePaneSpawnReservationKey,
   reservePaneSpawn,
@@ -130,6 +131,12 @@ export async function buildRuntimePtySpawnOptions(
   }
   if (typeof args.tabId === 'string' && args.tabId.length > 0 && args.tabId.length <= 512) {
     ctx.spawnOptions.tabId = args.tabId
+  }
+  if (args.terminalLayout !== undefined) {
+    if (!isTerminalLayoutSnapshot(args.terminalLayout)) {
+      throw new Error('pty_spawn_invalid_terminal_layout')
+    }
+    ctx.spawnOptions.terminalLayout = args.terminalLayout
   }
   if (process.platform === 'win32' && !args.connectionId) {
     ctx.spawnOptions.shellOverride = ctx.terminalRuntimeOptions.shellOverride

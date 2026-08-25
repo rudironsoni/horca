@@ -3,11 +3,7 @@ import { nativeWindowsRewriteNeedsFollowupRenderRefresh } from '@/lib/pane-manag
 import { writeTerminalOutput } from '@/lib/pane-manager/pane-terminal-output-scheduler'
 
 import { FOREGROUND_SYNCHRONIZED_FRAME_INTERACTIVE_WINDOW_MS } from './foreground-output-budgets'
-import {
-  shouldWritePtyOutputForeground,
-  scanSynchronizedForegroundOutput,
-  containsCursorRestore
-} from './foreground-output-scan'
+import { scanSynchronizedForegroundOutput, containsCursorRestore } from './foreground-output-scan'
 import { containsHiddenStartupRendererQuery } from './hidden-startup-renderer-query'
 
 import type { ConnectPanePtySession } from './connect-pane-pty-session'
@@ -107,7 +103,7 @@ export function bindWritePtyOutputToXterm(session: ConnectPanePtySession): void 
     }
     session.writePtyOutputToXterm(
       session.idleAgentTerminalModeReset,
-      shouldWritePtyOutputForeground(session.deps.isVisibleRef.current)
+      session.shouldWritePtyOutputForeground()
     )
   }
 }

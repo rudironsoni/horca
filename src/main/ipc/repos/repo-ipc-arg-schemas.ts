@@ -5,6 +5,7 @@ import { WorkspaceLinkedItemSchema } from '../../../shared/workspace-linked-item
 import { isWorkspaceLinkedItemSourceContextMatch } from '../../../shared/workspace-linked-item-source-context'
 import { DiffCommentSchema } from '../../../shared/diff-comment-schema'
 import { normalizeExecutionHostId } from '../../../shared/execution-host'
+import { normalizeHerdrSessionName } from '../../../shared/terminal-backend'
 
 export const ProjectGroupCreateArgs = z.object({
   name: z.string().min(1),
@@ -56,11 +57,52 @@ const LocalWindowsRuntimePreferenceIpcArgs = z.discriminatedUnion('kind', [
   z.object({ kind: z.literal('windows-host') }),
   z.object({ kind: z.literal('wsl'), distro: z.string().min(1) })
 ])
+const TerminalBackendPreferenceIpcArgs = z.enum(['inherit', 'orca', 'herdr'])
+const TerminalBackendActivationIpcArgs = z.discriminatedUnion('state', [
+  z.object({ state: z.literal('ready'), backend: z.enum(['orca', 'herdr']) }),
+  z.object({
+    state: z.literal('migrating'),
+    backend: z.enum(['orca', 'herdr']),
+    migrationId: z.string().min(1),
+    target: z.enum(['orca', 'herdr']),
+    phase: z.enum(['preparing', 'committing'])
+  })
+])
+const TerminalBackendByHostIpcArgs = z
+  .record(z.string(), TerminalBackendActivationIpcArgs)
+  .transform((entries, ctx) => {
+    const normalizedEntries: Record<string, z.infer<typeof TerminalBackendActivationIpcArgs>> = {}
+    for (const [rawHostId, activation] of Object.entries(entries)) {
+      const hostId = normalizeExecutionHostId(rawHostId)
+      if (!hostId) {
+        ctx.addIssue({ code: 'custom', message: `Invalid execution host ID: ${rawHostId}` })
+        continue
+      }
+      if (Object.hasOwn(normalizedEntries, hostId)) {
+        ctx.addIssue({ code: 'custom', message: `Duplicate execution host ID: ${hostId}` })
+        continue
+      }
+      normalizedEntries[hostId] = activation
+    }
+    return normalizedEntries
+  })
 
 export const ProjectUpdateIpcArgs = z.object({
   projectId: z.string().min(1),
   updates: z.object({
-    localWindowsRuntimePreference: LocalWindowsRuntimePreferenceIpcArgs.optional()
+    localWindowsRuntimePreference: LocalWindowsRuntimePreferenceIpcArgs.optional(),
+    herdrSessionName: z
+      .string()
+      .trim()
+      .min(1)
+      .max(64)
+      .refine((value) => normalizeHerdrSessionName(value) !== undefined, {
+        message: 'Herdr session name must not exceed 64 UTF-8 bytes'
+      })
+      .nullable()
+      .optional(),
+    terminalBackendPreference: TerminalBackendPreferenceIpcArgs.nullable().optional(),
+    terminalBackendByHost: TerminalBackendByHostIpcArgs.nullable().optional()
   })
 })
 

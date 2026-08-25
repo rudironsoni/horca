@@ -3,6 +3,7 @@ import { writeAcceptedIpcPtyInput } from './ipc-pty-accepted-input'
 import { connectIpcPty } from './ipc-pty-connect'
 import { createIpcPtySessionHandlers } from './ipc-pty-session-handlers'
 import { createPtyInputWriteQueue } from './pty-input-write-queue'
+import { writePtyLogicalInput } from './pty-logical-write'
 import { createPtyOutputProcessor } from './pty-output-processor'
 import type { IpcPtyTransportOptions, PtyTransport } from './pty-transport-types'
 
@@ -51,7 +52,7 @@ export function createIpcPtyTransport(opts: IpcPtyTransportOptions = {}): PtyTra
 
   const inputWriteQueue = createPtyInputWriteQueue({
     isWritable: (id) => connected && ptyId === id,
-    write: (id, data) => window.api.pty.write(id, data),
+    write: (id, data) => writePtyLogicalInput(id, data),
     onDrainFailure: (id) => {
       if (ptyId === id) {
         storedCallbacks.onWriteUnavailable?.()

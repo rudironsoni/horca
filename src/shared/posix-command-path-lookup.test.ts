@@ -47,13 +47,18 @@ describe('buildPosixCommandPathLookupScript', () => {
           `${commandName}`
         ].join('\n')
 
-        const resolved = execFileSync(shell.path!, ['-c', script], {
-          encoding: 'utf8',
-          env: {
-            ...process.env,
-            PATH: `${dirname(process.execPath)}${delimiter}${process.env.PATH ?? ''}`
+        const resolved = execFileSync(
+          shell.path!,
+          // zsh always reads .zshenv; -f keeps PATH as the test supplied it.
+          shell.name === 'zsh' ? ['-f', '-c', script] : ['-c', script],
+          {
+            encoding: 'utf8',
+            env: {
+              ...process.env,
+              PATH: `${dirname(process.execPath)}${delimiter}${process.env.PATH ?? ''}`
+            }
           }
-        })
+        )
           .trim()
           .split('\n')
 

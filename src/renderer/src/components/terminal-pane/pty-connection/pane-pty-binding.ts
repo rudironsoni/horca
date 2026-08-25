@@ -27,4 +27,7 @@ export type PanePtyBinding = IDisposable & {
    *  preserves on exit. Read at unmount so the parked sidecar can carry the
    *  fact as a plain value instead of a session reference. */
   isUntouchedFreshSpawnPty: (ptyId: string) => boolean
+  /** Mark recent user attention (click, focus, window focus) so output renders
+   *  as foreground even if workspace visibility tracking says hidden. */
+  markUserAttention: () => void
 }
