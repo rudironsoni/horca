@@ -10,6 +10,7 @@ import {
   DENIED_OVERLAY_PREFIXES,
   formatForkOverlayFailures,
   FORK_ONLY_PATHS,
+  GIT_LIST_MAX_BUFFER,
   inspectForkOverlay,
   isDeniedOverlayPath
 } from './fork-upstream-overlay-guard.mjs'
@@ -91,7 +92,8 @@ describe('fork upstream overlay guard', () => {
       return
     }
     const parentFiles = execFileSync('git', ['ls-tree', '-r', '--name-only', tokens[1]], {
-      encoding: 'utf8'
+      encoding: 'utf8',
+      maxBuffer: GIT_LIST_MAX_BUFFER
     })
     // Squash commits on already-Horca main are not the original overlay vs upstream.
     if (parentFiles.includes('docs/FORK_MAINTENANCE.md')) {
@@ -100,6 +102,11 @@ describe('fork upstream overlay guard', () => {
     expect(formatForkOverlayFailures(inspectForkOverlay('HEAD', tokens[1]))).toEqual([])
     expect(ALLOWED_OVERLAY_PATHS.size).toBeGreaterThan(0)
     expect(FORK_ONLY_PATHS.has('config/scripts/fork-upstream-overlay-guard.mjs')).toBe(true)
+  })
+
+  it('lists the whole tree without Node spawnSync ENOBUFS', () => {
+    expect(GIT_LIST_MAX_BUFFER).toBeGreaterThan(1024 * 1024)
+    expect(() => inspectForkOverlay('HEAD', 'HEAD')).not.toThrow()
   })
 
   it('runs the overlay guard after scheduled Fork Shepherd syncs against stablyai/orca', () => {
