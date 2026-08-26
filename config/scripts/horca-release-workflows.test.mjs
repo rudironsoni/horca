@@ -22,6 +22,8 @@ describe('in-repo Horca release workflows', () => {
   const checkSource = workflow('horca-check-source.yml')
   const tagMirror = workflow('mirror-upstream-v-tags.yml')
   const prepareScript = read('config/scripts/horca-prepare-release.sh')
+  const skipGateScript = read('config/scripts/horca-release-skip-gate.sh')
+  const gateIf = "needs.gate.outputs.run == 'true'"
   const bumpScript = read('config/scripts/horca-bump-homebrew-cask.sh')
   const homebrewCask = read('config/horca-homebrew/Casks/horca.rb')
   const homebrewBetaCask = read('config/horca-homebrew/Casks/horca@beta.rb')
@@ -58,12 +60,16 @@ describe('in-repo Horca release workflows', () => {
   it('gates every Horca job to rudironsoni/orca', () => {
     for (const [name, job] of Object.entries({
       ...build.jobs,
-      ...release.jobs,
-      ...betaRelease.jobs,
       ...bumpCask.jobs,
       ...checkSource.jobs
     })) {
       expect(job.if, name).toContain(horcaRepoGate)
+    }
+    expect(release.jobs.gate.if).toContain(horcaRepoGate)
+    expect(betaRelease.jobs.gate.if).toContain(horcaRepoGate)
+    for (const name of ['prepare', 'build', 'publish', 'bump-cask']) {
+      expect(release.jobs[name].if, `release.${name}`).toBe(gateIf)
+      expect(betaRelease.jobs[name].if, `beta.${name}`).toBe(gateIf)
     }
   })
 
@@ -190,7 +196,7 @@ describe('in-repo Horca release workflows', () => {
   it('waits on bump-horca-cask after the GitHub Release is published', () => {
     expect(release.jobs.build.uses).toBe('./.github/workflows/horca-build.yml')
     expect(release.jobs['bump-cask'].uses).toBe('./.github/workflows/bump-horca-cask.yml')
-    expect(release.jobs['bump-cask'].needs).toEqual(['prepare', 'publish'])
+    expect(release.jobs['bump-cask'].needs).toEqual(['gate', 'prepare', 'publish'])
     expect(release.jobs['bump-cask']['continue-on-error']).toBeUndefined()
     expect(release.jobs['bump-cask'].with.version).toBe('${{ needs.prepare.outputs.version }}')
     expect(release.jobs['bump-cask'].with.cask_token).toBe('horca')
@@ -251,10 +257,25 @@ describe('in-repo Horca release workflows', () => {
       'cancel-in-progress': false
     })
 
-    const skipGate = betaRelease.jobs.prepare.if
-    expect(skipGate).toContain(horcaRepoGate)
-    expect(skipGate).toContain('[skip horca-beta]')
-    expect(skipGate).toContain('[skip horca-release]')
+    expect(betaRelease.jobs.gate.outputs.run).toBe('${{ steps.decide.outputs.run }}')
+    expect(release.jobs.gate.outputs.run).toBe('${{ steps.decide.outputs.run }}')
+    const betaDecide = betaRelease.jobs.gate.steps.find((step) => step.id === 'decide')
+    const stableDecide = release.jobs.gate.steps.find((step) => step.id === 'decide')
+    expect(betaDecide.run).toContain('config/scripts/horca-release-skip-gate.sh')
+    expect(stableDecide.run).toContain('config/scripts/horca-release-skip-gate.sh')
+    expect(betaDecide.env.EVENT_NAME).toBe('${{ github.event_name }}')
+    expect(betaDecide.env.COMMIT_MESSAGE).toBe('${{ github.event.head_commit.message }}')
+    expect(betaDecide.env.HORCA_CHANNEL).toBe('beta')
+    expect(stableDecide.env.HORCA_CHANNEL).toBeUndefined()
+    expect(skipGateScript).toContain('subject="${COMMIT_MESSAGE%%$\'\\n\'*}"')
+    expect(skipGateScript).toContain('[skip horca-beta]')
+    expect(skipGateScript).toContain('[skip horca-release]')
+    expect(betaRelease.jobs.prepare.needs).toEqual(['gate'])
+    expect(betaRelease.jobs.build.needs).toEqual(['gate', 'prepare'])
+    expect(betaRelease.jobs.publish.needs).toEqual(['gate', 'prepare', 'build'])
+    expect(release.jobs.prepare.needs).toEqual(['gate'])
+    expect(release.jobs.build.needs).toEqual(['gate', 'prepare'])
+    expect(release.jobs.publish.needs).toEqual(['gate', 'prepare', 'build'])
 
     const meta = betaRelease.jobs.prepare.steps.find((step) => step.id === 'meta')
     expect(meta.env.HORCA_CHANNEL).toBe('beta')
@@ -262,7 +283,7 @@ describe('in-repo Horca release workflows', () => {
     expect(betaRelease.jobs.build.uses).toBe('./.github/workflows/horca-build.yml')
     expect(betaRelease.jobs.build.secrets).toBe('inherit')
     expect(betaRelease.jobs['bump-cask'].uses).toBe('./.github/workflows/bump-horca-cask.yml')
-    expect(betaRelease.jobs['bump-cask'].needs).toEqual(['prepare', 'publish'])
+    expect(betaRelease.jobs['bump-cask'].needs).toEqual(['gate', 'prepare', 'publish'])
     expect(betaRelease.jobs['bump-cask'].with.cask_token).toBe('horca@beta')
     expect(betaRelease.jobs['bump-cask'].with.version).toBe('${{ needs.prepare.outputs.version }}')
 

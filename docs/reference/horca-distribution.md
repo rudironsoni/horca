@@ -43,7 +43,8 @@ that tag. Pushes to conventional `feature/**` / `fix/**` / `hotfix/**` /
 `v<core>-horca.<nextN>-beta.<M>` (nextN is 1 + max stable N; betas never
 increment stable N), then `horca@beta` on the tap
 (`brew install --cask rudironsoni/tap/horca@beta`, `conflicts_with cask:
-"horca"`). Skip with `[skip horca-beta]` or `[skip horca-release]`.
+"horca"`). Skip with `[skip horca-beta]` or `[skip horca-release]` on the
+commit subject (first line); a token only in the squash body does not skip.
 `/releases/latest` and `horca-check-source.yml` stay on stable. Official
 mirrored `vX.Y.Z` git tags stay tags, not GitHub Releases. Horca Windows
 installers are currently unsigned (no Stably `publisherName`, no SignPath
