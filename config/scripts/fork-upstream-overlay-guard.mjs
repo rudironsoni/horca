@@ -141,8 +141,17 @@ export function allowlistIntegrityErrors() {
   return errors
 }
 
+// Why: scheduled Shepherd lists the whole tree. 18k paths already sit on
+// Node's 1 MiB spawnSync default and fail with ENOBUFS (run 32965027180).
+export const GIT_LIST_MAX_BUFFER = 32 * 1024 * 1024
+
 function gitLines(args) {
-  return execFileSync('git', args, { encoding: 'utf8' }).split('\n').filter(Boolean)
+  return execFileSync('git', args, {
+    encoding: 'utf8',
+    maxBuffer: GIT_LIST_MAX_BUFFER
+  })
+    .split('\n')
+    .filter(Boolean)
 }
 
 export function inspectForkOverlay(ours, theirs) {
