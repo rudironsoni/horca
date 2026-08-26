@@ -6,6 +6,10 @@ import {
   isTerminalInputTooLargeWithDeferredMeasurement,
   iterateTerminalInputChunks
 } from '../../../../shared/terminal-input'
+import {
+  bytesFromTerminalLogicalKey,
+  terminalLogicalInputFromBytes
+} from '../../../../shared/terminal-logical-key'
 import { ptyOwnership } from '../provider/ownership-state'
 import { tryGetProviderForPty } from '../provider/registry'
 import {
@@ -26,7 +30,18 @@ export function isMainWindowPtyIpcEvent(
   )
 }
 
-export type PtyWritePayload = { id: string; data: string }
+const TERMINAL_FUNCTION_KEY_BYTES: Readonly<Record<string, string>> = {
+  f5: '\x1b[15~',
+  f6: '\x1b[17~',
+  f7: '\x1b[18~',
+  f8: '\x1b[19~',
+  f9: '\x1b[20~',
+  f10: '\x1b[21~',
+  f11: '\x1b[23~',
+  f12: '\x1b[24~'
+}
+
+export type PtyWritePayload = { id: string; data: string; keys?: string[] }
 export type PtyViewportClaimPayload = { id: string; cols: number; rows: number }
 
 export function createPtyWriteInput(deps: {
@@ -76,6 +91,24 @@ export function createPtyWriteInput(deps: {
     return writePtyProviderInputChunks(provider, id, chunks, first.value, second.value)
   }
 
+  const writePtyProviderLogicalInput = (
+    provider: IPtyProvider,
+    args: PtyWritePayload
+  ): boolean | Promise<boolean> => {
+    const namedKey = args.keys?.[0]
+    const classified = namedKey
+      ? ({ kind: 'key', name: namedKey } as const)
+      : terminalLogicalInputFromBytes(args.data)
+    if (classified.kind === 'key') {
+      if (provider.writeLogical) {
+        return provider.writeLogical(args.id, classified) !== false
+      }
+      const bytes = bytesFromTerminalLogicalKey(classified.name) ?? args.data
+      return writePtyProviderInput(provider, args.id, bytes)
+    }
+    return writePtyProviderInput(provider, args.id, classified.data)
+  }
+
   const writePtyProviderInput = (
     provider: IPtyProvider,
     id: string,
@@ -123,12 +156,30 @@ export function createPtyWriteInput(deps: {
     }
   }
 
-  const isPtyWritePayload = (value: unknown): value is PtyWritePayload =>
-    typeof value === 'object' &&
-    value !== null &&
-    typeof (value as { id?: unknown }).id === 'string' &&
-    (value as { id: string }).id.length > 0 &&
-    typeof (value as { data?: unknown }).data === 'string'
+  const isPtyWritePayload = (value: unknown): value is PtyWritePayload => {
+    if (
+      typeof value !== 'object' ||
+      value === null ||
+      typeof (value as { id?: unknown }).id !== 'string' ||
+      (value as { id: string }).id.length === 0 ||
+      typeof (value as { data?: unknown }).data !== 'string'
+    ) {
+      return false
+    }
+    const keys = (value as { keys?: unknown }).keys
+    if (keys === undefined) {
+      return true
+    }
+    if (!Array.isArray(keys) || keys.length !== 1 || typeof keys[0] !== 'string') {
+      return false
+    }
+    const data = (value as { data: string }).data
+    const classified = terminalLogicalInputFromBytes(data)
+    return (
+      (classified.kind === 'key' && classified.name === keys[0]) ||
+      TERMINAL_FUNCTION_KEY_BYTES[keys[0]] === data
+    )
+  }
 
   const isPtyViewportClaimPayload = (value: unknown): value is PtyViewportClaimPayload =>
     typeof value === 'object' &&
@@ -163,7 +214,7 @@ export function createPtyWriteInput(deps: {
       if (visibleRendererPtys.has(args.id)) {
         clearHiddenRendererResizeOutput(args.id)
       }
-      return writePtyProviderInput(provider, args.id, args.data)
+      return writePtyProviderLogicalInput(provider, args)
     } catch {
       return false
     }
@@ -188,7 +239,7 @@ export function createPtyWriteInput(deps: {
       if (visibleRendererPtys.has(args.id)) {
         clearHiddenRendererResizeOutput(args.id)
       }
-      return writePtyProviderInput(provider, args.id, args.data)
+      return writePtyProviderLogicalInput(provider, args)
     } catch {
       return false
     }

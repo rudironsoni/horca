@@ -20,6 +20,7 @@ export default defineConfig({
     execArgv: ['--no-experimental-webstorage', '--expose-gc'],
     // Why: happy-dom drops MutationObserver callbacks on GC; keep them alive like a browser does.
     setupFiles: [
+      resolve('config/scripts/isolate-lefthook-hooks.ts'),
       resolve('config/scripts/happy-dom-mutation-observer-retention.ts'),
       resolve('config/scripts/vitest-host-ports-setup.ts')
     ],

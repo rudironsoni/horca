@@ -34,10 +34,14 @@ describe('fork upstream overlay guard', () => {
     'config/horca-homebrew/Casks/horca.rb',
     'config/horca-homebrew/Casks/horca@beta.rb',
     'config/horca-homebrew/README-horca.md',
+    'config/scripts/horca-brew-style-cask.sh',
+    'config/scripts/horca-brew-style-cask.test.mjs',
     'config/scripts/horca-bump-homebrew-cask.sh',
     'config/scripts/horca-bump-homebrew-cask.test.mjs',
     'config/scripts/horca-prepare-release.sh',
     'config/scripts/horca-prepare-release.test.mjs',
+    'config/scripts/horca-release-skip-gate.sh',
+    'config/scripts/horca-release-skip-gate.test.mjs',
     'config/scripts/horca-release-workflows.test.mjs'
   ]
 
@@ -73,9 +77,22 @@ describe('fork upstream overlay guard', () => {
     )
     expect(isDeniedOverlayPath('src/renderer/src/i18n/locales/en.json')).toBe(true)
     expect(classifyForkPath('src/renderer/src/i18n/locales/en.json', 'overlay')).toBe('denied')
-    expect(classifyForkPath('src/main/runtime/orca-runtime.ts', 'overlay')).toBe('unexpected')
+    expect(classifyForkPath('src/main/runtime/orca-runtime.ts', 'overlay')).toBe('allowed')
+    expect(classifyForkPath('src/main/not-an-allowlisted-overlay.ts', 'overlay')).toBe('unexpected')
     expect(classifyForkPath('src/shared/pairing.ts', 'overlay')).toBe('allowed')
     expect(classifyForkPath('src/renderer/src/web/web-pairing.ts', 'overlay')).toBe('allowed')
+  })
+
+  it('allows listed fork-only files under tests/e2e while still denying overlays there', () => {
+    expect(classifyForkPath('tests/e2e/helpers/herdr-terminal-runtime.ts', 'fork-only')).toBe(
+      'allowed'
+    )
+    expect(classifyForkPath('tests/e2e/helpers/herdr-terminal-runtime.ts', 'overlay')).toBe(
+      'denied'
+    )
+    expect(
+      classifyForkPath('src/main/providers/multiplexer/herdr/herdr-agent-kind.ts', 'fork-only')
+    ).toBe('allowed')
   })
 
   it('rejects unknown overlays and stale allowlist entries', () => {
@@ -133,6 +150,8 @@ describe('fork upstream overlay guard', () => {
 
   it('runs the overlay guard on pull requests against fetched upstream main', () => {
     expect(overlayWorkflow.on.pull_request).toBeDefined()
-    expect(overlayWorkflow.jobs.guard.steps.at(-1).run).toContain('--theirs FETCH_HEAD')
+    const compare = overlayWorkflow.jobs.guard.steps.at(-1)
+    expect(compare.run).toContain('--theirs FETCH_HEAD')
+    expect(compare.if).toContain("github.event.pull_request.base.ref == 'main'")
   })
 })

@@ -19,7 +19,15 @@ export const SHIFT_ENTER_RECONFIRM_IDLE_MS = 350
 
 const inactiveForegroundImmediateBudget = createForegroundImmediateBudget()
 
-export function shouldWritePtyOutputForeground(isPaneVisible: boolean): boolean {
+// Why: user attention (focus, recent input) outlasts the exact keystroke; a
+// hidden-visibility pane that saw attention within this window still renders
+// foreground instead of being throttled by workspace visibility tracking.
+export const USER_ATTENTION_TTL_MS = 5000
+
+export function shouldWritePtyOutputForeground(
+  isPaneVisible: boolean,
+  hasRecentUserAttention = false
+): boolean {
   if (!isPaneVisible) {
     return false
   }
@@ -30,6 +38,12 @@ export function shouldWritePtyOutputForeground(isPaneVisible: boolean): boolean 
   // backgrounded. Treat hidden documents like background tabs so Chromium
   // timer throttling cannot pin terminal writes on the renderer foreground path.
   if (document.visibilityState === 'visible') {
+    return true
+  }
+  // Why: user attention (focus, recent input) overrides workspace visibility
+  // tracking: a pane with attention must render foreground even when
+  // isVisible/visibilityState say hidden (macOS occlusion bug, background tab).
+  if (hasRecentUserAttention) {
     return true
   }
   // Why: macOS occlusion tracking can wedge visibilityState at 'hidden' after

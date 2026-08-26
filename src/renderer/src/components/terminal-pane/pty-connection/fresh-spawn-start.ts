@@ -4,7 +4,6 @@ import { writeTerminalOutput } from '@/lib/pane-manager/pane-terminal-output-sch
 
 import { STARTUP_CWD_FALLBACK_NOTICE } from './startup-cwd-fallback-notice'
 import { pendingSpawnByPaneKey, pendingSpawnGenerationByPaneKey } from './pty-connect-limits'
-import { shouldWritePtyOutputForeground } from './foreground-output-scan'
 import { isRemoteRuntimePtyId } from './paired-parked-terminal-restore'
 import { toProcessExitStartup } from './process-exit-startup'
 import type {
@@ -203,7 +202,7 @@ export function bindStartFreshSpawn(session: ConnectPanePtySession): void {
             spawnedPtyId.startupCwdFallback?.kind === 'worktree'
           ) {
             writeTerminalOutput(session.pane.terminal, STARTUP_CWD_FALLBACK_NOTICE, {
-              foreground: shouldWritePtyOutputForeground(session.deps.isVisibleRef.current)
+              foreground: session.shouldWritePtyOutputForeground()
             })
           }
           if (

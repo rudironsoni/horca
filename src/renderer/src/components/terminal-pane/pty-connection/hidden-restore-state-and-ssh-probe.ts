@@ -16,7 +16,6 @@ import {
   HIDDEN_OUTPUT_RESTORE_DEFERRED_RETRY_MS,
   HIDDEN_OUTPUT_RESTORE_DEFERRED_RETRY_MAX
 } from './hidden-output-restore-limits'
-import { shouldWritePtyOutputForeground } from './foreground-output-scan'
 import { recordHiddenRendererSkip } from './e2e-terminal-pty-harness'
 import { isRemoteRuntimePtyId } from './paired-parked-terminal-restore'
 
@@ -32,7 +31,7 @@ export function bindHiddenRestoreStateAndSshProbe(session: ConnectPanePtySession
     if (
       session.disposed ||
       session.hiddenOutputRestoreDeferredRetryTimer !== null ||
-      !shouldWritePtyOutputForeground(session.deps.isVisibleRef.current)
+      !session.shouldWritePtyOutputForeground()
     ) {
       return
     }

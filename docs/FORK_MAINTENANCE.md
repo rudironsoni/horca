@@ -42,13 +42,13 @@ On 2026-08-20 a rebase of `main` deleted fork-maintenance work from PRs #7,
 `FasterApiWeb/fork-shepherd@v1` and uses one PAT for checkout and the
 action: `secrets.FORK_SYNC_PAT`.
 
-| Feature | When | What it does |
-| --- | --- | --- |
-| Branch sync | hourly `:17`, `workflow_dispatch` | Merges `stablyai/orca` `main` into `main` (`merge_strategy: merge`) |
-| PR monitor | off | `fork-shepherd@v1` `get_open_prs` writes a notice to stdout, then parses that line as a PR (`origin/open`, exit 128). See [FasterApiWeb/fork-shepherd#1](https://github.com/FasterApiWeb/fork-shepherd/issues/1). |
-| Backport | `pull_request_target` closed (merged) | Copies a merged PR onto branches named by `backport-to-<branch>` labels |
-| Cleanup | schedule / dispatch / push to `main` | Closes stale `sync-conflict` issues when the conflict is gone |
-| Overlay ratchet | schedule / dispatch only | Fetches `stablyai/orca` `main` and fails the job if overlays grew |
+| Feature         | When                                  | What it does                                                                                                                                                                                                      |
+| --------------- | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Branch sync     | hourly `:17`, `workflow_dispatch`     | Merges `stablyai/orca` `main` into `main` (`merge_strategy: merge`)                                                                                                                                               |
+| PR monitor      | off                                   | `fork-shepherd@v1` `get_open_prs` writes a notice to stdout, then parses that line as a PR (`origin/open`, exit 128). See [FasterApiWeb/fork-shepherd#1](https://github.com/FasterApiWeb/fork-shepherd/issues/1). |
+| Backport        | `pull_request_target` closed (merged) | Copies a merged PR onto branches named by `backport-to-<branch>` labels                                                                                                                                           |
+| Cleanup         | schedule / dispatch / push to `main`  | Closes stale `sync-conflict` issues when the conflict is gone                                                                                                                                                     |
+| Overlay ratchet | schedule / dispatch only              | Fetches `stablyai/orca` `main` and fails the job if overlays grew                                                                                                                                                 |
 
 Shepherd does **not** run `PR Checks / verify` before merging upstream.
 Safety is: conflicts → `sync-conflict` issue; overlay guard; push-to-main CI.
@@ -82,10 +82,12 @@ issue #64. New fork specs and Horca-only copy belong in files upstream does
 not own (`src/shared/distribution-update-copy.ts` for updater strings;
 `config/electron-builder-downstream.cjs` for packaging identity).
 `config/scripts/fork-upstream-overlay-guard.mjs` is the ratchet: overlays
-must stay on its allowlist, fork-only files on its fork-only list, and
-`tests/e2e/` plus locale JSON are denied even if added to the allowlist.
-Pull requests run `.github/workflows/horca_overlay_guard.yml` (not
-`pull_request_target`).
+must stay on its allowlist, fork-only files on its fork-only list or prefix,
+and overlays under `tests/e2e/` plus locale JSON are denied. New files in
+those trees may be listed as fork-only.
+Pull requests into `main` run `.github/workflows/horca_overlay_guard.yml` (not
+`pull_request_target`). PRs into other branches skip that tree-wide compare
+so in-flight feature work is not blocked by overlays the base already has.
 
 When both sides independently landed the same edit, take the upstream
 version. A leftover one-line fork delta is enough to conflict the next time
@@ -105,16 +107,17 @@ Horca jobs run only on `rudironsoni/orca`. A further fork does not inherit
 notarized publishing. `releases/latest` on this repository is the latest
 **stable** Horca release. Stable version math and detectors filter
 `/^v\d+\.\d+\.\d+-horca\.\d+$/` only (betas never increment that N). Commits
-whose message contains `[skip horca-release]` skip both the stable release
-and a beta; `[skip horca-beta]` skips only the beta workflow.
+whose **subject** (first line) contains `[skip horca-release]` skip both the
+stable release and a beta; `[skip horca-beta]` skips only the beta workflow.
+A token only in the squash-merge body does not skip.
 
-| Workflow | Purpose |
-| --- | --- |
-| `horca_build.yml` | Dispatch / `workflow_call` only. Produces the three verified artifacts. Never PR Checks. Not started by push to `main` (that double-notarized with `horca_release.yml`). Accepts `<core>-horca.<N>` or `<core>-horca.<N>-beta.<M>`. Apple secrets are optional at the call boundary. |
-| `horca_release.yml` | Runs on every push to `main`. Compute `v<core>-horca.<N>` from the newest `stablyai/orca` main commit actually contained by the source SHA, call the build, draft → 3 assets → undraft, then call `horca_bump_cask.yml` (`cask_token: horca`) and wait. Concurrent runs queue. |
-| `horca_beta_release.yml` | Runs on push to `feature/**`, `feat/**`, `fix/**`, `bugfix/**`, `hotfix/**`, `perf/**`, `refactor/**` (not `main`, `cursor/**`, `chore/**`, `docs/**`, `ci/**`, `test/**`, `style/**`, `personal/**`, `release/**`). Compute `v<core>-horca.<nextN>-beta.<M>`, call the build, publish `--prerelease`, then bump `horca@beta`. Force-push cancels the in-flight run. |
-| `horca_bump_cask.yml` | Dispatch / `workflow_call` only. After a published Horca tag, rewrites `rudironsoni/homebrew-tap` `Casks/${cask_token}.rb` (version + sha256) and pushes. `cask_token` is `horca` or `horca@beta`. A missing tap file is copied from `config/horca-homebrew/Casks/`. `FORK_SYNC_PAT` must be able to push to that tap. |
-| `horca_check_source.yml` | Backup every 6 hours: compare `main` HEAD to the latest **stable** Horca release `Source-SHA`. Unchanged → Linux-only exit. Changed → call `horca_release.yml`. Refuses to bootstrap if no Horca release exists yet. Does not follow betas. |
+| Workflow                 | Purpose                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `horca_build.yml`        | Dispatch / `workflow_call` only. Produces the three verified artifacts. Never PR Checks. Not started by push to `main` (that double-notarized with `horca_release.yml`). Accepts `<core>-horca.<N>` or `<core>-horca.<N>-beta.<M>`. Apple secrets are optional at the call boundary.                                                                                                                                                                   |
+| `horca_release.yml`      | Runs on every push to `main`. Compute `v<core>-horca.<N>` from the newest `stablyai/orca` main commit actually contained by the source SHA, call the build, draft → 3 assets → undraft, then call `horca_bump_cask.yml` (`cask_token: horca`) and wait. Concurrent runs queue.                                                                                                                                                                         |
+| `horca_beta_release.yml` | Runs on push to `feature/**`, `feat/**`, `fix/**`, `bugfix/**`, `hotfix/**`, `perf/**`, `refactor/**` (not `main`, `cursor/**`, `chore/**`, `docs/**`, `ci/**`, `test/**`, `style/**`, `personal/**`, `release/**`). Compute `v<core>-horca.<nextN>-beta.<M>`, call the build, publish `--prerelease`, then bump `horca@beta`. Force-push cancels the in-flight run.                                                                                   |
+| `horca_bump_cask.yml`    | Dispatch / `workflow_call` only. After a published Horca tag, rewrites `rudironsoni/homebrew-tap` `Casks/${cask_token}.rb` (version + sha256) and pushes. `cask_token` is `horca` or `horca@beta`. A missing tap file is copied from `config/horca-homebrew/Casks/`. Registers the tap checkout under Homebrew's `Library/Taps` before `brew style`/`brew audit` (Homebrew rejects bare cask paths). `FORK_SYNC_PAT` must be able to push to that tap. |
+| `horca_check_source.yml` | Backup every 6 hours: compare `main` HEAD to the latest **stable** Horca release `Source-SHA`. Unchanged → Linux-only exit. Changed → call `horca_release.yml`. Refuses to bootstrap if no Horca release exists yet. Does not follow betas.                                                                                                                                                                                                            |
 
 Release attaches the build workflow's Actions artifacts to this repository's GitHub Release; it does not package again.
 
@@ -143,7 +146,8 @@ cask URL is `rudironsoni/orca`, never `orca-builds`. Install beta with
    (`horca`) and waits. Dispatch remains available.
 4. A push to a conventional `feature/**` / `fix/**` / `hotfix/**` / … branch
    starts **Horca: Release beta**. `[skip horca-beta]` or `[skip horca-release]`
-   in the commit message skips it. Dispatch remains available.
+   in the commit subject (first line) skips it. A token only in the squash
+   body does not. Dispatch remains available.
 5. `horca_check_source.yml` is a backup if a push event is missed. It
    still will not bootstrap a first release by itself, and it ignores betas.
 
