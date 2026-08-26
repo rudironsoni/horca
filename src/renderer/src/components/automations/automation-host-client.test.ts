@@ -127,34 +127,6 @@ describe('automation host client', () => {
     )
   })
 
-  it('creates a local automation through runtime RPC, not the removed IPC create', async () => {
-    const input: AutomationCreateInput = {
-      name: 'Local check',
-      prompt: 'Check',
-      precheck: null,
-      agentId: 'codex',
-      projectId: 'repo-1',
-      workspaceMode: 'new_per_run',
-      workspaceId: null,
-      timezone: 'UTC',
-      rrule: 'FREQ=DAILY;BYHOUR=9;BYMINUTE=0',
-      dtstart: 1
-    }
-    vi.mocked(callRuntimeRpc).mockResolvedValueOnce({ automation: makeAutomation() })
-
-    await createAutomationForTarget(input)
-
-    expect(mockApi.automations.create).not.toHaveBeenCalled()
-    expect(callRuntimeRpc).toHaveBeenCalledWith(
-      { kind: 'local' },
-      'automation.create',
-      expect.objectContaining({
-        repo: 'id:repo-1'
-      }),
-      { timeoutMs: 15_000 }
-    )
-  })
-
   it('uses an exact machine selector for an existing runtime workspace', async () => {
     const automation = makeAutomation({
       workspaceMode: 'existing',

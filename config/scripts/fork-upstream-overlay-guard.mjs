@@ -168,8 +168,6 @@ export const ALLOWED_OVERLAY_PATHS = new Set([
   'src/main/rate-limits/claude-active-usage-fetch.ts',
   'src/main/rate-limits/claude-fetcher-cli-fallback.test.ts',
   'src/main/rate-limits/claude-usage-result.ts',
-  'src/renderer/src/components/automations/AutomationsListPanel.test.tsx',
-  'src/renderer/src/components/automations/automation-host-client.test.ts',
   'src/main/ipc/pty/ipc/spawn-options.ts',
   'src/main/ipc/pty/ipc/spawn-types.ts',
   'src/main/ipc/pty/ipc/write-input.ts',
