@@ -78,6 +78,7 @@ describe('fork upstream overlay guard', () => {
     expect(isDeniedOverlayPath('src/renderer/src/i18n/locales/en.json')).toBe(true)
     expect(classifyForkPath('src/renderer/src/i18n/locales/en.json', 'overlay')).toBe('denied')
     expect(classifyForkPath('src/main/ipc/filesystem.ts', 'overlay')).toBe('allowed')
+    expect(classifyForkPath('src/main/claude-accounts/keychain.ts', 'overlay')).toBe('allowed')
     expect(
       classifyForkPath('src/main/ipc/parcel-watcher-child-recovery.test.ts', 'fork-only')
     ).toBe('allowed')
