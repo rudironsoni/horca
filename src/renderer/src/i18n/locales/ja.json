@@ -6707,9 +6707,7 @@
           "show": "表示",
           "hide": "非表示",
           "externalWorktreesGlobal": "グローバルデフォルト: {{value0}}",
-          "useGlobal": "グローバル設定を使用",
-          "terminalBackend": "ターミナルバックエンド",
-          "terminalBackendDescription": "このプロジェクトで Orca または Herdr を選択します。"
+          "useGlobal": "グローバル設定を使用"
         },
         "RepositorySourceControlAiActionRows": {
           "548a6e1281": "コマンドテンプレート",
@@ -10186,49 +10184,6 @@
           "saveFailed": "表示設定のデフォルトを保存できませんでした。",
           "updateServer": "ソースのデフォルトを設定するには、このサーバーを更新してください。",
           "updateServerDefaults": "表示のデフォルトを設定するには、このサーバーを更新してください。"
-        },
-        "ProjectTerminalBackendSetting": {
-          "title": "ターミナルバックエンド",
-          "active": "有効: {{value0}}",
-          "herdr": "Herdr",
-          "orca": "Orca",
-          "preference": "プロジェクト設定",
-          "preferenceDescription": "有効なプロジェクトを変更するには明示的な移行が必要です。Orca PTY の実行中は Herdr に移行できません。",
-          "aria": "プロジェクトのターミナルバックエンド",
-          "inherit": "継承",
-          "blockedSingular": "このプロジェクトを Herdr に移行する前に、実行中の Orca ターミナル {{count}} 個を閉じてください。",
-          "blockedPlural": "このプロジェクトを Herdr に移行する前に、実行中の Orca ターミナル {{count}} 個を閉じてください。"
-        },
-        "TerminalBackendSection": {
-          "title": "ターミナルランタイム",
-          "description": "新しいプロジェクトのターミナルセッションを管理するランタイムを選択します。",
-          "defaultBackend": "デフォルトのバックエンド",
-          "defaultDescription": "既存のプロジェクトは、明示的に移行するまで現在のバックエンドを使用します。",
-          "defaultAria": "デフォルトのターミナルバックエンド",
-          "orca": "Orca",
-          "herdr": "Herdr",
-          "installation": "Herdr のインストール",
-          "installationDescription": "PATH から各実行ホストの標準 Herdr 実行ファイルを検索します。",
-          "installationAria": "Herdr のインストール元",
-          "system": "PATH から",
-          "custom": "カスタム",
-          "customPath": "カスタム Herdr パス",
-          "customPathDescription": "実行ホスト上の実行ファイルの絶対パスです。",
-          "customPathAria": "カスタム Herdr 実行ファイルのパス",
-          "customPathPlaceholder": "/usr/local/bin/herdr",
-          "sessionName": "共有 Herdr セッション名",
-          "sessionNameDescription": "明示的な上書きがないすべてのプロジェクトで、この標準 Herdr セッションを共有します。空にするとプロジェクトごとのセッションを使用します。",
-          "sessionNameAria": "共有 Herdr セッション名",
-          "sessionNamePlaceholder": "orca",
-          "runtime": "Herdr ランタイム",
-          "runtimeDescription": "PATH の標準版は設定済みの Herdr セッションを開始または接続するため、他の Herdr クライアントと同じセッションを利用できます。",
-          "runtimeAria": "Herdr ランタイムのソース",
-          "daemon": "組み込みデーモン",
-          "stock": "PATH の標準版"
-        },
-        "terminalSearch": {
-          "runtimeTitle": "ターミナルランタイム",
-          "runtimeDescription": "ターミナルバックエンドとして Orca または Herdr を選択します。"
         }
       },
       "right": {

@@ -62,8 +62,10 @@ export const FORK_ONLY_PATHS = new Set([
   'config/scripts/isolate-lefthook-hooks.ts',
   'config/scripts/run-herdr-stock-integration.mjs',
   'src/main/ipc/pty/ipc/terminal-layout-snapshot.ts',
+  'src/main/ipc/parcel-watcher-child-recovery.test.ts',
   'src/main/persistence-herdr.test.ts',
   'src/main/runtime/orchestration/__snapshots__/preamble.test.js.snap',
+  'src/renderer/src/i18n/herdr-settings-copy.ts',
   'src/renderer/src/components/settings/ProjectTerminalBackendSetting.test.tsx',
   'src/renderer/src/components/settings/ProjectTerminalBackendSetting.tsx',
   'src/renderer/src/components/settings/TerminalBackendSection.test.tsx',
@@ -152,9 +154,16 @@ export const ALLOWED_OVERLAY_PATHS = new Set([
   'src/main/daemon/daemon-init-provider-installation.test.ts',
   'src/main/daemon/daemon-init.ts',
   'src/main/index.ts',
+  'src/main/ipc/filesystem.test.ts',
+  'src/main/ipc/filesystem.ts',
+  'src/main/ipc/parcel-watcher-child-recovery.ts',
   'src/main/ipc/pty-startup-barrier-and-listing.test.ts',
   'src/main/ipc/pty-write-ipc-validation.test.ts',
   'src/main/ipc/pty.ts',
+  'src/main/rate-limits/claude-active-usage-fetch.ts',
+  'src/main/rate-limits/claude-fetcher-cli-fallback.test.ts',
+  'src/renderer/src/components/automations/AutomationsListPanel.test.tsx',
+  'src/renderer/src/components/automations/automation-host-client.test.ts',
   'src/main/ipc/pty/ipc/spawn-options.ts',
   'src/main/ipc/pty/ipc/spawn-types.ts',
   'src/main/ipc/pty/ipc/write-input.ts',
@@ -309,6 +318,12 @@ function gitLines(args) {
     .filter(Boolean)
 }
 
+function gitBlob(ref, filePath) {
+  return execFileSync('git', ['rev-parse', `${ref}:${filePath}`], {
+    encoding: 'utf8'
+  }).trim()
+}
+
 export function inspectForkOverlay(ours, theirs) {
   const oursFiles = new Set(gitLines(['ls-tree', '-r', '--name-only', ours]))
   const theirsFiles = new Set(gitLines(['ls-tree', '-r', '--name-only', theirs]))
@@ -322,6 +337,11 @@ export function inspectForkOverlay(ours, theirs) {
     const onOurs = oursFiles.has(filePath)
     const onTheirs = theirsFiles.has(filePath)
     if (onOurs && onTheirs) {
+      // Why: three-dot still lists a path we touched then restored. Matching
+      // blobs are not an overlay (locale JSON after dropping Herdr keys).
+      if (gitBlob(ours, filePath) === gitBlob(theirs, filePath)) {
+        continue
+      }
       findings.push({ filePath, kind: 'overlay', status: classifyForkPath(filePath, 'overlay') })
       continue
     }

@@ -28,8 +28,6 @@ import {
   createElectronHomeIsolation,
   type ElectronHomeIsolation
 } from './electron-home-isolation'
-import { restartSafeEnvironment } from './orca-restart-environment'
-import type { TerminalBackendPreference } from '../../../src/shared/terminal-backend'
 
 type LaunchedOrca = {
   app: ElectronApplication
@@ -104,10 +102,10 @@ function shouldLaunchHeadful(testInfo: TestInfo): boolean {
 function createRestartLaunchIsolation(
   userDataDir: string,
   headful: boolean,
-  extraEnv: NodeJS.ProcessEnv = {}
+  extraEnv: Record<string, string>
 ): ElectronHomeIsolation {
-  const cleanEnv = restartSafeEnvironment(process.env)
-  const definedExtraEnv = restartSafeEnvironment(extraEnv)
+  const { ELECTRON_RUN_AS_NODE: _unused, ...cleanEnv } = process.env
+  void _unused
   return createElectronHomeIsolation({
     inheritedEnv: cleanEnv,
     launchEnv: {
@@ -118,10 +116,10 @@ function createRestartLaunchIsolation(
       !cleanEnv.ORCA_RELAY_PATH
         ? { ORCA_RELAY_PATH: path.join(process.cwd(), 'out', 'relay') }
         : {}),
-      ...definedExtraEnv,
+      ...extraEnv,
       ...(headful ? { ORCA_E2E_HEADFUL: '1' } : { ORCA_E2E_HEADLESS: '1' })
     },
-    extraEnv: definedExtraEnv,
+    extraEnv: {},
     userDataDir
   })
 }
@@ -135,7 +133,7 @@ function createRestartLaunchIsolation(
  */
 export function createRestartSession(
   testInfo: TestInfo,
-  extraEnv: NodeJS.ProcessEnv = {}
+  extraEnv: Record<string, string> = {}
 ): RestartSession {
   const mainPath = path.join(process.cwd(), 'out', 'main', 'index.js')
   const userDataDir = mkdtempSync(path.join(os.tmpdir(), 'orca-e2e-restart-'))
@@ -175,12 +173,11 @@ export function createRestartSession(
 
   const launch = async (options?: LaunchOptions): Promise<LaunchedOrca> => {
     runtimeWsPort ??= await reserveRestartRuntimeWsPort()
-    const launchExtraEnv = restartSafeEnvironment(options?.extraEnv ?? {})
     const app = await electron.launch({
       args: getOrcaElectronLaunchArgs(mainPath, headful),
       env: {
         ...homeIsolation.env,
-        ...launchExtraEnv,
+        ...options?.extraEnv,
         ORCA_E2E_RUNTIME_WS_PORT: String(runtimeWsPort)
       }
     })
@@ -226,11 +223,7 @@ export function createRestartSession(
  * active on its worktree. Matches the shared fixture's setup path so the
  * first-launch state lines up with what real users persist.
  */
-export async function attachRepoAndOpenTerminal(
-  page: Page,
-  repoPath: string,
-  options: { terminalBackendPreference?: TerminalBackendPreference } = {}
-): Promise<string> {
+export async function attachRepoAndOpenTerminal(page: Page, repoPath: string): Promise<string> {
   if (!isValidGitRepo(repoPath)) {
     throw new Error(`attachRepoAndOpenTerminal: ${repoPath} is not a git repo`)
   }
@@ -302,29 +295,22 @@ export async function attachRepoAndOpenTerminal(
     )
     .toBe(true)
 
-  const worktreeId = await page.evaluate(
-    async ({ repoId, terminalBackendPreference }) => {
-      const store = window.__store
-      if (!store) {
-        return null
-      }
-      const state = store.getState()
-      // Why: repo identity remains stable when Windows canonicalizes path casing
-      // or separators between the IPC and renderer layers.
-      const repoWorktrees = state.worktreesByRepo[repoId] ?? []
-      const primary = repoWorktrees.find((worktree) => worktree.isMainWorktree) ?? repoWorktrees[0]
-      if (!primary) {
-        return null
-      }
-      const project = state.projects.find((candidate) => candidate.sourceRepoIds.includes(repoId))
-      if (project && terminalBackendPreference) {
-        await state.updateProject(project.id, { terminalBackendPreference })
-      }
-      state.setActiveWorktree(primary.id)
-      return primary.id
-    },
-    { repoId, terminalBackendPreference: options.terminalBackendPreference }
-  )
+  const worktreeId = await page.evaluate((repoId: string) => {
+    const store = window.__store
+    if (!store) {
+      return null
+    }
+    const state = store.getState()
+    // Why: repo identity remains stable when Windows canonicalizes path casing
+    // or separators between the IPC and renderer layers.
+    const repoWorktrees = state.worktreesByRepo[repoId] ?? []
+    const primary = repoWorktrees.find((worktree) => worktree.isMainWorktree) ?? repoWorktrees[0]
+    if (!primary) {
+      return null
+    }
+    state.setActiveWorktree(primary.id)
+    return primary.id
+  }, repoId)
 
   if (!worktreeId) {
     throw new Error('attachRepoAndOpenTerminal: test repo did not surface in the store')

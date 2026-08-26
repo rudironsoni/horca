@@ -68,4 +68,30 @@ describe('HerdrPtyProvider input ordering', () => {
     await provider.sendSignal('orca-fallback', 'SIGINT')
     expect(sendSignal).toHaveBeenCalledWith('orca-fallback', 'SIGINT')
   })
+
+  it('writes named keys to an Orca fallback that has no writeLogical', () => {
+    const write = vi.fn()
+    const fallback = {
+      spawn: vi.fn(),
+      attach: vi.fn(),
+      write,
+      resize: vi.fn(),
+      kill: vi.fn(),
+      shutdown: vi.fn(),
+      sendSignal: vi.fn(),
+      hasPty: (id: string) => id === 'orca-fallback',
+      onData: vi.fn(() => vi.fn()),
+      onExit: vi.fn(() => vi.fn()),
+      listProcesses: vi.fn(async () => [])
+    }
+    const provider = new HerdrPtyProvider(
+      () => ({ request: vi.fn() }) as unknown as HerdrHostTransport,
+      async () => null,
+      () => 'test-session',
+      undefined,
+      fallback as never
+    )
+    expect(provider.writeLogical('orca-fallback', { kind: 'key', name: 'enter' })).toBe(true)
+    expect(write).toHaveBeenCalledWith('orca-fallback', '\r')
+  })
 })

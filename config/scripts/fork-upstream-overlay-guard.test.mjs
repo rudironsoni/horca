@@ -77,7 +77,10 @@ describe('fork upstream overlay guard', () => {
     )
     expect(isDeniedOverlayPath('src/renderer/src/i18n/locales/en.json')).toBe(true)
     expect(classifyForkPath('src/renderer/src/i18n/locales/en.json', 'overlay')).toBe('denied')
-    expect(classifyForkPath('src/main/runtime/orca-runtime.ts', 'overlay')).toBe('allowed')
+    expect(classifyForkPath('src/main/ipc/filesystem.ts', 'overlay')).toBe('allowed')
+    expect(
+      classifyForkPath('src/main/ipc/parcel-watcher-child-recovery.test.ts', 'fork-only')
+    ).toBe('allowed')
     expect(classifyForkPath('src/main/not-an-allowlisted-overlay.ts', 'overlay')).toBe('unexpected')
     expect(classifyForkPath('src/shared/pairing.ts', 'overlay')).toBe('allowed')
     expect(classifyForkPath('src/renderer/src/web/web-pairing.ts', 'overlay')).toBe('allowed')
@@ -108,6 +111,11 @@ describe('fork upstream overlay guard', () => {
         { filePath: 'docs/FORK_MAINTENANCE.md', kind: 'fork-only', status: 'allowed' }
       ])
     ).toEqual(['denied overlay: tests/e2e/helpers/startup-exec-readiness-oracle.ts'])
+  })
+
+  it('does not treat restored-identical blobs as overlays', () => {
+    const findings = inspectForkOverlay('HEAD', 'HEAD')
+    expect(findings.filter((finding) => finding.kind === 'overlay')).toEqual([])
   })
 
   it('matches the allowlist against the Horca commit parent', () => {
