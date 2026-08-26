@@ -83,7 +83,10 @@ describeOnWindows('host job reaps the tree when the host dies', () => {
     // Force-kill only the host: no tree kill, nothing given a chance to unwind.
     // This is the daemon-crash shape.
     process.kill(host.pid!, 'SIGKILL')
-    await sleep(3_000)
+    const deadline = Date.now() + 15_000
+    while (Date.now() < deadline && (isAlive(shellPid) || isAlive(grandchildPid))) {
+      await sleep(250)
+    }
 
     try {
       expect(isAlive(shellPid)).toBe(false)

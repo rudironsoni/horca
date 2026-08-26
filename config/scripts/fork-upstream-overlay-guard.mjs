@@ -124,6 +124,7 @@ export const ALLOWED_OVERLAY_PATHS = new Set([
   'src/main/minimax/minimax-cookie-store.ts',
   'src/main/runtime/claude-agent-teams-shim-env.ts',
   'src/main/runtime/windows-mobile-firewall.ts',
+  'src/main/windows/windows-host-job.win32.test.ts',
   'src/main/speech/model-cache-path.ts',
   'src/main/speech/openai-api-key-store.ts',
   'src/main/startup/dev-instance-identity.ts',
