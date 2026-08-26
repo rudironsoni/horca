@@ -120,6 +120,7 @@ export const ALLOWED_OVERLAY_PATHS = new Set([
   'src/main/keybindings/keybinding-file.ts',
   'src/main/linear/linear-credential-paths.ts',
   'src/main/macos-tcc-prompt-watch.ts',
+  'src/main/native-chat/transcript-watch-liveness.test.ts',
   'src/main/minimax/minimax-cookie-store.ts',
   'src/main/runtime/claude-agent-teams-shim-env.ts',
   'src/main/runtime/windows-mobile-firewall.ts',
