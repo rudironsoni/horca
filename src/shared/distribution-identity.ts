@@ -13,10 +13,10 @@
  * `distribution-identity.test.ts` keeps the two in sync.
  *
  * The active distribution is selected at compile time: electron-vite
- * substitutes `ORCA_DISTRIBUTION` ('horca' when ORCA_DOWNSTREAM_BUILD=1 is
- * set at build time, 'official' otherwise). Vitest and tsc-compiled entry
- * points skip the define pass, so those fall back to a
- * `globalThis.ORCA_DISTRIBUTION` override, then 'official'.
+ * substitutes `ORCA_DISTRIBUTION` ('official' only when
+ * ORCA_DOWNSTREAM_BUILD=0). Vitest and tsc-compiled entry points skip the
+ * define pass, so those fall back to a `globalThis.ORCA_DISTRIBUTION`
+ * override, then 'official'.
  */
 
 export type OrcaDistribution = 'official' | 'horca'

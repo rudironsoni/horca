@@ -57,12 +57,11 @@ const ORCA_DIAGNOSTICS_TOKEN_URL_LITERAL =
   typeof orcaDiagnosticsTokenUrl === 'string' && orcaDiagnosticsTokenUrl.length > 0
     ? JSON.stringify(orcaDiagnosticsTokenUrl)
     : 'null'
-// Why: downstream personal-distribution builds (ORCA_DOWNSTREAM_BUILD=1, used
-// by the fork's packaging repo) resolve every externally visible identity from
-// src/shared/distribution-identity.json. Official builds and every other path
-// substitute 'official', leaving upstream behavior unchanged.
+// Why: this fork's `pnpm build` / `pnpm dev` must compile Horca identity so
+// local state lands in ~/.horca, not an installed official Orca's ~/.orca.
+// Packaging already sets ORCA_DOWNSTREAM_BUILD=1. Opt out with =0.
 const ORCA_DISTRIBUTION_LITERAL = JSON.stringify(
-  process.env.ORCA_DOWNSTREAM_BUILD === '1' ? 'horca' : 'official'
+  process.env.ORCA_DOWNSTREAM_BUILD === '0' ? 'official' : 'horca'
 )
 
 function createStartupDiagnosticsBanner(chunkName: string): string {

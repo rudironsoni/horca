@@ -7,10 +7,11 @@ never collide with an installed Orca's OS-level or on-disk state.
 
 ## Build switch and identity contract
 
-`ORCA_DOWNSTREAM_BUILD=1` at build time compiles `ORCA_DISTRIBUTION` to
-`'horca'` (see `electron.vite.config.ts`); every other build path —
-official CI, contributor builds, `pnpm dev`, vitest — resolves `'official'`
-and behaves exactly as before.
+`electron.vite.config.ts` compiles `ORCA_DISTRIBUTION` to `'horca'` for
+`pnpm build` / `pnpm dev` (local state under `~/.horca`). Set
+`ORCA_DOWNSTREAM_BUILD=0` to compile `'official'`. Vitest skips that define
+and still falls back to `'official'`. Packaging already sets
+`ORCA_DOWNSTREAM_BUILD=1`.
 
 All externally visible identity resolves from one contract:
 `src/shared/distribution-identity.ts` (runtime) mirrored by
