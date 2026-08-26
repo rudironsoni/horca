@@ -526,6 +526,35 @@ describe('worktree git-common narrow watch (local native platforms)', () => {
     expect(narrowSubscription().unsubscribe).not.toHaveBeenCalled()
   })
 
+  it('refreshes primary metadata after interruption without treating it as a watch failure', async () => {
+    installSubscribeMock()
+    const commonDir = await makeCommonDir(true)
+    const received: WorktreeBasePollEvent[][] = []
+    const onWatchError = vi.fn()
+    await startWatch(commonDir, received, () => [], onWatchError)
+
+    primarySubscription().hooks.onInterruption?.()
+
+    expect(onWatchError).not.toHaveBeenCalled()
+    expect(received.flat()).toContainEqual({ type: 'update', path: join(commonDir, 'HEAD') })
+    expect(received.flat()).toContainEqual({ type: 'update', path: join(commonDir, 'config') })
+    expect(primarySubscription().unsubscribe).not.toHaveBeenCalled()
+  })
+
+  it('does not report a recovered narrow interruption as a watch failure', async () => {
+    installSubscribeMock()
+    const commonDir = await makeCommonDir(true)
+    const worktreesDir = join(commonDir, 'worktrees')
+    const received: WorktreeBasePollEvent[][] = []
+    const onWatchError = vi.fn()
+    await startWatch(commonDir, received, () => [], onWatchError)
+
+    narrowSubscription().hooks.onInterruption?.()
+
+    expect(onWatchError).not.toHaveBeenCalled()
+    expect(received.flat()).toContainEqual({ type: 'update', path: worktreesDir })
+  })
+
   it('arms via existence polling when the worktrees dir appears later', async () => {
     installSubscribeMock()
     const commonDir = await makeCommonDir(false)

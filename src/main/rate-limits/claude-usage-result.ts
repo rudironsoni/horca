@@ -88,6 +88,10 @@ export function warnClaudeUsageFetchFailure(
   credentials: ClaudeOAuthCredentialReadResult,
   error: unknown
 ): void {
+  // Why: 429 is the usage panel's expected rate-limit state, not a refresh bug.
+  if (error instanceof OAuthUsageError && error.status === 429) {
+    return
+  }
   console.warn('[claude-rate-limits] Claude usage refresh failed', {
     provenance: authPreparation?.provenance ?? 'system',
     runtime: authPreparation?.runtime ?? 'host',

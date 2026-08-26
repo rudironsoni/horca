@@ -145,10 +145,13 @@ describe('fetchClaudeRateLimits', () => {
       )
     )
 
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
     const result = await fetchClaudeRateLimits({ authPreparation })
     expect(result.status).toBe('error')
     expect(result.usageMetadata?.retryAtMs).toBeUndefined()
     expect(fetchViaPty).not.toHaveBeenCalled()
+    expect(warnSpy.mock.calls.flat().join('\n')).not.toContain('Claude usage refresh failed')
+    warnSpy.mockRestore()
   })
 
   it('uses CLI fallback for OAuth auth failures when automatic repair is safe', async () => {
@@ -180,6 +183,7 @@ describe('fetchClaudeRateLimits', () => {
       )
     )
 
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
     await expect(fetchClaudeRateLimits({ authPreparation })).resolves.toMatchObject({
       provider: 'claude',
       status: 'ok',
@@ -191,6 +195,8 @@ describe('fetchClaudeRateLimits', () => {
     })
 
     expect(fetchViaPty).toHaveBeenCalledWith({ authPreparation })
+    expect(warnSpy.mock.calls.flat().join('\n')).not.toContain('Claude usage refresh failed')
+    warnSpy.mockRestore()
   })
 
   it('re-reads credentials and retries OAuth once after CLI repair', async () => {
