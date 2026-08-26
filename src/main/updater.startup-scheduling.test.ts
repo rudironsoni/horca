@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const {
   appMock,
@@ -28,11 +28,6 @@ vi.mock('./local-builds/local-build-feed-server', () => moduleFactories.localBui
 describe('updater', () => {
   beforeEach(() => {
     resetUpdaterMocks()
-  })
-
-  afterEach(() => {
-    vi.clearAllTimers()
-    vi.useRealTimers()
   })
 
   it('does not load or configure electron-updater during dev setup', async () => {
@@ -107,7 +102,9 @@ describe('updater', () => {
     expect(autoUpdaterMock.checkForUpdates).not.toHaveBeenCalled()
 
     await vi.advanceTimersByTimeAsync(60 * 1000)
-    expect(autoUpdaterMock.checkForUpdates).toHaveBeenCalledTimes(1)
+    await vi.waitFor(() => {
+      expect(autoUpdaterMock.checkForUpdates).toHaveBeenCalledTimes(1)
+    })
     expect(setLastUpdateCheckAt).not.toHaveBeenCalled()
   })
 
@@ -188,15 +185,17 @@ describe('updater', () => {
       setLastUpdateCheckAt: vi.fn()
     })
 
-    // Why: waitFor under fake timers can fire the queued retry (extra checkForUpdates).
-    await vi.advanceTimersByTimeAsync(0)
-    expect(autoUpdaterMock.checkForUpdates).toHaveBeenCalledTimes(1)
+    await vi.waitFor(() => {
+      expect(autoUpdaterMock.checkForUpdates).toHaveBeenCalledTimes(1)
+    })
 
     await vi.advanceTimersByTimeAsync(59 * 60 * 1000)
     expect(autoUpdaterMock.checkForUpdates).toHaveBeenCalledTimes(1)
 
     await vi.advanceTimersByTimeAsync(60 * 1000)
-    expect(autoUpdaterMock.checkForUpdates).toHaveBeenCalledTimes(2)
+    await vi.waitFor(() => {
+      expect(autoUpdaterMock.checkForUpdates).toHaveBeenCalledTimes(2)
+    })
   })
 
   it('reschedules the next automatic check 24 hours after finding an available update', async () => {
@@ -222,9 +221,10 @@ describe('updater', () => {
       setLastUpdateCheckAt
     })
 
-    // Why: waitFor under fake timers can fire the 24h queue (3 checks instead of 2).
+    await vi.waitFor(() => {
+      expect(autoUpdaterMock.checkForUpdates).toHaveBeenCalledTimes(1)
+    })
     await vi.advanceTimersByTimeAsync(0)
-    expect(autoUpdaterMock.checkForUpdates).toHaveBeenCalledTimes(1)
 
     expect(setLastUpdateCheckAt).toHaveBeenCalledTimes(1)
     expect(sendMock).toHaveBeenCalledWith('updater:status', {
@@ -237,7 +237,9 @@ describe('updater', () => {
     expect(autoUpdaterMock.checkForUpdates).toHaveBeenCalledTimes(1)
 
     await vi.advanceTimersByTimeAsync(60 * 1000)
-    expect(autoUpdaterMock.checkForUpdates).toHaveBeenCalledTimes(2)
+    await vi.waitFor(() => {
+      expect(autoUpdaterMock.checkForUpdates).toHaveBeenCalledTimes(2)
+    })
   })
 
   // Why: a no-op verifyUpdateCodeSignature override would silently accept every installer; keep electron-updater's Authenticode check (issue #631 resolved).
