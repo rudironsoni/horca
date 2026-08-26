@@ -188,5 +188,6 @@ jobs:
     with:
       version: ${{ needs.prepare.outputs.version }}
       cask_token: 'horca@beta'
+      allow_push_failure: true
     secrets:
       FORK_SYNC_PAT: ${{ secrets.FORK_SYNC_PAT }}

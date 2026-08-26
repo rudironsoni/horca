@@ -28,6 +28,12 @@ on:
         type: string
         required: false
         default: 'horca'
+      # Why: FORK_SYNC_PAT can clone rudironsoni/homebrew-tap but not push
+      # (403 denied to rudironsoni). Beta feature-branch CI should not go red.
+      allow_push_failure:
+        type: boolean
+        required: false
+        default: false
     secrets:
       FORK_SYNC_PAT:
         required: true
@@ -79,6 +85,7 @@ jobs:
         env:
           VERSION: ${{ inputs.version }}
           CASK_TOKEN: ${{ inputs.cask_token || 'horca' }}
+          ALLOW_PUSH_FAILURE: ${{ inputs.allow_push_failure }}
         run: |
           set -euo pipefail
           git config user.name 'github-actions[bot]'
@@ -88,7 +95,15 @@ jobs:
           git add "Casks/${CASK_TOKEN}.rb"
           git diff --cached --quiet && exit 0
           git commit -m "${CASK_TOKEN} $VERSION"
-          git push origin HEAD:main || {
-            git pull --rebase origin main
-            git push origin HEAD:main
-          }
+          if git push origin HEAD:main; then
+            exit 0
+          fi
+          git pull --rebase origin main
+          if git push origin HEAD:main; then
+            exit 0
+          fi
+          if [ "${ALLOW_PUSH_FAILURE}" = 'true' ]; then
+            echo '::warning::Could not push to rudironsoni/homebrew-tap. FORK_SYNC_PAT needs Contents: Write on that repo. The GitHub Release is published; bump the cask manually.'
+            exit 0
+          fi
+          exit 1
