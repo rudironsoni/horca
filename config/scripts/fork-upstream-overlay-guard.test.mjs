@@ -113,6 +113,11 @@ describe('fork upstream overlay guard', () => {
     ).toEqual(['denied overlay: tests/e2e/helpers/startup-exec-readiness-oracle.ts'])
   })
 
+  it('does not treat restored-identical blobs as overlays', () => {
+    const findings = inspectForkOverlay('HEAD', 'HEAD')
+    expect(findings.filter((finding) => finding.kind === 'overlay')).toEqual([])
+  })
+
   it('matches the allowlist against the Horca commit parent', () => {
     const tokens = execFileSync('git', ['rev-list', '--parents', '-n', '1', 'HEAD'], {
       encoding: 'utf8'
