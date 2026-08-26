@@ -5,6 +5,7 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { createBootstrapFatalExitBanner } from './config/build-plugins/bootstrap-fatal-exit-banner'
 import { createPlainNodeEntryGuardPlugin } from './config/build-plugins/plain-node-entry-guard'
+import { applyHorcaViteDistributionEnv } from './src/shared/horca-vite-distribution'
 import packageJson from './package.json' with { type: 'json' }
 
 const BUNDLED_MAIN_DEPENDENCIES = new Set([
@@ -57,11 +58,13 @@ const ORCA_DIAGNOSTICS_TOKEN_URL_LITERAL =
   typeof orcaDiagnosticsTokenUrl === 'string' && orcaDiagnosticsTokenUrl.length > 0
     ? JSON.stringify(orcaDiagnosticsTokenUrl)
     : 'null'
-// Why: this fork's `pnpm build` / `pnpm dev` must compile Horca identity so
-// local state lands in ~/.horca, not an installed official Orca's ~/.orca.
-// Packaging already sets ORCA_DOWNSTREAM_BUILD=1. Opt out with =0.
+// Why: downstream personal-distribution builds (ORCA_DOWNSTREAM_BUILD=1, used
+// by the fork's packaging repo) resolve every externally visible identity from
+// src/shared/distribution-identity.json. Official builds and every other path
+// substitute 'official', leaving upstream behavior unchanged.
+applyHorcaViteDistributionEnv(process.env)
 const ORCA_DISTRIBUTION_LITERAL = JSON.stringify(
-  process.env.ORCA_DOWNSTREAM_BUILD === '0' ? 'official' : 'horca'
+  process.env.ORCA_DOWNSTREAM_BUILD === '1' ? 'horca' : 'official'
 )
 
 function createStartupDiagnosticsBanner(chunkName: string): string {

@@ -7,10 +7,13 @@ never collide with an installed Orca's OS-level or on-disk state.
 
 ## Build switch and identity contract
 
-`electron.vite.config.ts` compiles `ORCA_DISTRIBUTION` to `'horca'` for
-`pnpm build` / `pnpm dev` (local state under `~/.horca`). Set
-`ORCA_DOWNSTREAM_BUILD=0` to compile `'official'`. Vitest skips that define
-and still falls back to `'official'`. Packaging already sets
+`ORCA_DOWNSTREAM_BUILD=1` at build time compiles `ORCA_DISTRIBUTION` to
+`'horca'` (see `electron.vite.config.ts`); the ternary itself stays
+`=== '1' ? 'horca' : 'official'` so it does not invert on every upstream
+sync. Local `pnpm build` / `pnpm dev` get that flag from
+`src/shared/horca-vite-distribution.ts` (unset → `1`; set
+`ORCA_DOWNSTREAM_BUILD=0` for an official compile). Vitest skips the
+define and still falls back to `'official'`. Packaging already sets
 `ORCA_DOWNSTREAM_BUILD=1`.
 
 All externally visible identity resolves from one contract:
