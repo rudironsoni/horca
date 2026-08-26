@@ -1,18 +1,5 @@
 import type { SettingsSearchEntry } from './settings-search'
-import { translate } from '@/i18n/i18n'
-
-export function getTerminalBackendSearchEntries(): SettingsSearchEntry[] {
-  return [
-    {
-      title: translate('auto.components.settings.terminalSearch.runtimeTitle', 'Terminal runtime'),
-      description: translate(
-        'auto.components.settings.terminalSearch.runtimeDescription',
-        'Choose Orca or Herdr as the terminal backend.'
-      ),
-      keywords: ['terminal', 'runtime', 'backend', 'herdr', 'multiplexer', 'persistence']
-    }
-  ]
-}
+import { herdrSettingsCopy } from '@/i18n/herdr-settings-copy'
 import {
   getTerminalAdvancedSearchEntries,
   getTerminalGhosttyImportSearchEntries,
@@ -75,6 +62,16 @@ export {
   getTerminalWindowSearchEntries,
   getTerminalSetupScriptSearchEntries
 } from './terminal-window-setup-search'
+
+export function getTerminalBackendSearchEntries(): SettingsSearchEntry[] {
+  return [
+    {
+      title: herdrSettingsCopy.searchTitle,
+      description: herdrSettingsCopy.searchDescription,
+      keywords: ['terminal', 'runtime', 'backend', 'herdr', 'multiplexer', 'persistence']
+    }
+  ]
+}
 
 type TerminalAppearanceSearchOptions = {
   showWarpImport?: boolean

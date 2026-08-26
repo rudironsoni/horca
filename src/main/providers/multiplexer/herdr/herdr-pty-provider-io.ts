@@ -28,7 +28,7 @@ import {
   bytesFromTerminalLogicalKey,
   terminalLogicalInputFromBytes
 } from '../../../../shared/terminal-logical-key'
-import { isOrcaFallbackId } from './herdr-pty-orca-fallback'
+import { isOrcaFallbackId, writeFallbackLogical } from './herdr-pty-orca-fallback'
 import { sendHerdrNamedKey } from './herdr-pty-provider-runtime'
 
 export class HerdrPtyProviderIo {
@@ -51,8 +51,7 @@ export class HerdrPtyProviderIo {
   writeLogical(id: string, input: TerminalLogicalInput): boolean {
     const binding = this.bindings.get(id)
     if (!binding) {
-      const result = this.fallback?.writeLogical?.(id, input)
-      return this.fallback?.writeLogical != null && result !== false
+      return writeFallbackLogical(this.fallback, id, input)
     }
     if (input.kind === 'bytes') {
       void this.sendInput(id, () => writeSharedHerdrInput(binding, input.data))
@@ -101,9 +100,18 @@ export class HerdrPtyProviderIo {
   async getAppliedSize(id: string): Promise<{ cols: number; rows: number } | null> {
     const binding = this.bindings.get(id)
     if (!binding) {
-      return null
+      return this.fallback?.getAppliedSize?.(id) ?? null
     }
     return { cols: binding.cols, rows: binding.rows }
+  }
+
+  writeWithSettlement(id: string, data: string): Promise<boolean> {
+    if (isOrcaFallbackId(this.bindings, id, this.fallback) && this.fallback.writeWithSettlement) {
+      return this.fallback.writeWithSettlement(id, data)
+    }
+    this.write(id, data)
+    const pending = this.writeQueues.get(id)
+    return pending ? pending.then(() => true) : Promise.resolve(true)
   }
 
   async getCwd(id: string): Promise<string> {

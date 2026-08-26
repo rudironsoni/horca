@@ -1,5 +1,5 @@
 import type { GlobalSettings } from '../../../../shared/global-settings-types'
-import { translate } from '@/i18n/i18n'
+import { herdrSettingsCopy } from '@/i18n/herdr-settings-copy'
 import { Input } from '../ui/input'
 import {
   SettingsRow,
@@ -19,31 +19,16 @@ export function TerminalBackendSection({
   return (
     <section className="space-y-3">
       <SettingsSubsectionHeader
-        title={translate(
-          'auto.components.settings.TerminalBackendSection.title',
-          'Terminal runtime'
-        )}
-        description={translate(
-          'auto.components.settings.TerminalBackendSection.description',
-          'Choose which runtime owns new project terminal sessions.'
-        )}
+        title={herdrSettingsCopy.sectionTitle}
+        description={herdrSettingsCopy.sectionDescription}
       />
       <div className="divide-y divide-border/40">
         <SettingsRow
-          label={translate(
-            'auto.components.settings.TerminalBackendSection.defaultBackend',
-            'Default backend'
-          )}
-          description={translate(
-            'auto.components.settings.TerminalBackendSection.defaultDescription',
-            'Existing projects keep their active backend until you migrate them explicitly.'
-          )}
+          label={herdrSettingsCopy.defaultBackend}
+          description={herdrSettingsCopy.defaultDescription}
           control={
             <SettingsSegmentedControl
-              ariaLabel={translate(
-                'auto.components.settings.TerminalBackendSection.defaultAria',
-                'Default terminal backend'
-              )}
+              ariaLabel={herdrSettingsCopy.defaultAria}
               value={settings.terminalBackendDefault ?? 'orca'}
               onChange={(value) =>
                 updateSettings({ terminalBackendDefault: value as 'orca' | 'herdr' })
@@ -51,31 +36,22 @@ export function TerminalBackendSection({
               options={[
                 {
                   value: 'orca',
-                  label: translate('auto.components.settings.TerminalBackendSection.orca', 'Orca')
+                  label: herdrSettingsCopy.sectionOrca
                 },
                 {
                   value: 'herdr',
-                  label: translate('auto.components.settings.TerminalBackendSection.herdr', 'Herdr')
+                  label: herdrSettingsCopy.sectionHerdr
                 }
               ]}
             />
           }
         />
         <SettingsRow
-          label={translate(
-            'auto.components.settings.TerminalBackendSection.installation',
-            'Herdr installation'
-          )}
-          description={translate(
-            'auto.components.settings.TerminalBackendSection.installationDescription',
-            'From PATH resolves the stock Herdr executable on each execution host.'
-          )}
+          label={herdrSettingsCopy.installation}
+          description={herdrSettingsCopy.installationDescription}
           control={
             <SettingsSegmentedControl
-              ariaLabel={translate(
-                'auto.components.settings.TerminalBackendSection.installationAria',
-                'Herdr installation source'
-              )}
+              ariaLabel={herdrSettingsCopy.installationAria}
               value={settings.herdrBinarySource?.kind ?? 'system'}
               onChange={(value) => {
                 if (value === 'custom') {
@@ -87,17 +63,11 @@ export function TerminalBackendSection({
               options={[
                 {
                   value: 'system',
-                  label: translate(
-                    'auto.components.settings.TerminalBackendSection.system',
-                    'From PATH'
-                  )
+                  label: herdrSettingsCopy.system
                 },
                 {
                   value: 'custom',
-                  label: translate(
-                    'auto.components.settings.TerminalBackendSection.custom',
-                    'Custom'
-                  )
+                  label: herdrSettingsCopy.custom
                 }
               ]}
             />
@@ -105,25 +75,13 @@ export function TerminalBackendSection({
         />
         {settings.herdrBinarySource?.kind === 'custom' ? (
           <SettingsRow
-            label={translate(
-              'auto.components.settings.TerminalBackendSection.customPath',
-              'Custom Herdr path'
-            )}
-            description={translate(
-              'auto.components.settings.TerminalBackendSection.customPathDescription',
-              'Absolute executable path on the execution host.'
-            )}
+            label={herdrSettingsCopy.customPath}
+            description={herdrSettingsCopy.customPathDescription}
             control={
               <Input
-                aria-label={translate(
-                  'auto.components.settings.TerminalBackendSection.customPathAria',
-                  'Custom Herdr executable path'
-                )}
+                aria-label={herdrSettingsCopy.customPathAria}
                 value={settings.herdrBinarySource.path}
-                placeholder={translate(
-                  'auto.components.settings.TerminalBackendSection.customPathPlaceholder',
-                  '/usr/local/bin/herdr'
-                )}
+                placeholder={herdrSettingsCopy.customPathPlaceholder}
                 className="w-72"
                 onChange={(event) =>
                   updateSettings({
@@ -140,25 +98,13 @@ export function TerminalBackendSection({
           />
         ) : null}
         <SettingsRow
-          label={translate(
-            'auto.components.settings.TerminalBackendSection.sessionName',
-            'Shared Herdr session name'
-          )}
-          description={translate(
-            'auto.components.settings.TerminalBackendSection.sessionNameDescription',
-            'All projects without an explicit override share this stock Herdr session. Clear it to fall back to per-project sessions.'
-          )}
+          label={herdrSettingsCopy.sessionName}
+          description={herdrSettingsCopy.sessionNameDescription}
           control={
             <Input
-              aria-label={translate(
-                'auto.components.settings.TerminalBackendSection.sessionNameAria',
-                'Shared Herdr session name'
-              )}
+              aria-label={herdrSettingsCopy.sessionNameAria}
               value={settings.herdrSessionName ?? ''}
-              placeholder={translate(
-                'auto.components.settings.TerminalBackendSection.sessionNamePlaceholder',
-                'orca'
-              )}
+              placeholder={herdrSettingsCopy.sessionNamePlaceholder}
               maxLength={64}
               className="w-72"
               onChange={(event) => updateSettings({ herdrSessionName: event.target.value })}

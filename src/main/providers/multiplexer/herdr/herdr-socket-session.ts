@@ -1,4 +1,8 @@
-import type { HerdrSocketConnectionOptions } from './herdr-socket-connection'
+import { existsSync } from 'node:fs'
+import {
+  defaultHerdrSocketPath,
+  type HerdrSocketConnectionOptions
+} from './herdr-socket-connection'
 import {
   herdrServerEnvironment,
   parseHerdrSessionList,
@@ -33,7 +37,11 @@ export class HerdrSocketSessionManager {
       listSessions: () => this.listSessions(),
       startServer: (name) => this.startServer(name),
       timeoutMs: this.options.timeoutMs,
-      pollMs: 200
+      pollMs: 200,
+      socketReady:
+        process.platform === 'win32'
+          ? undefined
+          : async () => existsSync(this.options.socketPath ?? defaultHerdrSocketPath(sessionName))
     })
   }
 
