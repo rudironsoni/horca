@@ -12,8 +12,10 @@ never collide with an installed Orca's OS-level or on-disk state.
 `=== '1' ? 'horca' : 'official'` so it does not invert on every upstream
 sync. Local `pnpm build` / `pnpm dev` get that flag from
 `src/shared/horca-vite-distribution.ts` (unset → `1`; set
-`ORCA_DOWNSTREAM_BUILD=0` for an official compile). Vitest skips the
-define and still falls back to `'official'`. Packaging already sets
+`ORCA_DOWNSTREAM_BUILD=0` for an official compile). The same wrap sets
+`ORCA_DEV_USER_DATA_PATH` to `~/.horca-dev` when unset, so `pnpm dev`
+does not use Application Support/`orca-dev`. Vitest skips the define and
+still falls back to `'official'`. Packaging already sets
 `ORCA_DOWNSTREAM_BUILD=1`.
 
 All externally visible identity resolves from one contract:
@@ -32,6 +34,7 @@ re-conflict with Horca identity hunks.
 | URL protocol | `orca:` | `horca:` |
 | public CLI | `orca` | `horca` |
 | local state root | `~/.orca` | `~/.horca` |
+| `pnpm dev` userData | `{appData}/orca-dev` | `~/.horca-dev` |
 | updater | enabled | disabled |
 | Windows daemon-host dir | `%LOCALAPPDATA%\Orca` | `%LOCALAPPDATA%\Horca` |
 | Windows per-user install dir | `%LOCALAPPDATA%\Programs\orca` | `%LOCALAPPDATA%\Programs\Horca` |
