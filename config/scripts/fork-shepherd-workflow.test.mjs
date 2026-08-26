@@ -8,7 +8,7 @@ const workflow = (name) =>
   parse(readFileSync(join(projectDir, '.github', 'workflows', name), 'utf8'))
 
 describe('fork-shepherd workflow', () => {
-  const parsed = workflow('fork-shepherd.yml')
+  const parsed = workflow('horca_shepherd.yml')
   const job = parsed.jobs.shepherd
   const shepherd = job.steps.find((step) => step.uses?.startsWith('FasterApiWeb/fork-shepherd@'))
   const overlay = job.steps.find(
@@ -52,7 +52,7 @@ describe('fork-shepherd workflow', () => {
 })
 
 describe('fork overlay guard workflow', () => {
-  const parsed = workflow('fork-overlay-guard.yml')
+  const parsed = workflow('horca_overlay_guard.yml')
 
   it('runs on pull requests without pull_request_target', () => {
     expect(parsed.on.pull_request).toBeDefined()

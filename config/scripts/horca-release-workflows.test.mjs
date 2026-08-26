@@ -15,12 +15,12 @@ function checkoutSteps(job) {
 }
 
 describe('in-repo Horca release workflows', () => {
-  const build = workflow('horca-build.yml')
-  const release = workflow('horca-release.yml')
-  const betaRelease = workflow('horca-beta-release.yml')
-  const bumpCask = workflow('bump-horca-cask.yml')
-  const checkSource = workflow('horca-check-source.yml')
-  const tagMirror = workflow('mirror-upstream-v-tags.yml')
+  const build = workflow('horca_build.yml')
+  const release = workflow('horca_release.yml')
+  const betaRelease = workflow('horca_beta_release.yml')
+  const bumpCask = workflow('horca_bump_cask.yml')
+  const checkSource = workflow('horca_check_source.yml')
+  const tagMirror = workflow('horca_mirror_upstream_v_tags.yml')
   const prepareScript = read('config/scripts/horca-prepare-release.sh')
   const bumpScript = read('config/scripts/horca-bump-homebrew-cask.sh')
   const homebrewCask = read('config/horca-homebrew/Casks/horca.rb')
@@ -178,7 +178,7 @@ describe('in-repo Horca release workflows', () => {
     expect(compare.run).toContain('the first release must be cut manually')
     expect(compare.run).toContain('changed=false')
     expect(checkSource.jobs.release.if).toContain("needs.detect.outputs.changed == 'true'")
-    expect(checkSource.jobs.release.uses).toBe('./.github/workflows/horca-release.yml')
+    expect(checkSource.jobs.release.uses).toBe('./.github/workflows/horca_release.yml')
   })
 
   it('excludes Horca tags from the upstream desktop tag mirror', () => {
@@ -188,8 +188,8 @@ describe('in-repo Horca release workflows', () => {
   })
 
   it('waits on bump-horca-cask after the GitHub Release is published', () => {
-    expect(release.jobs.build.uses).toBe('./.github/workflows/horca-build.yml')
-    expect(release.jobs['bump-cask'].uses).toBe('./.github/workflows/bump-horca-cask.yml')
+    expect(release.jobs.build.uses).toBe('./.github/workflows/horca_build.yml')
+    expect(release.jobs['bump-cask'].uses).toBe('./.github/workflows/horca_bump_cask.yml')
     expect(release.jobs['bump-cask'].needs).toEqual(['prepare', 'publish'])
     expect(release.jobs['bump-cask']['continue-on-error']).toBeUndefined()
     expect(release.jobs['bump-cask'].with.version).toBe('${{ needs.prepare.outputs.version }}')
@@ -256,9 +256,9 @@ describe('in-repo Horca release workflows', () => {
     const meta = betaRelease.jobs.prepare.steps.find((step) => step.id === 'meta')
     expect(meta.env.HORCA_CHANNEL).toBe('beta')
     expect(meta.env.HORCA_BRANCH).toBe('${{ github.ref_name }}')
-    expect(betaRelease.jobs.build.uses).toBe('./.github/workflows/horca-build.yml')
+    expect(betaRelease.jobs.build.uses).toBe('./.github/workflows/horca_build.yml')
     expect(betaRelease.jobs.build.secrets).toBe('inherit')
-    expect(betaRelease.jobs['bump-cask'].uses).toBe('./.github/workflows/bump-horca-cask.yml')
+    expect(betaRelease.jobs['bump-cask'].uses).toBe('./.github/workflows/horca_bump_cask.yml')
     expect(betaRelease.jobs['bump-cask'].needs).toEqual(['prepare', 'publish'])
     expect(betaRelease.jobs['bump-cask'].with.cask_token).toBe('horca@beta')
     expect(betaRelease.jobs['bump-cask'].with.version).toBe('${{ needs.prepare.outputs.version }}')

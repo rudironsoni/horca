@@ -1,9 +1,9 @@
-name: Bump horca cask
+name: 'Horca: Bump cask'
 
-# Called by horca-release.yml / horca-beta-release.yml after the GitHub
+# Called by horca_release.yml / horca_beta_release.yml after the GitHub
 # Release is visible, so the tap matches the version that just shipped.
 # The caller waits: this is a reusable workflow, same pattern as
-# horca-build.yml. Dispatch retries a bump without cutting another
+# horca_build.yml. Dispatch retries a bump without cutting another
 # release. Never on push (that would race the release). The copy in
 # config/horca-homebrew is the tap's 6h backup. CASK_TOKEN selects
 # Casks/horca.rb or Casks/horca@beta.rb; a missing tap file is copied

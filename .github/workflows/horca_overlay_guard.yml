@@ -1,4 +1,4 @@
-name: Fork overlay guard
+name: 'Horca: Overlay guard'
 
 on:
   pull_request:

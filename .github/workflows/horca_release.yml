@@ -1,14 +1,14 @@
-name: Release Horca
+name: 'Horca: Release'
 
 # Cuts one atomic Horca release on this repository: computes the next
 # v<core>-horca.<N> tag, builds AND verifies every platform via
-# horca-build.yml, publishes a single GitHub Release, then calls
-# bump-horca-cask.yml and waits so the Homebrew tap matches that release.
+# horca_build.yml, publishes a single GitHub Release, then calls
+# horca_bump_cask.yml and waits so the Homebrew tap matches that release.
 # A release is never created unless macOS arm64 + macOS x64 + Windows x64
 # all built and passed verification.
 #
 # A merge (or any push) to main starts a release. Dispatch and
-# horca-check-source.yml still work as backups. Concurrent runs queue;
+# horca_check_source.yml still work as backups. Concurrent runs queue;
 # they must not cancel a notarization already in flight.
 
 on:
@@ -96,7 +96,7 @@ jobs:
   build:
     if: github.repository == 'rudironsoni/orca' && (github.event_name != 'push' || !contains(github.event.head_commit.message, '[skip horca-release]'))
     needs: prepare
-    uses: ./.github/workflows/horca-build.yml
+    uses: ./.github/workflows/horca_build.yml
     with:
       sha: ${{ needs.prepare.outputs.source_sha }}
       version: ${{ needs.prepare.outputs.version }}
@@ -108,7 +108,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      # Same-run reuse: named artifacts from prepare + horca-build.yml only.
+      # Same-run reuse: named artifacts from prepare + horca_build.yml only.
       # Never package here — electron-builder stays in the build workflow.
       - name: Download macOS DMGs
         uses: actions/download-artifact@v4
@@ -183,7 +183,7 @@ jobs:
   bump-cask:
     if: github.repository == 'rudironsoni/orca' && (github.event_name != 'push' || !contains(github.event.head_commit.message, '[skip horca-release]'))
     needs: [prepare, publish]
-    uses: ./.github/workflows/bump-horca-cask.yml
+    uses: ./.github/workflows/horca_bump_cask.yml
     with:
       version: ${{ needs.prepare.outputs.version }}
       cask_token: horca

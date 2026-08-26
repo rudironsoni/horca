@@ -27,7 +27,7 @@ brew install --cask rudironsoni/tap/horca@beta
 - Horca's in-app updater is intentionally disabled; `brew upgrade --cask horca`
   (or `horca@beta`) is the update path (neither cask sets `auto_updates`).
 - The stable cask is bumped by Release Horca on `rudironsoni/orca` (it calls
-  `bump-horca-cask.yml` with `cask_token: horca` and waits). Release Horca
+  `horca_bump_cask.yml` with `cask_token: horca` and waits). Release Horca
   beta does the same for `Casks/horca@beta.rb`. This tap's scheduled
   `bump-horca-cask` workflow is a 6-hour backup: it polls stable
   `v*-horca.*` and prerelease `v*-horca.*-beta.*` (never `/releases/latest`)

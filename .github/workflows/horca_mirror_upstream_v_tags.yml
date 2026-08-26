@@ -1,4 +1,4 @@
-name: Mirror upstream v* tags
+name: 'Horca: Mirror upstream v* tags'
 
 # Fork Shepherd does not copy tags. The skill-update round-trip resolves
 # v<appVersion> from resources/skills/release-mapping.json and fails when
