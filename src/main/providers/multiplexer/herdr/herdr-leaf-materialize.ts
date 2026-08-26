@@ -1,15 +1,22 @@
 import type { Project } from '../../../../shared/project-types'
+import type { TerminalTab } from '../../../../shared/terminal-tab-types'
 import {
   claimOrcaPaneBinding,
   collectLeafIds,
   ORCA_BINDING_TOKEN,
   ORCA_METADATA_SOURCE,
   orcaPaneBinding,
-  paneBindingMapKey
+  paneBindingMapKey,
+  rememberOrcaPaneBindings
 } from './herdr-binding-metadata'
-import { findHerdrWorkspaceForWorktree, type HerdrProjectHostGraph } from './ensure-herdr-workspace'
+import {
+  ensureStockHerdrWorkspace,
+  findHerdrWorkspaceForWorktree,
+  type HerdrProjectHostGraph
+} from './ensure-herdr-workspace'
 import type { HerdrHostTransport, HerdrSessionSnapshot } from './herdr-runtime-contract'
 import { unwrapHerdrResponse } from './herdr-runtime-contract'
+import { ensureTabLayout } from './herdr-tab-layout'
 
 export async function materializeHerdrLeafPane(args: {
   transport: HerdrHostTransport
@@ -58,6 +65,75 @@ export async function materializeHerdrLeafPane(args: {
     return claimMaterializedPane(args, reusable, snapshot)
   }
   return null
+}
+
+export async function bindSpawnLeafPane(args: {
+  transport: HerdrHostTransport
+  sessionName: string
+  graph: HerdrProjectHostGraph
+  identity: { projectId: string; worktreeId: string; tabId: string; leafId: string }
+  paneIdsBySessionAndBinding: Map<string, string>
+  liveWorkspaceBindings: ReadonlySet<string>
+  snapshot: () => Promise<HerdrSessionSnapshot>
+}): Promise<string | null> {
+  const worktree =
+    args.graph.worktrees.find((candidate) => candidate.id === args.identity.worktreeId) ??
+    args.graph.worktrees[0]
+  if (!worktree) {
+    return null
+  }
+  const snapshot = await args.snapshot()
+  const tab =
+    args.graph.tabsByWorktreeId[worktree.id]?.find(
+      (candidate) => candidate.id === args.identity.tabId
+    ) ?? syntheticSpawnTab(args.identity.tabId, worktree.id)
+  const layoutRoot = args.graph.layoutsByTabId[args.identity.tabId]?.root
+  const root =
+    layoutRoot && collectLeafIds(layoutRoot).includes(args.identity.leafId)
+      ? layoutRoot
+      : { type: 'leaf' as const, leafId: args.identity.leafId }
+  const workspace = await ensureStockHerdrWorkspace(
+    args.transport,
+    args.sessionName,
+    args.graph.project.id,
+    worktree,
+    tab,
+    root,
+    snapshot,
+    args.liveWorkspaceBindings
+  )
+  args.graph.persistedPaneIdsByLeafId ??= {}
+  await ensureTabLayout(
+    args.transport,
+    args.sessionName,
+    args.graph.project.id,
+    workspace.workspace_id,
+    tab,
+    root,
+    snapshot,
+    args.graph.persistedPaneIdsByLeafId
+  )
+  rememberOrcaPaneBindings(
+    args.paneIdsBySessionAndBinding,
+    args.sessionName,
+    args.graph.project.id,
+    snapshot
+  )
+  const binding = orcaPaneBinding(args.identity.projectId, args.identity.leafId)
+  return args.paneIdsBySessionAndBinding.get(paneBindingMapKey(args.sessionName, binding)) ?? null
+}
+
+function syntheticSpawnTab(tabId: string, worktreeId: string): TerminalTab {
+  return {
+    id: tabId,
+    ptyId: null,
+    worktreeId,
+    title: tabId,
+    customTitle: null,
+    color: null,
+    sortOrder: 0,
+    createdAt: 0
+  }
 }
 
 function desiredLeafBindings(

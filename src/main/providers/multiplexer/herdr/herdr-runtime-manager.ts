@@ -22,7 +22,7 @@ import {
   collectLeafIds
 } from './herdr-binding-metadata'
 import { closeUnboundStockHerdrTabs, ensureTabLayout } from './herdr-tab-layout'
-import { materializeHerdrLeafPane } from './herdr-leaf-materialize'
+import { bindSpawnLeafPane, materializeHerdrLeafPane } from './herdr-leaf-materialize'
 import type { HerdrBindingAgentState } from './herdr-pty-binding-queries'
 import {
   HerdrEventRefresh,
@@ -242,6 +242,24 @@ export class HerdrRuntimeManager {
       paneIdsBySessionAndBinding: this.paneIdsBySessionAndBinding,
       snapshot: () => this.snapshot(sessionName)
     })
+  }
+
+  async bindSpawnLeafPane(
+    graph: HerdrProjectHostGraph,
+    identity: { projectId: string; worktreeId: string; tabId: string; leafId: string }
+  ): Promise<string | null> {
+    const sessionName = herdrSessionNameForProject(graph.project, this.sharedName?.())
+    return runKeyedSerializedOperation(this.reconcileQueues, sessionName, () =>
+      bindSpawnLeafPane({
+        transport: this.transport,
+        sessionName,
+        graph,
+        identity,
+        paneIdsBySessionAndBinding: this.paneIdsBySessionAndBinding,
+        liveWorkspaceBindings: this.liveWorkspaceBindings(sessionName, identity.worktreeId),
+        snapshot: () => this.snapshot(sessionName)
+      })
+    )
   }
 
   private async snapshot(sessionName: string): Promise<HerdrSessionSnapshot> {

@@ -56,6 +56,9 @@ export async function spawnHerdrPtyPane(args: {
       )
     }
   }
+  if (!paneId) {
+    paneId = await runtime.manager.bindSpawnLeafPane(target.graph, target.identity)
+  }
   await target.activateHerdr?.()
   const resolvedPaneId =
     paneId ??

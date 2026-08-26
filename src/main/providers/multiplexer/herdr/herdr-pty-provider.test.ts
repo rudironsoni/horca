@@ -1,9 +1,42 @@
 import { describe, expect, it, vi } from 'vitest'
+import { Buffer } from 'node:buffer'
 import { herdrSessionNameForProject } from '../../../../shared/herdr-session-identity'
-import type { HerdrTerminalController } from './herdr-runtime-contract'
+import type { HerdrTerminalController, HerdrTerminalFrame } from './herdr-runtime-contract'
 import { decodeHerdrPtyId, HerdrPtyProvider } from './herdr-pty-provider'
 import { findLegacyMigrationBlockers } from './herdr-pty-types'
 import { target, transport } from './herdr-pty-provider-test-transport'
+import { project, singleLeafGraph, stockTransport } from './herdr-runtime-manager-test-fixtures'
+
+function withObserve(host: ReturnType<typeof stockTransport>) {
+  host.transport.controlTerminal = vi.fn((_session, _pane, options) => {
+    const frameListeners = new Set<(frame: HerdrTerminalFrame) => void>()
+    const observe: HerdrTerminalController = {
+      write: vi.fn(),
+      resize: vi.fn(),
+      release: vi.fn(),
+      onFrame: (listener) => {
+        frameListeners.add(listener)
+        return () => frameListeners.delete(listener)
+      },
+      onClosed: () => () => undefined
+    }
+    setTimeout(() => {
+      for (const listener of frameListeners) {
+        listener({
+          type: 'terminal.frame',
+          seq: 1,
+          encoding: 'ansi',
+          width: options?.cols ?? 80,
+          height: options?.rows ?? 24,
+          full: true,
+          bytes: Buffer.from('prompt$ ', 'utf8').toString('base64')
+        })
+      }
+    }, 0)
+    return observe
+  })
+  return host
+}
 
 describe('HerdrPtyProvider', () => {
   it('finds legacy migration blockers', () => {
@@ -16,6 +49,82 @@ describe('HerdrPtyProvider', () => {
       'terminal-1',
       'setup-1'
     ])
+  })
+
+  it('spawns a leaf on an empty stock session after reconcile', async () => {
+    const host = withObserve(stockTransport())
+    const graph = singleLeafGraph()
+    const provider = new HerdrPtyProvider(
+      () => host.transport,
+      async () => ({
+        project: project(),
+        graph,
+        identity: {
+          version: 2,
+          hostId: 'local',
+          projectId: 'project-1',
+          worktreeId: 'worktree-1',
+          tabId: 'tab-1',
+          leafId: 'leaf-1'
+        }
+      })
+    )
+
+    const spawned = await provider.spawn({
+      cols: 80,
+      rows: 24,
+      cwd: '/repo',
+      worktreeId: 'worktree-1',
+      tabId: 'tab-1',
+      paneKey: 'tab-1:leaf-1'
+    })
+
+    expect(decodeHerdrPtyId(spawned.id)).toMatchObject({
+      leafId: 'leaf-1',
+      paneId: 'w1:p1'
+    })
+  })
+
+  it('spawns a leaf that the persisted tab layout does not name', async () => {
+    const spawnLeaf = '5aba23d2-fcee-4887-9bd6-8a3235c3b1d7'
+    const host = withObserve(stockTransport())
+    const graph = {
+      ...singleLeafGraph(),
+      layoutsByTabId: {
+        'tab-1': {
+          root: { type: 'leaf' as const, leafId: 'leaf-old' },
+          activeLeafId: 'leaf-old',
+          expandedLeafId: null
+        }
+      }
+    }
+    const provider = new HerdrPtyProvider(
+      () => host.transport,
+      async () => ({
+        project: project(),
+        graph,
+        identity: {
+          version: 2,
+          hostId: 'local',
+          projectId: 'project-1',
+          worktreeId: 'worktree-1',
+          tabId: 'tab-1',
+          leafId: spawnLeaf
+        }
+      })
+    )
+
+    const spawned = await provider.spawn({
+      cols: 80,
+      rows: 24,
+      cwd: '/repo',
+      worktreeId: 'worktree-1',
+      tabId: 'tab-1',
+      paneKey: `tab-1:${spawnLeaf}`
+    })
+
+    expect(decodeHerdrPtyId(spawned.id)?.leafId).toBe(spawnLeaf)
+    expect(decodeHerdrPtyId(spawned.id)?.paneId).toBeTruthy()
   })
 
   it('mounts, identifies, reads, and explicitly closes a stock Herdr pane', async () => {

@@ -590,6 +590,51 @@ describe('HerdrRuntimeManager stock reconciliation', () => {
       'w1:p9'
     )
   })
+
+  it('mints a second herdr tab when the only stock tab is already bound to another leaf', async () => {
+    const host = stockTransport()
+    const manager = new HerdrRuntimeManager(host.transport)
+    await manager.reconcileProjectHost(singleLeafGraph())
+    const firstPane = manager.getPaneId(
+      herdrSessionNameForProject(project()),
+      'project-1',
+      'leaf-1'
+    )
+    expect(firstPane).toBeTruthy()
+
+    const nextLeaf = '5aba23d2-fcee-4887-9bd6-8a3235c3b1d7'
+    const paneId = await manager.bindSpawnLeafPane(
+      {
+        ...singleLeafGraph(),
+        tabsByWorktreeId: {
+          'worktree-1': [tab(), { ...tab(), id: 'tab-2', title: 'Terminal' }]
+        },
+        layoutsByTabId: {
+          'tab-1': singleLeafGraph().layoutsByTabId['tab-1'],
+          'tab-2': {
+            root: { type: 'leaf', leafId: nextLeaf },
+            activeLeafId: nextLeaf,
+            expandedLeafId: null
+          }
+        }
+      },
+      {
+        projectId: 'project-1',
+        worktreeId: 'worktree-1',
+        tabId: 'tab-2',
+        leafId: nextLeaf
+      }
+    )
+
+    expect(paneId).toBeTruthy()
+    expect(paneId).not.toBe(firstPane)
+    expect(
+      host.requestMock.mock.calls.filter(([, method]) => method === 'tab.create')
+    ).toHaveLength(1)
+    expect(manager.getPaneId(herdrSessionNameForProject(project()), 'project-1', 'leaf-1')).toBe(
+      firstPane
+    )
+  })
 })
 
 describe('HerdrRuntimeManager event-driven reconcile', () => {

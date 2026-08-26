@@ -181,6 +181,38 @@ describe('Herdr PTY target resolution', () => {
     expect(target?.graph.layoutsByTabId['floating-tab']).toEqual(persistedLayout)
   })
 
+  it('synthesizes a layout for the spawn leaf when persisted leaves belong to another pane', async () => {
+    const spawnLeaf = '5aba23d2-fcee-4887-9bd6-8a3235c3b1d7'
+    const store = {
+      getSettings: () => ({ terminalBackendDefault: 'herdr' }),
+      getProjects: () => [],
+      getRepo: () => undefined,
+      getWorkspaceSession: () => ({
+        tabsByWorktree: {},
+        terminalLayoutsByTabId: {
+          'floating-tab': {
+            root: { type: 'leaf' as const, leafId },
+            activeLeafId: leafId,
+            expandedLeafId: null
+          }
+        }
+      })
+    } as unknown as Store
+
+    const target = await createLocalHerdrPtyTargetResolver(store)(
+      {
+        ...floatingSpawnOptions(),
+        paneKey: `floating-tab:${spawnLeaf}`
+      },
+      null
+    )
+
+    expect(target?.graph.layoutsByTabId['floating-tab'].root).toEqual({
+      type: 'leaf',
+      leafId: spawnLeaf
+    })
+  })
+
   it('synthesizes the spawning pane when the renderer layout is not materialized yet', async () => {
     const store = {
       getSettings: () => ({ terminalBackendDefault: 'herdr' }),
