@@ -286,6 +286,7 @@ export function getDefaultSettings(homedir: string): GlobalSettings {
     artifactsEnabled: true,
     artifactSharingEnabled: false,
     agentSkillSharingEnabled: false,
+    nestedWorkerMaxDepth: 1,
     showArtifactsButton: false,
     showSkillsButton: false,
     showMobileButton: true,
