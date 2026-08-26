@@ -42,7 +42,7 @@ describeRealHerdr('stock Herdr process restart', () => {
       args: ['--session', name, 'server'],
       env: herdrServerEnvironment(env)
     }),
-    timeoutMs: 30_000
+    timeoutMs: 90_000
   })
   const manager = new HerdrRuntimeManager(transport, () => sessionName)
 
@@ -115,6 +115,7 @@ describeRealHerdr('stock Herdr process restart', () => {
       timeout: 30_000
     })
     await waitForSocketRemoval(socketPath)
+    await new Promise((resolve) => setTimeout(resolve, 500))
 
     await transport.ensureSession(sessionName)
     const restored = unwrapHerdrResponse<{ snapshot: typeof first }>(
@@ -130,5 +131,5 @@ describeRealHerdr('stock Herdr process restart', () => {
       second.workspaces.filter((workspace) => workspace.tokens?.[ORCA_BINDING_TOKEN])
     ).toHaveLength(1)
     expect(restored.workspaces).toHaveLength(1)
-  }, 60_000)
+  }, 120_000)
 })

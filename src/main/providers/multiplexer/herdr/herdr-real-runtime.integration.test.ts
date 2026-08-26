@@ -186,48 +186,24 @@ describeRealHerdr('stock Herdr runtime integration', () => {
   it('interrupts a running command with Ctrl+C through pane.send_keys', async () => {
     await transport.ensureSession(sessionName)
     const paneId = await createPane(transport, sessionName, configHome, 'Orca sigint')
-    unwrapHerdrResponse(
-      await transport.request(sessionName, 'pane.send_text', {
-        pane_id: paneId,
-        text: 'sleep 30; echo SLEEP_DONE'
-      })
-    )
-    unwrapHerdrResponse(
-      await transport.request(sessionName, 'pane.send_keys', {
-        pane_id: paneId,
-        keys: ['Enter']
-      })
-    )
-    await waitForPaneText(transport, sessionName, paneId, (text) => text.includes('sleep 30'))
-    await writeProductInput(transport, sessionName, paneId, '\x03')
-
-    const text = await waitForPaneText(transport, sessionName, paneId, (value) =>
-      value.includes('^C')
-    )
-    expect(text).toContain('^C')
-    expect(text.split('\n').some((line) => line.trim() === 'SLEEP_DONE')).toBe(false)
+    await runInterruptibleSleep(transport, sessionName, paneId, 'keys', async (id) => {
+      unwrapHerdrResponse(
+        await transport.request(sessionName, 'pane.send_keys', { pane_id: id, keys: ['Enter'] })
+      )
+    })
   }, 30_000)
 
   it('interrupts a running command through exclusive session-control input', async () => {
     await transport.ensureSession(sessionName)
     const paneId = await createPane(transport, sessionName, configHome, 'Orca sigint stream')
     const controller = transport.controlTerminal(sessionName, paneId, { cols: 80, rows: 24 })
-    unwrapHerdrResponse(
-      await transport.request(sessionName, 'pane.send_text', {
-        pane_id: paneId,
-        text: 'sleep 30; echo STREAM_SLEEP_DONE'
+    try {
+      await runInterruptibleSleep(transport, sessionName, paneId, 'stream', async () => {
+        controller.write('\r')
       })
-    )
-    controller.write('\r')
-    await waitForPaneText(transport, sessionName, paneId, (text) => text.includes('sleep 30'))
-    await writeProductInput(transport, sessionName, paneId, '\x03')
-
-    const text = await waitForPaneText(transport, sessionName, paneId, (value) =>
-      value.includes('^C')
-    )
-    controller.release()
-    expect(text).toContain('^C')
-    expect(text.split('\n').some((line) => line.trim() === 'STREAM_SLEEP_DONE')).toBe(false)
+    } finally {
+      controller.release()
+    }
   }, 30_000)
 
   it.skipIf(process.platform === 'win32')(
@@ -269,6 +245,43 @@ describeRealHerdr('stock Herdr runtime integration', () => {
     30_000
   )
 })
+
+function paneHasLine(text: string, line: string): boolean {
+  return text.split('\n').some((entry) => entry.trim() === line)
+}
+
+async function delay(ms: number): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+async function runInterruptibleSleep(
+  transport: HerdrHostTransport,
+  sessionName: string,
+  paneId: string,
+  token: string,
+  submit: (paneId: string) => Promise<void>
+): Promise<void> {
+  const started = `INT_START_${token}_${process.pid}`
+  const done = `INT_DONE_${token}_${process.pid}`
+  unwrapHerdrResponse(
+    await transport.request(sessionName, 'pane.send_text', {
+      pane_id: paneId,
+      text: `printf '%s\\n' ${started}; sleep 30; printf '%s\\n' ${done}`
+    })
+  )
+  await submit(paneId)
+  await waitForPaneText(transport, sessionName, paneId, (text) => paneHasLine(text, started))
+  await delay(400)
+  await writeProductInput(transport, sessionName, paneId, '\x03')
+  const interrupted = await waitForPaneText(transport, sessionName, paneId, (value) =>
+    value.includes('^C')
+  )
+  expect(interrupted).toContain('^C')
+  expect(paneHasLine(interrupted, done)).toBe(false)
+  await delay(500)
+  const later = await waitForPaneText(transport, sessionName, paneId, () => true)
+  expect(paneHasLine(later, done)).toBe(false)
+}
 
 async function createPane(
   transport: HerdrHostTransport,
