@@ -1,5 +1,8 @@
 'use strict'
 
+// Keep in lockstep with horca-vite-distribution.ts. Node scripts require this
+// file; tsc forbids import.meta in the TypeScript copy (CJS emit).
+
 const { homedir } = require('node:os')
 const { join } = require('node:path')
 
