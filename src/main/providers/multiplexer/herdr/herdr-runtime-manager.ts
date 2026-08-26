@@ -25,64 +25,15 @@ import { closeUnboundStockHerdrTabs, ensureTabLayout } from './herdr-tab-layout'
 import { materializeHerdrLeafPane } from './herdr-leaf-materialize'
 import type { HerdrBindingAgentState } from './herdr-pty-binding-queries'
 import {
-  collectHerdrSurfaceActions,
-  resolveHerdrPaneIdentities,
-  type HerdrOrcaSurfaceAction
-} from './herdr-orca-surface-actions'
-import {
-  claimAndPresentHerdrSurfaces,
-  collectUnboundHerdrSurfaces,
-  type HerdrImportedSurface,
-  type HerdrSurfacePresenter
-} from './herdr-orca-surface-import'
+  HerdrEventRefresh,
+  type HerdrLivePaneListener,
+  type HerdrPaneExitListener,
+  type HerdrSurfaceSync
+} from './herdr-runtime-event-refresh'
+export type { HerdrLivePaneListener, HerdrPaneExitListener, HerdrSurfaceSync }
 
 export type HerdrAgentRollup = {
   agents: HerdrBindingAgentState[]
-}
-
-const RECONCILE_EVENT_DEBOUNCE_MS = 150
-
-const RECONCILE_EVENT_KINDS = new Set([
-  'workspace.created',
-  'workspace.updated',
-  'workspace.metadata_updated',
-  'workspace.closed',
-  'workspace.renamed',
-  'workspace.moved',
-  'workspace.reordered',
-  'workspace.focused',
-  'worktree.created',
-  'worktree.opened',
-  'worktree.removed',
-  'tab.created',
-  'tab.closed',
-  'tab.renamed',
-  'tab.moved',
-  'tab.focused',
-  'pane.created',
-  'pane.closed',
-  'pane.updated',
-  'pane.focused',
-  'pane.moved',
-  'pane.exited',
-  'layout.updated'
-])
-
-export type HerdrLivePaneListener = (sessionName: string, paneIds: ReadonlySet<string>) => void
-export type HerdrPaneExitListener = (sessionName: string, paneId: string) => void
-
-function herdrEventKind(event: string): string {
-  return event.includes('.') ? event : event.replaceAll('_', '.')
-}
-
-function herdrEventPaneId(data: Record<string, unknown>): string | null {
-  return typeof data.pane_id === 'string' ? data.pane_id : null
-}
-
-export type HerdrSurfaceSync = {
-  persist: (surface: HerdrImportedSurface) => void
-  present?: HerdrSurfacePresenter
-  presentAction?: (action: HerdrOrcaSurfaceAction) => void
 }
 
 function graphKey(sessionName: string, projectId: string): string {
@@ -93,18 +44,28 @@ export class HerdrRuntimeManager {
   private readonly paneIdsBySessionAndBinding = new Map<string, string>()
   private readonly reconcileQueues = new Map<string, Promise<void>>()
   private readonly graphsByKey = new Map<string, HerdrProjectHostGraph>()
-  private readonly eventRefreshTimers = new Map<string, NodeJS.Timeout>()
   private readonly lastSnapshots = new Map<string, HerdrSessionSnapshot>()
-  private eventUnsubscribe: (() => void) | null = null
+  private readonly eventRefresh: HerdrEventRefresh
 
   constructor(
     private readonly transport: HerdrHostTransport,
-    // Live store-backed shared session name; read per call because settings can change while the manager is cached.
     private readonly sharedName?: () => string | undefined,
     private readonly onLivePaneIds?: HerdrLivePaneListener,
     private readonly surfaceSync?: HerdrSurfaceSync,
     private readonly onPaneExited?: HerdrPaneExitListener
-  ) {}
+  ) {
+    this.eventRefresh = new HerdrEventRefresh({
+      transport: this.transport,
+      graphsByKey: this.graphsByKey,
+      reconcileQueues: this.reconcileQueues,
+      paneIdsBySessionAndBinding: this.paneIdsBySessionAndBinding,
+      lastSnapshots: this.lastSnapshots,
+      surfaceSync: this.surfaceSync,
+      onLivePaneIds: this.onLivePaneIds,
+      onPaneExited: this.onPaneExited,
+      snapshot: (sessionName) => this.snapshot(sessionName)
+    })
+  }
 
   private paneHintsForRoot(
     sessionName: string,
@@ -150,7 +111,7 @@ export class HerdrRuntimeManager {
     return runKeyedSerializedOperation(this.reconcileQueues, sessionName, async () => {
       await this.transport.ensureSession(sessionName)
       this.graphsByKey.set(graphKey(sessionName, graph.project.id), graph)
-      this.ensureEventSubscription()
+      this.eventRefresh.ensureSubscription()
       let snapshot = await this.snapshot(sessionName)
       await enrichHerdrWorkspaceCheckouts(this.transport, sessionName, snapshot)
 
@@ -217,159 +178,14 @@ export class HerdrRuntimeManager {
         graph.project.id,
         snapshot
       )
-      this.publishLivePaneIds(sessionName, snapshot)
-      // Why: at session start the Orca session is the only authority that
-      // decides which panes exist. Importing unbound Herdr surfaces here
-      // would mint Orca terminals out of stray panes left by earlier runs;
-      // deliberate Herdr TUI panes still arrive through the event-driven
-      // reconcile in refreshFromEvent.
+      this.onLivePaneIds?.(sessionName, new Set(snapshot.panes.map((pane) => pane.pane_id)))
       this.lastSnapshots.set(sessionName, snapshot)
       return snapshot
     })
   }
 
-  // Event-driven reconcile: on the socket transport, structural events refresh
-  // the snapshot and re-resolve pane bindings without a full re-reconcile.
-  private ensureEventSubscription(): void {
-    if (this.eventUnsubscribe || !this.transport.onEvent) {
-      return
-    }
-    this.eventUnsubscribe = this.transport.onEvent((event) => {
-      const kind = herdrEventKind(event.event)
-      const sessionNames = event.sessionName
-        ? [event.sessionName]
-        : [...this.graphsByKey.keys()].map((key) => key.slice(0, key.indexOf('\n')))
-      if (kind === 'pane.exited') {
-        const paneId = herdrEventPaneId(event.data)
-        if (paneId) {
-          for (const sessionName of sessionNames) {
-            this.onPaneExited?.(sessionName, paneId)
-          }
-        }
-      }
-      if (!RECONCILE_EVENT_KINDS.has(kind) && !RECONCILE_EVENT_KINDS.has(event.event)) {
-        return
-      }
-      for (const sessionName of sessionNames) {
-        this.scheduleEventRefresh(sessionName)
-      }
-    })
-  }
-
-  private scheduleEventRefresh(sessionName: string): void {
-    const existing = this.eventRefreshTimers.get(sessionName)
-    if (existing) {
-      clearTimeout(existing)
-    }
-    const timer = setTimeout(() => {
-      this.eventRefreshTimers.delete(sessionName)
-      void this.refreshFromEvent(sessionName).catch((error) => {
-        console.error(
-          `[herdr] Event reconcile for ${sessionName} failed:`,
-          error instanceof Error ? error.message : error
-        )
-      })
-    }, RECONCILE_EVENT_DEBOUNCE_MS)
-    this.eventRefreshTimers.set(sessionName, timer)
-  }
-
-  private graphsForSession(sessionName: string): HerdrProjectHostGraph[] {
-    const prefix = `${sessionName}\n`
-    return [...this.graphsByKey.entries()]
-      .filter(([key]) => key.startsWith(prefix))
-      .map(([, graph]) => graph)
-  }
-
-  private publishLivePaneIds(sessionName: string, snapshot: HerdrSessionSnapshot): void {
-    this.onLivePaneIds?.(sessionName, new Set(snapshot.panes.map((pane) => pane.pane_id)))
-  }
-
-  private async refreshFromEvent(sessionName: string): Promise<void> {
-    const graphs = this.graphsForSession(sessionName)
-    if (graphs.length === 0) {
-      return
-    }
-    await runKeyedSerializedOperation(this.reconcileQueues, sessionName, async () => {
-      const snapshot = await this.snapshot(sessionName)
-      for (const graph of graphs) {
-        rememberOrcaPaneBindings(
-          this.paneIdsBySessionAndBinding,
-          sessionName,
-          graph.project.id,
-          snapshot
-        )
-      }
-      this.publishLivePaneIds(sessionName, snapshot)
-      await this.importUnboundSurfaces(sessionName, graphs, snapshot)
-      this.applyHerdrSurfaceActions(sessionName, graphs, snapshot)
-      this.lastSnapshots.set(sessionName, snapshot)
-    })
-  }
-
-  private applyHerdrSurfaceActions(
-    sessionName: string,
-    graphs: HerdrProjectHostGraph[],
-    snapshot: HerdrSessionSnapshot
-  ): void {
-    if (!this.surfaceSync?.presentAction) {
-      this.lastSnapshots.set(sessionName, snapshot)
-      return
-    }
-    const actions = collectHerdrSurfaceActions(
-      this.lastSnapshots.get(sessionName) ?? null,
-      snapshot,
-      resolveHerdrPaneIdentities(sessionName, graphs, this.paneIdsBySessionAndBinding)
-    )
-    for (const action of actions) {
-      this.surfaceSync.presentAction(action)
-    }
-  }
-
-  private async importUnboundSurfaces(
-    sessionName: string,
-    graphs: HerdrProjectHostGraph[],
-    snapshot: HerdrSessionSnapshot
-  ): Promise<void> {
-    if (!this.surfaceSync) {
-      return
-    }
-    for (const graph of graphs) {
-      const surfaces = collectUnboundHerdrSurfaces(
-        sessionName,
-        graph,
-        snapshot,
-        this.paneIdsBySessionAndBinding
-      )
-      if (surfaces.length === 0) {
-        continue
-      }
-      await claimAndPresentHerdrSurfaces(
-        this.transport,
-        sessionName,
-        graph.project.id,
-        snapshot,
-        surfaces,
-        this.surfaceSync.persist,
-        this.surfaceSync.present
-      )
-      rememberOrcaPaneBindings(
-        this.paneIdsBySessionAndBinding,
-        sessionName,
-        graph.project.id,
-        snapshot
-      )
-    }
-  }
-
   dispose(): void {
-    for (const timer of this.eventRefreshTimers.values()) {
-      clearTimeout(timer)
-    }
-    this.eventRefreshTimers.clear()
-    if (this.eventUnsubscribe) {
-      this.eventUnsubscribe()
-      this.eventUnsubscribe = null
-    }
+    this.eventRefresh.dispose()
     this.graphsByKey.clear()
     this.paneIdsBySessionAndBinding.clear()
     this.lastSnapshots.clear()
@@ -383,7 +199,6 @@ export class HerdrRuntimeManager {
     return { agents: response.agents }
   }
 
-  /** Session names this manager has reconciled, for per-session agent scans. */
   listSessionNames(): string[] {
     return [...new Set([...this.graphsByKey.keys()].map((key) => key.slice(0, key.indexOf('\n'))))]
   }
@@ -408,8 +223,6 @@ export class HerdrRuntimeManager {
     return this.transport.controlTerminal(sessionName, paneId, options)
   }
 
-  // Why: a spawn whose leaf never reconciled to a pane must claim an existing
-  // workspace pane instead of failing the whole tab.
   async materializeLeafPane(
     project: Project,
     leafId: string,

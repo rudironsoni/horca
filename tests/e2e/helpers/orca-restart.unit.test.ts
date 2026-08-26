@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { restartSafeEnvironment } from './orca-restart'
+import { restartSafeEnvironment } from './orca-restart-environment'
 
 describe('restartSafeEnvironment', () => {
   it('removes Electron run-as-node and undefined launch overlays', () => {

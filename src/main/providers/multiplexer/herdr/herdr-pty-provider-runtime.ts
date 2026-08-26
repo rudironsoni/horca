@@ -1,8 +1,5 @@
-import { randomUUID } from 'node:crypto'
-import { herdrSessionNameForProject } from '../../../../shared/herdr-session-identity'
-import type { PtyDataEvent, PtySpawnOptions, PtySpawnResult } from '../../types'
-import { assertHerdrMigrationReady, decodeHerdrPtyId } from './herdr-pty-types'
-import type { HerdrPtyBinding, HerdrPtyIdentity, HerdrPtyTarget } from './herdr-pty-types'
+import type { PtyDataEvent } from '../../types'
+import type { HerdrPtyBinding, HerdrPtyTarget } from './herdr-pty-types'
 export { decodeHerdrPtyId, encodeHerdrPtyId } from './herdr-pty-types'
 import {
   HerdrRuntimeManager,
@@ -10,16 +7,10 @@ import {
   type HerdrPaneExitListener,
   type HerdrSurfaceSync
 } from './herdr-runtime-manager'
-import type { TuiAgent } from '../../../../shared/tui-agent'
 import { unwrapHerdrResponse, type HerdrHostTransport } from './herdr-runtime-contract'
 export { awaitFirstFrame } from './herdr-pty-frames'
 import { bytesFromTerminalLogicalKey } from '../../../../shared/terminal-logical-key'
-import {
-  applyHerdrPaneSize,
-  cancelHerdrPaneSizePulse,
-  openSharedHerdrPaneController,
-  writeSharedHerdrInput
-} from './herdr-pty-attach'
+import { cancelHerdrPaneSizePulse, writeSharedHerdrInput } from './herdr-pty-attach'
 
 const transportIds = new WeakMap<HerdrHostTransport, number>()
 let nextTransportId = 1
@@ -32,66 +23,6 @@ function runtimeKey(target: HerdrPtyTarget, transport: HerdrHostTransport): stri
     transportIds.set(transport, id)
   }
   return `${target.identity.hostId}\n${id}`
-}
-
-const HERDR_AGENT_KINDS = new Set([
-  'amp',
-  'claude',
-  'cline',
-  'codex',
-  'copilot',
-  'cursor',
-  'devin',
-  'droid',
-  'gemini',
-  'grok',
-  'hermes',
-  'kilo',
-  'kimi',
-  'kiro',
-  'omp',
-  'opencode',
-  'pi'
-])
-
-export function herdrAgentKind(agent: TuiAgent | undefined): string | null {
-  if (!agent || !HERDR_AGENT_KINDS.has(agent)) {
-    return null
-  }
-  return agent
-}
-
-export function herdrAgentName(leafId: string): string {
-  const slug = leafId.replace(/[^a-z0-9]/gi, '').toLowerCase()
-  const body = (slug || 'pane').slice(0, 30)
-  return `o${body}`.slice(0, 32)
-}
-
-export async function startHerdrAgentIfRequested(args: {
-  sessionId?: string
-  launchAgent?: TuiAgent
-  command?: string
-  sessionName: string
-  leafId: string
-  paneId: string
-  request: (sessionName: string, method: string, params: unknown) => Promise<unknown>
-  writeCommand: (text: string) => void
-}): Promise<void> {
-  if (args.sessionId) {
-    return
-  }
-  const kind = herdrAgentKind(args.launchAgent)
-  if (kind) {
-    await args.request(args.sessionName, 'agent.start', {
-      name: herdrAgentName(args.leafId),
-      kind,
-      pane_id: args.paneId
-    })
-    return
-  }
-  if (args.command) {
-    args.writeCommand(`${args.command}\r`)
-  }
 }
 
 function bindController(
@@ -295,78 +226,6 @@ export function emitHerdrPtyReplay(
 ): void {
   for (const listener of listeners) {
     listener(payload)
-  }
-}
-
-export async function attachHerdrPty(args: {
-  id: string
-  bindings: Map<string, HerdrPtyBinding>
-  resolveTarget: (
-    opts: PtySpawnOptions,
-    identity: HerdrPtyIdentity
-  ) => Promise<HerdrPtyTarget | null>
-  runtimeFor: (target: HerdrPtyTarget) => {
-    manager: HerdrRuntimeManager
-    transport: HerdrHostTransport
-  }
-  sharedName?: () => string | undefined
-  bind: (
-    input: Omit<HerdrPtyBinding, 'sequenceChars' | 'snapshot' | 'detached' | 'unsubscribe'>
-  ) => HerdrPtyBinding
-  waitForFirstFrame: (binding: HerdrPtyBinding) => Promise<{ data: string } | null>
-  emitReplay: (payload: { id: string; data: string }) => void
-}): Promise<Pick<PtySpawnResult, 'providerSequence'> | void> {
-  if (args.bindings.has(args.id)) {
-    return
-  }
-  const identity = decodeHerdrPtyId(args.id)
-  if (!identity) {
-    throw new Error(`Invalid herdr PTY ID: ${args.id}`)
-  }
-  const target = await args.resolveTarget(
-    {
-      cols: 80,
-      rows: 24,
-      sessionId: args.id,
-      worktreeId: identity.worktreeId,
-      tabId: identity.tabId,
-      paneKey: `${identity.tabId}:${identity.leafId}`
-    },
-    identity
-  )
-  if (!target) {
-    throw new Error(`Cannot resolve persisted Herdr PTY ${args.id}`)
-  }
-  await assertHerdrMigrationReady(target)
-  const runtime = args.runtimeFor(target)
-  await runtime.manager.reconcileProjectHost(target.graph)
-  await target.activateHerdr?.()
-  const sessionName = herdrSessionNameForProject(target.project, args.sharedName?.())
-  const paneId =
-    runtime.manager.getPaneId(sessionName, identity.projectId, identity.leafId) ?? identity.paneId
-  if (!paneId) {
-    throw new Error(`Herdr pane is not reconciled: ${identity.leafId}`)
-  }
-  const controller = openSharedHerdrPaneController(runtime.transport, sessionName, paneId, {
-    cols: 80,
-    rows: 24
-  })
-  const binding = args.bind({
-    id: args.id,
-    controller,
-    transport: runtime.transport,
-    identity,
-    paneId,
-    sessionName,
-    incarnationId: randomUUID(),
-    cwd: '',
-    cols: 80,
-    rows: 24
-  })
-  applyHerdrPaneSize(binding)
-  const firstFrame = await args.waitForFirstFrame(binding)
-  if (firstFrame) {
-    args.emitReplay({ id: args.id, data: firstFrame.data })
   }
 }
 

@@ -11,7 +11,7 @@ import {
   type HerdrPtyIdentity,
   type HerdrPtyTarget
 } from './herdr-pty-types'
-import { startHerdrAgentIfRequested } from './herdr-pty-provider-runtime'
+import { startHerdrAgentIfRequested } from './herdr-agent-kind'
 import {
   applyHerdrPaneSize,
   openSharedHerdrPaneController,

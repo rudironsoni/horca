@@ -77,9 +77,22 @@ describe('fork upstream overlay guard', () => {
     )
     expect(isDeniedOverlayPath('src/renderer/src/i18n/locales/en.json')).toBe(true)
     expect(classifyForkPath('src/renderer/src/i18n/locales/en.json', 'overlay')).toBe('denied')
-    expect(classifyForkPath('src/main/runtime/orca-runtime.ts', 'overlay')).toBe('unexpected')
+    expect(classifyForkPath('src/main/runtime/orca-runtime.ts', 'overlay')).toBe('allowed')
+    expect(classifyForkPath('src/main/not-an-allowlisted-overlay.ts', 'overlay')).toBe('unexpected')
     expect(classifyForkPath('src/shared/pairing.ts', 'overlay')).toBe('allowed')
     expect(classifyForkPath('src/renderer/src/web/web-pairing.ts', 'overlay')).toBe('allowed')
+  })
+
+  it('allows listed fork-only files under tests/e2e while still denying overlays there', () => {
+    expect(classifyForkPath('tests/e2e/helpers/herdr-terminal-runtime.ts', 'fork-only')).toBe(
+      'allowed'
+    )
+    expect(classifyForkPath('tests/e2e/helpers/herdr-terminal-runtime.ts', 'overlay')).toBe(
+      'denied'
+    )
+    expect(
+      classifyForkPath('src/main/providers/multiplexer/herdr/herdr-agent-kind.ts', 'fork-only')
+    ).toBe('allowed')
   })
 
   it('rejects unknown overlays and stale allowlist entries', () => {

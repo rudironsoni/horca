@@ -9,6 +9,8 @@ import { pathToFileURL } from 'node:url'
 // deltas conflict every time upstream ships translations.
 export const DENIED_OVERLAY_PREFIXES = ['tests/e2e/', 'src/renderer/src/i18n/locales/']
 
+export const FORK_ONLY_PREFIXES = ['src/main/providers/multiplexer/herdr/']
+
 export const FORK_ONLY_PATHS = new Set([
   '.github/workflows/horca_overlay_guard.yml',
   '.github/workflows/horca_shepherd.yml',
@@ -50,7 +52,29 @@ export const FORK_ONLY_PATHS = new Set([
   'src/shared/distribution-identity.ts',
   'src/shared/horca-pairing.test.ts',
   'src/shared/distribution-update-copy.ts',
-  'src/shared/distribution-update-copy.test.ts'
+  'src/shared/distribution-update-copy.test.ts',
+  'config/herdr-version.json',
+  'config/scripts/download-herdr-release.mjs',
+  'config/scripts/isolate-lefthook-hooks.ts',
+  'config/scripts/run-herdr-stock-integration.mjs',
+  'src/main/ipc/pty/ipc/terminal-layout-snapshot.ts',
+  'src/main/persistence-herdr.test.ts',
+  'src/main/runtime/orchestration/__snapshots__/preamble.test.js.snap',
+  'src/renderer/src/components/settings/ProjectTerminalBackendSetting.test.tsx',
+  'src/renderer/src/components/settings/ProjectTerminalBackendSetting.tsx',
+  'src/renderer/src/components/settings/TerminalBackendSection.test.tsx',
+  'src/renderer/src/components/settings/TerminalBackendSection.tsx',
+  'src/renderer/src/components/terminal-pane/pty-logical-write.ts',
+  'src/shared/herdr-session-identity.test.ts',
+  'src/shared/herdr-session-identity.ts',
+  'src/shared/terminal-backend.test.ts',
+  'src/shared/terminal-backend.ts',
+  'src/shared/terminal-logical-key.test.ts',
+  'src/shared/terminal-logical-key.ts',
+  'tests/e2e/helpers/herdr-terminal-runtime.ts',
+  'tests/e2e/helpers/orca-restart-environment.ts',
+  'tests/e2e/helpers/orca-restart.unit.test.ts',
+  'tests/e2e/herdr-stock-terminal-runtime.spec.ts'
 ])
 
 export const ALLOWED_OVERLAY_PATHS = new Set([
@@ -81,7 +105,6 @@ export const ALLOWED_OVERLAY_PATHS = new Set([
   'src/main/computer/macos-native-provider-paths.ts',
   'src/main/daemon/daemon-host-relocation.ts',
   'src/main/ipc/notification-system-settings-link.ts',
-  'src/main/ipc/worktree-git-common-watch.test.ts',
   'src/main/jira/site-credential-store.ts',
   'src/main/keybindings/keybinding-file.ts',
   'src/main/linear/linear-credential-paths.ts',
@@ -94,7 +117,6 @@ export const ALLOWED_OVERLAY_PATHS = new Set([
   'src/main/startup/dev-instance-identity.ts',
   'src/main/tray/system-tray.ts',
   'src/main/updater-test-harness.ts',
-  'src/main/updater.startup-scheduling.test.ts',
   'src/main/updater.ts',
   'src/main/window/createMainWindow.ts',
   'src/main/window/main-window-close-lifecycle.ts',
@@ -107,7 +129,123 @@ export const ALLOWED_OVERLAY_PATHS = new Set([
   'src/shared/pairing.ts',
   'src/shared/skill-share-link.ts',
   'src/shared/update-status-types.ts',
-  'src/types/build-constants.d.ts'
+  'src/types/build-constants.d.ts',
+  '.oxlintrc.json',
+  'config/localization-coverage-allowlist.json',
+  'config/scripts/release-cut-token-permissions.test.mjs',
+  'config/tsconfig.cli.json',
+  'config/vitest.config.ts',
+  'package.json',
+  'pnpm-workspace.yaml',
+  'src/cli/specs/index.ts',
+  'src/cli/terminal-format.test.ts',
+  'src/cli/terminal-format.ts',
+  'src/main/codex-accounts/runtime-home-settings-test-fixtures.ts',
+  'src/main/codex-accounts/service-test-harness.ts',
+  'src/main/codex/codex-trust-config-rollback.ts',
+  'src/main/daemon/daemon-init-provider-installation.test.ts',
+  'src/main/daemon/daemon-init.ts',
+  'src/main/index.ts',
+  'src/main/ipc/pty-startup-barrier-and-listing.test.ts',
+  'src/main/ipc/pty-write-ipc-validation.test.ts',
+  'src/main/ipc/pty.ts',
+  'src/main/ipc/pty/ipc/spawn-options.ts',
+  'src/main/ipc/pty/ipc/spawn-types.ts',
+  'src/main/ipc/pty/ipc/write-input.ts',
+  'src/main/ipc/pty/provider/registry.ts',
+  'src/main/ipc/pty/runtime/operations.ts',
+  'src/main/ipc/pty/runtime/spawn-options.ts',
+  'src/main/ipc/pty/runtime/spawn-state.ts',
+  'src/main/ipc/repos-local-add-and-project-setup.test.ts',
+  'src/main/ipc/repos-remote-test-harness.ts',
+  'src/main/ipc/repos/repo-ipc-arg-schemas.ts',
+  'src/main/ipc/ssh-app-shutdown.test.ts',
+  'src/main/ipc/ssh-disconnect-cancellation.test.ts',
+  'src/main/ipc/ssh-handler-reregistration.test.ts',
+  'src/main/ipc/ssh-ipc-mock-shapes.ts',
+  'src/main/ipc/ssh-ipc-module-mocks.ts',
+  'src/main/ipc/ssh-pty-consumer-identity.test.ts',
+  'src/main/ipc/ssh-relay-reset-resume.test.ts',
+  'src/main/ipc/ssh-state-broadcast-fanout.test.ts',
+  'src/main/ipc/ssh-target-registry.test.ts',
+  'src/main/ipc/ssh-terminate-sessions.test.ts',
+  'src/main/ipc/ssh.test.ts',
+  'src/main/persistence/applying-settings/settings-update.ts',
+  'src/main/persistence/loading-store/loaded-state-parsing.ts',
+  'src/main/persistence/loading-store/normalize-loaded-global-settings.ts',
+  'src/main/persistence/tracking-repos/project-host-compatibility.ts',
+  'src/main/persistence/tracking-repos/project-host-operations.ts',
+  'src/main/providers/pty-provider-contract.ts',
+  'src/main/runtime/claude-agent-teams-service.test.ts',
+  'src/main/runtime/headless-terminal-split-layout.test.ts',
+  'src/main/runtime/headless-terminal-split-layout.ts',
+  'src/main/runtime/orca-runtime.test.ts',
+  'src/main/runtime/orca-runtime.ts',
+  'src/main/runtime/rpc/methods/project-runtime-rpc-methods.ts',
+  'src/main/ssh/ssh-relay-session-agent-hooks.integration.test.ts',
+  'src/main/ssh/ssh-relay-session-data-delivery.test.ts',
+  'src/main/ssh/ssh-relay-session-incarnation.test.ts',
+  'src/main/ssh/ssh-relay-session-model-migration.test.ts',
+  'src/main/ssh/ssh-relay-session-reconnect-incarnation.test.ts',
+  'src/main/ssh/ssh-relay-session-recovery-races.test.ts',
+  'src/main/ssh/ssh-relay-session-terminal-error.test.ts',
+  'src/main/ssh/ssh-relay-session-test-fixtures.ts',
+  'src/main/ssh/ssh-relay-session.test.ts',
+  'src/main/ssh/ssh-relay-session.ts',
+  'src/main/startup/desktop-startup-ordering.test.ts',
+  'src/main/startup/legacy-worker-renderer-recovery.test.ts',
+  'src/main/startup/legacy-worker-renderer-recovery.ts',
+  'src/preload/api/pty-api.ts',
+  'src/preload/api/ui-command-event-api.ts',
+  'src/preload/index.ts',
+  'src/renderer/src/components/settings/RepositoryPane.tsx',
+  'src/renderer/src/components/settings/TerminalPane.tsx',
+  'src/renderer/src/components/settings/terminal-search.ts',
+  'src/renderer/src/components/terminal-pane/TerminalPane.tsx',
+  'src/renderer/src/components/terminal-pane/ipc-pty-accepted-input.ts',
+  'src/renderer/src/components/terminal-pane/ipc-pty-spawn-request.ts',
+  'src/renderer/src/components/terminal-pane/pty-connection-types.ts',
+  'src/renderer/src/components/terminal-pane/pty-connection.ts',
+  'src/renderer/src/components/terminal-pane/pty-connection/connect-pane-pty.ts',
+  'src/renderer/src/components/terminal-pane/pty-connection/foreground-output-refresh.ts',
+  'src/renderer/src/components/terminal-pane/pty-connection/foreground-output-scan.ts',
+  'src/renderer/src/components/terminal-pane/pty-connection/fresh-spawn-start.ts',
+  'src/renderer/src/components/terminal-pane/pty-connection/hidden-output-restore-drain.ts',
+  'src/renderer/src/components/terminal-pane/pty-connection/hidden-output-restore-request.ts',
+  'src/renderer/src/components/terminal-pane/pty-connection/hidden-output-restore-snapshot.ts',
+  'src/renderer/src/components/terminal-pane/pty-connection/hidden-output-seq-and-skip.ts',
+  'src/renderer/src/components/terminal-pane/pty-connection/hidden-output-snapshot-serialize.ts',
+  'src/renderer/src/components/terminal-pane/pty-connection/hidden-restore-state-and-ssh-probe.ts',
+  'src/renderer/src/components/terminal-pane/pty-connection/live-data-callback.ts',
+  'src/renderer/src/components/terminal-pane/pty-connection/pane-pty-binding.ts',
+  'src/renderer/src/components/terminal-pane/pty-connection/pty-input-recovery.ts',
+  'src/renderer/src/components/terminal-pane/pty-connection/session-reconcile-dispose.ts',
+  'src/renderer/src/components/terminal-pane/pty-connection/write-pty-output-to-xterm.ts',
+  'src/renderer/src/components/terminal-pane/pty-transport-connect-spawn.test.ts',
+  'src/renderer/src/components/terminal-pane/pty-transport-input-write.test.ts',
+  'src/renderer/src/components/terminal-pane/pty-transport-types.ts',
+  'src/renderer/src/components/terminal-pane/pty-transport.ts',
+  'src/renderer/src/components/terminal-pane/use-terminal-pane-lifecycle.ts',
+  'src/renderer/src/hooks/ipc-events-agent-status-window-test-fixtures.ts',
+  'src/renderer/src/hooks/ipc-events-close-routing-test-harness.ts',
+  'src/renderer/src/hooks/ipc-events-terminal-create-window-test-fixtures.ts',
+  'src/renderer/src/hooks/ipc-events/terminal-ui-routing-ipc-bridge.ts',
+  'src/renderer/src/hooks/useIpcEvents-browser-tab-create.test.ts',
+  'src/renderer/src/hooks/useIpcEvents-cli-worktree-activation.test.ts',
+  'src/renderer/src/hooks/useIpcEvents-close-routing-browser-pages.test.ts',
+  'src/renderer/src/hooks/useIpcEvents-lifecycle.test.ts',
+  'src/renderer/src/hooks/useIpcEvents-ssh-disconnect-cleanup.test.ts',
+  'src/renderer/src/hooks/useIpcEvents-updater-status.test.ts',
+  'src/renderer/src/web/preload-api/web-ui-api.ts',
+  'src/shared/child-process/run-process.test.ts',
+  'src/shared/child-process/run-process.ts',
+  'src/shared/constants.ts',
+  'src/shared/global-settings-types.ts',
+  'src/shared/host-setting-overrides.ts',
+  'src/shared/posix-command-path-lookup.test.ts',
+  'src/shared/project-identity-succession.ts',
+  'src/shared/project-types.ts',
+  'src/shared/runtime-terminal-contracts.ts'
 ])
 
 export function isDeniedOverlayPath(filePath) {
@@ -116,11 +254,18 @@ export function isDeniedOverlayPath(filePath) {
   )
 }
 
+export function isForkOnlyPath(filePath) {
+  return (
+    FORK_ONLY_PATHS.has(filePath) ||
+    FORK_ONLY_PREFIXES.some((prefix) => filePath.startsWith(prefix))
+  )
+}
+
 export function classifyForkPath(filePath, kind) {
   if (kind === 'overlay' && isDeniedOverlayPath(filePath)) {
     return 'denied'
   }
-  if (kind === 'fork-only' && FORK_ONLY_PATHS.has(filePath)) {
+  if (kind === 'fork-only' && isForkOnlyPath(filePath)) {
     return 'allowed'
   }
   if (kind === 'overlay' && ALLOWED_OVERLAY_PATHS.has(filePath)) {
@@ -132,16 +277,11 @@ export function classifyForkPath(filePath, kind) {
 export function allowlistIntegrityErrors() {
   const errors = []
   for (const filePath of ALLOWED_OVERLAY_PATHS) {
-    if (FORK_ONLY_PATHS.has(filePath)) {
+    if (isForkOnlyPath(filePath)) {
       errors.push(`${filePath} cannot be both fork-only and an overlay`)
     }
     if (isDeniedOverlayPath(filePath)) {
       errors.push(`${filePath} is a denied overlay path`)
-    }
-  }
-  for (const filePath of FORK_ONLY_PATHS) {
-    if (isDeniedOverlayPath(filePath)) {
-      errors.push(`${filePath} is a denied overlay path listed as fork-only`)
     }
   }
   return errors
