@@ -25,7 +25,7 @@ describe('in-repo Horca release workflows', () => {
   const bumpScript = read('config/scripts/horca-bump-homebrew-cask.sh')
   const homebrewCask = read('config/horca-homebrew/Casks/horca.rb')
   const homebrewBetaCask = read('config/horca-homebrew/Casks/horca@beta.rb')
-  const homebrewBump = read('config/horca-homebrew/.github/workflows/bump-horca-cask.yml')
+  const homebrewBump = read('config/horca-homebrew/.github/workflows/horca-bump-cask.yml')
 
   it('builds on dispatch or workflow_call, not on push to main', () => {
     expect(build.on.push).toBeUndefined()

@@ -30,7 +30,7 @@ describe('fork upstream overlay guard', () => {
     '.github/workflows/horca_build.yml',
     '.github/workflows/horca_check_source.yml',
     '.github/workflows/horca_release.yml',
-    'config/horca-homebrew/.github/workflows/bump-horca-cask.yml',
+    'config/horca-homebrew/.github/workflows/horca-bump-cask.yml',
     'config/horca-homebrew/Casks/horca.rb',
     'config/horca-homebrew/Casks/horca@beta.rb',
     'config/horca-homebrew/README-horca.md',

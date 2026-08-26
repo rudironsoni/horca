@@ -20,7 +20,7 @@ export const FORK_ONLY_PATHS = new Set([
   '.github/workflows/horca_release.yml',
   '.github/workflows/horca_mirror_upstream_v_tags.yml',
   'config/electron-builder-downstream.cjs',
-  'config/horca-homebrew/.github/workflows/bump-horca-cask.yml',
+  'config/horca-homebrew/.github/workflows/horca-bump-cask.yml',
   'config/horca-homebrew/Casks/horca.rb',
   'config/horca-homebrew/Casks/horca@beta.rb',
   'config/horca-homebrew/README-horca.md',

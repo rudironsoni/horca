@@ -1,4 +1,4 @@
-name: Bump horca cask
+name: 'Horca: Bump cask'
 
 # Tap-side 6h backup. Release Horca / Release Horca beta on rudironsoni/orca
 # call .github/workflows/horca_bump_cask.yml and wait so a just-published
