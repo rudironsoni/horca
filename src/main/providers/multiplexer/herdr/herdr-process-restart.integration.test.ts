@@ -25,7 +25,7 @@ async function waitForSocketRemoval(socketPath: string): Promise<void> {
 
 describeRealHerdr('stock Herdr process restart', () => {
   const configHome = configHomeDir()
-  const sessionName = `ot-${process.pid}`
+  const sessionName = `ot-${process.pid}-rs`
   const env: NodeJS.ProcessEnv = { ...process.env, HOME: configHome }
   for (const name of Object.keys(env)) {
     if (name.startsWith('HERDR_')) {

@@ -17,7 +17,7 @@ const describeRealHerdr = binary ? describe : describe.skip
 
 describeRealHerdr('stock Herdr runtime integration', () => {
   const configHome = configHomeDir()
-  const sessionName = `ot-${process.pid}`
+  const sessionName = `ot-${process.pid}-rt`
   const env: NodeJS.ProcessEnv = { ...process.env, HOME: configHome }
   for (const name of Object.keys(env)) {
     if (name.startsWith('HERDR_')) {
@@ -186,7 +186,7 @@ describeRealHerdr('stock Herdr runtime integration', () => {
   it('interrupts a running command with Ctrl+C through pane.send_keys', async () => {
     await transport.ensureSession(sessionName)
     const paneId = await createPane(transport, sessionName, configHome, 'Orca sigint')
-    await runInterruptibleSleep(transport, sessionName, paneId, 'keys', async (id) => {
+    await runInterruptibleSleep(transport, sessionName, paneId, configHome, 'keys', async (id) => {
       unwrapHerdrResponse(
         await transport.request(sessionName, 'pane.send_keys', { pane_id: id, keys: ['Enter'] })
       )
@@ -198,9 +198,16 @@ describeRealHerdr('stock Herdr runtime integration', () => {
     const paneId = await createPane(transport, sessionName, configHome, 'Orca sigint stream')
     const controller = transport.controlTerminal(sessionName, paneId, { cols: 80, rows: 24 })
     try {
-      await runInterruptibleSleep(transport, sessionName, paneId, 'stream', async () => {
-        controller.write('\r')
-      })
+      await runInterruptibleSleep(
+        transport,
+        sessionName,
+        paneId,
+        configHome,
+        'stream',
+        async () => {
+          controller.write('\r')
+        }
+      )
     } finally {
       controller.release()
     }
@@ -258,15 +265,21 @@ async function runInterruptibleSleep(
   transport: HerdrHostTransport,
   sessionName: string,
   paneId: string,
+  configHome: string,
   token: string,
   submit: (paneId: string) => Promise<void>
 ): Promise<void> {
   const started = `INT_START_${token}_${process.pid}`
   const done = `INT_DONE_${token}_${process.pid}`
+  const script = join(configHome, `int-${token}.sh`)
+  writeFileSync(
+    script,
+    [`printf '%s\\n' '${started}'`, 'sleep 30', `printf '%s\\n' '${done}'`, ''].join('\n')
+  )
   unwrapHerdrResponse(
     await transport.request(sessionName, 'pane.send_text', {
       pane_id: paneId,
-      text: `printf '%s\\n' ${started}; sleep 30; printf '%s\\n' ${done}`
+      text: `sh ${JSON.stringify(script)}`
     })
   )
   await submit(paneId)
