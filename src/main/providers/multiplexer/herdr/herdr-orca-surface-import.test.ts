@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import type { Project } from '../../../../shared/project-types'
 import { ORCA_BINDING_TOKEN, orcaPaneBinding, orcaWorkspaceBinding } from './herdr-binding-metadata'
-import { collectUnboundHerdrSurfaces, herdrLayoutToOrcaLayout } from './herdr-orca-surface-import'
+import { herdrLayoutToOrcaLayout } from './herdr-orca-surface-actions'
+import { collectUnboundHerdrSurfaces } from './herdr-orca-surface-import'
 import { decodeHerdrPtyId } from './herdr-pty-types'
 import { HERDR_PROTOCOL_VERSION, type HerdrSessionSnapshot } from './herdr-runtime-contract'
 

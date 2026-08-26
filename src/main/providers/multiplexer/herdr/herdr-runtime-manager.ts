@@ -25,12 +25,14 @@ import { closeUnboundStockHerdrTabs, ensureTabLayout } from './herdr-tab-layout'
 import { materializeHerdrLeafPane } from './herdr-leaf-materialize'
 import type { HerdrBindingAgentState } from './herdr-pty-binding-queries'
 import {
-  claimAndPresentHerdrSurfaces,
   collectHerdrSurfaceActions,
-  collectUnboundHerdrSurfaces,
   resolveHerdrPaneIdentities,
+  type HerdrOrcaSurfaceAction
+} from './herdr-orca-surface-actions'
+import {
+  claimAndPresentHerdrSurfaces,
+  collectUnboundHerdrSurfaces,
   type HerdrImportedSurface,
-  type HerdrOrcaSurfaceAction,
   type HerdrSurfacePresenter
 } from './herdr-orca-surface-import'
 
