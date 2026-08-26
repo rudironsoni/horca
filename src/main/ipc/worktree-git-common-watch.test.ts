@@ -781,9 +781,16 @@ describe('worktree git-common narrow watch (local native platforms)', () => {
       const stalePendingSubscription = narrowSubscriptions()[1]
       await replaceWorktreesRoot(commonDir, worktreesDir, retainedEntry)
       await vi.advanceTimersByTimeAsync(POLL_MS * RECONCILIATION_TICKS * 4)
-      expect(
-        received.flat().filter((event) => event.type === 'create' && event.path === worktreesDir)
-      ).toHaveLength(2)
+      await vi.waitFor(
+        () => {
+          expect(
+            received
+              .flat()
+              .filter((event) => event.type === 'create' && event.path === worktreesDir)
+          ).toHaveLength(2)
+        },
+        { timeout: 2_000 }
+      )
 
       const beforeStaleInterruption = received.length
       stalePendingSubscription.hooks.onInterruption?.()

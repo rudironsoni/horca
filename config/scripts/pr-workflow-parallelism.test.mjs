@@ -60,6 +60,7 @@ describe('PR workflow parallelism', () => {
 
     expect(installStep.with['node-version']).toBe('${{ matrix.node }}')
     expect(testStep.run).toContain('--shard=${{ matrix.shard }}/${{ matrix.shard_total }}')
+    expect(testStep.run).toContain('--exclude=src/**/*.electron.test.ts')
     for (const testFile of nativeShellContractFiles) {
       expect(testStep.run).toContain(`--exclude=${testFile}`)
     }
