@@ -45,8 +45,28 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  gate:
+    if: github.repository == 'rudironsoni/orca'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      run: ${{ steps.decide.outputs.run }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Decide whether to release
+        id: decide
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+        run: bash config/scripts/horca-release-skip-gate.sh
+
   prepare:
-    if: github.repository == 'rudironsoni/orca' && (github.event_name != 'push' || !contains(github.event.head_commit.message, '[skip horca-release]'))
+    if: needs.gate.outputs.run == 'true'
+    needs: [gate]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     outputs:
@@ -94,8 +114,8 @@ jobs:
           retention-days: 30
 
   build:
-    if: github.repository == 'rudironsoni/orca' && (github.event_name != 'push' || !contains(github.event.head_commit.message, '[skip horca-release]'))
-    needs: prepare
+    if: needs.gate.outputs.run == 'true'
+    needs: [gate, prepare]
     uses: ./.github/workflows/horca_build.yml
     with:
       sha: ${{ needs.prepare.outputs.source_sha }}
@@ -103,8 +123,8 @@ jobs:
     secrets: inherit
 
   publish:
-    if: github.repository == 'rudironsoni/orca' && (github.event_name != 'push' || !contains(github.event.head_commit.message, '[skip horca-release]'))
-    needs: [prepare, build]
+    if: needs.gate.outputs.run == 'true'
+    needs: [gate, prepare, build]
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -181,8 +201,8 @@ jobs:
   # Same reusable-workflow wait as `build`: this job does not finish until
   # the tap bump succeeds (or no-ops if Casks/horca.rb is already current).
   bump-cask:
-    if: github.repository == 'rudironsoni/orca' && (github.event_name != 'push' || !contains(github.event.head_commit.message, '[skip horca-release]'))
-    needs: [prepare, publish]
+    if: needs.gate.outputs.run == 'true'
+    needs: [gate, prepare, publish]
     uses: ./.github/workflows/horca_bump_cask.yml
     with:
       version: ${{ needs.prepare.outputs.version }}

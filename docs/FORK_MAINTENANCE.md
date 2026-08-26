@@ -106,8 +106,9 @@ Horca jobs run only on `rudironsoni/orca`. A further fork does not inherit
 notarized publishing. `releases/latest` on this repository is the latest
 **stable** Horca release. Stable version math and detectors filter
 `/^v\d+\.\d+\.\d+-horca\.\d+$/` only (betas never increment that N). Commits
-whose message contains `[skip horca-release]` skip both the stable release
-and a beta; `[skip horca-beta]` skips only the beta workflow.
+whose **subject** (first line) contains `[skip horca-release]` skip both the
+stable release and a beta; `[skip horca-beta]` skips only the beta workflow.
+A token only in the squash-merge body does not skip.
 
 | Workflow | Purpose |
 | --- | --- |
@@ -144,7 +145,8 @@ cask URL is `rudironsoni/orca`, never `orca-builds`. Install beta with
    (`horca`) and waits. Dispatch remains available.
 4. A push to a conventional `feature/**` / `fix/**` / `hotfix/**` / … branch
    starts **Horca: Release beta**. `[skip horca-beta]` or `[skip horca-release]`
-   in the commit message skips it. Dispatch remains available.
+   in the commit subject (first line) skips it. A token only in the squash
+   body does not. Dispatch remains available.
 5. `horca_check_source.yml` is a backup if a push event is missed. It
    still will not bootstrap a first release by itself, and it ignores betas.
 

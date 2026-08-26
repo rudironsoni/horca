@@ -40,6 +40,8 @@ describe('fork upstream overlay guard', () => {
     'config/scripts/horca-bump-homebrew-cask.test.mjs',
     'config/scripts/horca-prepare-release.sh',
     'config/scripts/horca-prepare-release.test.mjs',
+    'config/scripts/horca-release-skip-gate.sh',
+    'config/scripts/horca-release-skip-gate.test.mjs',
     'config/scripts/horca-release-workflows.test.mjs'
   ]
 
