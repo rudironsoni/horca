@@ -119,9 +119,23 @@ export async function selectHerdrInSettings(
 }
 
 export async function openHerdrProjectTerminal(page: Page, repoPath: string): Promise<string> {
-  const worktreeId = await attachRepoAndOpenTerminal(page, repoPath, {
-    terminalBackendPreference: 'herdr'
-  })
+  const worktreeId = await attachRepoAndOpenTerminal(page, repoPath)
+  await page.evaluate(async (attachedWorktreeId) => {
+    const store = window.__store
+    if (!store) {
+      throw new Error('store unavailable')
+    }
+    const state = store.getState()
+    const project = state.projects.find((candidate) =>
+      candidate.sourceRepoIds.some((repoId) =>
+        (state.worktreesByRepo[repoId] ?? []).some((worktree) => worktree.id === attachedWorktreeId)
+      )
+    )
+    if (!project) {
+      throw new Error('Herdr e2e attach could not find the project for the seeded worktree')
+    }
+    await state.updateProject(project.id, { terminalBackendPreference: 'herdr' })
+  }, worktreeId)
   await ensureTerminalVisible(page, 30_000)
   return worktreeId
 }

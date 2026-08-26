@@ -10242,10 +10242,6 @@
           "saveFailed": "无法保存可见性默认设置。",
           "updateServer": "请更新此服务器以配置来源默认设置。",
           "updateServerDefaults": "请更新此服务器以配置可见性默认设置。"
-        },
-        "ProjectTerminalBackendSetting": {
-          "blockedSingular": "将此项目迁移到 Herdr 之前，请关闭 {{count}} 个正在运行的 Orca 终端。",
-          "blockedPlural": "将此项目迁移到 Herdr 之前，请关闭 {{count}} 个正在运行的 Orca 终端。"
         }
       },
       "right": {
