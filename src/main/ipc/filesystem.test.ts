@@ -68,6 +68,7 @@ vi.mock(
   async () => (await import('./filesystem-test-harness')).pullRequestLinkedIssueMock
 )
 
+import { FileListingCancelledError } from '../../shared/file-listing-cancellation'
 import { registerFilesystemHandlers } from './filesystem'
 import {
   registerWorktreeRootsForRepo,
@@ -614,7 +615,7 @@ describe('registerFilesystemHandlers', () => {
       (_rootPath: string, options: { signal?: AbortSignal }) =>
         new Promise<string[]>((_resolve, reject) => {
           capturedSignal = options.signal
-          options.signal?.addEventListener('abort', () => reject(new Error('listing cancelled')), {
+          options.signal?.addEventListener('abort', () => reject(new FileListingCancelledError()), {
             once: true
           })
         })
@@ -635,7 +636,9 @@ describe('registerFilesystemHandlers', () => {
     expect(capturedSignal?.aborted).toBe(false)
     await handlers.get('fs:cancelListFiles')!(senderEvent, { requestToken: 'token-1' })
     expect(capturedSignal?.aborted).toBe(true)
-    await expect(pending).rejects.toThrow('listing cancelled')
+    // Why: a thrown FileListingCancelledError is logged by Electron as
+    // "Error occurred in handler for 'fs:listFiles'"; empty results are the cancel.
+    await expect(pending).resolves.toEqual([])
 
     // Unknown or already-settled tokens are a no-op, not an error.
     expect(() =>

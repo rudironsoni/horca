@@ -14,6 +14,10 @@ import type { WatcherProcessCrashFuse } from './parcel-watcher-crash-fuse'
 import { WatcherProcessFailure } from './parcel-watcher-process-failure'
 import type { WatcherProcessSubscriptionRecord } from './parcel-watcher-process-subscription'
 
+export function isWatcherProcessGroupShutdownSignal(signal?: NodeJS.Signals | null): boolean {
+  return signal === 'SIGINT' || signal === 'SIGTERM'
+}
+
 export function recoverWatcherRecordsAfterChildGone(
   records: Map<number, WatcherProcessSubscriptionRecord>,
   crashFuse: WatcherProcessCrashFuse,
@@ -24,6 +28,10 @@ export function recoverWatcherRecordsAfterChildGone(
   code?: number | null,
   signal?: NodeJS.Signals | null
 ): void {
+  // Why: Ctrl+C / SIGTERM hits the forked child with the parent; that is teardown, not a crash.
+  if (isWatcherProcessGroupShutdownSignal(signal)) {
+    return
+  }
   if (code !== undefined && (code !== 0 || signal)) {
     console.error(
       `[parcel-watcher-process] watcher process exited (code=${code}, signal=${signal})`
@@ -85,10 +93,12 @@ export async function terminateDisconnectedWatcherChild(
     recoverWatcherRecordsAfterChildGone(
       records,
       crashFuse,
-      false,
+      isWatcherProcessGroupShutdownSignal(child.signalCode),
       ensureWatcherProcess,
       sendSubscribe,
-      removeCanary
+      removeCanary,
+      child.exitCode,
+      child.signalCode
     )
   }
 }

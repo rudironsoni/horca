@@ -74,7 +74,6 @@ export async function fetchActiveClaudeRateLimits(
         options
       })
     } catch (error) {
-      warnClaudeUsageFetchFailure(options?.authPreparation, oauthCredentials, error)
       const classification = classifyClaudeOAuthUsageError(error)
 
       if (
@@ -124,9 +123,17 @@ export async function fetchActiveClaudeRateLimits(
           })
         } catch (ptyError) {
           warnClaudeUsageFetchFailure(options?.authPreparation, oauthCredentials, ptyError)
+          return makeClaudeUsageClassificationError({
+            error: ptyError,
+            classification,
+            attempts,
+            oauthCredentials,
+            authPreparation: options?.authPreparation
+          })
         }
       }
 
+      warnClaudeUsageFetchFailure(options?.authPreparation, oauthCredentials, error)
       return makeClaudeUsageClassificationError({
         error,
         classification,
