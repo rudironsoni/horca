@@ -10,6 +10,7 @@ export type StockHerdrSessionOps = {
   timeoutMs?: number
   pollMs?: number
   afterReady?: (schema: HerdrApiSchema) => Promise<void>
+  socketReady?: (sessionName: string) => Promise<boolean>
 }
 
 export async function ensureStockHerdrSession(
@@ -24,7 +25,11 @@ export async function ensureStockHerdrSession(
   const run = (async () => {
     const schema = await ops.loadSchema()
     const sessions = await ops.listSessions()
-    if (!sessions.some((session) => session.name === sessionName && session.running)) {
+    const listedRunning = sessions.some(
+      (session) => session.name === sessionName && session.running
+    )
+    const socketReady = ops.socketReady ? await ops.socketReady(sessionName) : true
+    if (!listedRunning || !socketReady) {
       await ops.startServer(sessionName)
       await waitForStockHerdrSession(sessionName, ops)
     }
@@ -49,7 +54,13 @@ async function waitForStockHerdrSession(
   const deadline = Date.now() + timeoutMs
   while (Date.now() < deadline) {
     const sessions = await ops.listSessions().catch(() => [])
-    if (sessions.some((session) => session.name === sessionName && session.running)) {
+    const listedRunning = sessions.some(
+      (session) => session.name === sessionName && session.running
+    )
+    const socketReady = ops.socketReady
+      ? await ops.socketReady(sessionName).catch(() => false)
+      : true
+    if (listedRunning && socketReady) {
       return
     }
     await new Promise((resolve) => setTimeout(resolve, pollMs))

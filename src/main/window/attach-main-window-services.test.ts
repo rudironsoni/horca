@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { Store } from '../persistence'
+import { createAttachMainWindowServicesStore as createStore } from './attach-main-window-services-store'
 
 const {
   onMock,
@@ -176,13 +176,6 @@ function createMainWindow(
   }
 }
 
-function createStore(): Store & { flushPendingAsync: MockFn } {
-  return {
-    getProfileStorageDirectory: vi.fn(() => '/profile-a'),
-    flushPendingAsync: vi.fn(() => Promise.resolve())
-  } as unknown as Store & { flushPendingAsync: MockFn }
-}
-
 function createRuntime(): RuntimeStub {
   return {
     attachWindow: vi.fn(),
@@ -208,8 +201,6 @@ function getClosedHandlers(mainWindowOnMock: MockFn): (() => void)[] {
     .map(([, handler]) => handler as () => void)
 }
 
-// Updater setup is deferred to first paint; fire the captured ready-to-show
-// handler and flush its setImmediate hop.
 async function fireReadyToShow(mainWindow: MainWindowStub): Promise<void> {
   const handler = mainWindow.once.mock.calls.find(([event]) => event === 'ready-to-show')?.[1] as
     | (() => void)

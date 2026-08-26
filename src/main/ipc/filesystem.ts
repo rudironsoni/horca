@@ -139,6 +139,7 @@ import { sanitizeLocalDownloadFilename } from '../local-download-filename'
 import { registerFilesystemDownloadFolderHandlers } from './filesystem-download-folder'
 import { getWorktreeSharedLinkPaths } from '../git/worktree-shared-directories'
 import { createSenderScopedRequestCancellations } from './sender-scoped-request-cancellation'
+import { isFileListingCancellation } from '../../shared/file-listing-cancellation'
 import { QuickOpenPathRanker } from '../../shared/quick-open-path-search'
 import {
   applyGitStatusUpstreamRefWatchRequest,
@@ -1158,6 +1159,12 @@ export function registerFilesystemHandlers(
           })
         }
         return await listQuickOpenFiles(args.rootPath, store, args.excludePaths, controller?.signal)
+      } catch (error) {
+        // Why: Electron logs every thrown ipcMain.handle error; cancelled Quick Open scans are expected.
+        if (isFileListingCancellation(error)) {
+          return []
+        }
+        throw error
       } finally {
         listFilesCancellations.finish(event, args.requestToken, controller)
       }

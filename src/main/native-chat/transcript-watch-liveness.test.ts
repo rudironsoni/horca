@@ -178,7 +178,8 @@ describe('native chat transcript watcher liveness', () => {
     )
 
     subscription.unsubscribe()
-    expect(replacements).toHaveBeenCalledOnce()
+    // Poll + watch can both observe the rewrite when debounceMs is 0.
+    expect(replacements).toHaveBeenCalled()
   })
 
   it('rebinds the native watcher after silent parent-directory replacement', async () => {

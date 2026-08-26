@@ -205,6 +205,7 @@ describe('in-repo Horca release workflows', () => {
     expect(bumpCask.on.push).toBeUndefined()
     expect(bumpCask.on.workflow_call.inputs.version.required).toBe(true)
     expect(bumpCask.on.workflow_call.inputs.cask_token.default).toBe('horca')
+    expect(bumpCask.on.workflow_call.inputs.allow_push_failure.default).toBe(false)
     expect(bumpCask.on.workflow_call.secrets.FORK_SYNC_PAT.required).toBe(true)
     expect(bumpCask.concurrency).toEqual({
       group: "bump-horca-cask-${{ inputs.cask_token || 'horca' }}",
@@ -224,6 +225,9 @@ describe('in-repo Horca release workflows', () => {
     expect(bumpScript).not.toContain('orca-builds')
     expect(bumpCask.jobs.bump.steps.find((step) => step.name === 'Commit and push').run).toContain(
       'Casks/${CASK_TOKEN}.rb'
+    )
+    expect(bumpCask.jobs.bump.steps.find((step) => step.name === 'Commit and push').run).toContain(
+      'ALLOW_PUSH_FAILURE'
     )
     expect(bumpCask.jobs.bump.steps.find((step) => step.name === 'Style and audit').run).toContain(
       'config/scripts/horca-brew-style-cask.sh'
@@ -286,6 +290,8 @@ describe('in-repo Horca release workflows', () => {
     expect(betaRelease.jobs['bump-cask'].needs).toEqual(['gate', 'prepare', 'publish'])
     expect(betaRelease.jobs['bump-cask'].with.cask_token).toBe('horca@beta')
     expect(betaRelease.jobs['bump-cask'].with.version).toBe('${{ needs.prepare.outputs.version }}')
+    expect(betaRelease.jobs['bump-cask'].with.allow_push_failure).toBe(true)
+    expect(release.jobs['bump-cask'].with.allow_push_failure).toBeUndefined()
 
     const publish = betaRelease.jobs.publish.steps.find(
       (step) => step.name === 'Publish prerelease'

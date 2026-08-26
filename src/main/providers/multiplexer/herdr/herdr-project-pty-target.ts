@@ -1,9 +1,5 @@
 import type { Project } from '../../../../shared/project-types'
-import type {
-  TerminalPaneLayoutNode,
-  TerminalLayoutSnapshot,
-  TerminalTab
-} from '../../../../shared/terminal-tab-types'
+import type { TerminalTab } from '../../../../shared/terminal-tab-types'
 import { basename } from 'node:path'
 import { homedir } from 'node:os'
 import { isGitRepoKind } from '../../../../shared/repo-kind'
@@ -25,6 +21,7 @@ import { splitWorktreeIdForFilesystem } from '../../../../shared/worktree/id'
 import type { PtySpawnOptions } from '../../pty-provider-contract'
 import type { HerdrWorktreeDescriptor } from './ensure-herdr-workspace'
 import { FLOATING_TERMINAL_WORKTREE_ID } from '../../../../shared/constants'
+import { resolveHerdrSpawnLayout } from './herdr-pty-layout-resolve'
 
 function repoPathForWorktree(
   store: Pick<Store, 'getRepo'>,
@@ -87,35 +84,6 @@ function extractLeafIdFromPaneKey(paneKey: string): string | null {
     return null
   }
   return paneKey.slice(colonIndex + 1)
-}
-
-function countLeaves(node: TerminalPaneLayoutNode | null): number {
-  if (!node) {
-    return 0
-  }
-  if (node.type === 'leaf') {
-    return 1
-  }
-  return countLeaves(node.first) + countLeaves(node.second)
-}
-
-function resolveLayout(
-  leafId: string,
-  rendererLayout: TerminalLayoutSnapshot | undefined,
-  persistedLayout: TerminalLayoutSnapshot | undefined
-): TerminalLayoutSnapshot {
-  const rendererLeaves = rendererLayout ? countLeaves(rendererLayout.root) : 0
-  const persistedLeaves = persistedLayout ? countLeaves(persistedLayout.root) : 0
-
-  if (rendererLeaves > 0 || persistedLeaves > 0) {
-    return rendererLeaves >= persistedLeaves ? rendererLayout! : persistedLayout!
-  }
-
-  return {
-    root: { type: 'leaf', leafId },
-    activeLeafId: leafId,
-    expandedLeafId: null
-  }
 }
 
 function resolveProject(
@@ -237,7 +205,7 @@ function projectHerdrActivation(
     }
 
     const persistedLayout = session.terminalLayoutsByTabId[tabId]
-    const resolvedLayout = resolveLayout(leafId, opts.terminalLayout, persistedLayout)
+    const resolvedLayout = resolveHerdrSpawnLayout(leafId, opts.terminalLayout, persistedLayout)
 
     // Why: floating and attach-only spawns can arrive before the workspace
     // session lists the tab. Synthesize that tab so ensureTabLayout can mint

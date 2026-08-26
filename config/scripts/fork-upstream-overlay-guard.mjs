@@ -22,6 +22,9 @@ export const FORK_ONLY_PATHS = new Set([
   '.github/workflows/horca_release.yml',
   '.github/workflows/horca_mirror_upstream_v_tags.yml',
   'config/electron-builder-downstream.cjs',
+  'src/shared/horca-vite-distribution.cjs',
+  'src/shared/horca-vite-distribution.ts',
+  'src/shared/horca-vite-distribution.test.ts',
   'config/horca-homebrew/.github/workflows/horca-bump-cask.yml',
   'config/horca-homebrew/Casks/horca.rb',
   'config/horca-homebrew/Casks/horca@beta.rb',
@@ -45,6 +48,8 @@ export const FORK_ONLY_PATHS = new Set([
   'docs/FORK_MAINTENANCE.md',
   'docs/reference/horca-distribution.md',
   'src/main/local-state-root.ts',
+  'src/main/window/attach-main-window-services-store.ts',
+  'src/main/local-state-root.test.ts',
   'src/main/updater-distribution-gate.test.ts',
   'src/main/updater-distribution-gate.ts',
   'src/shared/distribution-identity.json',
@@ -58,8 +63,10 @@ export const FORK_ONLY_PATHS = new Set([
   'config/scripts/isolate-lefthook-hooks.ts',
   'config/scripts/run-herdr-stock-integration.mjs',
   'src/main/ipc/pty/ipc/terminal-layout-snapshot.ts',
+  'src/main/ipc/parcel-watcher-child-recovery.test.ts',
   'src/main/persistence-herdr.test.ts',
   'src/main/runtime/orchestration/__snapshots__/preamble.test.js.snap',
+  'src/renderer/src/i18n/herdr-settings-copy.ts',
   'src/renderer/src/components/settings/ProjectTerminalBackendSetting.test.tsx',
   'src/renderer/src/components/settings/ProjectTerminalBackendSetting.tsx',
   'src/renderer/src/components/settings/TerminalBackendSection.test.tsx',
@@ -81,6 +88,7 @@ export const ALLOWED_OVERLAY_PATHS = new Set([
   '.github/workflows/computer-e2e.yml',
   '.github/workflows/e2e.yml',
   '.github/workflows/homebrew-bump.yml',
+  '.github/workflows/pr.yml',
   '.github/workflows/terminal-ime-e2e.yml',
   '.github/workflows/terminal-perf.yml',
   '.github/workflows/track-community-prs.yaml',
@@ -89,6 +97,9 @@ export const ALLOWED_OVERLAY_PATHS = new Set([
   'config/electron-builder.config.cjs',
   'config/scripts/build-computer-macos.mjs',
   'config/scripts/build-notification-status-macos.mjs',
+  'config/scripts/orca-dev.mjs',
+  'config/scripts/pr-workflow-parallelism.test.mjs',
+  'config/scripts/run-electron-vite-dev.mjs',
   'config/scripts/run-electron-vite-targets-in-parallel.mjs',
   'config/tsconfig.tc.web.json',
   'electron.vite.config.ts',
@@ -109,9 +120,11 @@ export const ALLOWED_OVERLAY_PATHS = new Set([
   'src/main/keybindings/keybinding-file.ts',
   'src/main/linear/linear-credential-paths.ts',
   'src/main/macos-tcc-prompt-watch.ts',
+  'src/main/native-chat/transcript-watch-liveness.test.ts',
   'src/main/minimax/minimax-cookie-store.ts',
   'src/main/runtime/claude-agent-teams-shim-env.ts',
   'src/main/runtime/windows-mobile-firewall.ts',
+  'src/main/windows/windows-host-job.win32.test.ts',
   'src/main/speech/model-cache-path.ts',
   'src/main/speech/openai-api-key-store.ts',
   'src/main/startup/dev-instance-identity.ts',
@@ -119,6 +132,7 @@ export const ALLOWED_OVERLAY_PATHS = new Set([
   'src/main/updater-test-harness.ts',
   'src/main/updater.ts',
   'src/main/window/createMainWindow.ts',
+  'src/main/window/attach-main-window-services.test.ts',
   'src/main/window/main-window-close-lifecycle.ts',
   'src/renderer/src/components/maintenance/update-card/UpdateCardStateContent.tsx',
   'src/renderer/src/components/maintenance/update-card/update-card-visibility.ts',
@@ -146,9 +160,20 @@ export const ALLOWED_OVERLAY_PATHS = new Set([
   'src/main/daemon/daemon-init-provider-installation.test.ts',
   'src/main/daemon/daemon-init.ts',
   'src/main/index.ts',
+  'src/main/claude-accounts/claude-account-service-login-process.test.ts',
+  'src/main/claude-accounts/claude-command-process.ts',
+  'src/main/claude-accounts/claude-login-session.ts',
+  'src/main/claude-accounts/keychain.test.ts',
+  'src/main/claude-accounts/keychain.ts',
+  'src/main/ipc/filesystem.test.ts',
+  'src/main/ipc/filesystem.ts',
+  'src/main/ipc/parcel-watcher-child-recovery.ts',
   'src/main/ipc/pty-startup-barrier-and-listing.test.ts',
   'src/main/ipc/pty-write-ipc-validation.test.ts',
   'src/main/ipc/pty.ts',
+  'src/main/rate-limits/claude-active-usage-fetch.ts',
+  'src/main/rate-limits/claude-fetcher-cli-fallback.test.ts',
+  'src/main/rate-limits/claude-usage-result.ts',
   'src/main/ipc/pty/ipc/spawn-options.ts',
   'src/main/ipc/pty/ipc/spawn-types.ts',
   'src/main/ipc/pty/ipc/write-input.ts',
@@ -158,6 +183,9 @@ export const ALLOWED_OVERLAY_PATHS = new Set([
   'src/main/ipc/pty/runtime/spawn-state.ts',
   'src/main/ipc/repos-local-add-and-project-setup.test.ts',
   'src/main/ipc/repos-remote-test-harness.ts',
+  'src/main/ipc/worktree-git-common-narrow-watch.ts',
+  'src/main/ipc/worktree-git-common-primary-watch.ts',
+  'src/main/ipc/worktree-git-common-watch.test.ts',
   'src/main/ipc/repos/repo-ipc-arg-schemas.ts',
   'src/main/ipc/ssh-app-shutdown.test.ts',
   'src/main/ipc/ssh-disconnect-cancellation.test.ts',
@@ -300,6 +328,12 @@ function gitLines(args) {
     .filter(Boolean)
 }
 
+function gitBlob(ref, filePath) {
+  return execFileSync('git', ['rev-parse', `${ref}:${filePath}`], {
+    encoding: 'utf8'
+  }).trim()
+}
+
 export function inspectForkOverlay(ours, theirs) {
   const oursFiles = new Set(gitLines(['ls-tree', '-r', '--name-only', ours]))
   const theirsFiles = new Set(gitLines(['ls-tree', '-r', '--name-only', theirs]))
@@ -313,6 +347,11 @@ export function inspectForkOverlay(ours, theirs) {
     const onOurs = oursFiles.has(filePath)
     const onTheirs = theirsFiles.has(filePath)
     if (onOurs && onTheirs) {
+      // Why: three-dot still lists a path we touched then restored. Matching
+      // blobs are not an overlay (locale JSON after dropping Herdr keys).
+      if (gitBlob(ours, filePath) === gitBlob(theirs, filePath)) {
+        continue
+      }
       findings.push({ filePath, kind: 'overlay', status: classifyForkPath(filePath, 'overlay') })
       continue
     }
@@ -324,7 +363,10 @@ export function inspectForkOverlay(ours, theirs) {
       })
       continue
     }
-    findings.push({ filePath, kind: 'upstream-only', status: 'unexpected' })
+    if (onTheirs) {
+      findings.push({ filePath, kind: 'upstream-only', status: 'unexpected' })
+    }
+    // Merge-base path dropped on both trees: three-dot still lists the delete.
   }
 
   const observedOverlays = new Set(

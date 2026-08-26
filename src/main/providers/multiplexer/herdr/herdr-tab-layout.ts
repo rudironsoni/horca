@@ -28,6 +28,19 @@ export function orcaTabTitle(tab: { title: string; customTitle?: string | null }
   return tab.customTitle ?? tab.title
 }
 
+function tabBoundToOtherLeaf(
+  snapshot: HerdrSessionSnapshot,
+  tabId: string,
+  rootBinding: string
+): boolean {
+  return snapshot.panes.some(
+    (pane) =>
+      pane.tab_id === tabId &&
+      pane.tokens?.[ORCA_BINDING_TOKEN] !== undefined &&
+      pane.tokens[ORCA_BINDING_TOKEN] !== rootBinding
+  )
+}
+
 export function isStockHerdrDefaultTabLabel(label: string | undefined): boolean {
   if (!label) {
     return false
@@ -136,6 +149,9 @@ export async function ensureTabLayout(
         (candidate) => candidate.workspace_id === workspaceId && candidate.label === expectedLabel,
         `tab label ${expectedLabel}`
       ) ?? undefined
+    if (herdrTab && tabBoundToOtherLeaf(snapshot, herdrTab.tab_id, rootBinding)) {
+      herdrTab = undefined
+    }
     if (herdrTab) {
       const untaggedPanes = snapshot.panes.filter(
         (pane) => pane.tab_id === herdrTab?.tab_id && !pane.tokens?.[ORCA_BINDING_TOKEN]
@@ -146,12 +162,16 @@ export async function ensureTabLayout(
 
   // Why: materializeLeafPane used to leave one tab labeled leaf-<id>. Orca
   // persists title "1", so label match fails and tab.create would duplicate.
+  // A tab already bound to another leaf is not leftover — mint a new tab.
   if (!herdrTab) {
     const workspaceTabs = snapshot.tabs.filter(
       (candidate) => candidate.workspace_id === workspaceId
     )
     if (workspaceTabs.length === 1) {
-      herdrTab = workspaceTabs[0]
+      const only = workspaceTabs[0]
+      if (!tabBoundToOtherLeaf(snapshot, only.tab_id, rootBinding)) {
+        herdrTab = only
+      }
     }
   }
 
