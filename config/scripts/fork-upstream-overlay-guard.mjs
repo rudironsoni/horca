@@ -60,6 +60,7 @@ export const FORK_ONLY_PATHS = new Set([
   'src/main/ipc/pty/ipc/terminal-layout-snapshot.ts',
   'src/main/persistence-herdr.test.ts',
   'src/main/runtime/orchestration/__snapshots__/preamble.test.js.snap',
+  'src/renderer/src/i18n/herdr-settings-copy.ts',
   'src/renderer/src/components/settings/ProjectTerminalBackendSetting.test.tsx',
   'src/renderer/src/components/settings/ProjectTerminalBackendSetting.tsx',
   'src/renderer/src/components/settings/TerminalBackendSection.test.tsx',

@@ -3,7 +3,11 @@ import type { GlobalSettings } from '../../../../shared/global-settings-types'
 import type { Project, ProjectUpdateArgs } from '../../../../shared/project-types'
 import { resolveTerminalBackend } from '../../../../shared/terminal-backend'
 import { useState } from 'react'
-import { translate } from '@/i18n/i18n'
+import {
+  herdrActiveBackendLabel,
+  herdrMigrationBlockedCopy,
+  herdrSettingsCopy
+} from '@/i18n/herdr-settings-copy'
 import type { ProjectRuntimeSessionSummary } from './repository-runtime-session-summary'
 import { SearchableSetting } from './SearchableSetting'
 import {
@@ -58,59 +62,29 @@ export function ProjectTerminalBackendSetting({
   const body = (
     <section className="space-y-3">
       <SettingsSubsectionHeader
-        title={translate(
-          'auto.components.settings.ProjectTerminalBackendSetting.title',
-          'Terminal backend'
-        )}
-        description={translate(
-          'auto.components.settings.ProjectTerminalBackendSetting.active',
-          'Active: {{value0}}',
-          {
-            value0:
-              activeBackend === 'herdr'
-                ? translate('auto.components.settings.ProjectTerminalBackendSetting.herdr', 'Herdr')
-                : translate('auto.components.settings.ProjectTerminalBackendSetting.orca', 'Orca')
-          }
-        )}
+        title={herdrSettingsCopy.projectTitle}
+        description={herdrActiveBackendLabel(activeBackend)}
       />
       <SettingsRow
-        label={translate(
-          'auto.components.settings.ProjectTerminalBackendSetting.preference',
-          'Project preference'
-        )}
-        description={translate(
-          'auto.components.settings.ProjectTerminalBackendSetting.preferenceDescription',
-          'Changing an active project requires an explicit migration. Running Orca PTYs block migration to Herdr.'
-        )}
+        label={herdrSettingsCopy.projectPreference}
+        description={herdrSettingsCopy.projectPreferenceDescription}
         control={
           <SettingsSegmentedControl
-            ariaLabel={translate(
-              'auto.components.settings.ProjectTerminalBackendSetting.aria',
-              'Project terminal backend'
-            )}
+            ariaLabel={herdrSettingsCopy.projectAria}
             value={preference}
             onChange={(value) => updatePreference(value as 'inherit' | 'orca' | 'herdr')}
             options={[
               {
                 value: 'inherit',
-                label: translate(
-                  'auto.components.settings.ProjectTerminalBackendSetting.inherit',
-                  'Inherit'
-                )
+                label: herdrSettingsCopy.projectInherit
               },
               {
                 value: 'orca',
-                label: translate(
-                  'auto.components.settings.ProjectTerminalBackendSetting.orca',
-                  'Orca'
-                )
+                label: herdrSettingsCopy.projectOrca
               },
               {
                 value: 'herdr',
-                label: translate(
-                  'auto.components.settings.ProjectTerminalBackendSetting.herdr',
-                  'Herdr'
-                )
+                label: herdrSettingsCopy.projectHerdr
               }
             ]}
           />
@@ -118,15 +92,7 @@ export function ProjectTerminalBackendSetting({
       />
       {migrationBlocked ? (
         <p role="alert" className="text-xs text-destructive">
-          {translate(
-            (runtimeSessionSummary?.liveTerminalCount ?? 0) === 1
-              ? 'auto.components.settings.ProjectTerminalBackendSetting.blockedSingular'
-              : 'auto.components.settings.ProjectTerminalBackendSetting.blockedPlural',
-            (runtimeSessionSummary?.liveTerminalCount ?? 0) === 1
-              ? 'Close the {{count}} live Orca terminal before migrating this project to Herdr.'
-              : 'Close the {{count}} live Orca terminals before migrating this project to Herdr.',
-            { count: runtimeSessionSummary?.liveTerminalCount ?? 0 }
-          )}
+          {herdrMigrationBlockedCopy(runtimeSessionSummary?.liveTerminalCount ?? 0)}
         </p>
       ) : null}
     </section>
@@ -138,14 +104,8 @@ export function ProjectTerminalBackendSetting({
 
   return (
     <SearchableSetting
-      title={translate(
-        'auto.components.settings.RepositoryPane.terminalBackend',
-        'Terminal backend'
-      )}
-      description={translate(
-        'auto.components.settings.RepositoryPane.terminalBackendDescription',
-        'Choose Orca or Herdr for this project.'
-      )}
+      title={herdrSettingsCopy.repositoryTitle}
+      description={herdrSettingsCopy.repositoryDescription}
       keywords={[repoDisplayName, 'terminal', 'backend', 'runtime', 'herdr', 'multiplexer']}
       className="space-y-3"
       forceVisible={forceVisible}

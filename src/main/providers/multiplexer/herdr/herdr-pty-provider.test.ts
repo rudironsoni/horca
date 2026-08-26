@@ -566,4 +566,44 @@ describe('HerdrPtyProvider', () => {
     provider.dispose()
     expect(disconnect).toHaveBeenCalledOnce()
   })
+
+  it('delegates SSH reconnect attach and logical writes to the Orca fallback', async () => {
+    const attachForReconnect = vi.fn().mockResolvedValue({ incarnationId: 'inc-1' })
+    const write = vi.fn()
+    const getAppliedSize = vi.fn().mockResolvedValue({ cols: 80, rows: 24 })
+    const fallback = {
+      spawn: vi.fn(),
+      attach: vi.fn(),
+      write,
+      resize: vi.fn(),
+      shutdown: vi.fn(),
+      sendSignal: vi.fn(),
+      attachForReconnect,
+      getAppliedSize,
+      hasPty: (id: string) => id === 'pty-1',
+      onData: vi.fn(() => vi.fn()),
+      onExit: vi.fn(() => vi.fn()),
+      onReplay: vi.fn(() => vi.fn()),
+      listProcesses: vi.fn(async () => [])
+    }
+    const provider = new HerdrPtyProvider(
+      () => transport().value,
+      async () => null,
+      () => 'test-session',
+      undefined,
+      fallback as never
+    )
+
+    await expect(
+      provider.attachForReconnect('pty-1', { paneKey: 'leaf-1' }, { kind: 'fresh' })
+    ).resolves.toEqual({ incarnationId: 'inc-1' })
+    expect(attachForReconnect).toHaveBeenCalledWith(
+      'pty-1',
+      { paneKey: 'leaf-1' },
+      { kind: 'fresh' }
+    )
+    expect(provider.writeLogical('pty-1', { kind: 'key', name: 'enter' })).toBe(true)
+    expect(write).toHaveBeenCalledWith('pty-1', '\r')
+    await expect(provider.getAppliedSize('pty-1')).resolves.toEqual({ cols: 80, rows: 24 })
+  })
 })
