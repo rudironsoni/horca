@@ -25,9 +25,5 @@ export function downstreamUpdatesDisabledCopy(kind: DownstreamUpdateCopyKind): s
       return `In-app updates are disabled for ${productName} builds. Install updates through Homebrew or from GitHub Releases.`
     case 'aria':
       return `Updates for ${productName} ship through Homebrew and GitHub Releases.`
-    default: {
-      const _exhaustive: never = kind
-      return _exhaustive
-    }
   }
 }
