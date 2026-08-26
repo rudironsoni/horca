@@ -35,6 +35,21 @@ describe('ensureStockHerdrSession', () => {
     expect(starts).toBe(0)
   })
 
+  it('starts the server when the session is listed running but the socket is gone', async () => {
+    const starts: string[] = []
+    let socketReady = false
+    await ensureStockHerdrSession(new Map(), 'orca', {
+      loadSchema: async () => schema,
+      listSessions: async () => [{ name: 'orca', running: true }],
+      socketReady: async () => socketReady,
+      startServer: async (name) => {
+        starts.push(name)
+        socketReady = true
+      }
+    })
+    expect(starts).toEqual(['orca'])
+  })
+
   it('coalesces concurrent ensure calls for the same session', async () => {
     let starts = 0
     let running = false

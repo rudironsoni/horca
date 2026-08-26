@@ -94,6 +94,29 @@ export class HerdrPtyProvider extends HerdrPtyProviderIo implements IPtyProvider
     })
   }
 
+  async attachForReconnect(
+    id: string,
+    expected?: { paneKey?: string; tabId?: string },
+    sourceRecovery?: unknown
+  ): Promise<unknown> {
+    if (isOrcaFallbackId(this.bindings, id, this.fallback)) {
+      const attach = (
+        this.fallback as IPtyProvider & {
+          attachForReconnect?: (
+            id: string,
+            expected?: { paneKey?: string; tabId?: string },
+            sourceRecovery?: unknown
+          ) => Promise<unknown>
+        }
+      ).attachForReconnect
+      if (typeof attach !== 'function') {
+        throw new Error('ptyProvider.attachForReconnect is not a function')
+      }
+      return attach.call(this.fallback, id, expected, sourceRecovery)
+    }
+    return this.attach(id)
+  }
+
   async shutdown(id: string, opts: { immediate?: boolean; keepHistory?: boolean }): Promise<void> {
     const binding = this.bindings.get(id)
     if (!binding) {

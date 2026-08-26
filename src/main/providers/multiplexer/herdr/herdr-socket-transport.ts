@@ -7,11 +7,8 @@ import type {
   HerdrTerminalControlOptions
 } from './herdr-runtime-contract'
 import { assertHerdrServerCompatible, HerdrRuntimeError } from './herdr-runtime-contract'
-import {
-  HerdrSocketConnection,
-  HerdrSocketRequestTimeoutError,
-  type HerdrSocketConnectionOptions
-} from './herdr-socket-connection'
+import { HerdrSocketConnection, type HerdrSocketConnectionOptions } from './herdr-socket-connection'
+import { isHerdrProcessGone } from './herdr-socket-gone'
 import { HerdrSocketEventConnection } from './herdr-socket-events'
 import {
   createHerdrSessionControlController,
@@ -66,19 +63,36 @@ export class HerdrSocketTransport implements HerdrHostTransport {
   }
 
   private async ensureSessionConnection(sessionName: string): Promise<void> {
-    await this.sessionManager.ensureSession(sessionName)
-    if (!this.connectionsBySession.has(sessionName)) {
-      const connection = new HerdrSocketConnection({ ...this.options, sessionName })
-      this.connectionsBySession.set(sessionName, connection)
+    const existing = this.connectionsBySession.get(sessionName)
+    if (existing) {
       try {
-        await connection.connect()
-        await this.assertServerProtocolMatches(connection)
+        await existing.connect()
+        await this.assertServerProtocolMatches(existing)
+        void this.ensureEventSubscription(sessionName).catch((error: unknown) => {
+          console.error(
+            '[herdr] Event connection failed:',
+            error instanceof Error ? error.message : error
+          )
+        })
+        return
       } catch (error) {
-        if (this.connectionsBySession.get(sessionName) === connection) {
-          this.connectionsBySession.delete(sessionName)
+        if (!isHerdrProcessGone(error)) {
+          throw error
         }
-        throw error
+        this.connectionsBySession.delete(sessionName)
       }
+    }
+    await this.sessionManager.ensureSession(sessionName)
+    const connection = new HerdrSocketConnection({ ...this.options, sessionName })
+    this.connectionsBySession.set(sessionName, connection)
+    try {
+      await connection.connect()
+      await this.assertServerProtocolMatches(connection)
+    } catch (error) {
+      if (this.connectionsBySession.get(sessionName) === connection) {
+        this.connectionsBySession.delete(sessionName)
+      }
+      throw error
     }
     void this.ensureEventSubscription(sessionName).catch((error: unknown) => {
       console.error(
@@ -289,20 +303,4 @@ export class HerdrSocketTransport implements HerdrHostTransport {
   }
 }
 
-export function isHerdrProcessGone(error: unknown): boolean {
-  if (error instanceof HerdrSocketRequestTimeoutError) {
-    return false
-  }
-  if (error instanceof HerdrRuntimeError) {
-    return error.code === 'herdr_unavailable'
-  }
-  const code = (error as NodeJS.ErrnoException).code
-  if (code === 'ENOENT' || code === 'ECONNREFUSED' || code === 'EPIPE' || code === 'ECONNRESET') {
-    return true
-  }
-  const message = error instanceof Error ? error.message : String(error)
-  return (
-    /^Connection to .* timed out$/i.test(message) ||
-    /not initialized|ECONNREFUSED|ENOENT/i.test(message)
-  )
-}
+export { isHerdrProcessGone } from './herdr-socket-gone'
