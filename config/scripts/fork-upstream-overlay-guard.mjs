@@ -359,7 +359,10 @@ export function inspectForkOverlay(ours, theirs) {
       })
       continue
     }
-    findings.push({ filePath, kind: 'upstream-only', status: 'unexpected' })
+    if (onTheirs) {
+      findings.push({ filePath, kind: 'upstream-only', status: 'unexpected' })
+    }
+    // Merge-base path dropped on both trees: three-dot still lists the delete.
   }
 
   const observedOverlays = new Set(
