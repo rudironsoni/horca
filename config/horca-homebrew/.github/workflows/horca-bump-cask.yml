@@ -1,7 +1,7 @@
-name: Bump horca cask
+name: 'Horca: Bump cask'
 
 # Tap-side 6h backup. Release Horca / Release Horca beta on rudironsoni/orca
-# call .github/workflows/bump-horca-cask.yml and wait so a just-published
+# call .github/workflows/horca_bump_cask.yml and wait so a just-published
 # tag is on the matching cask immediately. This copy still polls
 # v*-horca.* (stable) into Casks/horca.rb and prerelease
 # v*-horca.*-beta.* into Casks/horca@beta.rb. Never the GitHub latest

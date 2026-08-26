@@ -1,9 +1,9 @@
-name: Build Horca
+name: 'Horca: Build'
 
 # Builds and verifies every Horca release target — macOS arm64, macOS x64,
 # Windows x64 — from ONE exact commit of this repository. Never creates a
-# Release; publishing is horca-release.yml's job so a partially built version
-# can never ship. Dispatch or horca-release.yml / horca-beta-release.yml
+# Release; publishing is horca_release.yml's job so a partially built version
+# can never ship. Dispatch or horca_release.yml / horca_beta_release.yml
 # calling this with a pinned SHA + version. Apple secrets are optional at the workflow
 # boundary so a missing secret starts jobs (macOS then fail-closes) instead
 # of killing the reusable call with zero steps.
@@ -447,7 +447,7 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-  # Single gate for callers: horca-release.yml depends on this one job, so a
+  # Single gate for callers: horca_release.yml depends on this one job, so a
   # release can only proceed when every platform built AND verified.
   all-platforms:
     if: github.repository == 'rudironsoni/orca'

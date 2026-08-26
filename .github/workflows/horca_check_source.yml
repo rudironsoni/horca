@@ -1,4 +1,4 @@
-name: Check for new Horca source
+name: 'Horca: Check for new source'
 
 # Cheap pull-based detector: compares this repo's main HEAD against the
 # Source-SHA of the latest published Horca release (v*-horca.* only).
@@ -6,7 +6,7 @@ name: Check for new Horca source
 # start for unchanged source. Changed source triggers the full atomic
 # release flow.
 #
-# The FIRST release is deliberately manual (dispatch horca-release.yml):
+# The FIRST release is deliberately manual (dispatch horca_release.yml):
 # automation only continues an already-proven pipeline, it never bootstraps.
 
 on:
@@ -40,7 +40,7 @@ jobs:
           release_json=$(gh api "repos/$GITHUB_REPOSITORY/releases" --paginate \
             --jq '[.[] | select(.draft|not) | select(.tag_name | test("^v[0-9]+\\.[0-9]+\\.[0-9]+-horca\\.[0-9]+$"))] | sort_by(.created_at) | last // empty')
           if [ -z "$release_json" ] || [ "$release_json" = "null" ]; then
-            echo "::notice::no published Horca release yet; the first release must be cut manually via horca-release.yml"
+            echo "::notice::no published Horca release yet; the first release must be cut manually via horca_release.yml"
             echo "changed=false" >>"$GITHUB_OUTPUT"
             exit 0
           fi
@@ -65,7 +65,7 @@ jobs:
   release:
     needs: detect
     if: github.repository == 'rudironsoni/orca' && needs.detect.outputs.changed == 'true'
-    uses: ./.github/workflows/horca-release.yml
+    uses: ./.github/workflows/horca_release.yml
     with:
       sha: ${{ needs.detect.outputs.sha }}
     secrets: inherit

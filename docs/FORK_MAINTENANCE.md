@@ -37,7 +37,7 @@ On 2026-08-20 a rebase of `main` deleted fork-maintenance work from PRs #7,
 
 ## Fork Shepherd
 
-`.github/workflows/fork-shepherd.yml` runs only on `rudironsoni/orca`
+`.github/workflows/horca_shepherd.yml` runs only on `rudironsoni/orca`
 (`if: github.repository == 'rudironsoni/orca'`). It is pinned to
 `FasterApiWeb/fork-shepherd@v1` and uses one PAT for checkout and the
 action: `secrets.FORK_SYNC_PAT`.
@@ -84,7 +84,7 @@ not own (`src/shared/distribution-update-copy.ts` for updater strings;
 `config/scripts/fork-upstream-overlay-guard.mjs` is the ratchet: overlays
 must stay on its allowlist, fork-only files on its fork-only list, and
 `tests/e2e/` plus locale JSON are denied even if added to the allowlist.
-Pull requests run `.github/workflows/fork-overlay-guard.yml` (not
+Pull requests run `.github/workflows/horca_overlay_guard.yml` (not
 `pull_request_target`).
 
 When both sides independently landed the same edit, take the upstream
@@ -93,7 +93,7 @@ upstream touches that file.
 
 ## Tag mirror
 
-Fork Shepherd does not copy tags. `.github/workflows/mirror-upstream-v-tags.yml`
+Fork Shepherd does not copy tags. `.github/workflows/horca_mirror_upstream_v_tags.yml`
 copies `refs/tags/v*` from `stablyai/orca` by object id, never force-updates,
 and skips `v*-horca.N`. The Skill update round-trip resolves `v<appVersion>`
 from `resources/skills/release-mapping.json` and fails when those tags are
@@ -110,17 +110,17 @@ and a beta; `[skip horca-beta]` skips only the beta workflow.
 
 | Workflow | Purpose |
 | --- | --- |
-| `horca-build.yml` | Dispatch / `workflow_call` only. Produces the three verified artifacts. Never PR Checks. Not started by push to `main` (that double-notarized with `horca-release.yml`). Accepts `<core>-horca.<N>` or `<core>-horca.<N>-beta.<M>`. Apple secrets are optional at the call boundary. |
-| `horca-release.yml` | Runs on every push to `main`. Compute `v<core>-horca.<N>` from the newest `stablyai/orca` main commit actually contained by the source SHA, call the build, draft → 3 assets → undraft, then call `bump-horca-cask.yml` (`cask_token: horca`) and wait. Concurrent runs queue. |
-| `horca-beta-release.yml` | Runs on push to `feature/**`, `feat/**`, `fix/**`, `bugfix/**`, `hotfix/**`, `perf/**`, `refactor/**` (not `main`, `cursor/**`, `chore/**`, `docs/**`, `ci/**`, `test/**`, `style/**`, `personal/**`, `release/**`). Compute `v<core>-horca.<nextN>-beta.<M>`, call the build, publish `--prerelease`, then bump `horca@beta`. Force-push cancels the in-flight run. |
-| `bump-horca-cask.yml` | Dispatch / `workflow_call` only. After a published Horca tag, rewrites `rudironsoni/homebrew-tap` `Casks/${cask_token}.rb` (version + sha256) and pushes. `cask_token` is `horca` or `horca@beta`. A missing tap file is copied from `config/horca-homebrew/Casks/`. `FORK_SYNC_PAT` must be able to push to that tap. |
-| `horca-check-source.yml` | Backup every 6 hours: compare `main` HEAD to the latest **stable** Horca release `Source-SHA`. Unchanged → Linux-only exit. Changed → call `horca-release.yml`. Refuses to bootstrap if no Horca release exists yet. Does not follow betas. |
+| `horca_build.yml` | Dispatch / `workflow_call` only. Produces the three verified artifacts. Never PR Checks. Not started by push to `main` (that double-notarized with `horca_release.yml`). Accepts `<core>-horca.<N>` or `<core>-horca.<N>-beta.<M>`. Apple secrets are optional at the call boundary. |
+| `horca_release.yml` | Runs on every push to `main`. Compute `v<core>-horca.<N>` from the newest `stablyai/orca` main commit actually contained by the source SHA, call the build, draft → 3 assets → undraft, then call `horca_bump_cask.yml` (`cask_token: horca`) and wait. Concurrent runs queue. |
+| `horca_beta_release.yml` | Runs on push to `feature/**`, `feat/**`, `fix/**`, `bugfix/**`, `hotfix/**`, `perf/**`, `refactor/**` (not `main`, `cursor/**`, `chore/**`, `docs/**`, `ci/**`, `test/**`, `style/**`, `personal/**`, `release/**`). Compute `v<core>-horca.<nextN>-beta.<M>`, call the build, publish `--prerelease`, then bump `horca@beta`. Force-push cancels the in-flight run. |
+| `horca_bump_cask.yml` | Dispatch / `workflow_call` only. After a published Horca tag, rewrites `rudironsoni/homebrew-tap` `Casks/${cask_token}.rb` (version + sha256) and pushes. `cask_token` is `horca` or `horca@beta`. A missing tap file is copied from `config/horca-homebrew/Casks/`. `FORK_SYNC_PAT` must be able to push to that tap. |
+| `horca_check_source.yml` | Backup every 6 hours: compare `main` HEAD to the latest **stable** Horca release `Source-SHA`. Unchanged → Linux-only exit. Changed → call `horca_release.yml`. Refuses to bootstrap if no Horca release exists yet. Does not follow betas. |
 
 Release attaches the build workflow's Actions artifacts to this repository's GitHub Release; it does not package again.
 
 Homebrew staging lives in `config/horca-homebrew/` and is copied once into
 `rudironsoni/homebrew-tap`. The tap stays a separate repository. Release
-Horca calls `.github/workflows/bump-horca-cask.yml` (same `uses:` wait as
+Horca calls `.github/workflows/horca_bump_cask.yml` (same `uses:` wait as
 the build) so `Casks/horca.rb` matches the stable tag that just shipped.
 Release Horca beta does the same for `Casks/horca@beta.rb` (`conflicts_with
 cask: "horca"`). The tap's own scheduled copy remains a 6-hour backup: it
@@ -135,21 +135,21 @@ cask URL is `rudironsoni/orca`, never `orca-builds`. Install beta with
    `MAC_CERTS`, `MAC_CERTS_PASSWORD`, `APPLE_ID`,
    `APPLE_APP_SPECIFIC_PASSWORD`, `APPLE_TEAM_ID`. The macOS job fail-closes
    if any are missing.
-2. Prove the pipeline without publishing: Actions → **Build Horca** → Run
+2. Prove the pipeline without publishing: Actions → **Horca: Build** → Run
    workflow. Optional inputs: Horca version (`<core>-horca.N` or
    `<core>-horca.N-beta.M`) and commit SHA.
-3. A merge (or Shepherd push) to `main` starts **Release Horca** only.
-   After the GitHub Release is undrafted, that run calls **Bump horca cask**
+3. A merge (or Shepherd push) to `main` starts **Horca: Release** only.
+   After the GitHub Release is undrafted, that run calls **Horca: Bump cask**
    (`horca`) and waits. Dispatch remains available.
 4. A push to a conventional `feature/**` / `fix/**` / `hotfix/**` / … branch
-   starts **Release Horca beta**. `[skip horca-beta]` or `[skip horca-release]`
+   starts **Horca: Release beta**. `[skip horca-beta]` or `[skip horca-release]`
    in the commit message skips it. Dispatch remains available.
-5. `horca-check-source.yml` is a backup if a push event is missed. It
+5. `horca_check_source.yml` is a backup if a push event is missed. It
    still will not bootstrap a first release by itself, and it ignores betas.
 
 ## Secrets, labels, rulesets
 
-Applied by `.github/workflows/horca-repo-admin.yml` using `FORK_SYNC_PAT`
+Applied by `.github/workflows/horca_repo_admin.yml` using `FORK_SYNC_PAT`
 (dispatch, or when that workflow file itself is pushed).
 
 - Secret `FORK_SYNC_PAT` only (no `UPSTREAM_SYNC_TOKEN` fallback): Contents +

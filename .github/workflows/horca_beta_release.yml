@@ -1,10 +1,10 @@
-name: Release Horca beta
+name: 'Horca: Release beta'
 
 # Cuts one Horca beta prerelease from a conventional-prefix branch: computes
 # v<core>-horca.<nextN>-beta.<M> (nextN from stable tags only), builds AND
-# verifies every platform via horca-build.yml, publishes with --prerelease,
-# then calls bump-horca-cask.yml for horca@beta and waits. Stable
-# horca-release.yml (push to main, concurrency horca-release) is unchanged.
+# verifies every platform via horca_build.yml, publishes with --prerelease,
+# then calls horca_bump_cask.yml for horca@beta and waits. Stable
+# horca_release.yml (push to main, concurrency horca-release) is unchanged.
 # Force-push on the same branch cancels the superseded notarization.
 
 on:
@@ -84,7 +84,7 @@ jobs:
   build:
     if: github.repository == 'rudironsoni/orca' && (github.event_name != 'push' || (!contains(github.event.head_commit.message, '[skip horca-beta]') && !contains(github.event.head_commit.message, '[skip horca-release]')))
     needs: prepare
-    uses: ./.github/workflows/horca-build.yml
+    uses: ./.github/workflows/horca_build.yml
     with:
       sha: ${{ needs.prepare.outputs.source_sha }}
       version: ${{ needs.prepare.outputs.version }}
@@ -163,7 +163,7 @@ jobs:
   bump-cask:
     if: github.repository == 'rudironsoni/orca' && (github.event_name != 'push' || (!contains(github.event.head_commit.message, '[skip horca-beta]') && !contains(github.event.head_commit.message, '[skip horca-release]')))
     needs: [prepare, publish]
-    uses: ./.github/workflows/bump-horca-cask.yml
+    uses: ./.github/workflows/horca_bump_cask.yml
     with:
       version: ${{ needs.prepare.outputs.version }}
       cask_token: 'horca@beta'

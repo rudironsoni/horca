@@ -1,4 +1,4 @@
-name: Fork Shepherd
+name: 'Horca: Fork Shepherd'
 
 on:
   schedule:

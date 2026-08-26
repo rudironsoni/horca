@@ -17,20 +17,20 @@ import {
 
 const projectDir = resolve(import.meta.dirname, '../..')
 const shepherdWorkflow = parse(
-  readFileSync(join(projectDir, '.github', 'workflows', 'fork-shepherd.yml'), 'utf8')
+  readFileSync(join(projectDir, '.github', 'workflows', 'horca_shepherd.yml'), 'utf8')
 )
 const overlayWorkflow = parse(
-  readFileSync(join(projectDir, '.github', 'workflows', 'fork-overlay-guard.yml'), 'utf8')
+  readFileSync(join(projectDir, '.github', 'workflows', 'horca_overlay_guard.yml'), 'utf8')
 )
 
 describe('fork upstream overlay guard', () => {
   const horcaReleaseForkOnlyPaths = [
-    '.github/workflows/bump-horca-cask.yml',
-    '.github/workflows/horca-beta-release.yml',
-    '.github/workflows/horca-build.yml',
-    '.github/workflows/horca-check-source.yml',
-    '.github/workflows/horca-release.yml',
-    'config/horca-homebrew/.github/workflows/bump-horca-cask.yml',
+    '.github/workflows/horca_bump_cask.yml',
+    '.github/workflows/horca_beta_release.yml',
+    '.github/workflows/horca_build.yml',
+    '.github/workflows/horca_check_source.yml',
+    '.github/workflows/horca_release.yml',
+    'config/horca-homebrew/.github/workflows/horca-bump-cask.yml',
     'config/horca-homebrew/Casks/horca.rb',
     'config/horca-homebrew/Casks/horca@beta.rb',
     'config/horca-homebrew/README-horca.md',
@@ -45,12 +45,24 @@ describe('fork upstream overlay guard', () => {
     expect(allowlistIntegrityErrors()).toEqual([])
   })
 
+  it('names fork-only GitHub workflows horca_*.yml with Horca: titles', () => {
+    const workflowPaths = [...FORK_ONLY_PATHS]
+      .filter((relativePath) => relativePath.startsWith('.github/workflows/'))
+      .sort()
+    expect(workflowPaths.length).toBeGreaterThan(0)
+    for (const relativePath of workflowPaths) {
+      expect(relativePath).toMatch(/^\.github\/workflows\/horca_[a-z0-9_]+\.ya?ml$/)
+      const parsed = parse(readFileSync(join(projectDir, relativePath), 'utf8'))
+      expect(parsed.name, relativePath).toMatch(/^Horca: /)
+    }
+  })
+
   it('lists in-repo Horca release files as fork-only', () => {
     for (const relativePath of horcaReleaseForkOnlyPaths) {
       expect(FORK_ONLY_PATHS.has(relativePath)).toBe(true)
       expect(classifyForkPath(relativePath, 'fork-only')).toBe('allowed')
     }
-    expect(FORK_ONLY_PATHS.has('.github/workflows/horca-repo-admin.yml')).toBe(true)
+    expect(FORK_ONLY_PATHS.has('.github/workflows/horca_repo_admin.yml')).toBe(true)
   })
 
   it('denies dual-tree patches under tests/e2e and locale JSON catalogs', () => {
