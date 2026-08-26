@@ -68,13 +68,10 @@ jobs:
 
       - name: Style and audit
         if: steps.update.outputs.changed == 'true'
-        working-directory: homebrew-tap
         env:
           CASK_TOKEN: ${{ inputs.cask_token || 'horca' }}
-        run: |
-          set -euo pipefail
-          brew style --cask "$PWD/Casks/${CASK_TOKEN}.rb"
-          brew audit --cask "$PWD/Casks/${CASK_TOKEN}.rb"
+          TAP_DIR: ${{ github.workspace }}/homebrew-tap
+        run: bash config/scripts/horca-brew-style-cask.sh
 
       - name: Commit and push
         if: steps.update.outputs.changed == 'true'

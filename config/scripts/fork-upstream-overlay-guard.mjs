@@ -31,6 +31,8 @@ export const FORK_ONLY_PATHS = new Set([
   'config/scripts/fork-shepherd-workflow.test.mjs',
   'config/scripts/fork-upstream-overlay-guard.mjs',
   'config/scripts/fork-upstream-overlay-guard.test.mjs',
+  'config/scripts/horca-brew-style-cask.sh',
+  'config/scripts/horca-brew-style-cask.test.mjs',
   'config/scripts/horca-bump-homebrew-cask.sh',
   'config/scripts/horca-bump-homebrew-cask.test.mjs',
   'config/scripts/horca-prepare-release.sh',

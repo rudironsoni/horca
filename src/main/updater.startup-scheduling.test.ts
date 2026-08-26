@@ -188,9 +188,9 @@ describe('updater', () => {
       setLastUpdateCheckAt: vi.fn()
     })
 
-    await vi.waitFor(() => {
-      expect(autoUpdaterMock.checkForUpdates).toHaveBeenCalledTimes(1)
-    })
+    // Why: waitFor under fake timers can fire the queued retry (extra checkForUpdates).
+    await vi.advanceTimersByTimeAsync(0)
+    expect(autoUpdaterMock.checkForUpdates).toHaveBeenCalledTimes(1)
 
     await vi.advanceTimersByTimeAsync(59 * 60 * 1000)
     expect(autoUpdaterMock.checkForUpdates).toHaveBeenCalledTimes(1)
@@ -222,10 +222,9 @@ describe('updater', () => {
       setLastUpdateCheckAt
     })
 
-    await vi.waitFor(() => {
-      expect(autoUpdaterMock.checkForUpdates).toHaveBeenCalledTimes(1)
-    })
+    // Why: waitFor under fake timers can fire the 24h queue (3 checks instead of 2).
     await vi.advanceTimersByTimeAsync(0)
+    expect(autoUpdaterMock.checkForUpdates).toHaveBeenCalledTimes(1)
 
     expect(setLastUpdateCheckAt).toHaveBeenCalledTimes(1)
     expect(sendMock).toHaveBeenCalledWith('updater:status', {
