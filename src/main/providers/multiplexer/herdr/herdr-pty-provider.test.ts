@@ -1,14 +1,19 @@
 import { describe, expect, it, vi } from 'vitest'
 import { Buffer } from 'node:buffer'
 import { herdrSessionNameForProject } from '../../../../shared/herdr-session-identity'
-import type { HerdrTerminalController, HerdrTerminalFrame } from './herdr-runtime-contract'
+import type {
+  HerdrHostTransport,
+  HerdrTerminalController,
+  HerdrTerminalFrame
+} from './herdr-runtime-contract'
 import { decodeHerdrPtyId, HerdrPtyProvider } from './herdr-pty-provider'
 import { findLegacyMigrationBlockers } from './herdr-pty-types'
 import { target, transport } from './herdr-pty-provider-test-transport'
 import { project, singleLeafGraph, stockTransport } from './herdr-runtime-manager-test-fixtures'
 
 function withObserve(host: ReturnType<typeof stockTransport>) {
-  host.transport.controlTerminal = vi.fn((_session, _pane, options) => {
+  const transport: HerdrHostTransport = host.transport
+  transport.controlTerminal = vi.fn((_session, _pane, options) => {
     const frameListeners = new Set<(frame: HerdrTerminalFrame) => void>()
     const observe: HerdrTerminalController = {
       write: vi.fn(),
