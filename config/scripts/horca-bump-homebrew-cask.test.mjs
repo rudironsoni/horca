@@ -65,6 +65,32 @@ function runBump(cwd, env) {
 }
 
 describe('horca-bump-homebrew-cask', () => {
+  it('normalizes legacy depends_on macos syntax when bumping', () => {
+    const root = mkdtempSync(join(tmpdir(), 'horca-bump-macos-'))
+    const binDir = join(root, 'bin')
+    const tapDir = join(root, 'tap')
+    mkdirSync(binDir)
+    mkdirSync(join(tapDir, 'Casks'), { recursive: true })
+    writeFakeGh(binDir)
+    writeFileSync(
+      join(tapDir, 'Casks/horca.rb'),
+      `${SAMPLE_CASK}\n  depends_on macos: ">= :big_sur"\n`
+    )
+    const outputPath = join(root, 'github-output')
+    writeFileSync(outputPath, '')
+
+    runBump(root, {
+      PATH: `${binDir}:${process.env.PATH}`,
+      VERSION: '1.4.178-horca.2',
+      TAP_DIR: tapDir,
+      GITHUB_OUTPUT: outputPath
+    })
+
+    const cask = readFileSync(join(tapDir, 'Casks/horca.rb'), 'utf8')
+    expect(cask).toContain('depends_on macos: :big_sur')
+    expect(cask).not.toContain('depends_on macos: ">=')
+  })
+
   it('rewrites version and sha256s from the published DMGs', () => {
     const root = mkdtempSync(join(tmpdir(), 'horca-bump-'))
     const binDir = join(root, 'bin')
