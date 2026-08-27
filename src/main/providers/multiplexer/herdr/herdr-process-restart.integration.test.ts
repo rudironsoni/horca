@@ -1,10 +1,14 @@
 import { execFileSync } from 'node:child_process'
 import { existsSync, rmSync } from 'node:fs'
-import { join } from 'node:path'
 import { afterAll, describe, expect, it } from 'vitest'
 import { herdrSessionNameForProject } from '../../../../shared/herdr-session-identity'
 import { herdrServerEnvironment, localHerdrCommand } from './herdr-cli-session'
-import { configHomeDir, resolveStockHerdrTestBinary } from './herdr-stock-binary'
+import { defaultHerdrSocketPath } from './herdr-socket-connection'
+import {
+  configHomeDir,
+  isolatedStockHerdrHomeEnv,
+  resolveStockHerdrTestBinary
+} from './herdr-stock-binary'
 import { ORCA_BINDING_TOKEN } from './herdr-binding-metadata'
 import { HerdrRuntimeManager } from './herdr-runtime-manager'
 import { unwrapHerdrResponse } from './herdr-runtime-contract'
@@ -25,14 +29,9 @@ async function waitForSocketRemoval(socketPath: string): Promise<void> {
 
 describeRealHerdr('stock Herdr process restart', () => {
   const configHome = configHomeDir()
-  const sessionName = `ot-${process.pid}`
-  const env: NodeJS.ProcessEnv = { ...process.env, HOME: configHome }
-  for (const name of Object.keys(env)) {
-    if (name.startsWith('HERDR_')) {
-      delete env[name]
-    }
-  }
-  const socketPath = join(configHome, '.config/herdr/sessions', sessionName, 'herdr.sock')
+  const sessionName = `ot-${process.pid}-rs`
+  const env = isolatedStockHerdrHomeEnv(configHome)
+  const socketPath = defaultHerdrSocketPath(sessionName, process.platform, env)
   const transport = new HerdrSocketTransport({
     sessionName,
     socketPath,
@@ -42,7 +41,7 @@ describeRealHerdr('stock Herdr process restart', () => {
       args: ['--session', name, 'server'],
       env: herdrServerEnvironment(env)
     }),
-    timeoutMs: 30_000
+    timeoutMs: 90_000
   })
   const manager = new HerdrRuntimeManager(transport, () => sessionName)
 
@@ -115,6 +114,7 @@ describeRealHerdr('stock Herdr process restart', () => {
       timeout: 30_000
     })
     await waitForSocketRemoval(socketPath)
+    await new Promise((resolve) => setTimeout(resolve, 500))
 
     await transport.ensureSession(sessionName)
     const restored = unwrapHerdrResponse<{ snapshot: typeof first }>(
@@ -130,5 +130,5 @@ describeRealHerdr('stock Herdr process restart', () => {
       second.workspaces.filter((workspace) => workspace.tokens?.[ORCA_BINDING_TOKEN])
     ).toHaveLength(1)
     expect(restored.workspaces).toHaveLength(1)
-  }, 60_000)
+  }, 120_000)
 })

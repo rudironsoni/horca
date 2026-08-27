@@ -254,8 +254,9 @@ export function createUpdaterMocks(): UpdaterMocks {
       close: closeLocalBuildFeedMock
     })
     vi.unstubAllGlobals()
-    // Why: useRealTimers() does not drop the fake-timer queue. A previous test's
-    // 24h auto-check then fires into the next test's mock (3 calls instead of 2).
+    // Why: useRealTimers() does not drop the fake-timer queue. Install fake timers
+    // first so pending real 24h checks are adopted, then drop them.
+    vi.useFakeTimers()
     vi.clearAllTimers()
     vi.useRealTimers()
   }

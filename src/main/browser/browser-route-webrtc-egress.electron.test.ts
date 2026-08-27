@@ -138,10 +138,12 @@ function runProbe(protectedGuest: boolean): ProbeResult {
   writeFileSync(mainPath, probeMain(resultPath, protectedGuest))
   const { ELECTRON_RUN_AS_NODE: _electronRunAsNode, ...env } = process.env
   const electronArgs = [mainPath, `--user-data-dir=${join(root, 'profile')}`]
-  const executable = process.platform === 'linux' ? 'xvfb-run' : electronBinary
-  const args =
-    process.platform === 'linux'
-      ? ['--auto-servernum', electronBinary, ...electronArgs, '--no-sandbox']
+  const nestXvfb = process.platform === 'linux' && !process.env.DISPLAY
+  const executable = nestXvfb ? 'xvfb-run' : electronBinary
+  const args = nestXvfb
+    ? ['--auto-servernum', electronBinary, ...electronArgs, '--no-sandbox']
+    : process.platform === 'linux'
+      ? [...electronArgs, '--no-sandbox']
       : electronArgs
   const run = spawnSync(executable, args, { encoding: 'utf8', env, timeout: 30_000 })
   const rawResult = existsSync(resultPath) ? readFileSync(resultPath, 'utf8') : 'no result'
