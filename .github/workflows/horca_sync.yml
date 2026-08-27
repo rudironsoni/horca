@@ -1,0 +1,103 @@
+name: 'Horca: Sync Upstream'
+
+on:
+  schedule:
+    - cron: '17 4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: horca-upstream-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    if: github.repository == 'rudironsoni/orca'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: horca-maintenance
+    env:
+      SYNC_BRANCH: automation/upstream-sync
+    steps:
+      - name: Create maintenance token
+        id: app
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.HORCA_APP_ID }}
+          private-key: ${{ secrets.HORCA_APP_PRIVATE_KEY }}
+
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ steps.app.outputs.token }}
+
+      - name: Fetch upstream
+        run: |
+          git remote add upstream https://github.com/stablyai/orca.git
+          git fetch --no-tags upstream main
+
+      - name: Stop when current
+        id: current
+        run: |
+          if git merge-base --is-ancestor upstream/main HEAD; then
+            echo 'skip=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'skip=false' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build sync candidate
+        id: merge
+        if: steps.current.outputs.skip != 'true'
+        continue-on-error: true
+        run: |
+          git config user.name 'Horca Maintenance'
+          git config user.email 'horca-maintenance@users.noreply.github.com'
+          git switch -C "$SYNC_BRANCH"
+          if ! git merge --no-edit upstream/main; then
+            git diff --name-only --diff-filter=U > "$RUNNER_TEMP/sync-conflicts.txt"
+            git merge --abort
+            exit 1
+          fi
+
+      - name: Report merge conflicts
+        if: steps.merge.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+        run: |
+          conflicts=$(sed 's/^/- `/' "$RUNNER_TEMP/sync-conflicts.txt" | sed 's/$/`/')
+          body=$(printf 'Automated merge of `stablyai/orca:main` failed.\n\n%s\n\nRun `%s` locally to resolve it.' "$conflicts" 'git fetch upstream && git merge upstream/main')
+          existing=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search 'in:title "sync-conflict"' --json number --jq '.[0].number')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --repo "$GITHUB_REPOSITORY" --body "$body"
+          else
+            gh issue create --repo "$GITHUB_REPOSITORY" --title 'sync-conflict: upstream main' --body "$body"
+          fi
+          exit 1
+
+      - uses: ./.github/actions/install-node-dependencies
+        if: steps.current.outputs.skip != 'true' && steps.merge.outcome == 'success'
+
+      - name: Validate candidate
+        if: steps.current.outputs.skip != 'true' && steps.merge.outcome == 'success'
+        env:
+          HORCA_UPSTREAM_REF: upstream/main
+        run: |
+          node config/horca/scripts/check-overlay-policy.mjs
+          pnpm tc
+          pnpm exec vitest run --config config/vitest.config.ts src/shared/distribution-identity.test.ts src/main/providers/terminal-backend-registry.test.ts src/main/horca --exclude '**/*.integration.test.ts'
+
+      - name: Publish sync pull request
+        if: steps.current.outputs.skip != 'true' && steps.merge.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+        run: |
+          git push --force-with-lease origin "$SYNC_BRANCH"
+          number=$(gh pr list --repo "$GITHUB_REPOSITORY" --head "$SYNC_BRANCH" --base main --state open --json number --jq '.[0].number')
+          if [ -z "$number" ]; then
+            gh pr create --repo "$GITHUB_REPOSITORY" --base main --head "$SYNC_BRANCH" --title 'chore: sync stablyai/orca main' --body 'Automated upstream sync. Horca CI must pass before merge.'
+          fi
