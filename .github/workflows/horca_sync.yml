@@ -21,14 +21,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      GH_TOKEN: ${{ secrets.HORCA_MAINTENANCE_TOKEN || github.token }}
+      GH_TOKEN: ${{ secrets.FORK_SYNC_PAT || github.token }}
       SYNC_BRANCH: automation/upstream-sync
     steps:
       - uses: actions/checkout@v6
         with:
           ref: main
           fetch-depth: 0
-          token: ${{ secrets.HORCA_MAINTENANCE_TOKEN || github.token }}
+          token: ${{ secrets.FORK_SYNC_PAT || github.token }}
 
       - name: Fetch upstream
         run: |
