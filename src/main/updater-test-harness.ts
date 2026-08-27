@@ -254,6 +254,10 @@ export function createUpdaterMocks(): UpdaterMocks {
       close: closeLocalBuildFeedMock
     })
     vi.unstubAllGlobals()
+    // Why: useRealTimers() does not drop the fake-timer queue. Install fake timers
+    // first so pending real 24h checks are adopted, then drop them.
+    vi.useFakeTimers()
+    vi.clearAllTimers()
     vi.useRealTimers()
   }
 

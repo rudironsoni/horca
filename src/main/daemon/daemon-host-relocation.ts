@@ -11,6 +11,7 @@ import {
 } from 'node:fs'
 import { dirname, join, win32 as winPath } from 'node:path'
 import { getAppEnvironment } from '../../shared/app-environment'
+import { getDistributionIdentity } from '../../shared/distribution-identity'
 import { parseDaemonPidFile } from './daemon-pid-file-parse'
 import { startTimeMatches } from './daemon-process-start-time'
 
@@ -32,11 +33,13 @@ export type RelocatedDaemonHost = {
 const HOST_SUBDIR = 'daemon-host'
 const MARKER_NAME = '.materialized.json'
 
-// LOCAL appData (not roaming) so OneDrive/roaming never syncs this ~260MB runtime. Shared with NSIS uninstall (config/nsis/daemon-host-uninstall.nsh) — keep in sync.
-const LOCAL_HOST_ROOT_NAME = 'Orca'
+// LOCAL appData (not roaming) so OneDrive/roaming never syncs this ~260MB runtime. Distribution-scoped
+// (side-by-side installs must never share or uninstall each other's daemon hosts) and kept in sync with
+// the per-distribution NSIS uninstall include (config/nsis/daemon-host-uninstall*.nsh).
+const LOCAL_HOST_ROOT_NAME = getDistributionIdentity().windowsDaemonHostRootName
 
-// Copy of Orca.exe renamed to a distinct image name so the NSIS updater's `taskkill /IM Orca.exe` can't match it.
-const DAEMON_HOST_EXE_NAME = 'orca-terminal-daemon.exe'
+// Copy of the app exe renamed to a distinct image name so the NSIS updater's `taskkill /IM <app>.exe` can't match it.
+const DAEMON_HOST_EXE_NAME = getDistributionIdentity().windowsTerminalDaemonImageName
 
 // V8 snapshots + ICU data the Electron bootstrap reads even under ELECTRON_RUN_AS_NODE; siblings of Orca.exe.
 const RUNTIME_DATA_FILES = ['icudtl.dat', 'snapshot_blob.bin', 'v8_context_snapshot.bin']
