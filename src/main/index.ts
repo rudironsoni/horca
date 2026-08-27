@@ -2474,7 +2474,7 @@ void app.whenReady().then(async () => {
     storageAuthority: isServeMode ? 'runtime' : 'desktop'
   })
   if (getDistributionIdentity().distribution === 'horca') {
-    initializeHorca(store)
+    initializeHorca(store, activeOrcaProfile.dataFile)
   }
   // Why: create pending readiness before the guard can observe the default session.
   const initialProxyApplication = applyElectronProxySettings(store.getSettings())
