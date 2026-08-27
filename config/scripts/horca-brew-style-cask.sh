@@ -25,5 +25,6 @@ ln -s "$tap_dir" "$tap_link"
 export HOMEBREW_NO_REQUIRE_TAP_TRUST=1
 export HOMEBREW_NO_AUTO_UPDATE=1
 
+brew style --fix --cask "rudironsoni/tap/${CASK_TOKEN}"
 brew style --cask "rudironsoni/tap/${CASK_TOKEN}"
 brew audit --cask "rudironsoni/tap/${CASK_TOKEN}"

@@ -58,6 +58,7 @@ describe('horca-brew-style-cask', () => {
     const tapLink = join(brewRoot, 'Library/Taps/rudironsoni/homebrew-tap')
     expect(lstatSync(tapLink).isSymbolicLink()).toBe(true)
     expect(readFileSync(join(tapLink, 'Casks/horca@beta.rb'), 'utf8')).toContain('horca@beta')
+    expect(readFileSync(logPath, 'utf8')).toContain('style --fix --cask rudironsoni/tap/horca@beta')
     expect(readFileSync(logPath, 'utf8')).toContain('style --cask rudironsoni/tap/horca@beta')
     expect(readFileSync(logPath, 'utf8')).toContain('audit --cask rudironsoni/tap/horca@beta')
   })

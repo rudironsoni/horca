@@ -73,6 +73,7 @@ sed \
   -e "s|^  version \".*$|  version \"$VERSION\"|" \
   -e "s|^  sha256 arm:   \".*\",$|  sha256 arm:   \"$sha_arm64\",|" \
   -e "s|^         intel: \".*\"$|         intel: \"$sha_x64\"|" \
+  -e 's/depends_on macos: ">= :big_sur"/depends_on macos: :big_sur/' \
   "$CASK" >"$tmp"
 mv "$tmp" "$CASK"
 
