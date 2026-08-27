@@ -1,0 +1,57 @@
+name: 'Horca: CI'
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: horca-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    if: github.repository == 'rudironsoni/orca'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Fetch upstream
+        run: |
+          git remote add upstream https://github.com/stablyai/orca.git
+          git fetch --no-tags upstream main
+
+      - name: Enforce downstream ownership
+        env:
+          HORCA_UPSTREAM_REF: upstream/main
+        run: node config/horca/scripts/check-overlay-policy.mjs
+
+      - uses: ./.github/actions/install-node-dependencies
+
+      - name: Typecheck
+        run: pnpm tc
+
+      - name: Lint changed code
+        run: pnpm run check:code-quality:changed -- upstream/main
+
+      - name: Test Horca boundaries
+        run: >-
+          pnpm exec vitest run --config config/vitest.config.ts
+          src/shared/distribution-identity.test.ts
+          src/shared/distribution-update-copy.test.ts
+          src/shared/horca
+          src/main/local-state-root.test.ts
+          src/main/updater-distribution-gate.test.ts
+          src/main/providers/terminal-backend-registry.test.ts
+          src/main/horca
+          src/main/providers/multiplexer/herdr
+          --exclude '**/*.integration.test.ts'
+          --exclude '**/*.probe.test.ts'
