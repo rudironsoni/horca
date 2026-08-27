@@ -2436,7 +2436,7 @@ void app.whenReady().then(async () => {
     storageAuthority: isServeMode ? 'runtime' : 'desktop'
   })
   if (getDistributionIdentity().distribution === 'horca') {
-    initializeHorca(store)
+    initializeHorca(store, activeOrcaProfile.dataFile)
   }
   // Why armed here and not at install time: the report remembers what it last said, and
   // that state lives beside the profile data file, which does not exist until now.
