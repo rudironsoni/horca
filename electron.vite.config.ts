@@ -5,6 +5,7 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { createBootstrapFatalExitBanner } from './config/build-plugins/bootstrap-fatal-exit-banner'
 import { createPlainNodeEntryGuardPlugin } from './config/build-plugins/plain-node-entry-guard'
+import { applyHorcaViteDistributionEnv } from './src/shared/horca-vite-distribution'
 import packageJson from './package.json' with { type: 'json' }
 
 const BUNDLED_MAIN_DEPENDENCIES = new Set([
@@ -57,6 +58,14 @@ const ORCA_DIAGNOSTICS_TOKEN_URL_LITERAL =
   typeof orcaDiagnosticsTokenUrl === 'string' && orcaDiagnosticsTokenUrl.length > 0
     ? JSON.stringify(orcaDiagnosticsTokenUrl)
     : 'null'
+// Why: downstream personal-distribution builds (ORCA_DOWNSTREAM_BUILD=1, used
+// by the fork's packaging repo) resolve every externally visible identity from
+// src/shared/distribution-identity.json. Official builds and every other path
+// substitute 'official', leaving upstream behavior unchanged.
+applyHorcaViteDistributionEnv(process.env)
+const ORCA_DISTRIBUTION_LITERAL = JSON.stringify(
+  process.env.ORCA_DOWNSTREAM_BUILD === '1' ? 'horca' : 'official'
+)
 
 function createStartupDiagnosticsBanner(chunkName: string): string {
   return `
@@ -244,6 +253,11 @@ export const electronViteConfig: UserConfig = {
           'agent-hooks/managed-agent-hook-controls': resolve(
             'src/main/agent-hooks/managed-agent-hook-controls.ts'
           ),
+          // Why: the CLI typechecks against the stock Herdr contract without
+          // going through the Electron main bundle.
+          'providers/multiplexer/herdr/herdr-runtime-contract': resolve(
+            'src/main/providers/multiplexer/herdr/herdr-runtime-contract.ts'
+          ),
           // Why: account import mutates the user's macOS Keychain from the CLI.
           'claude-accounts/keychain': resolve('src/main/claude-accounts/keychain.ts')
         },
@@ -262,7 +276,8 @@ export const electronViteConfig: UserConfig = {
     define: {
       ORCA_BUILD_IDENTITY: ORCA_BUILD_IDENTITY_LITERAL,
       ORCA_POSTHOG_WRITE_KEY: ORCA_POSTHOG_WRITE_KEY_LITERAL,
-      ORCA_DIAGNOSTICS_TOKEN_URL: ORCA_DIAGNOSTICS_TOKEN_URL_LITERAL
+      ORCA_DIAGNOSTICS_TOKEN_URL: ORCA_DIAGNOSTICS_TOKEN_URL_LITERAL,
+      ORCA_DISTRIBUTION: ORCA_DISTRIBUTION_LITERAL
     },
     // Why: @xterm/headless declares "exports": null in package.json, which
     // prevents Vite's default resolver from finding the CJS entry. Point
@@ -281,9 +296,15 @@ export const electronViteConfig: UserConfig = {
       externalizeDeps: {
         exclude: ['@electron-toolkit/preload', 'zod']
       }
+    },
+    define: {
+      ORCA_DISTRIBUTION: ORCA_DISTRIBUTION_LITERAL
     }
   },
   renderer: {
+    define: {
+      ORCA_DISTRIBUTION: ORCA_DISTRIBUTION_LITERAL
+    },
     resolve: {
       alias: {
         '@renderer': resolve('src/renderer/src'),
