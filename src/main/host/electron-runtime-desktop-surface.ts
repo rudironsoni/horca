@@ -1,5 +1,19 @@
 import { BrowserWindow, ipcMain, Notification } from 'electron'
-import type { RuntimeDesktopSurface } from '../runtime/runtime-desktop-surface'
+import type {
+  RuntimeDesktopSurface,
+  RuntimeDesktopWindowHandle
+} from '../runtime/runtime-desktop-surface'
+
+function toWindowHandle(window: BrowserWindow): RuntimeDesktopWindowHandle {
+  return {
+    isDestroyed: () => window.isDestroyed(),
+    send: (channel, payload) => {
+      if (!window.isDestroyed()) {
+        window.webContents.send(channel, payload)
+      }
+    }
+  }
+}
 
 /** The desktop implementation of the runtime's optional desktop facilities. */
 export const electronRuntimeDesktopSurface: RuntimeDesktopSurface = {
@@ -16,5 +30,10 @@ export const electronRuntimeDesktopSurface: RuntimeDesktopSurface = {
   },
   removeIpcListener: (channel, listener) => {
     ipcMain.removeListener(channel, listener as Parameters<typeof ipcMain.removeListener>[1])
-  }
+  },
+  getFocusedWindow: () => {
+    const focused = BrowserWindow.getFocusedWindow()
+    return focused ? toWindowHandle(focused) : null
+  },
+  getAllWindows: () => BrowserWindow.getAllWindows().map(toWindowHandle)
 }

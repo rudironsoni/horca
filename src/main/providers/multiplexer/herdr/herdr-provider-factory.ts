@@ -1,5 +1,8 @@
-import { BrowserWindow } from 'electron'
 import { herdrSessionNameForProject } from '../../../../shared/herdr-session-identity'
+import {
+  getRuntimeDesktopSurface,
+  type RuntimeDesktopWindowHandle
+} from '../../../runtime/runtime-desktop-surface'
 import type { Store } from '../../../persistence'
 import type { IPtyProvider } from '../../types'
 import {
@@ -228,21 +231,32 @@ function herdrSurfaceSync(store: Store) {
   }
 }
 
-const importedSurfaceOwners = new Map<string, { owner: BrowserWindow; tabId: string }>()
-const importedTabOwners = new Map<string, BrowserWindow>()
+const importedSurfaceOwners = new Map<
+  string,
+  { owner: RuntimeDesktopWindowHandle; tabId: string }
+>()
+const importedTabOwners = new Map<string, RuntimeDesktopWindowHandle>()
 
-function liveOwner(owner: BrowserWindow | undefined): BrowserWindow | null {
+export function resetHerdrImportedSurfaceOwnersForTests(): void {
+  importedSurfaceOwners.clear()
+  importedTabOwners.clear()
+}
+
+function liveOwner(
+  owner: RuntimeDesktopWindowHandle | undefined
+): RuntimeDesktopWindowHandle | null {
   return owner && !owner.isDestroyed() ? owner : null
 }
 
-function ownerForTab(tabId: string): BrowserWindow | null {
+function ownerForTab(tabId: string): RuntimeDesktopWindowHandle | null {
   const existing = liveOwner(importedTabOwners.get(tabId))
   if (existing) {
     return existing
   }
+  const desktop = getRuntimeDesktopSurface()
   const owner =
-    liveOwner(BrowserWindow.getFocusedWindow() ?? undefined) ??
-    BrowserWindow.getAllWindows().find((candidate) => !candidate.isDestroyed()) ??
+    liveOwner(desktop.getFocusedWindow() ?? undefined) ??
+    desktop.getAllWindows().find((candidate) => !candidate.isDestroyed()) ??
     null
   if (owner) {
     importedTabOwners.set(tabId, owner)
@@ -260,7 +274,7 @@ export function presentHerdrImportedSurface(surface: HerdrImportedSurface): void
     return
   }
   importedSurfaceOwners.set(surface.ptyId, { owner, tabId: surface.tabId })
-  owner.webContents.send('ui:createTerminal', {
+  owner.send('ui:createTerminal', {
     worktreeId: surface.worktreeId,
     ptyId: surface.ptyId,
     tabId: surface.tabId,
@@ -280,16 +294,16 @@ export function presentHerdrImportedSurface(surface: HerdrImportedSurface): void
 }
 
 export function presentHerdrSurfaceAction(action: HerdrOrcaSurfaceAction): void {
-  const contents = ownerForTab(action.tabId)?.webContents
-  if (!contents) {
+  const owner = ownerForTab(action.tabId)
+  if (!owner) {
     return
   }
   if (action.kind === 'rename') {
-    contents.send('ui:renameTerminal', { tabId: action.tabId, title: action.title })
+    owner.send('ui:renameTerminal', { tabId: action.tabId, title: action.title })
     return
   }
   if (action.kind === 'focus') {
-    contents.send('ui:focusTerminal', {
+    owner.send('ui:focusTerminal', {
       tabId: action.tabId,
       worktreeId: action.worktreeId,
       leafId: action.leafId
@@ -297,7 +311,7 @@ export function presentHerdrSurfaceAction(action: HerdrOrcaSurfaceAction): void 
     return
   }
   if (action.kind === 'close') {
-    contents.send('ui:closeTerminal', { tabId: action.tabId })
+    owner.send('ui:closeTerminal', { tabId: action.tabId })
     importedTabOwners.delete(action.tabId)
     for (const [ptyId, entry] of importedSurfaceOwners) {
       if (entry.tabId === action.tabId) {
@@ -306,5 +320,5 @@ export function presentHerdrSurfaceAction(action: HerdrOrcaSurfaceAction): void 
     }
     return
   }
-  contents.send('ui:applyTerminalLayout', { tabId: action.tabId, layout: action.layout })
+  owner.send('ui:applyTerminalLayout', { tabId: action.tabId, layout: action.layout })
 }
