@@ -66,6 +66,7 @@ import {
   getReleaseDownloadUrl
 } from './updater-prerelease-feed'
 import { fetchNudge, shouldApplyNudge } from './updater-nudge'
+import { getUpdatesDisabledStatus, isInAppUpdaterEnabled } from './updater-distribution-gate'
 import {
   failServeUpdateHandoff,
   getServeUpdateHandoffFailure,
@@ -1514,6 +1515,10 @@ function retryPrereleaseFallbackAfterMissingManifest(
 function runBackgroundUpdateCheck(
   nudgeId: string | null = getPersistedPendingUpdateNudgeId()
 ): boolean {
+  // Defensive: setupAutoUpdater never arms background checks for a disabled distribution, but this is the shared launch choke point.
+  if (!isInAppUpdaterEnabled()) {
+    return false
+  }
   // Why: a pinned dev jump owns the feed until it settles; a background check
   // would repoint it mid-flight and download the wrong build.
   if (
@@ -1587,6 +1592,11 @@ function enableIncludePrerelease(): void {
 
 /** Menu-triggered check — delegates feedback to renderer toasts via userInitiated flag */
 export function checkForUpdatesFromMenu(options?: UpdateCheckOptions): void {
+  // Why force: the disabled card auto-dismisses, so a repeat click must re-deliver an identical status.
+  if (!isInAppUpdaterEnabled()) {
+    sendStatus(getUpdatesDisabledStatus(true), { force: true })
+    return
+  }
   if (!app.isPackaged || is.dev) {
     sendStatus({ state: 'not-available', userInitiated: true })
     return
@@ -1726,6 +1736,12 @@ async function checkForLocalBuildFromMenu(): Promise<void> {
 }
 
 export async function listAvailableReleaseBuilds(channel: ReleaseChannel): Promise<ReleaseBuild[]> {
+  // Why: the release picker lists official Orca builds this distribution can neither download nor install.
+  if (!isInAppUpdaterEnabled()) {
+    throw new Error(
+      'In-app updates are disabled for this build. Updates ship via Homebrew or GitHub Releases.'
+    )
+  }
   return listReleaseBuilds(channel)
 }
 
@@ -2185,6 +2201,15 @@ export function setupAutoUpdater(
   getReleaseChannelOverride = opts?.getReleaseChannelOverride ?? null
   updateInstallMode = opts?.installMode ?? 'interactive'
   lastInstallDeferralVersion = { download: null, install: null }
+
+  // The whole-updater gate for downstream distributions: no feed pinning, no
+  // electron-updater handlers, no nudge/changelog polling, no scheduled checks.
+  // autoUpdaterInitialized stays false, so remote server update support reports
+  // the existing 'updater-unavailable' reason without a wire change.
+  if (!isInAppUpdaterEnabled()) {
+    sendStatus(getUpdatesDisabledStatus())
+    return
+  }
 
   const serveHandoffFailure = getServeUpdateHandoffFailure()
   if (serveHandoffFailure) {
