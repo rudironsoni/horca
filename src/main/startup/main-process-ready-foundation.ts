@@ -141,7 +141,7 @@ export async function initializeReadyFoundation(): Promise<void> {
   })
   state.store = store
   if (getDistributionIdentity().distribution === 'horca') {
-    initializeHorca(store)
+    initializeHorca(store, profile.dataFile)
   }
   // Why: create pending readiness before the guard can observe the default session.
   const initialProxyApplication = applyElectronProxySettings(store.getSettings())
