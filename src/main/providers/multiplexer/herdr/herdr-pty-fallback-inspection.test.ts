@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
-import type { IPtyProvider } from '../../types'
-import { HerdrPtyProviderIo } from './herdr-pty-provider-io.ts'
+import type { IPtyProvider, PtyBackgroundStreamEvent } from '../../types'
+import { HerdrPtyProvider } from './herdr-pty-provider'
+import { HerdrPtyProviderIo } from './herdr-pty-provider-io'
+import type { HerdrHostTransport } from './herdr-runtime-contract'
 
 class TestHerdrPtyProviderIo extends HerdrPtyProviderIo {
   constructor(fallback: IPtyProvider) {
@@ -23,7 +25,11 @@ function createFallbackProvider(): IPtyProvider {
     setPtyBackgrounded: vi.fn(),
     getBufferSnapshot: vi.fn().mockResolvedValue({ data: 'fallback-buffer', lastActivityAt: 99 }),
     canProvideAuthoritativeBufferSnapshot: vi.fn().mockReturnValue(true),
-    clearBuffer: vi.fn()
+    clearBuffer: vi.fn(),
+    inspectProcess: vi.fn().mockResolvedValue({
+      foregroundProcess: 'zsh',
+      hasChildProcesses: true
+    })
   } as unknown as IPtyProvider
 }
 
@@ -67,5 +73,56 @@ describe('HerdrPtyProviderIo fallback inspection', () => {
 
     provider.setPtyBackgrounded('herdr:session-1', true)
     expect(fallback.setPtyBackgrounded).not.toHaveBeenCalled()
+  })
+})
+
+describe('HerdrPtyProvider fallback background stream', () => {
+  it('re-emits fallback keep-tail facts to local provider listeners', async () => {
+    let emitBackground: ((payload: PtyBackgroundStreamEvent) => void) | undefined
+    const fallback = {
+      spawn: vi.fn(),
+      write: vi.fn(),
+      resize: vi.fn(),
+      kill: vi.fn(),
+      shutdown: vi.fn(),
+      sendSignal: vi.fn(),
+      hasPty: (id: string) => id === 'orca-pty-1',
+      onData: vi.fn(() => vi.fn()),
+      onExit: vi.fn(() => vi.fn()),
+      onReplay: vi.fn(() => vi.fn()),
+      onBackgroundStreamEvent: vi.fn((callback: (payload: PtyBackgroundStreamEvent) => void) => {
+        emitBackground = callback
+        return () => undefined
+      }),
+      inspectProcess: vi.fn().mockResolvedValue({
+        foregroundProcess: 'zsh',
+        hasChildProcesses: false
+      }),
+      listProcesses: vi.fn(async () => [])
+    }
+    const provider = new HerdrPtyProvider(
+      () => ({ request: vi.fn() }) as unknown as HerdrHostTransport,
+      async () => null,
+      () => 'test-session',
+      undefined,
+      fallback as never
+    )
+    const seen: PtyBackgroundStreamEvent[] = []
+    provider.onBackgroundStreamEvent((payload) => {
+      seen.push(payload)
+    })
+
+    const gap: PtyBackgroundStreamEvent = {
+      id: 'orca-pty-1',
+      kind: 'dataGap',
+      droppedChars: 42
+    }
+    emitBackground?.(gap)
+    expect(seen).toEqual([gap])
+    await expect(provider.inspectProcess('orca-pty-1')).resolves.toEqual({
+      foregroundProcess: 'zsh',
+      hasChildProcesses: false
+    })
+    expect(fallback.inspectProcess).toHaveBeenCalledWith('orca-pty-1')
   })
 })

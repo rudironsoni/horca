@@ -28,7 +28,11 @@ import {
   bytesFromTerminalLogicalKey,
   terminalLogicalInputFromBytes
 } from '../../../../shared/terminal-logical-key'
-import { isOrcaFallbackId, writeFallbackLogical } from './herdr-pty-orca-fallback'
+import {
+  isHerdrWriteEndpointGone,
+  isOrcaFallbackId,
+  writeFallbackLogical
+} from './herdr-pty-orca-fallback'
 import { sendHerdrNamedKey } from './herdr-pty-provider-runtime'
 
 export class HerdrPtyProviderIo {
@@ -81,9 +85,17 @@ export class HerdrPtyProviderIo {
     applyHerdrPaneSize(binding)
   }
 
-  pauseProducer(_id: string): void {}
+  pauseProducer(id: string): void {
+    if (isOrcaFallbackId(this.bindings, id, this.fallback)) {
+      this.fallback.pauseProducer?.(id)
+    }
+  }
 
-  resumeProducer(_id: string): void {}
+  resumeProducer(id: string): void {
+    if (isOrcaFallbackId(this.bindings, id, this.fallback)) {
+      this.fallback.resumeProducer?.(id)
+    }
+  }
 
   setPtyBackgrounded(id: string, background: boolean): void {
     if (isOrcaFallbackId(this.bindings, id, this.fallback)) {
@@ -99,6 +111,18 @@ export class HerdrPtyProviderIo {
   onWriteUnavailable(callback: (payload: { id: string }) => void): () => void {
     this.writeUnavailableListeners.add(callback)
     return () => this.writeUnavailableListeners.delete(callback)
+  }
+
+  protected emitBackgroundStreamEvent(payload: PtyBackgroundStreamEvent): void {
+    for (const listener of this.backgroundStreamListeners) {
+      listener(payload)
+    }
+  }
+
+  protected emitWriteUnavailable(payload: { id: string }): void {
+    for (const listener of this.writeUnavailableListeners) {
+      listener(payload)
+    }
   }
 
   async getAppliedSize(id: string): Promise<{ cols: number; rows: number } | null> {
@@ -297,9 +321,7 @@ export class HerdrPtyProviderIo {
         if (!isHerdrWriteEndpointGone(error)) {
           return
         }
-        for (const listener of this.writeUnavailableListeners) {
-          listener({ id })
-        }
+        this.emitWriteUnavailable({ id })
       })
       .finally(() => {
         if (this.writeQueues.get(id) === pending) {
@@ -308,11 +330,4 @@ export class HerdrPtyProviderIo {
       })
     return pending
   }
-}
-
-function isHerdrWriteEndpointGone(error: unknown): boolean {
-  const message = error instanceof Error ? error.message : String(error)
-  return /closed before response|not initialized|EPIPE|ECONNRESET|ECONNREFUSED|transport gone/i.test(
-    message
-  )
 }
