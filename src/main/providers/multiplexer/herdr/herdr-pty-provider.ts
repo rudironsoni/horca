@@ -17,7 +17,6 @@ import {
   emitHerdrPtyReplay,
   killAllHerdrBindings
 } from './herdr-pty-provider-runtime'
-import { inspectPtyProviderProcess } from '../../pty-process-inspection'
 import { attachHerdrPty } from './herdr-pty-restore'
 import { isOrcaFallbackId, subscribeOrcaFallback } from './herdr-pty-orca-fallback'
 import type { HerdrHostTransport } from './herdr-runtime-contract'
@@ -147,12 +146,50 @@ export class HerdrPtyProvider extends HerdrPtyProviderIo implements IPtyProvider
 
   async inspectProcess(id: string) {
     if (isOrcaFallbackId(this.bindings, id, this.fallback)) {
-      return inspectPtyProviderProcess(this.fallback, id)
+      const inspect = (
+        this.fallback as IPtyProvider & {
+          inspectProcess?: (id: string) => Promise<{
+            foregroundProcess: string | null
+            hasChildProcesses: boolean
+          }>
+        }
+      ).inspectProcess
+      if (inspect) {
+        return inspect.call(this.fallback, id)
+      }
+      return {
+        foregroundProcess: await this.fallback.getForegroundProcess(id),
+        hasChildProcesses: await this.fallback.hasChildProcesses(id)
+      }
     }
     return {
       foregroundProcess: await this.getForegroundProcess(id),
       hasChildProcesses: await this.hasChildProcesses(id)
     }
+  }
+
+  async confirmShellForeground(id: string): Promise<boolean> {
+    if (isOrcaFallbackId(this.bindings, id, this.fallback)) {
+      return (await this.fallback.confirmShellForeground?.(id)) ?? false
+    }
+    return false
+  }
+
+  async closeStartupQueryAuthority(id: string): Promise<number> {
+    if (isOrcaFallbackId(this.bindings, id, this.fallback)) {
+      return (await this.fallback.closeStartupQueryAuthority?.(id)) ?? 0
+    }
+    return 0
+  }
+
+  async probePtyLiveness(id: string): Promise<boolean | null> {
+    if (isOrcaFallbackId(this.bindings, id, this.fallback)) {
+      if (this.fallback.probePtyLiveness) {
+        return this.fallback.probePtyLiveness(id)
+      }
+      return this.fallback.hasPty?.(id) ?? null
+    }
+    return this.hasPty(id)
   }
 
   onData(callback: (payload: PtyDataEvent) => void): () => void {

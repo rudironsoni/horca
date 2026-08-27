@@ -98,6 +98,7 @@ describe('HerdrPtyProvider fallback background stream', () => {
         foregroundProcess: 'zsh',
         hasChildProcesses: false
       }),
+      confirmShellForeground: vi.fn().mockResolvedValue(true),
       listProcesses: vi.fn(async () => [])
     }
     const provider = new HerdrPtyProvider(
@@ -124,5 +125,7 @@ describe('HerdrPtyProvider fallback background stream', () => {
       hasChildProcesses: false
     })
     expect(fallback.inspectProcess).toHaveBeenCalledWith('orca-pty-1')
+    await expect(provider.confirmShellForeground('orca-pty-1')).resolves.toBe(true)
+    expect(fallback.confirmShellForeground).toHaveBeenCalledWith('orca-pty-1')
   })
 })
