@@ -474,8 +474,19 @@ jobs:
             --exclude=src/shared/pty-reply-echo-shapes.node-pty.test.ts \
             --exclude=src/shared/startup-shell-portability.live-shell.test.ts \
             --exclude=src/shared/posix-command-path-lookup.test.ts \
+            --exclude=src/**/*.electron.test.ts \
+            --exclude=src/main/persistence-pane-identity-migration.test.ts \
             --exclude=tests/e2e/cross-version-wire/** \
             --shard=${{ matrix.shard }}/${{ matrix.shard_total }}
+
+      # Why isolated: 130k-leaf alias load exceeds the 30s shard timeout when it
+      # shares a busy worker. Shard 1 per Node version runs it alone with 120s.
+      - name: Isolated large layout migration
+        if: matrix.shard == 1
+        run: |
+          pnpm exec vitest run --config config/vitest.config.ts \
+            src/main/persistence-pane-identity-migration.test.ts \
+            --testTimeout=120000
 
   # Why a separate job: the test needs a real Chrome, and the 32-way `test` matrix
   # would pay for it 32 times to run one file in whichever shard it landed in.

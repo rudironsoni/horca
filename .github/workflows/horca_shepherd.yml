@@ -1,0 +1,63 @@
+name: 'Horca: Fork Shepherd'
+
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request_target:
+    types: [opened, labeled, closed]
+
+concurrency:
+  group: fork-shepherd
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+
+jobs:
+  shepherd:
+    if: github.repository == 'rudironsoni/orca'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.FORK_SYNC_PAT }}
+          # checkout@v6 persists a credentials helper; fork-shepherd also sets
+          # http.extraheader. Two Authorization headers → GitHub 400.
+          persist-credentials: false
+
+      - name: Run Fork Shepherd
+        id: sync
+        uses: FasterApiWeb/fork-shepherd@v1
+        with:
+          github_token: ${{ secrets.FORK_SYNC_PAT }}
+          upstream_repo: stablyai/orca
+          sync_branches: main
+          pr_label: sync-bot
+          monitor_all_prs: 'false'
+          backport_prefix: backport-to-
+          enable_branch_sync: 'true'
+          enable_pr_monitor: 'false'
+          enable_backport: 'true'
+          enable_cleanup: 'true'
+          conflict_label: sync-conflict
+          bot_name: sync-bot
+          merge_strategy: merge
+
+      - name: Guard fork overlays against high-churn upstream files
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags https://github.com/stablyai/orca.git main
+          upstream="$(git rev-parse FETCH_HEAD)"
+          git fetch --no-tags origin main
+          node config/scripts/fork-upstream-overlay-guard.mjs \
+            --ours origin/main \
+            --theirs "$upstream"

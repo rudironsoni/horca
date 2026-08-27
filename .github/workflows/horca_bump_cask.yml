@@ -1,0 +1,109 @@
+name: 'Horca: Bump cask'
+
+# Called by horca_release.yml / horca_beta_release.yml after the GitHub
+# Release is visible, so the tap matches the version that just shipped.
+# The caller waits: this is a reusable workflow, same pattern as
+# horca_build.yml. Dispatch retries a bump without cutting another
+# release. Never on push (that would race the release). The copy in
+# config/horca-homebrew is the tap's 6h backup. CASK_TOKEN selects
+# Casks/horca.rb or Casks/horca@beta.rb; a missing tap file is copied
+# from this repo's staging path first.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Horca version to bump the tap to'
+        required: true
+      cask_token:
+        description: 'Cask token (horca or horca@beta)'
+        required: false
+        default: 'horca'
+  workflow_call:
+    inputs:
+      version:
+        type: string
+        required: true
+      cask_token:
+        type: string
+        required: false
+        default: 'horca'
+      # Why: FORK_SYNC_PAT can clone rudironsoni/homebrew-tap but not push
+      # (403 denied to rudironsoni). Beta feature-branch CI should not go red.
+      allow_push_failure:
+        type: boolean
+        required: false
+        default: false
+    secrets:
+      FORK_SYNC_PAT:
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bump-horca-cask-${{ inputs.cask_token || 'horca' }}
+  cancel-in-progress: false
+
+jobs:
+  bump:
+    if: github.repository == 'rudironsoni/orca'
+    runs-on: macos-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout this repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Checkout Homebrew tap
+        uses: actions/checkout@v6
+        with:
+          repository: rudironsoni/homebrew-tap
+          path: homebrew-tap
+          token: ${{ secrets.FORK_SYNC_PAT }}
+
+      - name: Update cask
+        id: update
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+          CASK_TOKEN: ${{ inputs.cask_token || 'horca' }}
+          TAP_DIR: ${{ github.workspace }}/homebrew-tap
+        run: bash config/scripts/horca-bump-homebrew-cask.sh
+
+      - name: Style and audit
+        if: steps.update.outputs.changed == 'true'
+        env:
+          CASK_TOKEN: ${{ inputs.cask_token || 'horca' }}
+          TAP_DIR: ${{ github.workspace }}/homebrew-tap
+        run: bash config/scripts/horca-brew-style-cask.sh
+
+      - name: Commit and push
+        if: steps.update.outputs.changed == 'true'
+        working-directory: homebrew-tap
+        env:
+          VERSION: ${{ inputs.version }}
+          CASK_TOKEN: ${{ inputs.cask_token || 'horca' }}
+          ALLOW_PUSH_FAILURE: ${{ inputs.allow_push_failure }}
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git fetch origin main
+          git rebase origin/main
+          git add "Casks/${CASK_TOKEN}.rb"
+          git diff --cached --quiet && exit 0
+          git commit -m "${CASK_TOKEN} $VERSION"
+          if git push origin HEAD:main; then
+            exit 0
+          fi
+          git pull --rebase origin main
+          if git push origin HEAD:main; then
+            exit 0
+          fi
+          if [ "${ALLOW_PUSH_FAILURE}" = 'true' ]; then
+            echo '::warning::Could not push to rudironsoni/homebrew-tap. FORK_SYNC_PAT needs Contents: Write on that repo. The GitHub Release is published; bump the cask manually.'
+            exit 0
+          fi
+          exit 1

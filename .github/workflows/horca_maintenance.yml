@@ -1,0 +1,102 @@
+name: 'Horca: Maintenance'
+
+# Daily: rebase origin/main onto stablyai/orca main and lease-push with the
+# Horca Maintenance GitHub App. Conflicts open one issue and leave main alone.
+# First cut: Run workflow from chore/rebuild-patch-stack with promote=true.
+
+on:
+  schedule:
+    - cron: '17 7 * * *'
+  workflow_dispatch:
+    inputs:
+      promote:
+        description: 'Lease-push this workflow ref onto main (first promote)'
+        type: boolean
+        default: false
+
+concurrency:
+  group: horca-maintenance
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  issues: write
+  actions: write
+
+jobs:
+  sync:
+    if: github.repository == 'rudironsoni/orca'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: horca-maintenance
+    steps:
+      - name: App token
+        id: app
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.HORCA_APP_ID }}
+          private-key: ${{ secrets.HORCA_APP_PRIVATE_KEY }}
+
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          token: ${{ steps.app.outputs.token }}
+
+      - name: Git remote
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+        run: |
+          set -euo pipefail
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+
+      - name: Tag-safe fetch
+        run: |
+          set -euo pipefail
+          git fetch --prune --no-prune-tags origin
+          git fetch --prune --no-prune-tags https://github.com/stablyai/orca.git \
+            '+refs/tags/v*:refs/upstream-tags/v*'
+          git fetch --prune --no-prune-tags https://github.com/stablyai/orca.git main
+
+      - name: Disable unused workflows
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+        run: bash config/scripts/disable-upstream-workflows.sh
+
+      - name: Overlay guard
+        run: |
+          set -euo pipefail
+          git fetch --prune --no-prune-tags --no-tags https://github.com/stablyai/orca.git main
+          node config/scripts/fork-upstream-overlay-guard.mjs \
+            --ours HEAD \
+            --theirs FETCH_HEAD
+
+      - name: Lease-push main
+        id: sync
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+        run: |
+          set -euo pipefail
+          chmod +x config/scripts/horca-sync-main.sh
+          if [ "${{ github.event_name }}" = workflow_dispatch ] && [ "${{ inputs.promote }}" = true ]; then
+            bash config/scripts/horca-sync-main.sh promote
+          else
+            bash config/scripts/horca-sync-main.sh rebase
+          fi
+
+      - name: Open sync-conflict issue
+        if: failure() && steps.sync.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+        run: |
+          set -euo pipefail
+          short=$(git rev-parse --short FETCH_HEAD || echo unknown)
+          title="Horca rebase conflict on $short"
+          body="Automatic rebase of main onto stablyai/orca@$short failed. Main was not updated."
+          existing=$(gh issue list --label sync-conflict --state open --search "$short" --json number --jq '.[0].number' || true)
+          if [ -n "${existing:-}" ]; then
+            gh issue comment "$existing" --body "$body"
+          else
+            gh issue create --title "$title" --label sync-conflict --body "$body"
+          fi

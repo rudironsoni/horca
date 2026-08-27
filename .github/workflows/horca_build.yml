@@ -1,0 +1,461 @@
+name: 'Horca: Build'
+
+# Builds and verifies every Horca release target — macOS arm64, macOS x64,
+# Windows x64 — from ONE exact commit of this repository. Never creates a
+# Release; publishing is horca_release.yml's job so a partially built version
+# can never ship. Dispatch or horca_release.yml / horca_beta_release.yml
+# calling this with a pinned SHA + version. Apple secrets are optional at the workflow
+# boundary so a missing secret starts jobs (macOS then fail-closes) instead
+# of killing the reusable call with zero steps.
+
+on:
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: 'Commit SHA to build (default: the dispatched ref)'
+        required: false
+      version:
+        description: 'Horca version (<core>-horca.<N> or <core>-horca.<N>-beta.<M>, e.g. 1.4.178-horca.1). Empty on dispatch: next stable N is computed.'
+        required: false
+  workflow_call:
+    inputs:
+      sha:
+        type: string
+        required: true
+      version:
+        type: string
+        required: true
+    secrets:
+      MAC_CERTS:
+        required: false
+      MAC_CERTS_PASSWORD:
+        required: false
+      APPLE_ID:
+        required: false
+      APPLE_APP_SPECIFIC_PASSWORD:
+        required: false
+      APPLE_TEAM_ID:
+        required: false
+
+permissions:
+  contents: read
+  actions: write
+
+# Nested callers inherit github.workflow / github.ref, so a beta
+# notarization on feature/* does not serialize behind a stable one.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    if: github.repository == 'rudironsoni/orca'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      sha: ${{ steps.check.outputs.sha }}
+      version: ${{ steps.check.outputs.version }}
+    steps:
+      - name: Checkout at the requested SHA
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.sha || github.sha }}
+          fetch-depth: 1
+
+      # Why: releases must be reproducibly tied to one exact commit, and the
+      # version's numeric core must match the source tree it claims to build.
+      - name: Validate SHA and version against the source tree
+        id: check
+        env:
+          INPUT_SHA: ${{ inputs.sha }}
+          INPUT_VERSION: ${{ inputs.version }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          SHA=$(git rev-parse HEAD)
+          if ! [[ "$SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::sha must be a full 40-character commit SHA, got: $SHA"
+            exit 1
+          fi
+          if [ -n "${INPUT_SHA:-}" ] && [ "$SHA" != "$INPUT_SHA" ]; then
+            echo "::error::checked out $SHA, expected $INPUT_SHA"
+            exit 1
+          fi
+          # Upstream core = package.json version with any prerelease suffix stripped.
+          core=$(node -p "require('./package.json').version.split('-')[0]")
+          if [ -n "${INPUT_VERSION:-}" ]; then
+            VERSION=$INPUT_VERSION
+          else
+            # Push/dispatch with no version: next N for this core (same rule as prepare).
+            releases_ndjson=$(gh api "repos/$GITHUB_REPOSITORY/releases" --paginate \
+              --jq '.[] | {tag_name, draft}' || true)
+            max_n=$(CORE="$core" node -e '
+              let data = ""
+              process.stdin.on("data", (c) => (data += c))
+              process.stdin.on("end", () => {
+                const corePattern = new RegExp(
+                  `^v${process.env.CORE.replace(/\./g, "\\.")}-horca\\.(\\d+)$`
+                )
+                let maxN = 0
+                for (const line of data.split("\n")) {
+                  if (!line.trim()) continue
+                  const release = JSON.parse(line)
+                  if (release.draft) continue
+                  const match = corePattern.exec(release.tag_name)
+                  if (match) maxN = Math.max(maxN, Number(match[1]))
+                }
+                process.stdout.write(String(maxN))
+              })
+            ' <<<"$releases_ndjson")
+            VERSION="${core}-horca.$((max_n + 1))"
+          fi
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+-horca\.[0-9]+(-beta\.[0-9]+)?$ ]]; then
+            echo "::error::version must match <core>-horca.<N> or <core>-horca.<N>-beta.<M> (got ${VERSION})"
+            exit 1
+          fi
+          if [[ "$VERSION" != "$core-horca."* ]]; then
+            echo "::error::version core must be $core (from package.json at $SHA), got: $VERSION"
+            exit 1
+          fi
+          echo "sha=$SHA" >>"$GITHUB_OUTPUT"
+          echo "version=$VERSION" >>"$GITHUB_OUTPUT"
+
+  build-macos:
+    if: github.repository == 'rudironsoni/orca'
+    needs: validate
+    runs-on: macos-15
+    # Why 90: notarization round trips are unbounded-ish; 60 has been cut close
+    # by slow notary days on the official pipeline.
+    timeout-minutes: 90
+    env:
+      NODE_OPTIONS: --max-old-space-size=4096
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.validate.outputs.sha }}
+          fetch-depth: 1
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: package.json
+          cache: pnpm
+
+      - name: Cache electron-builder downloads
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/Library/Caches/electron
+            ~/Library/Caches/electron-builder
+          key: electron-builder-mac-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            electron-builder-mac-
+
+      - name: Install dependencies
+        uses: nick-fields/retry@v4
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          retry_wait_seconds: 30
+          command: pnpm install --frozen-lockfile
+
+      - name: Verify macOS signing env
+        run: node config/scripts/verify-macos-release-env.mjs
+        env:
+          CSC_LINK: ${{ secrets.MAC_CERTS }}
+          CSC_KEY_PASSWORD: ${{ secrets.MAC_CERTS_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+
+      - name: Verify entitlements
+        run: pnpm verify:macos-entitlements
+
+      # Why --publish never even though downstream config sets publish: null —
+      # the project rule is that every Horca electron-builder invocation is
+      # explicitly non-publishing; belt and braces against config drift.
+      - name: Build macOS release (signed + notarized, both arches)
+        run: pnpm build:mac:release --publish never
+        env:
+          ORCA_DOWNSTREAM_BUILD: '1'
+          ORCA_LOCAL_BUILD_VERSION: ${{ needs.validate.outputs.version }}
+          CSC_LINK: ${{ secrets.MAC_CERTS }}
+          CSC_KEY_PASSWORD: ${{ secrets.MAC_CERTS_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+
+      - name: Verify macOS artifacts (identity, signing, notarization)
+        env:
+          VERSION: ${{ needs.validate.outputs.version }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          set -euo pipefail
+          fail() { echo "::error::$1"; exit 1; }
+
+          for arch in arm64 x64; do
+            dmg="dist/horca-macos-${arch}.dmg"
+            echo "=== Verifying $dmg"
+            [ -f "$dmg" ] || fail "missing $dmg"
+
+            mount=$(hdiutil attach -nobrowse -readonly "$dmg" | grep -o '/Volumes/.*' | tail -1)
+            trap 'hdiutil detach "$mount" -quiet || true' EXIT
+            app="$mount/Horca.app"
+            [ -d "$app" ] || fail "$dmg does not contain Horca.app"
+            plist="$app/Contents/Info.plist"
+
+            bundle_id=$(plutil -extract CFBundleIdentifier raw "$plist")
+            [ "$bundle_id" = "com.rudironsoni.horca" ] || fail "CFBundleIdentifier is $bundle_id"
+            bundle_name=$(plutil -extract CFBundleName raw "$plist")
+            [ "$bundle_name" = "Horca" ] || fail "CFBundleName is $bundle_name"
+            short_version=$(plutil -extract CFBundleShortVersionString raw "$plist")
+            [ "$short_version" = "$VERSION" ] || fail "CFBundleShortVersionString is $short_version, expected $VERSION"
+
+            # The x64 DMG must actually contain an x64 binary (built cross-arch
+            # on an arm64 runner) and vice versa.
+            lipo -archs "$app/Contents/MacOS/Horca" | grep -qw "${arch/x64/x86_64}" \
+              || fail "main binary in $dmg lacks the $arch slice"
+
+            codesign --verify --deep --strict "$app" || fail "codesign verify failed for $dmg"
+            codesign -dvv "$app" 2>&1 | grep -q "TeamIdentifier=$APPLE_TEAM_ID" \
+              || fail "app in $dmg not signed by team $APPLE_TEAM_ID"
+            xcrun stapler validate "$app" || fail "notarization ticket not stapled in $dmg"
+
+            helper="$app/Contents/Resources/Horca Computer Use.app"
+            [ -d "$helper" ] || fail "missing Horca Computer Use.app in $dmg"
+            helper_id=$(plutil -extract CFBundleIdentifier raw "$helper/Contents/Info.plist")
+            [ "$helper_id" = "com.rudironsoni.horca.computer-use" ] || fail "helper bundle id is $helper_id"
+            codesign --verify --deep --strict "$helper" || fail "codesign verify failed for helper in $dmg"
+
+            # The public CLI launcher must ship under the horca name.
+            [ -f "$app/Contents/Resources/bin/horca" ] || fail "missing Resources/bin/horca in $dmg"
+
+            hdiutil detach "$mount" -quiet
+            trap - EXIT
+            echo "OK: $dmg"
+          done
+
+          # No updater feed manifest may ever ship from this project.
+          if ls dist/latest*.yml >/dev/null 2>&1; then
+            echo "::warning::electron-builder emitted updater manifests in dist/; they are NOT uploaded"
+          fi
+
+      - name: Upload DMGs
+        uses: actions/upload-artifact@v4
+        with:
+          name: horca-macos-dmgs
+          path: |
+            dist/horca-macos-arm64.dmg
+            dist/horca-macos-x64.dmg
+          if-no-files-found: error
+          retention-days: 30
+
+  build-windows:
+    if: github.repository == 'rudironsoni/orca'
+    needs: validate
+    # Why windows-2022: windows-latest moved to an image whose Visual Studio
+    # node-gyp cannot detect, breaking native dependency install (mirrors the
+    # official release pipeline's pin).
+    runs-on: windows-2022
+    timeout-minutes: 90
+    env:
+      NODE_OPTIONS: --max-old-space-size=4096
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.validate.outputs.sha }}
+          fetch-depth: 1
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: package.json
+          cache: pnpm
+
+      - name: Cache electron-builder downloads
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~\AppData\Local\electron\Cache
+            ~\AppData\Local\electron-builder\Cache
+          key: electron-builder-win-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            electron-builder-win-
+
+      - name: Install dependencies
+        uses: nick-fields/retry@v4
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          retry_wait_seconds: 30
+          command: pnpm install --frozen-lockfile
+
+      # build:release (not build:desktop) so build:native compiles the
+      # horca.exe CLI launcher. No ORCA_BUILD_IDENTITY / ORCA_POSTHOG_WRITE_KEY /
+      # ORCA_DIAGNOSTICS_TOKEN_URL: telemetry and diagnostics stay compile-time
+      # fail-closed in downstream builds.
+      - name: Build app
+        shell: pwsh
+        run: pnpm build:release
+        env:
+          ORCA_DOWNSTREAM_BUILD: '1'
+          ORCA_LOCAL_BUILD_VERSION: ${{ needs.validate.outputs.version }}
+
+      - name: Package Windows installer (unsigned)
+        uses: nick-fields/retry@v4
+        with:
+          timeout_minutes: 30
+          max_attempts: 3
+          retry_wait_seconds: 30
+          command: node config/scripts/ensure-native-runtime.mjs --runtime=electron; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; pnpm exec electron-builder --config config/electron-builder.config.cjs --win --publish never
+        env:
+          ORCA_DOWNSTREAM_BUILD: '1'
+          ORCA_LOCAL_BUILD_VERSION: ${{ needs.validate.outputs.version }}
+
+      - name: Verify Windows artifacts (identity, version, signing status)
+        shell: pwsh
+        env:
+          VERSION: ${{ needs.validate.outputs.version }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          function Fail([string]$msg) { Write-Host "::error::$msg"; exit 1 }
+
+          $setup = 'dist\horca-windows-x64-setup.exe'
+          if (-not (Test-Path $setup)) { Fail "missing $setup" }
+          $appExe = 'dist\win-unpacked\Horca.exe'
+          if (-not (Test-Path $appExe)) { Fail "missing $appExe" }
+
+          $info = (Get-Item $appExe).VersionInfo
+          if ($info.ProductName -ne 'Horca') { Fail "Horca.exe ProductName is '$($info.ProductName)'" }
+          $versionCore = $env:VERSION.Split('-')[0]
+          $expectedFileVersion = "$versionCore.0"
+          if ($info.ProductVersion -ne $expectedFileVersion) {
+            Fail "Horca.exe ProductVersion is '$($info.ProductVersion)', expected $expectedFileVersion"
+          }
+
+          $asar = 'dist\win-unpacked\resources\app.asar'
+          if (-not (Test-Path $asar)) { Fail "missing $asar" }
+          $packagedVersion = node -e "const { extractFile } = require('@electron/asar'); const pkg = JSON.parse(extractFile(process.argv[1], 'package.json').toString('utf8')); process.stdout.write(pkg.version)" $asar
+          if ($LASTEXITCODE -ne 0) { Fail 'could not read packaged app version' }
+          if ($packagedVersion -ne $env:VERSION) {
+            Fail "packaged app version is '$packagedVersion', expected $env:VERSION"
+          }
+
+          # Windows artifacts ship UNSIGNED for now — but they must be cleanly
+          # unsigned. Any signature (especially a leaked Stably/SignPath
+          # identity) is a policy violation.
+          foreach ($file in @($setup, $appExe)) {
+            $sig = Get-AuthenticodeSignature $file
+            if ($sig.Status -ne 'NotSigned') {
+              Fail "$file is signed (status $($sig.Status), subject $($sig.SignerCertificate.Subject)); Horca Windows builds must be unsigned"
+            }
+          }
+
+          # The public CLI must ship under the horca name, never orca.
+          if (-not (Test-Path 'dist\win-unpacked\resources\bin\horca.cmd')) { Fail 'missing resources\bin\horca.cmd' }
+          if (-not (Test-Path 'dist\win-unpacked\resources\bin\horca.exe')) { Fail 'missing resources\bin\horca.exe' }
+          if (Test-Path 'dist\win-unpacked\resources\bin\orca.cmd') { Fail 'resources\bin\orca.cmd must not exist in a Horca build' }
+
+      # Real install proof on the runner: the one-click per-user installer must
+      # register Horca identities (install dir, horca: protocol,
+      # uninstall entry) and never touch Orca's. electron-builder oneClick names
+      # the folder from package.json `name` (`orca`) unless the Horca NSIS
+      # include re-pins APP_FILENAME — look up the exe rather than assuming the
+      # path, then reject an Orca-directory landing. electron-builder NSIS also
+      # never writes URL protocols; the Horca include must register horca: and
+      # must not create orca:.
+      - name: Silent-install and verify OS registration
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          function Fail([string]$msg) { Write-Host "::error::$msg"; exit 1 }
+
+          $setup = (Resolve-Path 'dist\horca-windows-x64-setup.exe').Path
+          $proc = Start-Process -FilePath $setup -ArgumentList '/S' -PassThru -Wait
+          if ($proc.ExitCode -ne 0) { Fail "silent install exited $($proc.ExitCode)" }
+
+          # Why poll: the NSIS process can return before the copy finishes
+          # (see tests/tools/win-update-e2e/installer-steps.mjs).
+          $programs = Join-Path $env:LOCALAPPDATA 'Programs'
+          $deadline = (Get-Date).AddSeconds(120)
+          $installedExe = $null
+          while ((Get-Date) -lt $deadline) {
+            $installedExe = Get-ChildItem -Path $programs -Filter 'Horca.exe' -Recurse -Depth 2 -ErrorAction SilentlyContinue |
+              Select-Object -First 1 -ExpandProperty FullName
+            if ($installedExe) { break }
+            Start-Sleep -Seconds 2
+          }
+          if (-not $installedExe) {
+            Write-Host "Programs tree under $programs"
+            Get-ChildItem -Path $programs -Recurse -Depth 2 -ErrorAction SilentlyContinue | ForEach-Object { Write-Host $_.FullName }
+            Fail "installed app missing under $programs (expected Horca\Horca.exe)"
+          }
+
+          $installDirName = Split-Path (Split-Path $installedExe -Parent) -Leaf
+          if ($installDirName -ieq 'orca') {
+            Fail "Horca installed into official Orca directory ($installedExe); oneClick NSIS used package.json name"
+          }
+          if ($installDirName -ine 'horca') {
+            Fail "Horca installed to unexpected directory $installedExe"
+          }
+
+          $orcaProtocol = Get-ItemProperty -Path 'HKCU:\Software\Classes\orca' -ErrorAction SilentlyContinue
+          if ($orcaProtocol) { Fail 'installing Horca registered the official orca: protocol' }
+
+          $protocol = Get-ItemProperty -Path 'HKCU:\Software\Classes\horca' -ErrorAction SilentlyContinue
+          if (-not $protocol) {
+            Write-Host "HKCU Software\\Classes keys matching orca/horca:"
+            Get-ChildItem 'HKCU:\Software\Classes' -ErrorAction SilentlyContinue |
+              Where-Object { $_.PSChildName -match 'orca|horca' } |
+              ForEach-Object { Write-Host $_.Name }
+            Fail 'horca: protocol key not registered under HKCU:\Software\Classes'
+          }
+          $command = (Get-ItemProperty -Path 'HKCU:\Software\Classes\horca\shell\open\command' -ErrorAction SilentlyContinue).'(default)'
+          # -like is case-insensitive, so *Orca.exe* also matches Horca.exe.
+          if ($command -notlike '*\Horca.exe*') { Fail "horca: protocol command is '$command'" }
+          if ($command -like '*\Orca.exe*') { Fail "horca: protocol command points at Orca.exe: '$command'" }
+
+          $uninstallEntries = Get-ChildItem 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall' |
+            Get-ItemProperty |
+            Where-Object { $_.DisplayName -eq 'Horca' }
+          if (-not $uninstallEntries) { Fail 'no HKCU uninstall entry with DisplayName Horca' }
+
+          $orcaEntries = Get-ChildItem 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall' |
+            Get-ItemProperty |
+            Where-Object { $_.DisplayName -eq 'Orca' }
+          if ($orcaEntries) { Fail 'installing Horca created an Orca uninstall entry' }
+
+          Write-Host "OK: silent install registered Horca identity only at $installedExe"
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: horca-windows-setup
+          path: dist/horca-windows-x64-setup.exe
+          if-no-files-found: error
+          retention-days: 30
+
+  # Single gate for callers: horca_release.yml depends on this one job, so a
+  # release can only proceed when every platform built AND verified.
+  all-platforms:
+    if: github.repository == 'rudironsoni/orca'
+    needs: [validate, build-macos, build-windows]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: All Horca targets built and verified
+        run: |
+          echo "sha=${{ needs.validate.outputs.sha }}"
+          echo "version=${{ needs.validate.outputs.version }}"

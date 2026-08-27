@@ -60,6 +60,14 @@ describe('PR workflow parallelism', () => {
 
     expect(installStep.with['node-version']).toBe('${{ matrix.node }}')
     expect(testStep.run).toContain('--shard=${{ matrix.shard }}/${{ matrix.shard_total }}')
+    expect(testStep.run).toContain('--exclude=src/**/*.electron.test.ts')
+    expect(testStep.run).toContain('--exclude=src/main/persistence-pane-identity-migration.test.ts')
+    const isolatedMigration = workflow.jobs.test.steps.find(
+      (step) => step.name === 'Isolated large layout migration'
+    )
+    expect(isolatedMigration.if).toBe('matrix.shard == 1')
+    expect(isolatedMigration.run).toContain('src/main/persistence-pane-identity-migration.test.ts')
+    expect(isolatedMigration.run).toContain('--testTimeout=120000')
     for (const testFile of nativeShellContractFiles) {
       expect(testStep.run).toContain(`--exclude=${testFile}`)
     }

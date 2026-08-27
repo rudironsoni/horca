@@ -1,0 +1,15 @@
+{
+  "patches": [
+    {
+      "id": "claude-keychain-sso-user",
+      "pr": "https://github.com/stablyai/orca/pull/16673",
+      "sourceSha": "c441c7b5937093369704963a78ba207b87c02062",
+      "subsystem": "claude-accounts",
+      "tests": [
+        "src/main/claude-accounts/keychain.test.ts",
+        "src/main/claude-accounts/claude-account-service-login-process.test.ts"
+      ],
+      "dropWhen": "git range-diff against upstream/main is empty for the five Claude Keychain files. Do not drop only because the GitHub PR closed."
+    }
+  ]
+}
