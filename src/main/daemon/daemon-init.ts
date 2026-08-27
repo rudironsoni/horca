@@ -57,6 +57,10 @@ import {
 import { parseDaemonReadyIdentity, readDaemonProcessIncarnation } from './daemon-ready-identity'
 import type { DaemonEndpointIdentity } from './daemon-hello-protocol'
 import {
+  composeTerminalBackendProvider,
+  type TerminalBackendComposition
+} from '../providers/terminal-backend-registry'
+import {
   daemonLogArgs,
   getAliveDaemonSessionCount,
   getDaemonEntryPath,
@@ -104,9 +108,17 @@ let spawner: DaemonSpawner | null = null
 type DaemonProvider = DaemonPtyRouter | DaemonPtyAdapter | DegradedDaemonPtyProvider
 
 let adapter: DaemonProvider | null = null
+let terminalBackendComposition: TerminalBackendComposition | null = null
 // Why: coalesce concurrent restartDaemon() calls so two entries can't race the 7-step sequence against a half-spawned replacement.
 let restartInFlight: Promise<RestartDaemonResult> | null = null
 
+function installLocalTerminalBackend(fallback: DaemonProvider): void {
+  const previous = terminalBackendComposition
+  const next = composeTerminalBackendProvider(fallback, { kind: 'local' })
+  terminalBackendComposition = next
+  setLocalPtyProvider(next.provider)
+  previous?.dispose()
+}
 function createPreservedDaemonHandle(
   runtimeDir: string,
   protocolVersion = PROTOCOL_VERSION,
@@ -947,7 +959,7 @@ export async function initDaemonPtyProvider(
   }
   spawner = newSpawner
   adapter = routedAdapter
-  setLocalPtyProvider(routedAdapter)
+  installLocalTerminalBackend(routedAdapter)
   // Why: the first window may register PTY listeners before daemon init finishes; rebind so daemon PTYs still fan out events.
   rebindLocalProviderListeners()
   logDaemonMilestone('daemon-init-done', {
@@ -1075,7 +1087,7 @@ export async function listLiveDaemonPtyIds(): Promise<string[] | null> {
 // Why: keep the module-level adapter and ipc/pty.ts's localProvider in sync so app-quit can't dispose a stale reference.
 export function replaceDaemonProvider(newAdapter: DaemonProvider): void {
   adapter = newAdapter
-  setLocalPtyProvider(newAdapter)
+  installLocalTerminalBackend(newAdapter)
 }
 
 function getCurrentDaemonAdapter(provider: DaemonProvider): DaemonPtyAdapter {
@@ -1242,12 +1254,16 @@ async function runRestartDaemon(): Promise<RestartDaemonResult> {
 // Disconnect without killing: the daemon survives app quit so sessions stay warm for reattach.
 // Leave history sessions marked "unclean" so a daemon crash while Orca is closed stays recoverable.
 export async function disconnectDaemon(): Promise<void> {
+  terminalBackendComposition?.dispose()
+  terminalBackendComposition = null
   await adapter?.disconnectOnly()
   adapter = null
 }
 
 /** Kill the daemon and all its sessions. Use for full cleanup only. */
 export async function shutdownDaemon(): Promise<void> {
+  terminalBackendComposition?.dispose()
+  terminalBackendComposition = null
   adapter?.dispose()
   adapter = null
   await spawner?.shutdown()
