@@ -20,10 +20,12 @@ export async function runBrowserRouteEgressElectron(
     `--user-data-dir=${join(root, 'profile')}`,
     ...extraElectronArgs
   ]
-  const executable = process.platform === 'linux' ? 'xvfb-run' : electronBinary
-  const args =
-    process.platform === 'linux'
-      ? ['--auto-servernum', electronBinary, ...electronArgs, '--no-sandbox']
+  const nestXvfb = process.platform === 'linux' && !process.env.DISPLAY
+  const executable = nestXvfb ? 'xvfb-run' : electronBinary
+  const args = nestXvfb
+    ? ['--auto-servernum', electronBinary, ...electronArgs, '--no-sandbox']
+    : process.platform === 'linux'
+      ? [...electronArgs, '--no-sandbox']
       : electronArgs
   const { ELECTRON_RUN_AS_NODE: _electronRunAsNode, ...env } = process.env
   const child = spawn(executable, args, {
