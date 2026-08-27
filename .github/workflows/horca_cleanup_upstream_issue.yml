@@ -22,4 +22,4 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.app.outputs.token }}
         run: |
-          gh issue close 16890 --repo stablyai/orca --comment 'Opened by Horca downstream maintenance automation in error. Closing it now. Sorry for the noise.'
+          gh issue close 16890 --repo stablyai/orca
