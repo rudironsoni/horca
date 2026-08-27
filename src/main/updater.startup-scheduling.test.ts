@@ -193,9 +193,8 @@ describe('updater', () => {
     expect(autoUpdaterMock.checkForUpdates).toHaveBeenCalledTimes(1)
 
     await vi.advanceTimersByTimeAsync(60 * 1000)
-    await vi.waitFor(() => {
-      expect(autoUpdaterMock.checkForUpdates).toHaveBeenCalledTimes(2)
-    })
+    await vi.advanceTimersByTimeAsync(0)
+    expect(autoUpdaterMock.checkForUpdates).toHaveBeenCalledTimes(2)
   })
 
   it('reschedules the next automatic check 24 hours after finding an available update', async () => {
@@ -236,10 +235,10 @@ describe('updater', () => {
     await vi.advanceTimersByTimeAsync(23 * 60 * 60 * 1000 + 59 * 60 * 1000)
     expect(autoUpdaterMock.checkForUpdates).toHaveBeenCalledTimes(1)
 
+    // Why: waitFor under fake timers can flush the next 24h re-arm and report 3 checks on Node 24.
     await vi.advanceTimersByTimeAsync(60 * 1000)
-    await vi.waitFor(() => {
-      expect(autoUpdaterMock.checkForUpdates).toHaveBeenCalledTimes(2)
-    })
+    await vi.advanceTimersByTimeAsync(0)
+    expect(autoUpdaterMock.checkForUpdates).toHaveBeenCalledTimes(2)
   })
 
   // Why: a no-op verifyUpdateCodeSignature override would silently accept every installer; keep electron-updater's Authenticode check (issue #631 resolved).

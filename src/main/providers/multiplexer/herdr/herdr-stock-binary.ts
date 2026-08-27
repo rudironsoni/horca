@@ -24,6 +24,22 @@ export function resolveStockHerdrTestBinary(): string | null {
 
 const SOCKET_PATH_LIMIT = 104
 
+/** Scratch HOME plus pinned XDG_CONFIG_HOME so stock herdr and Orca share one socket path. */
+export function isolatedStockHerdrHomeEnv(home: string): NodeJS.ProcessEnv {
+  const env: NodeJS.ProcessEnv = {
+    ...process.env,
+    HOME: home,
+    USERPROFILE: home,
+    XDG_CONFIG_HOME: join(home, '.config')
+  }
+  for (const name of Object.keys(env)) {
+    if (name.startsWith('HERDR_')) {
+      delete env[name]
+    }
+  }
+  return env
+}
+
 export function configHomeDir(): string {
   const roots = process.platform === 'win32' ? [tmpdir()] : [tmpdir(), '/tmp']
   for (const root of new Set(roots)) {

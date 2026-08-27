@@ -89,6 +89,19 @@ describe('ensureStockHerdrSession', () => {
     expect(ready).toBe(1)
   })
 
+  it('becomes ready from the socket even when session list lags', async () => {
+    let socketReady = false
+    await ensureStockHerdrSession(new Map(), 'orca', {
+      loadSchema: async () => schema,
+      listSessions: async () => [],
+      socketReady: async () => socketReady,
+      startServer: async () => {
+        socketReady = true
+      }
+    })
+    expect(socketReady).toBe(true)
+  })
+
   it('times out when the named session never becomes running', async () => {
     await expect(
       ensureStockHerdrSession(new Map(), 'orca', {

@@ -60,7 +60,7 @@ async function waitForStockHerdrSession(
     const socketReady = ops.socketReady
       ? await ops.socketReady(sessionName).catch(() => false)
       : true
-    if (listedRunning && socketReady) {
+    if (stockHerdrSessionReady(listedRunning, socketReady, Boolean(ops.socketReady))) {
       return
     }
     await new Promise((resolve) => setTimeout(resolve, pollMs))
@@ -69,4 +69,12 @@ async function waitForStockHerdrSession(
     'herdr_unavailable',
     `Herdr session ${sessionName} did not start within ${timeoutMs}ms`
   )
+}
+
+function stockHerdrSessionReady(
+  listedRunning: boolean,
+  socketReady: boolean,
+  hasSocketProbe: boolean
+): boolean {
+  return hasSocketProbe ? socketReady : listedRunning
 }

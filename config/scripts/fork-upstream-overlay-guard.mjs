@@ -133,6 +133,7 @@ export const ALLOWED_OVERLAY_PATHS = new Set([
   'src/main/startup/dev-instance-identity.ts',
   'src/main/tray/system-tray.ts',
   'src/main/updater-test-harness.ts',
+  'src/main/updater.startup-scheduling.test.ts',
   'src/main/updater.ts',
   'src/main/window/createMainWindow.ts',
   'src/main/window/attach-main-window-services.test.ts',

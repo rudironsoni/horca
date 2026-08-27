@@ -3,8 +3,11 @@ import { HerdrSocketTransport } from './herdr-socket-transport'
 import { unwrapHerdrResponse } from './herdr-runtime-contract'
 import { execFileSync, spawn, type ChildProcess } from 'node:child_process'
 import { existsSync, rmSync } from 'node:fs'
-import { join } from 'node:path'
-import { configHomeDir, resolveStockHerdrTestBinary } from './herdr-stock-binary'
+import {
+  configHomeDir,
+  isolatedStockHerdrHomeEnv,
+  resolveStockHerdrTestBinary
+} from './herdr-stock-binary'
 import { defaultHerdrSocketPath } from './herdr-socket-connection'
 
 // Live-gated: only runs with HERDR_PROBE=1. Boots an isolated herdr server
@@ -22,7 +25,7 @@ describe.skipIf(!RUN || !HERDR)('live herdr socket probe', () => {
   beforeAll(async () => {
     probeHome = configHomeDir()
     session = `probe-${process.pid}`
-    const env = probeEnv(probeHome)
+    const env = isolatedStockHerdrHomeEnv(probeHome)
     sock = defaultHerdrSocketPath(session, process.platform, env)
     server = spawn(herdr, ['--session', session, 'server'], {
       env,
@@ -43,7 +46,7 @@ describe.skipIf(!RUN || !HERDR)('live herdr socket probe', () => {
   afterAll(() => {
     try {
       execFileSync(herdr, ['--session', session, 'server', 'stop'], {
-        env: probeEnv(probeHome)
+        env: isolatedStockHerdrHomeEnv(probeHome)
       })
     } catch {
       server?.kill()
@@ -91,12 +94,3 @@ describe.skipIf(!RUN || !HERDR)('live herdr socket probe', () => {
     await new Promise((resolve) => setTimeout(resolve, 100))
   }, 30000)
 })
-
-function probeEnv(probeHome: string): NodeJS.ProcessEnv {
-  return {
-    ...process.env,
-    HOME: probeHome,
-    USERPROFILE: probeHome,
-    XDG_CONFIG_HOME: join(probeHome, '.config')
-  }
-}

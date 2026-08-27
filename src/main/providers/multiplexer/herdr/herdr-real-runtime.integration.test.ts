@@ -1,7 +1,11 @@
 import { execFileSync } from 'node:child_process'
 import { rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { configHomeDir, resolveStockHerdrTestBinary } from './herdr-stock-binary'
+import {
+  configHomeDir,
+  isolatedStockHerdrHomeEnv,
+  resolveStockHerdrTestBinary
+} from './herdr-stock-binary'
 import { afterAll, describe, expect, it } from 'vitest'
 import { HerdrCliHostTransport, localHerdrCommand } from './herdr-cli-session'
 import {
@@ -18,12 +22,7 @@ const describeRealHerdr = binary ? describe : describe.skip
 describeRealHerdr('stock Herdr runtime integration', () => {
   const configHome = configHomeDir()
   const sessionName = `ot-${process.pid}-rt`
-  const env: NodeJS.ProcessEnv = { ...process.env, HOME: configHome }
-  for (const name of Object.keys(env)) {
-    if (name.startsWith('HERDR_')) {
-      delete env[name]
-    }
-  }
+  const env = isolatedStockHerdrHomeEnv(configHome)
   const transport = new HerdrCliHostTransport({
     commandFor: localHerdrCommand(binary as string, env),
     timeoutMs: 30_000
