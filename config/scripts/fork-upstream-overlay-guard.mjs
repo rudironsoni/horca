@@ -213,6 +213,7 @@ export const ALLOWED_OVERLAY_PATHS = new Set([
   'src/main/runtime/headless-terminal-split-layout.ts',
   'src/main/runtime/orca-runtime.test.ts',
   'src/main/runtime/orca-runtime.ts',
+  'src/main/runtime/runtime-rpc-metadata-lifecycle.test.ts',
   'src/main/runtime/rpc/methods/project-runtime-rpc-methods.ts',
   'src/main/ssh/ssh-relay-session-agent-hooks.integration.test.ts',
   'src/main/ssh/ssh-relay-session-data-delivery.test.ts',

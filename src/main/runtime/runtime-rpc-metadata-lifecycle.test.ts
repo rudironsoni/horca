@@ -72,10 +72,14 @@ describe('OrcaRuntimeRpcServer', () => {
     const userDataPath = mkdtempSync(join(tmpdir(), 'orca-runtime-rpc-'))
     // Why: a synthetic owned pid frees the always-alive process.pid to stand in for
     // the sibling — Windows never assigns pid 1, so hardcoding it there reads as dead.
+    // The owned pid must also differ from this worker: matching pids make
+    // shouldReclaimRuntimeMetadata treat the sibling runtimeId as a recycled-pid
+    // leftover and republish (flake when the vitest worker is pid 4242).
+    const ownedPid = process.pid === 4242 ? 4343 : 4242
     const server = new OrcaRuntimeRpcServer({
       runtime: new OrcaRuntimeService(),
       userDataPath,
-      pid: 4242
+      pid: ownedPid
     })
     await server.start()
 
