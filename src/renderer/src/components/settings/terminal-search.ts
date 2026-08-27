@@ -1,4 +1,5 @@
 import type { SettingsSearchEntry } from './settings-search'
+import { herdrSettingsCopy } from '@/i18n/herdr-settings-copy'
 import {
   getTerminalAdvancedSearchEntries,
   getTerminalGhosttyImportSearchEntries,
@@ -62,6 +63,16 @@ export {
   getTerminalSetupScriptSearchEntries
 } from './terminal-window-setup-search'
 
+export function getTerminalBackendSearchEntries(): SettingsSearchEntry[] {
+  return [
+    {
+      title: herdrSettingsCopy.searchTitle,
+      description: herdrSettingsCopy.searchDescription,
+      keywords: ['terminal', 'runtime', 'backend', 'herdr', 'multiplexer', 'persistence']
+    }
+  ]
+}
+
 type TerminalAppearanceSearchOptions = {
   showWarpImport?: boolean
 }
@@ -107,6 +118,7 @@ export function getTerminalPaneSearchEntries(platform: {
   // platform-only controls out of other platforms' search results prevents
   // users from landing on an option the UI intentionally hides.
   return [
+    ...getTerminalBackendSearchEntries(),
     ...getTerminalRenderingSearchEntries(),
     ...getTerminalPaneInteractionSearchEntries(),
     ...(isWindowsTerminalHost

@@ -136,11 +136,8 @@ describe('startup ordering', () => {
 
   it('reconciles retained Codex homes after authoritative daemon inventory', () => {
     const source = readFileSync(join(process.cwd(), 'src/main/index.ts'), 'utf8')
-    const daemonInitIndex = source.indexOf('await initDaemonPtyProvider(signal')
-    const retainedPaneGateIndex = source.indexOf(
-      'hasRecordedManagedHostCodexPane()',
-      daemonInitIndex
-    )
+    const daemonInitIndex = source.indexOf('await initDaemonPtyProvider(')
+    const routeGateIndex = source.indexOf('hasRecordedManagedHostCodexPane()', daemonInitIndex)
     const inventoryIndex = source.indexOf('await listLiveDaemonPtyIds()', daemonInitIndex)
     const reconciliation = 'codexRuntimeHome?.reconcileLegacySharedHomeForRetainedPanes()'
     const reconciliationIndex = source.indexOf(reconciliation, inventoryIndex)
@@ -155,9 +152,9 @@ describe('startup ordering', () => {
     )
 
     expect(daemonInitIndex).toBeGreaterThanOrEqual(0)
-    expect(retainedPaneGateIndex).toBeGreaterThan(daemonInitIndex)
+    expect(routeGateIndex).toBeGreaterThan(daemonInitIndex)
     expect(inventoryIndex).toBeGreaterThan(daemonInitIndex)
-    expect(inventoryIndex).toBeGreaterThan(retainedPaneGateIndex)
+    expect(inventoryIndex).toBeGreaterThan(routeGateIndex)
     expect(hookReconciliationIndex).toBeGreaterThan(inventoryIndex)
     expect(hookReconciliationIndex).toBeLessThan(reconciliationIndex)
     expect(reconciliationIndex).toBeGreaterThan(inventoryIndex)

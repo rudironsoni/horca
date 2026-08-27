@@ -25,7 +25,9 @@ import { setAppEnvironment } from '../shared/app-environment'
 import { ElectronAppEnvironment } from './host/electron-app-environment'
 import { setPtyHostBindings } from './ipc/pty-host-bindings'
 import { electronRuntimeDesktopSurface } from './host/electron-runtime-desktop-surface'
+import { electronHerdrDesktopSurface } from './host/electron-herdr-desktop-surface'
 import { setRuntimeDesktopSurface } from './runtime/runtime-desktop-surface'
+import { setHerdrDesktopSurface } from './runtime/herdr-desktop-surface'
 import { electronRuntimeBrowserCommandsFactory } from './host/electron-browser-commands'
 import { setRuntimeBrowserCommandsFactory } from './runtime/runtime-browser-commands-factory'
 import { electronHttpClient } from './host/electron-http-client'
@@ -56,6 +58,7 @@ import {
   getLocalPtyProvider,
   getSshPtyProvider,
   registerHeadlessPtyRuntime,
+  setHerdrStore,
   type CodexHomeLaunchContext
 } from './ipc/pty'
 import {
@@ -915,6 +918,7 @@ if (hasSingleInstanceLock) {
   // tab-create-reply channel are desktop-only. A Node host installs none and the
   // runtime routes notifications to paired clients instead.
   setRuntimeDesktopSurface(electronRuntimeDesktopSurface)
+  setHerdrDesktopSurface(electronHerdrDesktopSurface)
   // Why here: constructing RuntimeBrowserCommands is what pulls the Chromium browser
   // cluster into the graph. The desktop installs it; a Node host installs none and every
   // browser RPC rejects, which capability filtering already tells clients about.
@@ -1064,9 +1068,13 @@ function startTerminalRuntimeStartupServices(): WindowsDesktopStartupServices {
       logStartupMilestone('startup-service-start', { service: 'daemon-pty-provider' })
       // Why: only GUI-spawned macOS daemons watch for login-session death; a headless
       // serve daemon must survive its spawning session ending (SSH disconnect).
-      await initDaemonPtyProvider(signal, {
-        macosLoginSessionWatch: process.platform === 'darwin' && !isServeMode
-      })
+      await initDaemonPtyProvider(
+        signal,
+        {
+          macosLoginSessionWatch: process.platform === 'darwin' && !isServeMode
+        },
+        store
+      )
       // Why: a retained shell keeps its launch-time Codex home even when the current routing lane changes.
       if (codexRuntimeHome && hasRecordedManagedHostCodexPane()) {
         const livePtyIds = await listLiveDaemonPtyIds()
@@ -2364,6 +2372,7 @@ void app.whenReady().then(async () => {
       )
     }
   }
+  setHerdrStore(store)
   wslHookRelayManager.setManagedHookSettingsResolver(() => store?.getSettings() ?? null)
   logStartupMilestone('store-loaded')
   // Why: apply initial fallback WSL distro from store settings for global git/CLI calls.

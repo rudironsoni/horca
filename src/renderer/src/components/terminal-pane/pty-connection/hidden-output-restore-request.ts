@@ -15,7 +15,6 @@ import {
   HIDDEN_OUTPUT_RESTORE_REMOTE_OUTCOME_MAX_ATTEMPTS,
   HIDDEN_OUTPUT_RESTORE_LOCAL_GATE_MAX_ATTEMPTS
 } from './hidden-output-restore-limits'
-import { shouldWritePtyOutputForeground } from './foreground-output-scan'
 import { restoredSnapshotPaintsPrintableContent } from '../restored-snapshot-coverage'
 import { isRemoteRuntimePtyId } from './paired-parked-terminal-restore'
 
@@ -78,7 +77,7 @@ export function bindHiddenOutputRestoreRequest(session: ConnectPanePtySession): 
                 !session.canUseHiddenOutputSnapshot(scheduledPtyId) ||
                 (!session.hiddenOutputRestoreNeeded &&
                   session.hiddenOutputRestorePendingChunks.length === 0) ||
-                !shouldWritePtyOutputForeground(session.deps.isVisibleRef.current)
+                !session.shouldWritePtyOutputForeground()
               ) {
                 return
               }
@@ -231,7 +230,7 @@ export function bindHiddenOutputRestoreRequest(session: ConnectPanePtySession): 
           session.clearHiddenOutputRestoreForegroundDeadlineTimer()
           return
         }
-        if (!shouldWritePtyOutputForeground(session.deps.isVisibleRef.current)) {
+        if (!session.shouldWritePtyOutputForeground()) {
           // Why: hidden bytes arriving during the snapshot aren't in renderer memory; leave recovery pending for reveal, don't loop snapshots in a throttled tab.
           session.hiddenOutputRestoreNeeded = true
           return
@@ -281,7 +280,7 @@ export function bindHiddenOutputRestoreRequest(session: ConnectPanePtySession): 
       if (
         !session.hiddenOutputRestoreRetryDeferred &&
         session.hiddenOutputRestoreNeeded &&
-        shouldWritePtyOutputForeground(session.deps.isVisibleRef.current)
+        session.shouldWritePtyOutputForeground()
       ) {
         session.requestHiddenOutputRestoreIfNeeded()
       }
@@ -303,7 +302,7 @@ export function bindHiddenOutputRestoreRequest(session: ConnectPanePtySession): 
     const onDocumentVisibilityChange = (): void => {
       // Why: document hide/show flips the foreground predicate with no pane lifecycle event; re-sync the hidden-delivery gate both ways.
       session.syncHiddenRendererPtyDelivery()
-      if (shouldWritePtyOutputForeground(session.deps.isVisibleRef.current)) {
+      if (session.shouldWritePtyOutputForeground()) {
         session.requestHiddenOutputRestoreIfNeeded()
       }
     }

@@ -18,6 +18,7 @@ import {
 } from '../pane/spawn-reservation'
 import { ptySizes } from '../delivery/visibility-state'
 import { getStartupTerminalColorQueryReplyColors } from '../../terminal-startup-color-query-replies'
+import { isTerminalLayoutSnapshot } from './terminal-layout-snapshot'
 import type { PtyIpcSpawnState } from './spawn-state'
 
 export async function buildPtyIpcSpawnOptions(
@@ -85,6 +86,12 @@ export async function buildPtyIpcSpawnOptions(
   }
   if (typeof args.tabId === 'string' && args.tabId.length > 0 && args.tabId.length <= 512) {
     ctx.spawnOptions.tabId = args.tabId
+  }
+  if (args.terminalLayout !== undefined) {
+    if (!isTerminalLayoutSnapshot(args.terminalLayout)) {
+      throw new Error('pty_spawn_invalid_terminal_layout')
+    }
+    ctx.spawnOptions.terminalLayout = args.terminalLayout
   }
   if (ctx.effectiveSessionId !== undefined) {
     ctx.spawnOptions.sessionId = ctx.effectiveSessionId

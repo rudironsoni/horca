@@ -17,17 +17,23 @@ export async function recoverLegacyWorkerTerminalsForRendererStartup(
     options.firstWindowStartupServicesReady,
     options.managedWslCliStartupBarrierReady
   ])
+  // Why: a ready provider schedules deferred reconcile as a microtask that
+  // would overlap the initial pass.
+  const initialRecovery = (async () => {
+    try {
+      await options.reconcile()
+    } catch (error) {
+      options.onDeferredRecoveryError(error)
+    }
+  })()
   void providerStartupResult
     .then(async (result) => {
+      await initialRecovery
       if (!result.ok) {
         throw result.error
       }
       await options.reconcile()
     })
     .catch(options.onDeferredRecoveryError)
-  try {
-    await options.reconcile()
-  } catch (error) {
-    options.onDeferredRecoveryError(error)
-  }
+  await initialRecovery
 }

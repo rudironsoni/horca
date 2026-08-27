@@ -2,6 +2,7 @@ import {
   isTerminalInputTooLargeWithDeferredMeasurement,
   iterateTerminalInputChunks
 } from '../../../../shared/terminal-input'
+import { writeAcceptedPtyLogicalInput } from './pty-logical-write'
 
 export async function writeAcceptedIpcPtyInput(
   id: string,
@@ -19,7 +20,7 @@ export async function writeAcceptedIpcPtyInput(
       if (!isCurrent()) {
         return false
       }
-      const accepted = await window.api.pty.writeAccepted(id, chunk.value)
+      const accepted = await writeAcceptedPtyLogicalInput(id, chunk.value)
       if (!accepted) {
         return false
       }

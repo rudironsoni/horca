@@ -59,6 +59,11 @@ import {
 } from '../claude-accounts/live-pty-gate'
 import { parseDaemonReadyIdentity, readDaemonProcessIncarnation } from './daemon-ready-identity'
 import type { DaemonEndpointIdentity } from './daemon-hello-protocol'
+import type { Store } from '../persistence'
+import {
+  createLocalBackendPtyProvider,
+  type TerminalBackendPtyProvider
+} from '../providers/terminal-backend-composition'
 
 // Why: daemon init runs concurrent with window load, so an in-process t timestamp (not harness stderr timing) measures cold-start.
 function logDaemonMilestone(event: string, details: Record<string, unknown> = {}): void {
@@ -98,8 +103,22 @@ let spawner: DaemonSpawner | null = null
 type DaemonProvider = DaemonPtyRouter | DaemonPtyAdapter | DegradedDaemonPtyProvider
 
 let adapter: DaemonProvider | null = null
+let herdrStore: Store | null = null
+let herdrProvider: TerminalBackendPtyProvider | null = null
 // Why: coalesce concurrent restartDaemon() calls so two entries can't race the 7-step sequence against a half-spawned replacement.
 let restartInFlight: Promise<RestartDaemonResult> | null = null
+
+function installHerdrProvider(fallback: DaemonProvider, store: Store): void {
+  const replaced = herdrProvider
+  const next = createLocalBackendPtyProvider(fallback, store)
+  herdrProvider = next
+  try {
+    setLocalPtyProvider(next)
+    rebindLocalProviderListeners()
+  } finally {
+    replaced?.dispose()
+  }
+}
 
 function getRuntimeDir(): string {
   const dir = join(getAppEnvironment().getPath('userData'), 'daemon')
@@ -931,8 +950,30 @@ function createOutOfProcessLauncher(
 
 export async function initDaemonPtyProvider(
   signal?: AbortSignal,
-  options: { macosLoginSessionWatch?: boolean } = {}
+  options: { macosLoginSessionWatch?: boolean } = {},
+  store?: Store | null
 ): Promise<void> {
+  herdrStore = store ?? null
+  const boundStore = store ?? null
+  // Why: react to backend switches without a restart, so toggling the terminal
+  // backend in settings swaps the local provider in place.
+  store?.onSettingsChanged((updates) => {
+    if (herdrStore !== boundStore) {
+      return
+    }
+    if (!('terminalBackendDefault' in updates) && !('herdrSessionName' in updates)) {
+      return
+    }
+    const activeStore = herdrStore
+    if (!activeStore || !adapter) {
+      return
+    }
+    // Why: the wrapper caches transports and the shared session name. Recreate
+    // it so a settings change applies without a restart. The Orca adapter stays
+    // the fallback so a project can still choose Herdr when the global default
+    // is Orca.
+    installHerdrProvider(adapter, activeStore)
+  })
   logDaemonMilestone('daemon-init-start')
   // Why: e2e coverage for the startup PTY gate (#5232) needs a daemon init that deterministically outlasts the first-window timeout.
   const e2eInitDelayMs = Number(process.env.ORCA_E2E_DAEMON_INIT_DELAY_MS)
@@ -952,6 +993,7 @@ export async function initDaemonPtyProvider(
   pruneOldDaemonHosts(collectPinnedDaemonVersions(runtimeDir))
   const launchMode = newSpawner.getHandle()?.mode
   logDaemonMilestone('daemon-current-ready')
+
   if (signal?.aborted) {
     // Why: fail-open may already have spawned fallback PTYs; don't install late, but retire an empty daemon (live sessions reject it and survive).
     const abortedStartupAdapter = new DaemonPtyAdapter({
@@ -1040,9 +1082,17 @@ export async function initDaemonPtyProvider(
   }
   spawner = newSpawner
   adapter = routedAdapter
-  setLocalPtyProvider(routedAdapter)
-  // Why: the first window may register PTY listeners before daemon init finishes; rebind so daemon PTYs still fan out events.
-  rebindLocalProviderListeners()
+  // Why: Herdr is per-project/host. Keep the Orca adapter as fallback so a
+  // project can select Herdr while the global default stays Orca.
+  if (store) {
+    installHerdrProvider(routedAdapter, store)
+  } else {
+    const replaced = herdrProvider
+    herdrProvider = null
+    setLocalPtyProvider(routedAdapter)
+    rebindLocalProviderListeners()
+    replaced?.dispose()
+  }
   logDaemonMilestone('daemon-init-done', {
     legacyAdapters: legacyAdapters.length
   })
@@ -1168,6 +1218,10 @@ export async function listLiveDaemonPtyIds(): Promise<string[] | null> {
 // Why: keep the module-level adapter and ipc/pty.ts's localProvider in sync so app-quit can't dispose a stale reference.
 export function replaceDaemonProvider(newAdapter: DaemonProvider): void {
   adapter = newAdapter
+  if (herdrProvider) {
+    herdrProvider.replaceFallback(newAdapter)
+    return
+  }
   setLocalPtyProvider(newAdapter)
 }
 
@@ -1335,12 +1389,16 @@ async function runRestartDaemon(): Promise<RestartDaemonResult> {
 // Disconnect without killing: the daemon survives app quit so sessions stay warm for reattach.
 // Leave history sessions marked "unclean" so a daemon crash while Orca is closed stays recoverable.
 export async function disconnectDaemon(): Promise<void> {
+  herdrProvider?.dispose()
+  herdrProvider = null
   await adapter?.disconnectOnly()
   adapter = null
 }
 
 /** Kill the daemon and all its sessions. Use for full cleanup only. */
 export async function shutdownDaemon(): Promise<void> {
+  herdrProvider?.dispose()
+  herdrProvider = null
   adapter?.dispose()
   adapter = null
   await spawner?.shutdown()

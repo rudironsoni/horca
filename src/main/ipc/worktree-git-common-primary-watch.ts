@@ -177,13 +177,11 @@ export async function startGitCommonPrimaryWatch(
       PRIMARY_WATCH_OPTIONS,
       {
         onInterruption: () => {
+          // Why: the supervisor already resubscribed this record. Interruption
+          // is a recovered gap, not a dead watch — refresh metadata, do not
+          // surface it as onWatchError (that logs "watcher failed").
           if (!disposed) {
-            const error = new Error('Git primary metadata watcher interrupted')
-            if (onWatchError) {
-              onWatchError(error)
-            } else {
-              onEvents(primaryMetadataEvents(commonDirPath))
-            }
+            onEvents(primaryMetadataEvents(commonDirPath))
           }
         }
       }

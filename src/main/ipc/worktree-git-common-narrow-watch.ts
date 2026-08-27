@@ -215,12 +215,11 @@ export async function startGitCommonNarrowWatch(
           // Why: a watcher-child crash drops events during the automatic
           // resubscribe gap; report a structural change so worktrees re-sync.
           onInterruption: () => {
+            // Why: the supervisor already resubscribed this record. Refresh
+            // the worktrees dir so the gap is not silent; do not report a
+            // recovered interruption as onWatchError.
             if (!disposed && active && generation === nativeSubscriptionGeneration) {
-              if (onWatchError) {
-                onWatchError(new Error('Git common watcher interrupted'))
-              } else {
-                onEvents([{ type: 'update', path: worktreesDir }])
-              }
+              onEvents([{ type: 'update', path: worktreesDir }])
             }
           }
         }
