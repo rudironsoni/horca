@@ -56,6 +56,7 @@ import {
   getLocalPtyProvider,
   getSshPtyProvider,
   registerHeadlessPtyRuntime,
+  setHerdrStore,
   type CodexHomeLaunchContext
 } from './ipc/pty'
 import {
@@ -2364,6 +2365,7 @@ void app.whenReady().then(async () => {
       )
     }
   }
+  setHerdrStore(store)
   wslHookRelayManager.setManagedHookSettingsResolver(() => store?.getSettings() ?? null)
   logStartupMilestone('store-loaded')
   // Why: apply initial fallback WSL distro from store settings for global git/CLI calls.
