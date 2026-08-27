@@ -45,6 +45,7 @@ export type PtyBufferSnapshot = {
   /** Effective kitty flags the owner of this image proved at `seq`. Absent
    *  means unknown; never rewrite that silence into a known `0`. */
   kittyKeyboardFlags?: number
+  terminalOwner?: 'shell'
 }
 
 /** Metadata for one authoritative replay payload. */
@@ -57,6 +58,8 @@ export type PtyReplayDataMeta = {
   /** The boundary `kittyKeyboardFlags` describes, recorded as the renderer's
    *  ordered high-water so a quiet pane can still publish a coherent snapshot. */
   snapshotSeq?: number
+  alternateScreen?: boolean
+  terminalOwner?: 'shell'
 }
 
 export type LocalPtySessionMetadata = {
@@ -87,6 +90,7 @@ export type PtyConnectResult = {
    *  domain `snapshotSeq` main reconciled for the same attach boundary. Absent
    *  means unknown, never a proven inactive protocol. */
   snapshotKittyKeyboardFlags?: number
+  snapshotTerminalOwner?: 'shell'
   snapshotSeq?: number
   isAlternateScreen?: boolean
   sessionExpired?: boolean

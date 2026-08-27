@@ -1058,6 +1058,7 @@ const api = {
       snapshotFrameAnsi?: string
       snapshotFrameRestoreAnsi?: string
       snapshotKittyKeyboardFlags?: number
+      snapshotTerminalOwner?: 'shell'
       snapshotSeq?: number
       isReattach?: boolean
       isAlternateScreen?: boolean
@@ -1180,6 +1181,7 @@ const api = {
       scrollbackAnsi?: string
       pendingEscapeTailAnsi?: string
       kittyKeyboardFlags?: number
+      terminalOwner?: 'shell'
     } | null> => ipcRenderer.invoke('pty:getMainBufferSnapshot', { id, opts }),
 
     getRendererDeliveryDebugSnapshot: (): Promise<{
