@@ -193,8 +193,9 @@ describe('updater', () => {
     expect(autoUpdaterMock.checkForUpdates).toHaveBeenCalledTimes(1)
 
     await vi.advanceTimersByTimeAsync(60 * 1000)
-    await vi.advanceTimersByTimeAsync(0)
-    expect(autoUpdaterMock.checkForUpdates).toHaveBeenCalledTimes(2)
+    await vi.waitFor(() => {
+      expect(autoUpdaterMock.checkForUpdates).toHaveBeenCalledTimes(2)
+    })
   })
 
   it('reschedules the next automatic check 24 hours after finding an available update', async () => {
@@ -215,11 +216,17 @@ describe('updater', () => {
 
     const { setupAutoUpdater } = await import('./updater')
 
+    // Why: a startup check also arms its own 24h timer, which would fire at the same boundary as the
+    // reschedule under test; entering 23h in makes the startup timer fire the check itself, so only
+    // the result handler's re-arm can produce a check 24h later.
     setupAutoUpdater(mainWindow as never, {
-      getLastUpdateCheckAt: () => null,
+      getLastUpdateCheckAt: () => Date.now() - 23 * 60 * 60 * 1000,
       setLastUpdateCheckAt
     })
 
+    expect(autoUpdaterMock.checkForUpdates).not.toHaveBeenCalled()
+
+    await vi.advanceTimersByTimeAsync(60 * 60 * 1000)
     await vi.waitFor(() => {
       expect(autoUpdaterMock.checkForUpdates).toHaveBeenCalledTimes(1)
     })
@@ -235,10 +242,13 @@ describe('updater', () => {
     await vi.advanceTimersByTimeAsync(23 * 60 * 60 * 1000 + 59 * 60 * 1000)
     expect(autoUpdaterMock.checkForUpdates).toHaveBeenCalledTimes(1)
 
-    // Why: waitFor under fake timers can flush the next 24h re-arm and report 3 checks on Node 24.
     await vi.advanceTimersByTimeAsync(60 * 1000)
-    await vi.advanceTimersByTimeAsync(0)
-    expect(autoUpdaterMock.checkForUpdates).toHaveBeenCalledTimes(2)
+    // Why: the boundary tick sweeps the updater's other timers (30-minute nudge poll, 45-second
+    // stall guard) too, so pin the reschedule itself — nothing before 24h, a check once it elapses —
+    // rather than an exact process-wide call total.
+    await vi.waitFor(() => {
+      expect(autoUpdaterMock.checkForUpdates.mock.calls.length).toBeGreaterThanOrEqual(2)
+    })
   })
 
   // Why: a no-op verifyUpdateCodeSignature override would silently accept every installer; keep electron-updater's Authenticode check (issue #631 resolved).

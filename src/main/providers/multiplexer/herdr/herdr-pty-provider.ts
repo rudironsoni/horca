@@ -144,6 +144,37 @@ export class HerdrPtyProvider extends HerdrPtyProviderIo implements IPtyProvider
     return this.bindings.has(id) || this.fallback?.hasPty?.(id) === true
   }
 
+  async inspectProcess(id: string) {
+    if (isOrcaFallbackId(this.bindings, id, this.fallback)) {
+      const inspect = (
+        this.fallback as IPtyProvider & {
+          inspectProcess?: (id: string) => Promise<{
+            foregroundProcess: string | null
+            hasChildProcesses: boolean
+          }>
+        }
+      ).inspectProcess
+      if (inspect) {
+        return inspect.call(this.fallback, id)
+      }
+      return {
+        foregroundProcess: await this.fallback.getForegroundProcess(id),
+        hasChildProcesses: await this.fallback.hasChildProcesses(id)
+      }
+    }
+    return {
+      foregroundProcess: await this.getForegroundProcess(id),
+      hasChildProcesses: await this.hasChildProcesses(id)
+    }
+  }
+
+  async confirmShellForeground(id: string): Promise<boolean> {
+    if (isOrcaFallbackId(this.bindings, id, this.fallback)) {
+      return (await this.fallback.confirmShellForeground?.(id)) ?? false
+    }
+    return false
+  }
+
   onData(callback: (payload: PtyDataEvent) => void): () => void {
     this.dataListeners.add(callback)
     return () => this.dataListeners.delete(callback)
@@ -198,12 +229,6 @@ export class HerdrPtyProvider extends HerdrPtyProviderIo implements IPtyProvider
     )
   }
 
-  private emitWriteUnavailable(payload: { id: string }): void {
-    for (const listener of this.writeUnavailableListeners) {
-      listener(payload)
-    }
-  }
-
   private emitData(payload: PtyDataEvent): void {
     emitHerdrPtyData(this.dataListeners, payload)
   }
@@ -253,7 +278,9 @@ export class HerdrPtyProvider extends HerdrPtyProviderIo implements IPtyProvider
           fallback,
           (payload) => this.emitData(payload),
           (payload) => this.emitExit(payload),
-          (payload) => this.emitReplay(payload)
+          (payload) => this.emitReplay(payload),
+          (payload) => this.emitBackgroundStreamEvent(payload),
+          (payload) => this.emitWriteUnavailable(payload)
         )
       : undefined
   }

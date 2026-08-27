@@ -25,7 +25,9 @@ import { setAppEnvironment } from '../shared/app-environment'
 import { ElectronAppEnvironment } from './host/electron-app-environment'
 import { setPtyHostBindings } from './ipc/pty-host-bindings'
 import { electronRuntimeDesktopSurface } from './host/electron-runtime-desktop-surface'
+import { electronHerdrDesktopSurface } from './host/electron-herdr-desktop-surface'
 import { setRuntimeDesktopSurface } from './runtime/runtime-desktop-surface'
+import { setHerdrDesktopSurface } from './runtime/herdr-desktop-surface'
 import { electronRuntimeBrowserCommandsFactory } from './host/electron-browser-commands'
 import { setRuntimeBrowserCommandsFactory } from './runtime/runtime-browser-commands-factory'
 import { electronHttpClient } from './host/electron-http-client'
@@ -916,6 +918,7 @@ if (hasSingleInstanceLock) {
   // tab-create-reply channel are desktop-only. A Node host installs none and the
   // runtime routes notifications to paired clients instead.
   setRuntimeDesktopSurface(electronRuntimeDesktopSurface)
+  setHerdrDesktopSurface(electronHerdrDesktopSurface)
   // Why here: constructing RuntimeBrowserCommands is what pulls the Chromium browser
   // cluster into the graph. The desktop installs it; a Node host installs none and every
   // browser RPC rejects, which capability filtering already tells clients about.
@@ -1072,17 +1075,23 @@ function startTerminalRuntimeStartupServices(): WindowsDesktopStartupServices {
         },
         store
       )
-      if (codexRuntimeHome?.isHostSystemDefaultRealHome() && hasRecordedManagedHostCodexPane()) {
+      // Why: a retained shell keeps its launch-time Codex home even when the current routing lane changes.
+      if (codexRuntimeHome && hasRecordedManagedHostCodexPane()) {
         const livePtyIds = await listLiveDaemonPtyIds()
         if (livePtyIds) {
           reconcileCodexPaneAccountsWithLivePtys(livePtyIds)
           const settings = store?.getSettings()
-          reconcileRetainedCodexHookHomes({
+          // Why (#16441): each retained home can run a codex app-server grant
+          // session. Awaiting them here delayed the first window by N sessions;
+          // a retained shell cannot invoke Codex before this provider serves.
+          void reconcileRetainedCodexHookHomes({
             hookService: codexHookService,
             hooksEnabled:
               isAgentStatusHooksEnabled(settings) &&
               settings?.disabledTuiAgents.includes('codex') !== true,
             runtimeHomePaths: codexRuntimeHome.getRetainedHostCodexHookHomePaths(livePtyIds)
+          }).catch((error: unknown) => {
+            console.warn('[codex-hook-service] retained Codex home reconcile failed:', error)
           })
         }
       }
@@ -1143,24 +1152,24 @@ function bindTerminalRuntimeStartupServices(
   localPtyProviderStartupReady = services.then((value) => value.localPtyProviderReady)
 }
 
-function prepareCodexRuntimeHomeForLaunch(
+async function prepareCodexRuntimeHomeForLaunch(
   target?: CodexAccountSelectionTarget,
   launchEnv?: NodeJS.ProcessEnv,
   launchContext?: CodexHomeLaunchContext
-): string | null {
+): Promise<string | null> {
   if (
     target?.runtime !== 'wsl' &&
     launchContext?.launchAgent === 'codex' &&
     launchContext.workspacePath
   ) {
     try {
-      // Why: renderer quick-launch cannot await trust IPC before its PTY mounts; launch prep runs synchronously before every recognized Codex spawn.
-      markCodexProjectTrusted(launchContext.workspacePath)
+      // Why: renderer quick-launch cannot await trust IPC before its PTY mounts; launch prep runs before every recognized Codex spawn.
+      await markCodexProjectTrusted(launchContext.workspacePath)
     } catch (error) {
       console.warn('[codex-project-trust] failed to pre-mark launch workspace:', error)
     }
   }
-  const ensureRealHomeHooksIfSelected = (): boolean => {
+  const ensureRealHomeHooksIfSelected = async (): Promise<boolean> => {
     if (
       target?.runtime === 'wsl' ||
       !codexRuntimeHome!.isHostSystemDefaultRealHomeSelected(launchEnv)
@@ -1171,13 +1180,13 @@ function prepareCodexRuntimeHomeForLaunch(
     // and trusted by codex's own app-server grant — in the real ~/.codex before
     // the pane spawns. An incapable grant flips the lane gate so the launch
     // below falls back to the managed home instead of a status-blind pane.
-    ensureRealHomeCodexHookState({
+    await ensureRealHomeCodexHookState({
       hooksEnabled: isAgentStatusHooksEnabled(store?.getSettings()),
       userDataPath: app.getPath('userData')
     })
     return true
   }
-  let realHomeHooksPrepared = ensureRealHomeHooksIfSelected()
+  let realHomeHooksPrepared = await ensureRealHomeHooksIfSelected()
   // Why: a ManagedCodexHomeTemporarilyUnavailableError must escape uncaught —
   // the fallbacks below all key off `null`, which means "system default", so
   // swallowing the refusal would launch the wrong account (#STA-4422).
@@ -1188,7 +1197,7 @@ function prepareCodexRuntimeHomeForLaunch(
     // Why: launch prep can reject an untrusted managed home and clear its
     // selection. Establish hook capability for that newly selected lane, then
     // re-resolve if the capability gate rejects it.
-    realHomeHooksPrepared = ensureRealHomeHooksIfSelected()
+    realHomeHooksPrepared = await ensureRealHomeHooksIfSelected()
     if (realHomeHooksPrepared) {
       runtimeHomePath = codexRuntimeHome!.prepareForCodexLaunch(target, launchEnv, {
         unavailableManagedHomePath: launchContext?.unavailableManagedHomePath
@@ -1211,12 +1220,12 @@ function prepareCodexRuntimeHomeForLaunch(
   try {
     // Why: honor the persisted off switch so post-startup launches can't reinstall removed hooks.
     const status = hooksEnabled
-      ? (codexHookService.installForRuntimeHome(runtimeHomePath, hookTarget) ??
+      ? ((await codexHookService.installForRuntimeHome(runtimeHomePath, hookTarget)) ??
         // Why: a managed account's launch home is its own self-contained
         // CODEX_HOME, so hooks/trust must install there, not the shared mirror.
-        codexHookService.install(runtimeHomePath ?? undefined))
+        (await codexHookService.install(runtimeHomePath ?? undefined)))
       : (codexHookService.refreshRuntimeUserHooksForRuntimeHome(runtimeHomePath, hookTarget) ??
-        codexHookService.refreshRuntimeUserHooks(runtimeHomePath ?? undefined))
+        (await codexHookService.refreshRuntimeUserHooks(runtimeHomePath ?? undefined)))
     if (status.state === 'error') {
       console.warn(
         `[codex-hook-service] failed to ${
@@ -1310,7 +1319,7 @@ async function prepareCodexSessionResumeForLaunch(args: {
 
       if (args.workspacePath) {
         try {
-          markCodexProjectTrusted(args.workspacePath)
+          await markCodexProjectTrusted(args.workspacePath)
         } catch (error) {
           console.warn('[codex-project-trust] failed to pre-mark resumed workspace:', error)
         }
@@ -1321,11 +1330,14 @@ async function prepareCodexSessionResumeForLaunch(args: {
       const hooksEnabled = isAgentStatusHooksEnabled(settingsStore.getSettings())
       try {
         if (isSystemHome) {
-          ensureRealHomeCodexHookState({ hooksEnabled, userDataPath: app.getPath('userData') })
+          await ensureRealHomeCodexHookState({
+            hooksEnabled,
+            userDataPath: app.getPath('userData')
+          })
         } else if (hooksEnabled) {
-          codexHookService.install(resumeHome)
+          await codexHookService.install(resumeHome)
         } else {
-          codexHookService.refreshRuntimeUserHooks(resumeHome)
+          await codexHookService.refreshRuntimeUserHooks(resumeHome)
         }
       } catch (error) {
         // Why: hook repair is best-effort; session provenance must still win over the currently selected home.
@@ -3032,6 +3044,8 @@ void app.whenReady().then(async () => {
     onTabsChanged: (worktreeId) => runtimeService.notifyMobileSessionTabsChanged(worktreeId)
   })
   runtimeService.setAgentBrowserBridge(agentBrowserBridge)
+  // Why: daemons a crashed or SIGKILL'd previous run left behind answer to nobody; nothing else reclaims them.
+  void agentBrowserBridge.sweepOrphanedSessions()
   const browserClientAutomationDispatcher = new RpcDispatcher({ runtime: runtimeService })
   configureBrowserClientPageAutomationRuntime({
     browserManager,
@@ -3065,30 +3079,40 @@ void app.whenReady().then(async () => {
     console.warn('[worktrees] Failed to sweep leftover worktree directories:', error)
   })
   nativeTheme.themeSource = store.getSettings().theme ?? 'system'
-  if (codexRuntimeHome.isHostSystemDefaultRealHomeSelected()) {
-    // Why: establish capability before managed-hook reconciliation so an
-    // incapable host re-arms and completes the legacy real-home sweep now.
-    ensureRealHomeCodexHookState({
-      hooksEnabled: isAgentStatusHooksEnabled(store.getSettings()),
-      userDataPath: app.getPath('userData')
-    })
-  }
+  // Why (#16441): the real-home grant runs a codex app-server session. It stays
+  // ordered before managed-hook reconciliation — an incapable host must re-arm
+  // and complete the legacy real-home sweep first — but awaiting it inline
+  // stalled app init behind that session, so chain instead of blocking.
+  const realHomeCodexHookState = codexRuntimeHome.isHostSystemDefaultRealHomeSelected()
+    ? ensureRealHomeCodexHookState({
+        hooksEnabled: isAgentStatusHooksEnabled(store.getSettings()),
+        userDataPath: app.getPath('userData')
+      }).catch((error: unknown) => {
+        console.warn('[codex-real-home-hooks] startup ensure failed:', error)
+      })
+    : Promise.resolve()
   if (shouldInstallManagedHooks(is.dev)) {
     // Why: check the persisted off switch before any auto-install so removed hooks don't silently reappear on launch.
     if (isAgentStatusHooksEnabled(store.getSettings())) {
       const managedHookStore = store
-      void applyAgentStatusHooksEnabled(true, managedHookStore.getSettings(), {
-        shouldHydrateShellPath: app.isPackaged,
-        onInstallError: recordManagedHookInstallFailure,
-        shouldContinue: (agent) => {
-          const settings = managedHookStore.getSettings()
-          return shouldContinueManagedHookStartup(isQuitting, settings, agent)
-        }
-      }).catch((error) => {
-        console.warn('[agent-hooks] failed to reconcile managed hooks on startup:', error)
-      })
+      void realHomeCodexHookState
+        .then(() =>
+          applyAgentStatusHooksEnabled(true, managedHookStore.getSettings(), {
+            shouldHydrateShellPath: app.isPackaged,
+            onInstallError: recordManagedHookInstallFailure,
+            shouldContinue: (agent) => {
+              const settings = managedHookStore.getSettings()
+              return shouldContinueManagedHookStartup(isQuitting, settings, agent)
+            }
+          })
+        )
+        .catch((error: unknown) => {
+          console.warn('[agent-hooks] failed to reconcile managed hooks on startup:', error)
+        })
     } else {
-      removeManagedAgentHooks()
+      void removeManagedAgentHooks().catch((error: unknown) => {
+        console.warn('[agent-hooks] failed to remove managed hooks on startup:', error)
+      })
     }
   }
   // Why: process-gone metrics only see survivors; retain a recent whole-app
@@ -3521,7 +3545,10 @@ app.on('will-quit', (e) => {
   // Why: cancels relay restart/reinstall timers and kills wsl.exe children deterministically, not via stdio-pipe teardown.
   wslHookRelayManager.disposeAll()
   const statsFlush = stats?.flushAsync() ?? Promise.resolve()
-  // Why: retire headless page owners first, then sweep residual helper sessions without duplicate close fanout.
+  // Why: agent-browser daemon processes would otherwise linger after quit, holding ports and stale session state on disk.
+  // Why the barrier below: each session's close is its own agent-browser child taking hundreds of ms,
+  // so an unawaited call reaches app.quit() first and every open tab's daemon survives the quit (#16367).
+  // Why retire headless page owners first: it closes those helpers without a duplicate close fanout.
   const browserShutdown = (async (): Promise<void> => {
     await runtime?.getOffscreenBrowserBackend()?.destroyAll?.()
     await runtime?.getAgentBrowserBridge()?.destroyAllSessions()

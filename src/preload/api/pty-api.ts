@@ -59,6 +59,7 @@ export type PtyApi = {
     snapshotFrameAnsi?: string
     snapshotFrameRestoreAnsi?: string
     snapshotKittyKeyboardFlags?: number
+    snapshotTerminalOwner?: 'shell'
     snapshotSeq?: number
     isReattach?: boolean
     isAlternateScreen?: boolean
@@ -145,6 +146,7 @@ export type PtyApi = {
     /** Effective kitty flags the snapshot owner proved at `seq`. Absent means
      *  unknown; consumers must not turn that into a known `0`. */
     kittyKeyboardFlags?: number
+    terminalOwner?: 'shell'
   } | null>
   getRendererDeliveryDebugSnapshot: () => Promise<{
     pendingPtyCount: number

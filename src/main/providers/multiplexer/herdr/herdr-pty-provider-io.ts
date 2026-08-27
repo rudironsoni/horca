@@ -28,7 +28,11 @@ import {
   bytesFromTerminalLogicalKey,
   terminalLogicalInputFromBytes
 } from '../../../../shared/terminal-logical-key'
-import { isOrcaFallbackId, writeFallbackLogical } from './herdr-pty-orca-fallback'
+import {
+  isHerdrWriteEndpointGone,
+  isOrcaFallbackId,
+  writeFallbackLogical
+} from './herdr-pty-orca-fallback'
 import { sendHerdrNamedKey } from './herdr-pty-provider-runtime'
 
 export class HerdrPtyProviderIo {
@@ -81,11 +85,23 @@ export class HerdrPtyProviderIo {
     applyHerdrPaneSize(binding)
   }
 
-  pauseProducer(_id: string): void {}
+  pauseProducer(id: string): void {
+    if (isOrcaFallbackId(this.bindings, id, this.fallback)) {
+      this.fallback.pauseProducer?.(id)
+    }
+  }
 
-  resumeProducer(_id: string): void {}
+  resumeProducer(id: string): void {
+    if (isOrcaFallbackId(this.bindings, id, this.fallback)) {
+      this.fallback.resumeProducer?.(id)
+    }
+  }
 
-  setPtyBackgrounded(_id: string, _background: boolean): void {}
+  setPtyBackgrounded(id: string, background: boolean): void {
+    if (isOrcaFallbackId(this.bindings, id, this.fallback)) {
+      this.fallback.setPtyBackgrounded?.(id, background)
+    }
+  }
 
   onBackgroundStreamEvent(callback: (payload: PtyBackgroundStreamEvent) => void): () => void {
     this.backgroundStreamListeners.add(callback)
@@ -97,10 +113,25 @@ export class HerdrPtyProviderIo {
     return () => this.writeUnavailableListeners.delete(callback)
   }
 
+  protected emitBackgroundStreamEvent(payload: PtyBackgroundStreamEvent): void {
+    for (const listener of this.backgroundStreamListeners) {
+      listener(payload)
+    }
+  }
+
+  protected emitWriteUnavailable(payload: { id: string }): void {
+    for (const listener of this.writeUnavailableListeners) {
+      listener(payload)
+    }
+  }
+
   async getAppliedSize(id: string): Promise<{ cols: number; rows: number } | null> {
+    if (isOrcaFallbackId(this.bindings, id, this.fallback)) {
+      return this.fallback.getAppliedSize?.(id) ?? null
+    }
     const binding = this.bindings.get(id)
     if (!binding) {
-      return this.fallback?.getAppliedSize?.(id) ?? null
+      return null
     }
     return { cols: binding.cols, rows: binding.rows }
   }
@@ -115,6 +146,9 @@ export class HerdrPtyProviderIo {
   }
 
   async getCwd(id: string): Promise<string> {
+    if (isOrcaFallbackId(this.bindings, id, this.fallback)) {
+      return (await this.fallback.getCwd(id)) ?? ''
+    }
     const binding = this.bindings.get(id)
     if (!binding) {
       return ''
@@ -131,6 +165,10 @@ export class HerdrPtyProviderIo {
   }
 
   async clearBuffer(id: string): Promise<void> {
+    if (isOrcaFallbackId(this.bindings, id, this.fallback)) {
+      await this.fallback.clearBuffer(id)
+      return
+    }
     const binding = this.bindings.get(id)
     if (!binding) {
       return
@@ -141,6 +179,9 @@ export class HerdrPtyProviderIo {
   acknowledgeDataEvent(_id: string, _charCount: number): void {}
 
   async hasChildProcesses(id: string): Promise<boolean> {
+    if (isOrcaFallbackId(this.bindings, id, this.fallback)) {
+      return (await this.fallback.hasChildProcesses(id)) ?? false
+    }
     const binding = this.bindings.get(id)
     if (!binding) {
       return false
@@ -149,6 +190,24 @@ export class HerdrPtyProviderIo {
   }
 
   async getForegroundProcess(id: string): Promise<string | null> {
+    if (isOrcaFallbackId(this.bindings, id, this.fallback)) {
+      return (await this.fallback.getForegroundProcess(id)) ?? null
+    }
+    const binding = this.bindings.get(id)
+    if (!binding) {
+      return null
+    }
+    return getHerdrBindingForegroundProcess(binding)
+  }
+
+  async confirmForegroundProcess(id: string): Promise<string | null> {
+    if (isOrcaFallbackId(this.bindings, id, this.fallback)) {
+      return (
+        (await this.fallback.confirmForegroundProcess?.(id)) ??
+        (await this.fallback.getForegroundProcess(id)) ??
+        null
+      )
+    }
     const binding = this.bindings.get(id)
     if (!binding) {
       return null
@@ -166,6 +225,9 @@ export class HerdrPtyProviderIo {
     id: string,
     opts?: { scrollbackRows?: number }
   ): Promise<PtyProviderBufferSnapshot | null> {
+    if (isOrcaFallbackId(this.bindings, id, this.fallback)) {
+      return (await this.fallback.getBufferSnapshot?.(id, opts)) ?? null
+    }
     const binding = this.bindings.get(id)
     if (!binding) {
       return null
@@ -205,7 +267,13 @@ export class HerdrPtyProviderIo {
   }
 
   canProvideAuthoritativeBufferSnapshot(id: string): boolean {
-    return this.bindings.has(id)
+    if (this.bindings.has(id)) {
+      return true
+    }
+    if (isOrcaFallbackId(this.bindings, id, this.fallback)) {
+      return this.fallback.canProvideAuthoritativeBufferSnapshot?.(id) === true
+    }
+    return false
   }
 
   async getDefaultShell(): Promise<string> {
@@ -253,9 +321,7 @@ export class HerdrPtyProviderIo {
         if (!isHerdrWriteEndpointGone(error)) {
           return
         }
-        for (const listener of this.writeUnavailableListeners) {
-          listener({ id })
-        }
+        this.emitWriteUnavailable({ id })
       })
       .finally(() => {
         if (this.writeQueues.get(id) === pending) {
@@ -264,11 +330,4 @@ export class HerdrPtyProviderIo {
       })
     return pending
   }
-}
-
-function isHerdrWriteEndpointGone(error: unknown): boolean {
-  const message = error instanceof Error ? error.message : String(error)
-  return /closed before response|not initialized|EPIPE|ECONNRESET|ECONNREFUSED|transport gone/i.test(
-    message
-  )
 }

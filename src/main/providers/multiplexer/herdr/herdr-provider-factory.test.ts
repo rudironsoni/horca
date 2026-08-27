@@ -1,14 +1,10 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { delimiter, join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-const electronMocks = vi.hoisted(() => ({
-  getAllWindows: vi.fn(() => []),
-  getFocusedWindow: vi.fn(() => null)
-}))
-vi.mock('electron', () => ({ BrowserWindow: electronMocks }))
 
 import { getDefaultSettings } from '../../../../shared/constants'
 import type { Store } from '../../../persistence'
+import { setHerdrDesktopSurface } from '../../../runtime/herdr-desktop-surface'
 import type { HerdrHostTransport } from './herdr-runtime-contract'
 import { HerdrCliHostTransport } from './herdr-cli-session'
 import { HerdrSocketTransport } from './herdr-socket-transport'
@@ -17,7 +13,8 @@ import {
   createLocalHerdrPtyProvider,
   createSshHerdrPtyProvider,
   presentHerdrImportedSurface,
-  presentHerdrSurfaceAction
+  presentHerdrSurfaceAction,
+  resetHerdrImportedSurfaceOwnersForTests
 } from './herdr-provider-factory'
 import { clearWslHerdrExecutableCache, resolveWslHerdrExecutable } from './herdr-wsl-executable'
 
@@ -49,8 +46,8 @@ function localTransport(settings: TestSettings): HerdrHostTransport {
 describe('createLocalHerdrPtyProvider stock routing', () => {
   afterEach(() => {
     vi.unstubAllEnvs()
-    electronMocks.getAllWindows.mockReturnValue([])
-    electronMocks.getFocusedWindow.mockReturnValue(null)
+    setHerdrDesktopSurface(null)
+    resetHerdrImportedSurfaceOwnersForTests()
     delete process.env.HERDR_TEST_LEAK
     clearWslHerdrExecutableCache()
   })
@@ -309,11 +306,18 @@ const targetConnection = {
 }
 
 describe('Herdr imported surface window ownership', () => {
+  afterEach(() => {
+    setHerdrDesktopSurface(null)
+    resetHerdrImportedSurfaceOwnersForTests()
+  })
+
   it('presents a surface once and routes actions to the same window', () => {
-    const first = { isDestroyed: () => false, webContents: { send: vi.fn() } }
-    const second = { isDestroyed: () => false, webContents: { send: vi.fn() } }
-    electronMocks.getFocusedWindow.mockReturnValue(first as never)
-    electronMocks.getAllWindows.mockReturnValue([first, second] as never)
+    const first = { isDestroyed: () => false, send: vi.fn() }
+    const second = { isDestroyed: () => false, send: vi.fn() }
+    setHerdrDesktopSurface({
+      getFocusedWindow: () => first,
+      getAllWindows: () => [first, second]
+    })
     const surface = {
       worktreeId: 'wt-window-owner',
       tabId: 'tab-window-owner',
@@ -326,7 +330,7 @@ describe('Herdr imported surface window ownership', () => {
     presentHerdrImportedSurface(surface)
     presentHerdrSurfaceAction({ kind: 'rename', tabId: surface.tabId, title: 'Renamed' })
 
-    expect(first.webContents.send).toHaveBeenCalledTimes(2)
-    expect(second.webContents.send).not.toHaveBeenCalled()
+    expect(first.send).toHaveBeenCalledTimes(2)
+    expect(second.send).not.toHaveBeenCalled()
   })
 })

@@ -74,6 +74,8 @@ export const FORK_ONLY_PATHS = new Set([
   'src/renderer/src/components/terminal-pane/pty-logical-write.ts',
   'src/shared/herdr-session-identity.test.ts',
   'src/shared/herdr-session-identity.ts',
+  'src/main/runtime/herdr-desktop-surface.ts',
+  'src/main/host/electron-herdr-desktop-surface.ts',
   'src/shared/terminal-backend.test.ts',
   'src/shared/terminal-backend.ts',
   'src/shared/terminal-logical-key.test.ts',
@@ -133,7 +135,6 @@ export const ALLOWED_OVERLAY_PATHS = new Set([
   'src/main/startup/dev-instance-identity.ts',
   'src/main/tray/system-tray.ts',
   'src/main/updater-test-harness.ts',
-  'src/main/updater.startup-scheduling.test.ts',
   'src/main/updater.ts',
   'src/main/window/createMainWindow.ts',
   'src/main/window/attach-main-window-services.test.ts',
@@ -189,7 +190,6 @@ export const ALLOWED_OVERLAY_PATHS = new Set([
   'src/main/ipc/repos-remote-test-harness.ts',
   'src/main/ipc/worktree-git-common-narrow-watch.ts',
   'src/main/ipc/worktree-git-common-primary-watch.ts',
-  'src/main/ipc/worktree-git-common-watch.test.ts',
   'src/main/ipc/repos/repo-ipc-arg-schemas.ts',
   'src/main/ipc/ssh-app-shutdown.test.ts',
   'src/main/ipc/ssh-disconnect-cancellation.test.ts',
@@ -213,6 +213,7 @@ export const ALLOWED_OVERLAY_PATHS = new Set([
   'src/main/runtime/headless-terminal-split-layout.ts',
   'src/main/runtime/orca-runtime.test.ts',
   'src/main/runtime/orca-runtime.ts',
+  'src/main/runtime/runtime-rpc-metadata-lifecycle.test.ts',
   'src/main/runtime/rpc/methods/project-runtime-rpc-methods.ts',
   'src/main/ssh/ssh-relay-session-agent-hooks.integration.test.ts',
   'src/main/ssh/ssh-relay-session-data-delivery.test.ts',
@@ -277,6 +278,7 @@ export const ALLOWED_OVERLAY_PATHS = new Set([
   'src/shared/posix-command-path-lookup.test.ts',
   'src/shared/project-identity-succession.ts',
   'src/shared/project-types.ts',
+  'src/shared/runtime-client-export-parity.test.ts',
   'src/shared/runtime-terminal-contracts.ts'
 ])
 

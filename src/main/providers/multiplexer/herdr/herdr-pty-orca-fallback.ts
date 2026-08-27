@@ -1,4 +1,4 @@
-import type { IPtyProvider, PtyDataEvent } from '../../types'
+import type { IPtyProvider, PtyBackgroundStreamEvent, PtyDataEvent } from '../../types'
 import {
   bytesFromTerminalLogicalKey,
   type TerminalLogicalInput
@@ -35,14 +35,31 @@ export function subscribeOrcaFallback(
   fallback: IPtyProvider,
   emitData: (payload: PtyDataEvent) => void,
   emitExit: (payload: { id: string; code: number; incarnationId?: string }) => void,
-  emitReplay: (payload: { id: string; data: string }) => void
+  emitReplay: (payload: { id: string; data: string }) => void,
+  emitBackgroundStreamEvent?: (payload: PtyBackgroundStreamEvent) => void,
+  emitWriteUnavailable?: (payload: { id: string }) => void
 ): () => void {
   const offData = fallback.onData((payload) => emitData(payload))
   const offExit = fallback.onExit((payload) => emitExit(payload))
   const offReplay = fallback.onReplay?.((payload) => emitReplay(payload))
+  const offBackground = emitBackgroundStreamEvent
+    ? fallback.onBackgroundStreamEvent?.(emitBackgroundStreamEvent)
+    : undefined
+  const offWriteUnavailable = emitWriteUnavailable
+    ? fallback.onWriteUnavailable?.(emitWriteUnavailable)
+    : undefined
   return () => {
     offData()
     offExit()
     offReplay?.()
+    offBackground?.()
+    offWriteUnavailable?.()
   }
+}
+
+export function isHerdrWriteEndpointGone(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error)
+  return /closed before response|not initialized|EPIPE|ECONNRESET|ECONNREFUSED|transport gone/i.test(
+    message
+  )
 }
