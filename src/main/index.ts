@@ -28,6 +28,7 @@ import { setPtyHostBindings } from './ipc/pty-host-bindings'
 import { electronRuntimeDesktopSurface } from './host/electron-runtime-desktop-surface'
 import { setRuntimeDesktopSurface } from './runtime/runtime-desktop-surface'
 import { initializeHorca } from './horca/initialize-horca'
+import { getDistributionIdentity } from '../shared/distribution-identity'
 import { electronRuntimeBrowserCommandsFactory } from './host/electron-browser-commands'
 import { setRuntimeBrowserCommandsFactory } from './runtime/runtime-browser-commands-factory'
 import { electronHttpClient } from './host/electron-http-client'
@@ -2472,7 +2473,7 @@ void app.whenReady().then(async () => {
     dataFile: activeOrcaProfile.dataFile,
     storageAuthority: isServeMode ? 'runtime' : 'desktop'
   })
-  if (process.env.ORCA_DOWNSTREAM_BUILD === '1') {
+  if (getDistributionIdentity().distribution === 'horca') {
     initializeHorca(store)
   }
   // Why: create pending readiness before the guard can observe the default session.
