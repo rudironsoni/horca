@@ -175,23 +175,6 @@ export class HerdrPtyProvider extends HerdrPtyProviderIo implements IPtyProvider
     return false
   }
 
-  async closeStartupQueryAuthority(id: string): Promise<number> {
-    if (isOrcaFallbackId(this.bindings, id, this.fallback)) {
-      return (await this.fallback.closeStartupQueryAuthority?.(id)) ?? 0
-    }
-    return 0
-  }
-
-  async probePtyLiveness(id: string): Promise<boolean | null> {
-    if (isOrcaFallbackId(this.bindings, id, this.fallback)) {
-      if (this.fallback.probePtyLiveness) {
-        return this.fallback.probePtyLiveness(id)
-      }
-      return this.fallback.hasPty?.(id) ?? null
-    }
-    return this.hasPty(id)
-  }
-
   onData(callback: (payload: PtyDataEvent) => void): () => void {
     this.dataListeners.add(callback)
     return () => this.dataListeners.delete(callback)
