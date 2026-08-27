@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { getDefaultSettings } from '../../../../shared/constants'
 import type { Store } from '../../../persistence'
-import { setRuntimeDesktopSurface } from '../../../runtime/runtime-desktop-surface'
+import { setHerdrDesktopSurface } from '../../../runtime/herdr-desktop-surface'
 import type { HerdrHostTransport } from './herdr-runtime-contract'
 import { HerdrCliHostTransport } from './herdr-cli-session'
 import { HerdrSocketTransport } from './herdr-socket-transport'
@@ -46,7 +46,7 @@ function localTransport(settings: TestSettings): HerdrHostTransport {
 describe('createLocalHerdrPtyProvider stock routing', () => {
   afterEach(() => {
     vi.unstubAllEnvs()
-    setRuntimeDesktopSurface(null)
+    setHerdrDesktopSurface(null)
     resetHerdrImportedSurfaceOwnersForTests()
     delete process.env.HERDR_TEST_LEAK
     clearWslHerdrExecutableCache()
@@ -307,18 +307,14 @@ const targetConnection = {
 
 describe('Herdr imported surface window ownership', () => {
   afterEach(() => {
-    setRuntimeDesktopSurface(null)
+    setHerdrDesktopSurface(null)
     resetHerdrImportedSurfaceOwnersForTests()
   })
 
   it('presents a surface once and routes actions to the same window', () => {
     const first = { isDestroyed: () => false, send: vi.fn() }
     const second = { isDestroyed: () => false, send: vi.fn() }
-    setRuntimeDesktopSurface({
-      showNotification: () => false,
-      findWindowById: () => null,
-      onIpc: () => {},
-      removeIpcListener: () => {},
+    setHerdrDesktopSurface({
       getFocusedWindow: () => first,
       getAllWindows: () => [first, second]
     })

@@ -74,6 +74,8 @@ export const FORK_ONLY_PATHS = new Set([
   'src/renderer/src/components/terminal-pane/pty-logical-write.ts',
   'src/shared/herdr-session-identity.test.ts',
   'src/shared/herdr-session-identity.ts',
+  'src/main/runtime/herdr-desktop-surface.ts',
+  'src/main/host/electron-herdr-desktop-surface.ts',
   'src/shared/terminal-backend.test.ts',
   'src/shared/terminal-backend.ts',
   'src/shared/terminal-logical-key.test.ts',
@@ -275,6 +277,7 @@ export const ALLOWED_OVERLAY_PATHS = new Set([
   'src/shared/posix-command-path-lookup.test.ts',
   'src/shared/project-identity-succession.ts',
   'src/shared/project-types.ts',
+  'src/shared/runtime-client-export-parity.test.ts',
   'src/shared/runtime-terminal-contracts.ts'
 ])
 

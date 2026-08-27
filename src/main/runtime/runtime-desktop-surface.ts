@@ -15,11 +15,6 @@ import type { BrowserWindow, IpcMainEvent } from 'electron'
  * runtime already routes to paired clients, which is the better destination anyway.
  */
 
-export type RuntimeDesktopWindowHandle = {
-  isDestroyed(): boolean
-  send(channel: string, payload: unknown): void
-}
-
 export type RuntimeDesktopSurface = {
   /** Show a native notification. Returns false when the host cannot, so callers can say so. */
   showNotification(input: { title: string; body: string }): boolean
@@ -27,17 +22,13 @@ export type RuntimeDesktopSurface = {
   findWindowById(id: number): BrowserWindow | null
   onIpc(channel: string, listener: (event: IpcMainEvent, ...args: never[]) => void): void
   removeIpcListener(channel: string, listener: (...args: never[]) => void): void
-  getFocusedWindow(): RuntimeDesktopWindowHandle | null
-  getAllWindows(): RuntimeDesktopWindowHandle[]
 }
 
 const inertDesktopSurface: RuntimeDesktopSurface = {
   showNotification: () => false,
   findWindowById: () => null,
   onIpc: () => {},
-  removeIpcListener: () => {},
-  getFocusedWindow: () => null,
-  getAllWindows: () => []
+  removeIpcListener: () => {}
 }
 
 let current: RuntimeDesktopSurface = inertDesktopSurface

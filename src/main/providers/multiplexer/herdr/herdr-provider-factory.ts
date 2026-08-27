@@ -1,8 +1,8 @@
 import { herdrSessionNameForProject } from '../../../../shared/herdr-session-identity'
 import {
-  getRuntimeDesktopSurface,
-  type RuntimeDesktopWindowHandle
-} from '../../../runtime/runtime-desktop-surface'
+  getHerdrDesktopSurface,
+  type HerdrDesktopWindowHandle
+} from '../../../runtime/herdr-desktop-surface'
 import type { Store } from '../../../persistence'
 import type { IPtyProvider } from '../../types'
 import {
@@ -231,29 +231,24 @@ function herdrSurfaceSync(store: Store) {
   }
 }
 
-const importedSurfaceOwners = new Map<
-  string,
-  { owner: RuntimeDesktopWindowHandle; tabId: string }
->()
-const importedTabOwners = new Map<string, RuntimeDesktopWindowHandle>()
+const importedSurfaceOwners = new Map<string, { owner: HerdrDesktopWindowHandle; tabId: string }>()
+const importedTabOwners = new Map<string, HerdrDesktopWindowHandle>()
 
 export function resetHerdrImportedSurfaceOwnersForTests(): void {
   importedSurfaceOwners.clear()
   importedTabOwners.clear()
 }
 
-function liveOwner(
-  owner: RuntimeDesktopWindowHandle | undefined
-): RuntimeDesktopWindowHandle | null {
+function liveOwner(owner: HerdrDesktopWindowHandle | undefined): HerdrDesktopWindowHandle | null {
   return owner && !owner.isDestroyed() ? owner : null
 }
 
-function ownerForTab(tabId: string): RuntimeDesktopWindowHandle | null {
+function ownerForTab(tabId: string): HerdrDesktopWindowHandle | null {
   const existing = liveOwner(importedTabOwners.get(tabId))
   if (existing) {
     return existing
   }
-  const desktop = getRuntimeDesktopSurface()
+  const desktop = getHerdrDesktopSurface()
   const owner =
     liveOwner(desktop.getFocusedWindow() ?? undefined) ??
     desktop.getAllWindows().find((candidate) => !candidate.isDestroyed()) ??

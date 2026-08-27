@@ -25,7 +25,9 @@ import { setAppEnvironment } from '../shared/app-environment'
 import { ElectronAppEnvironment } from './host/electron-app-environment'
 import { setPtyHostBindings } from './ipc/pty-host-bindings'
 import { electronRuntimeDesktopSurface } from './host/electron-runtime-desktop-surface'
+import { electronHerdrDesktopSurface } from './host/electron-herdr-desktop-surface'
 import { setRuntimeDesktopSurface } from './runtime/runtime-desktop-surface'
+import { setHerdrDesktopSurface } from './runtime/herdr-desktop-surface'
 import { electronRuntimeBrowserCommandsFactory } from './host/electron-browser-commands'
 import { setRuntimeBrowserCommandsFactory } from './runtime/runtime-browser-commands-factory'
 import { electronHttpClient } from './host/electron-http-client'
@@ -916,6 +918,7 @@ if (hasSingleInstanceLock) {
   // tab-create-reply channel are desktop-only. A Node host installs none and the
   // runtime routes notifications to paired clients instead.
   setRuntimeDesktopSurface(electronRuntimeDesktopSurface)
+  setHerdrDesktopSurface(electronHerdrDesktopSurface)
   // Why here: constructing RuntimeBrowserCommands is what pulls the Chromium browser
   // cluster into the graph. The desktop installs it; a Node host installs none and every
   // browser RPC rejects, which capability filtering already tells clients about.

@@ -707,9 +707,7 @@ function resetRuntimeTestMocks(): void {
     findWindowById: (id) => electronMocks.BrowserWindow.fromId(id) as never,
     onIpc: (channel, listener) => electronMocks.ipcMain.on(channel, listener as never),
     removeIpcListener: (channel, listener) =>
-      electronMocks.ipcMain.removeListener(channel, listener as never),
-    getFocusedWindow: () => null,
-    getAllWindows: () => []
+      electronMocks.ipcMain.removeListener(channel, listener as never)
   })
   resetPlatform()
   electronMocks.app.isPackaged = false
