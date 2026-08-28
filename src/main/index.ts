@@ -30,6 +30,7 @@ import { electronRuntimeDesktopSurface } from './host/electron-runtime-desktop-s
 import { setRuntimeDesktopSurface } from './runtime/runtime-desktop-surface'
 import { initializeHorca } from './horca/initialize-horca'
 import { assertHorcaPackagedDistribution } from './horca/assert-horca-packaged-distribution'
+import { configureHorcaUserDataPath } from './horca/configure-horca-user-data'
 import { getDistributionIdentity } from '../shared/distribution-identity'
 import { electronRuntimeBrowserCommandsFactory } from './host/electron-browser-commands'
 import { setRuntimeBrowserCommandsFactory } from './runtime/runtime-browser-commands-factory'
@@ -769,6 +770,7 @@ if (app.isPackaged && process.platform !== 'win32') {
     )
   })
 }
+configureHorcaUserDataPath(is.dev)
 configureDevUserDataPath(is.dev)
 configureOrcaUserDataPathEnv()
 // Why these four lines are one step (#16761): the two above decide where userData lives, and
@@ -778,7 +780,7 @@ configureOrcaUserDataPathEnv()
 // Safe this early: ElectronAppEnvironment holds no state and calls `app` lazily per accessor, so it
 // changes no timing, and initDataPath only joins strings.
 setAppEnvironment(new ElectronAppEnvironment())
-// Why captured now: after the dev/E2E override above, and before app.setName('Orca') (whenReady)
+// Why captured now: after Horca/dev/E2E profile selection, and before app.setName (whenReady)
 // changes how userData resolves on a case-sensitive filesystem. See persistence.ts:20-28.
 initDataPath()
 
@@ -920,7 +922,7 @@ function recordAgentStateCrashBreadcrumb(agentType: string, state: string): void
   })
 }
 
-// Why: acquire AFTER configureDevUserDataPath — Electron derives lock identity from `userData`, so dev/packaged lock in separate namespaces.
+// Why: acquire after distribution and dev profile selection. Electron derives lock identity from `userData`.
 // Why skip in dev: parallel `pnpm dev` from multiple worktrees would make the second exit silently; packaged keeps the lock (corruption PR #1326 / #1312).
 const bypassSingleInstanceLock = shouldBypassSingleInstanceLock({
   isDev: is.dev,
@@ -958,7 +960,11 @@ if (hasSingleInstanceLock) {
   assertHorcaPackagedDistribution({
     identity: getDistributionIdentity(),
     isPackaged: app.isPackaged,
-    execPath: process.execPath
+    execPath: process.execPath,
+    userDataPath: app.getPath('userData'),
+    expectedUserDataPath: process.env.ORCA_E2E_USER_DATA_DIR
+      ? undefined
+      : join(app.getPath('home'), getDistributionIdentity().stateRootDirName)
   })
   // Why first in this block: the accessor throws until installed and everything below may read a
   // credential. The constructor does not touch `safeStorage` — it resolves lazily per call — so
