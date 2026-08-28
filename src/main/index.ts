@@ -29,6 +29,7 @@ import { setPtyHostBindings } from './ipc/pty-host-bindings'
 import { electronRuntimeDesktopSurface } from './host/electron-runtime-desktop-surface'
 import { setRuntimeDesktopSurface } from './runtime/runtime-desktop-surface'
 import { initializeHorca } from './horca/initialize-horca'
+import { assertHorcaPackagedDistribution } from './horca/assert-horca-packaged-distribution'
 import { getDistributionIdentity } from '../shared/distribution-identity'
 import { electronRuntimeBrowserCommandsFactory } from './host/electron-browser-commands'
 import { setRuntimeBrowserCommandsFactory } from './runtime/runtime-browser-commands-factory'
@@ -954,6 +955,11 @@ if (!hasSingleInstanceLock) {
 
 // Why: when another process holds the lock we've already exited; skip file-writing side effects so this transient process never touches userData.
 if (hasSingleInstanceLock) {
+  assertHorcaPackagedDistribution({
+    identity: getDistributionIdentity(),
+    isPackaged: app.isPackaged,
+    execPath: process.execPath
+  })
   // Why first in this block: the accessor throws until installed and everything below may read a
   // credential. The constructor does not touch `safeStorage` — it resolves lazily per call — so
   // installing here changes no timing, in particular not the pre-ready Keychain service-name
