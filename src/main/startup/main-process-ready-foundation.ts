@@ -141,7 +141,7 @@ export async function initializeReadyFoundation(): Promise<void> {
   })
   state.store = store
   if (getDistributionIdentity().distribution === 'horca') {
-    initializeHorca(store, profile.dataFile)
+    initializeHorca(store)
   }
   // Why: create pending readiness before the guard can observe the default session.
   const initialProxyApplication = applyElectronProxySettings(store.getSettings())
@@ -150,11 +150,14 @@ export async function initializeReadyFoundation(): Promise<void> {
   // that state lives beside the profile data file, which does not exist until now.
   // Why scheduled and not called: the report probes the OS keyring, which blocks on Linux
   // and must not gate the first window (STA-5765).
-  scheduleSecretProtectionGapReport({
-    dataFile: profile.dataFile,
-    force: process.env.ORCA_ALWAYS_REPORT_SECRET_PROTECTION === '1',
-    deferUntilFirstWindow: !state.isServeMode
-  })
+  // Why: a disposable packaged smoke profile must not create or prompt for a real OS keychain item.
+  if (!process.env.ORCA_E2E_USER_DATA_DIR) {
+    scheduleSecretProtectionGapReport({
+      dataFile: profile.dataFile,
+      force: process.env.ORCA_ALWAYS_REPORT_SECRET_PROTECTION === '1',
+      deferUntilFirstWindow: !state.isServeMode
+    })
+  }
   // Why here: the host key store is a sidecar of the same profile, and every SSH connect consults
   // it. Left unbound it reports nothing trusted, which is safe but silently discards our own
   // accept records on every launch.
