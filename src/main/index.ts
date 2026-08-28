@@ -2356,14 +2356,17 @@ void app.whenReady().then(async () => {
     storageAuthority: isServeMode ? 'runtime' : 'desktop'
   })
   if (getDistributionIdentity().distribution === 'horca') {
-    initializeHorca(store, activeOrcaProfile.dataFile)
+    initializeHorca(store)
   }
   // Why here and not at install time: the report remembers what it last said, and that
   // state lives beside the profile data file, which does not exist until now.
-  reportSecretProtectionGap({
-    dataFile: activeOrcaProfile.dataFile,
-    force: process.env.ORCA_ALWAYS_REPORT_SECRET_PROTECTION === '1'
-  })
+  // Why: a disposable packaged smoke profile must not create or prompt for a real OS keychain item.
+  if (!process.env.ORCA_E2E_USER_DATA_DIR) {
+    reportSecretProtectionGap({
+      dataFile: activeOrcaProfile.dataFile,
+      force: process.env.ORCA_ALWAYS_REPORT_SECRET_PROTECTION === '1'
+    })
+  }
   // Why here: the host key store is a sidecar of the same profile, and every SSH connect consults
   // it. Left unbound it reports nothing trusted, which is safe but silently discards our own
   // accept records on every launch.
