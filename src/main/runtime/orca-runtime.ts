@@ -942,25 +942,31 @@ import {
   testConnection as testLinearConnection
 } from '../linear/client'
 import {
-  addIssueComment as addLinearIssueComment,
-  addIssueCommentForAgent as addLinearIssueCommentForAgent,
-  createIssueAttachment as createLinearIssueAttachment,
-  createIssueForAgent as createLinearIssueForAgent,
-  createIssue as createLinearIssue,
   getAttachmentByUuidForAgent as getLinearAttachmentByUuidForAgent,
   getCommentByUuidForAgent as getLinearCommentByUuidForAgent,
   getIssue as getLinearIssue,
   getIssueByUuidForAgent as getLinearIssueByUuidForAgent,
   getIssueCommentThreadRoot as getLinearIssueCommentThreadRoot,
-  getIssueComments as getLinearIssueComments,
+  searchIssues as searchLinearIssues
+} from '../linear/linear-issue-lookups'
+import {
   listIssues as listLinearIssues,
-  searchIssues as searchLinearIssues,
+  type LinearListFilter
+} from '../linear/linear-issue-listing'
+import {
+  createIssueForAgent as createLinearIssueForAgent,
+  createIssue as createLinearIssue,
   updateIssueForAgent as updateLinearIssueForAgent,
-  updateIssue as updateLinearIssue,
-  LinearWriteFailure,
-  type LinearListFilter,
-  type LinearIssueListOptions
-} from '../linear/issues'
+  updateIssue as updateLinearIssue
+} from '../linear/linear-issue-mutations'
+import {
+  addIssueComment as addLinearIssueComment,
+  addIssueCommentForAgent as addLinearIssueCommentForAgent,
+  createIssueAttachment as createLinearIssueAttachment,
+  getIssueComments as getLinearIssueComments
+} from '../linear/linear-issue-comments'
+import { LinearWriteFailure } from '../linear/linear-issue-write-support'
+import type { LinearIssueListOptions } from '../linear/linear-issue-query-documents'
 import {
   LinearAgentAccessError,
   getLinearCurrentIssueFromWorktree,
@@ -2895,6 +2901,8 @@ type ResolvedTerminalWorkspaceLaunchTarget = {
 
 type WorktreeLineageInput = {
   parentWorkspace?: string
+  /** Set by in-app parent pickers so the row is not recorded as a CLI flag. */
+  parentWorkspaceOrigin?: 'manual'
   envParentWorkspace?: string
   parentWorktree?: string
   cwdParentWorktree?: string
@@ -4366,6 +4374,7 @@ export class OrcaRuntimeService {
       throw new Error('Session reuse requires an existing workspace target.')
     }
     const createInput: AutomationCreateInput = {
+      creationKey: input.creationKey,
       name: input.name,
       prompt: input.prompt,
       precheck: input.precheck,
@@ -32567,11 +32576,20 @@ export class OrcaRuntimeService {
 
     if (input.parentWorkspace) {
       try {
+        const parent = await this.resolveWorkspaceParentSelector(input.parentWorkspace)
+        // Why: a picker in the app must record the same provenance as a local create, or the same
+        // user action would carry different cleanup semantics depending on where the repo lives.
         return {
           kind: 'lineage',
-          parent: await this.resolveWorkspaceParentSelector(input.parentWorkspace),
-          origin: 'cli',
-          capture: { source: 'explicit-cli-flag', confidence: 'explicit' }
+          parent,
+          origin: input.parentWorkspaceOrigin === 'manual' ? 'manual' : 'cli',
+          capture:
+            input.parentWorkspaceOrigin === 'manual'
+              ? {
+                  source: parent.type === 'worktree' ? 'manual-action' : 'active-workspace',
+                  confidence: 'explicit'
+                }
+              : { source: 'explicit-cli-flag', confidence: 'explicit' }
         }
       } catch (err) {
         throw new RuntimeLineageError(
