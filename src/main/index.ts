@@ -29,6 +29,7 @@ import { electronRuntimeDesktopSurface } from './host/electron-runtime-desktop-s
 import { setRuntimeDesktopSurface } from './runtime/runtime-desktop-surface'
 import { initializeHorca } from './horca/initialize-horca'
 import { assertHorcaPackagedDistribution } from './horca/assert-horca-packaged-distribution'
+import { configureHorcaUserDataPath } from './horca/configure-horca-user-data'
 import { getDistributionIdentity } from '../shared/distribution-identity'
 import { electronRuntimeBrowserCommandsFactory } from './host/electron-browser-commands'
 import { setRuntimeBrowserCommandsFactory } from './runtime/runtime-browser-commands-factory'
@@ -758,6 +759,7 @@ if (app.isPackaged && process.platform !== 'win32') {
     )
   })
 }
+configureHorcaUserDataPath(is.dev)
 configureDevUserDataPath(is.dev)
 configureOrcaUserDataPathEnv()
 installServeSupervisorDisconnectQuit(isServeMode)
@@ -900,7 +902,7 @@ function recordAgentStateCrashBreadcrumb(agentType: string, state: string): void
   })
 }
 
-// Why: acquire AFTER configureDevUserDataPath — Electron derives lock identity from `userData`, so dev/packaged lock in separate namespaces.
+// Why: acquire after distribution and dev profile selection. Electron derives lock identity from `userData`.
 // Why skip in dev: parallel `pnpm dev` from multiple worktrees would make the second exit silently; packaged keeps the lock (corruption PR #1326 / #1312).
 const bypassSingleInstanceLock = shouldBypassSingleInstanceLock({
   isDev: is.dev,
@@ -938,7 +940,11 @@ if (hasSingleInstanceLock) {
   assertHorcaPackagedDistribution({
     identity: getDistributionIdentity(),
     isPackaged: app.isPackaged,
-    execPath: process.execPath
+    execPath: process.execPath,
+    userDataPath: app.getPath('userData'),
+    expectedUserDataPath: process.env.ORCA_E2E_USER_DATA_DIR
+      ? undefined
+      : join(app.getPath('home'), getDistributionIdentity().stateRootDirName)
   })
   // Why first: both accessors throw until installed, and everything below this line
   // may resolve a path or read a credential. Neither constructor touches `app` or
@@ -978,7 +984,7 @@ if (hasSingleInstanceLock) {
   installDevParentDisconnectQuit(shouldCoupleToDevParent)
   installDevParentWatchdog(shouldCoupleToDevParent)
   installDevParentSignalQuit(shouldCoupleToDevParent)
-  // Why: run after configureDevUserDataPath but before app.setName('Orca') (whenReady), which changes the resolved path on case-sensitive filesystems.
+  // Why: capture the selected distribution or dev profile before app.setName changes Electron path resolution.
   initDataPath()
   // Why here: initDataPath above gives the canonical userData path for the record file; the write
   // itself lands for the next launch (see macos-press-and-hold-default.ts).
