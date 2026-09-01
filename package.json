@@ -172,7 +172,7 @@
     "@anthropic-ai/claude-agent-sdk": "0.3.251",
     "@electron-toolkit/utils": "^4.0.0",
     "@floating-ui/dom": "1.7.6",
-    "@herdr/sdk": "file:config/horca/vendor/herdr-sdk-0.8.2.tgz",
+    "@herdr/sdk": "file:config/horca/vendor/herdr-sdk-0.8.2-protocols-19-20.tgz",
     "@linear/sdk": "^82.1.0",
     "@parcel/watcher": "^2.5.6",
     "@streamparser/json": "0.0.26",
