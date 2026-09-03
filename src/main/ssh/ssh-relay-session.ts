@@ -283,6 +283,17 @@ export type SshRelayAiVaultHostInfo = {
   hostPlatform: RemoteHostPlatform
 }
 
+function disposeIfFunction(value: unknown): void {
+  if (
+    value &&
+    typeof value === 'object' &&
+    'dispose' in value &&
+    typeof value.dispose === 'function'
+  ) {
+    value.dispose()
+  }
+}
+
 function normalizeRelayGracePeriodSeconds(graceTimeSeconds: number | undefined): number {
   const raw = graceTimeSeconds ?? DEFAULT_SSH_RELAY_GRACE_PERIOD_SECONDS
   const requested = Number.isFinite(raw) ? Math.floor(raw) : DEFAULT_SSH_RELAY_GRACE_PERIOD_SECONDS
@@ -1103,7 +1114,7 @@ export class SshRelaySession {
       this.remoteCliBridgeEnv ?? undefined,
       providerGeneration
     )
-    this.rawSshPtyProvider?.dispose()
+    disposeIfFunction(this.rawSshPtyProvider)
     this.rawSshPtyProvider = rawPtyProvider
     // Why optional-call: session tests register partial provider stubs, same as the pause adapter below.
     rawPtyProvider.setTerminalUnavailableRecovery?.((cause) =>
@@ -1695,14 +1706,11 @@ export class SshRelaySession {
     // Connection loss makes remote status unverifiable, not exited. Keep the last observation;
     // replay or certified process teardown will update or remove it on the execution host.
 
-    this.terminalBackendComposition?.dispose()
+    disposeIfFunction(this.terminalBackendComposition)
     this.terminalBackendComposition = null
-    this.rawSshPtyProvider?.dispose()
+    disposeIfFunction(this.rawSshPtyProvider)
     this.rawSshPtyProvider = null
-    const fsProvider = getSshFilesystemProvider(this.targetId)
-    if (fsProvider && 'dispose' in fsProvider) {
-      ;(fsProvider as { dispose: () => void }).dispose()
-    }
+    disposeIfFunction(getSshFilesystemProvider(this.targetId))
 
     unregisterSshPtyProvider(this.targetId)
     unregisterSshFilesystemProvider(this.targetId)
