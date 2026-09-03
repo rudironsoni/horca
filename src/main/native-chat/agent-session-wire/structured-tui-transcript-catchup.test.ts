@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { AgentSessionRecordStore } from '../../runtime/agent-session-record-store'
 import { openAgentSessionJournal } from '../agent-session-journal/journal-store-factory'
 import { StructuredTuiTranscriptCatchup } from './structured-tui-transcript-catchup'
+import { getActiveNativeChatWatcherCount } from '../transcript-watch'
 
 const NOW = 1_800_000_000_000
 const SESSION = 'session-catchup'
@@ -120,6 +121,7 @@ describe('StructuredTuiTranscriptCatchup', () => {
     await catchup.prepare(SESSION, fixture.fence)
     await catchup.activate(SESSION)
     expect(fixture.journal.snapshot().items).toEqual([])
+    await vi.waitFor(() => expect(getActiveNativeChatWatcherCount()).toBeGreaterThan(0))
 
     await appendFile(fixture.rollout, rolloutLine('during TUI'), 'utf8')
     await vi.waitFor(() =>
@@ -141,6 +143,8 @@ describe('StructuredTuiTranscriptCatchup', () => {
     const beforeCrash = createCatchup(fixture)
     await beforeCrash.prepare(SESSION, fixture.fence)
     await beforeCrash.activate(SESSION)
+    expect(fixture.journal.snapshot().items).toEqual([])
+    await vi.waitFor(() => expect(getActiveNativeChatWatcherCount()).toBeGreaterThan(0))
     await appendFile(fixture.rollout, rolloutLine('before host crash'), 'utf8')
     await vi.waitFor(() => expect(fixture.journal.snapshot().items).toHaveLength(1))
     beforeCrash.stopAll()
