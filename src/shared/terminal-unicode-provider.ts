@@ -1,4 +1,5 @@
 import type { IUnicodeHandling, IUnicodeVersionProvider } from '@xterm/xterm'
+import { ZERO_WIDTH_JOINER } from './ghostty-unicode-width'
 
 type XtermTerminalWithUnicodeCore = {
   unicode: IUnicodeHandling
@@ -11,7 +12,6 @@ type XtermTerminalWithUnicodeCore = {
 
 const ORCA_UNICODE_VERSION = 'orca-11-zwj'
 const UNICODE11_VERSION = '11'
-const ZERO_WIDTH_JOINER = 0x200d
 
 function extractWidth(properties: number): 0 | 1 | 2 {
   return ((properties >> 1) & 3) as 0 | 1 | 2

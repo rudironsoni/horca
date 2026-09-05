@@ -1,0 +1,14 @@
+{
+  "ghostty-vt": {
+    "repo": "https://github.com/ghostty-org/ghostty.git",
+    "commit": "b0947378349eff70f7030dda0e6d022fae1e6fbd",
+    "zig": "0.15.2",
+    "targets": {
+      "darwin-arm64": { "url": "", "sha256": "" },
+      "darwin-x64": { "url": "", "sha256": "" },
+      "linux-x64": { "url": "", "sha256": "" },
+      "linux-arm64": { "url": "", "sha256": "" },
+      "win32-x64": { "url": "", "sha256": "" }
+    }
+  }
+}
