@@ -26,7 +26,6 @@ export function useMobileSessionTerminalList(scope: MobileSessionTerminalStreamD
     terminalRefs,
     terminalUnsubsRef,
     initializedHandlesRef,
-    viewportResubscribeBudgetRef,
     activeHandleRef,
     showNativeChatRef,
     unsubscribeTerminal,
@@ -93,16 +92,12 @@ export function useMobileSessionTerminalList(scope: MobileSessionTerminalStreamD
               unsubscribeTerminal(handle)
               terminalRefs.current.delete(handle)
               initializedHandlesRef.current.delete(handle)
-              viewportResubscribeBudgetRef.current.forget(handle)
               clearTerminalLiveInputDefault(handle)
             }
             setTerminalKeyboardMetrics((prev) => pruneTerminalKeyboardMetrics(prev, shouldPrune))
             // Why: a chat-covered handle the host reports again refills its rearm budget,
             // so an exhausted rearm can't lock the composer until leave-chat.
             nativeChatStream.notifyListedHandles(liveHandles)
-            // Why: same absence-gated refill for the viewport-fit budget — a handle that
-            // left the list and returned may converge now, so it earns fresh attempts.
-            viewportResubscribeBudgetRef.current.notifyListedHandles(liveHandles)
             lastKnownTerminalCountRef.current = result.terminals.length
             // Why: dedupe duplicate handles (rename/split race) to avoid a React duplicate-key throw; keep first for tab-strip order.
             const seen = new Set<string>()

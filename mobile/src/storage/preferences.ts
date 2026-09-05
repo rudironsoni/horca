@@ -32,13 +32,8 @@ export async function savePushNotificationsEnabled(enabled: boolean): Promise<vo
 
 const TEXT_SCALE_KEY = 'orca:terminalTextScale'
 
-// Why: the mobile terminal fits the desktop's full column count to the phone
-// width with a CSS scale, so xterm's raw fontSize is cancelled out and can't
-// drive apparent size. Instead we persist a baseline zoom multiplier ("text
-// size") that the WebView applies on top of the fit. Discrete presets keep the
-// settings picker simple and bound the value to ones the zoom logic handles;
-// pinch-to-zoom in the terminal snaps to these same presets. Sub-1 steps shrink
-// below fit-to-width (more columns visible with side margins).
+// Ghostty maps this scale to its native base font size. Discrete presets keep
+// the persisted setting stable across devices.
 export const TERMINAL_TEXT_SCALES = [0.5, 0.75, 1, 1.25, 1.5, 2] as const
 const DEFAULT_TEXT_SCALE = 1
 

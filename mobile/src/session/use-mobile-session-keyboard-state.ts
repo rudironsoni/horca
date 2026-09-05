@@ -1,7 +1,6 @@
 import { useEffect, useCallback } from 'react'
 import { Keyboard, Platform, type KeyboardEvent } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { useTerminalViewportRefit } from '../terminal/terminal-viewport-refit'
 import { saveCustomKeys, type CustomKey } from '../components/CustomKeyModal'
 import { LAST_VISITED_WORKTREE_STORAGE_KEY } from '../worktree/last-visited-worktree-repo'
 import { resolveTabStripScrollOffset } from './tab-strip-scroll'
@@ -12,9 +11,6 @@ export function useMobileSessionKeyboardState(scope: MobileSessionLifecycleModel
     hostId,
     worktreeId,
     router,
-    connState,
-    terminals,
-    terminalTextScale,
     activeSessionTabId,
     tabStripRef,
     tabStripOffsetRef,
@@ -24,46 +20,14 @@ export function useMobileSessionKeyboardState(scope: MobileSessionLifecycleModel
     customKeys,
     setCustomKeys,
     setShowCustomKeyModal,
-    setKeyboardHeight,
-    deviceTokenRef,
-    clientRef,
-    viewportRef,
-    viewportMeasuredRef,
-    terminalRefs,
-    initializedHandlesRef,
-    activeHandleRef,
-    terminalFrameHeightRef,
-    terminalFrameWidth,
-    showNativeChatRef,
-    unsubscribeTerminal,
-    subscribeToTerminal
+    setKeyboardHeight
   } = scope
-  // Why: non-subscribe layout refits (tab strip, fold, rotation) live in a dedicated hook — see terminal-viewport-refit.ts.
-  const { notifyTerminalFrameHeight, notifyKeyboardVisibility } = useTerminalViewportRefit({
-    activeHandleRef,
-    terminalRefs,
-    terminalFrameHeightRef,
-    viewportRef,
-    viewportMeasuredRef,
-    nativeChatCoveredRef: showNativeChatRef,
-    clientRef,
-    deviceTokenRef,
-    initializedHandlesRef,
-    connState,
-    tabStripVisible: terminals.length > 1,
-    textScale: terminalTextScale,
-    terminalFrameWidth,
-    unsubscribeTerminal,
-    subscribeToTerminal
-  })
 
   useEffect(() => {
     const onShow = (e: KeyboardEvent) => {
-      notifyKeyboardVisibility(true)
       setKeyboardHeight(e.endCoordinates?.height ?? 0)
     }
     const onHide = () => {
-      notifyKeyboardVisibility(false)
       setKeyboardHeight(0)
     }
     const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow'
@@ -74,7 +38,7 @@ export function useMobileSessionKeyboardState(scope: MobileSessionLifecycleModel
       showSub.remove()
       hideSub.remove()
     }
-  }, [notifyKeyboardVisibility])
+  }, [])
 
   const scrollActiveTabIntoView = useCallback((tabId: string | null, animated: boolean) => {
     if (!tabId) {
@@ -126,8 +90,6 @@ export function useMobileSessionKeyboardState(scope: MobileSessionLifecycleModel
     router.push('/terminal-settings')
   }, [router])
   return {
-    notifyTerminalFrameHeight,
-    notifyKeyboardVisibility,
     scrollActiveTabIntoView,
     handleDeleteCustomKey,
     handleManageShortcuts

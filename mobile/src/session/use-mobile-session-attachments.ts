@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 import { AppState, type AppStateStatus } from 'react-native'
 import * as Clipboard from 'expo-clipboard'
 import { triggerSelection, triggerError } from '../platform/haptics'
@@ -18,9 +18,7 @@ export function useMobileSessionAttachments(scope: MobileSessionAccessorySelecti
     showCreateTabDrawer,
     setCreateTabAgentLoadState,
     setCreateTabAgentOptions,
-    selectModeActive,
     setCanPaste,
-    ptyModesRef,
     deviceTokenRef,
     clientRef,
     connStateRef,
@@ -39,6 +37,21 @@ export function useMobileSessionAttachments(scope: MobileSessionAccessorySelecti
     refreshCanPaste,
     activeSessionTab
   } = scope
+  const pasteTerminalText = useCallback(async (handle: string, text: string) => {
+    if (
+      handle !== activeHandleRef.current ||
+      activeSessionTabTypeRef.current !== 'terminal' ||
+      connStateRef.current !== 'connected'
+    ) {
+      return false
+    }
+    const terminal = terminalRefs.current.get(handle)
+    if (!terminal) {
+      return false
+    }
+    await terminal.pasteText(text)
+    return true
+  }, [])
   const handlePaste = useMobileTerminalPaste({
     client,
     activeHandle,
@@ -48,12 +61,11 @@ export function useMobileSessionAttachments(scope: MobileSessionAccessorySelecti
     connState,
     connStateRef,
     clientRef,
-    deviceTokenRef,
     flushPendingLiveInputBeforeExternalSend,
     getActiveWorktreeConnectionId,
     onError: triggerError,
     onSuccess: triggerSelection,
-    ptyModesRef,
+    pasteTerminalText,
     refreshCanPaste,
     showToast
   })
@@ -106,15 +118,13 @@ export function useMobileSessionAttachments(scope: MobileSessionAccessorySelecti
     const sub = AppState.addEventListener('change', (s: AppStateStatus) => {
       if (s === 'active') {
         refresh()
-      } else if (selectModeActive && activeHandleRef.current) {
-        terminalRefs.current.get(activeHandleRef.current)?.cancelSelect()
       }
     })
     return () => {
       mounted = false
       sub.remove()
     }
-  }, [selectModeActive])
+  }, [])
 
   useEffect(() => {
     const shouldLoadAgentOptions = showCreateTabDrawer || pendingDiffNotesDelivery !== null

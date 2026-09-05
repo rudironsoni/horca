@@ -1,7 +1,7 @@
 import { useState, useRef, useMemo } from 'react'
 import { Animated, type ScrollView } from 'react-native'
 import type { MobileTerminalLinkOpenMode } from '../storage/preferences'
-import type { TerminalKeyboardAvoidanceMetrics } from '../terminal/terminal-webview-contract'
+import type { TerminalKeyboardAvoidanceMetrics } from '../terminal/terminal-state'
 import {
   getDefaultTerminalAccessoryBuiltInIds,
   getVisibleTerminalAccessoryKeys

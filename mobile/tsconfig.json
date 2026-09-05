@@ -8,6 +8,7 @@
     "strict": true,
     "paths": {
       "@/*": ["./src/*"],
+      "@orca/libghostty-terminal": ["./packages/libghostty-terminal/src/index.ts"],
       "tweetnacl": ["./node_modules/tweetnacl"],
       "ws": ["./node_modules/@types/ws"],
       "zod": ["./node_modules/zod"]

@@ -153,7 +153,7 @@ describe('useMobileNativeChatTerminalStream', () => {
     expect(unsubscribe).toHaveBeenCalledWith('terminal-2')
     expect(subscribe).toHaveBeenCalledWith('terminal-2')
     expect(leaseOnlyRef.current.has('terminal-2')).toBe(false)
-    // The lease-only stream carried no scrollback, so xterm is empty — a stale
+    // The lease-only stream carried no scrollback, so the terminal is empty.
     // initialized mark would drop the replacement snapshot and keep the tab blank.
     expect(initializedRef.current.has('terminal-2')).toBe(false)
   })
@@ -279,7 +279,7 @@ describe('useMobileNativeChatTerminalStream', () => {
         renderer = create(createElement(Harness, { showNativeChat: true }))
       })
       subscribe.mockClear()
-      // No client / no webview yet: the call returns without registering anything, so
+      // No client or surface yet: the call returns without registering anything, so
       // it never reached the host and must not spend one of the three real tries.
       subscribe.mockImplementation(() => {})
       for (let revision = 1; revision <= 5; revision += 1) {

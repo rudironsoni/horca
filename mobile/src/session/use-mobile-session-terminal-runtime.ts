@@ -3,13 +3,14 @@ import type { Keyboard, TextInput } from 'react-native'
 import { useFocusEffect } from 'expo-router'
 import type { RpcClient } from '../transport/rpc-client'
 import type { ConnectionState } from '../transport/types'
-import type { TerminalModes, TerminalWebViewHandle } from '../terminal/terminal-webview-contract'
+import type { TerminalViewRef } from '@orca/libghostty-terminal'
+import type { TerminalModes } from '../terminal/terminal-state'
+import { TerminalNativeViewportUpdate } from '../terminal/terminal-native-viewport-update'
 import { useTerminalLiveInputFocus } from '../terminal/use-terminal-live-input-focus'
 import type { TerminalLiveInputSender } from '../terminal/terminal-live-input-sender'
 import { useTerminalLiveInputCommit } from '../terminal/use-terminal-live-input-commit'
 import { resolveMobileTerminalInputGate } from '../terminal/terminal-input-connection-gate'
 import { createInitialSessionAutoCreateState } from './use-initial-session-terminal-autocreate'
-import { TerminalViewportResubscribeBudget } from './mobile-terminal-viewport-resubscribe'
 import { MobileTerminalDiagnostics } from './mobile-terminal-diagnostics'
 import { useBufferedTerminalDrafts } from '../terminal/use-buffered-terminal-drafts'
 import { useMobileTerminalInventoryRecoveryBridge } from './use-mobile-terminal-inventory-recovery'
@@ -53,7 +54,9 @@ export function useMobileSessionTerminalRuntime(scope: MobileSessionScreenStateM
   // Why: measured once on mount, then passed with every subscribe so the server can auto-fit the PTY to phone dims.
   const viewportRef = useRef<{ cols: number; rows: number } | null>(null)
   const viewportMeasuredRef = useRef(false)
-  const terminalRefs = useRef<Map<string, TerminalWebViewHandle>>(new Map())
+  const terminalViewportUpdateRef = useRef(new TerminalNativeViewportUpdate())
+  const terminalResizeSeqRef = useRef<Map<string, number>>(new Map())
+  const terminalRefs = useRef<Map<string, TerminalViewRef>>(new Map())
   const liveInputRef = useRef<TextInput>(null)
   const commandInputRef = useRef<TextInput>(null)
   const liveInputFocusTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -72,10 +75,7 @@ export function useMobileSessionTerminalRuntime(scope: MobileSessionScreenStateM
   const leaseOnlyHandlesRef = useRef<Set<string>>(new Set())
   const initializedHandlesRef = useRef<Set<string>>(new Set())
   const terminalDiagnosticsRef = useRef(new MobileTerminalDiagnostics())
-  // Why: bounds the scrollback→resubscribe fit loop per handle (STA-3337).
-  const viewportResubscribeBudgetRef = useRef(new TerminalViewportResubscribeBudget())
-  // Why: don't subscribe until the WebView fires web-ready — iOS may defer JS in hidden WebViews and init() messages would queue unrendered.
-  const webReadyHandlesRef = useRef<Set<string>>(new Set())
+  const nativeReadyHandlesRef = useRef<Set<string>>(new Set())
   const activeHandleRef = useRef<string | null>(null)
   const bufferedTerminalDraftState = useBufferedTerminalDrafts({ activeHandle, activeHandleRef })
   const reconcileBufferedDraftsRef = useRef(bufferedTerminalDraftState.reconcileTerminalTabs)
@@ -101,7 +101,6 @@ export function useMobileSessionTerminalRuntime(scope: MobileSessionScreenStateM
   // Why: highest applyLayout seq seen per handle; drop older scrollback/resized as stale, but a >20 gap resets (fresh subscription/server restart).
   const layoutSeqRef = useRef<Map<string, number>>(new Map())
   const sendingRef = useRef(false)
-  // Why: exact terminal-frame height for measureFitDimensions; window.innerHeight can overstate the visible area.
   const terminalFrameHeightRef = useRef<number>(0)
   // Why: sidebar resizes change the terminal frame width without a window-dim change; track it so the refit hook re-fits (see terminal-viewport-refit.ts).
   const [terminalFrameWidth, setTerminalFrameWidth] = useState(0)
@@ -164,6 +163,8 @@ export function useMobileSessionTerminalRuntime(scope: MobileSessionScreenStateM
     connStateRef,
     viewportRef,
     viewportMeasuredRef,
+    terminalViewportUpdateRef,
+    terminalResizeSeqRef,
     terminalRefs,
     liveInputRef,
     commandInputRef,
@@ -177,8 +178,8 @@ export function useMobileSessionTerminalRuntime(scope: MobileSessionScreenStateM
     leaseOnlyHandlesRef,
     initializedHandlesRef,
     terminalDiagnosticsRef,
-    viewportResubscribeBudgetRef,
-    webReadyHandlesRef,
+    nativeReadyHandlesRef,
+    webReadyHandlesRef: nativeReadyHandlesRef,
     activeHandleRef,
     activeSessionTabTypeRef,
     pendingActiveSessionTabIdRef,

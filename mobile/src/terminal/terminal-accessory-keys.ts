@@ -150,7 +150,7 @@ function buildShortcutBytes(key: string, modifiers: TerminalShortcutModifier[]):
   }
   const csiFinal = CSI_FINAL_SPECIAL_KEYS[key]
   if (csiFinal) {
-    // Why: xterm encodes unmodified F1-F4 as SS3 (ESC O P/S). Once a
+    // Ghostty encodes unmodified F1-F4 as SS3 (ESC O P/S). Once a
     // modifier is present it switches to the CSI 1;N form like arrows.
     if (SS3_BASE_SPECIAL_KEYS.has(key) && csiModifierParameter(modifiers) === 1) {
       return `${ESC}O${csiFinal}`

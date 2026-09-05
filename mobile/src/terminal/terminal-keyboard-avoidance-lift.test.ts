@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
 import { computeActiveTerminalKeyboardLift } from './terminal-keyboard-avoidance-lift'
-import { parseTerminalKeyboardAvoidanceMetrics } from './terminal-webview-contract'
-import type { TerminalKeyboardAvoidanceMetrics } from './terminal-webview-contract'
+import {
+  parseTerminalKeyboardAvoidanceMetrics,
+  type TerminalKeyboardAvoidanceMetrics
+} from './terminal-state'
 
 const FRAME_HEIGHT = 800
 const ROWS = 40

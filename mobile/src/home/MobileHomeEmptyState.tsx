@@ -4,7 +4,7 @@ import { colors, radii, spacing } from '../theme/mobile-theme'
 
 const ONBOARDING_STEPS = [
   {
-    title: 'Open Orca desktop',
+    title: 'Open Horca desktop',
     desc: 'Go to Settings → Mobile and generate a pairing QR code.'
   },
   {

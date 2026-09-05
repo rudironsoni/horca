@@ -1,0 +1,6 @@
+/android/.cxx/
+/android/build/
+/android/vendor/
+/build/
+/ios/vendor/Frameworks/
+/node_modules/

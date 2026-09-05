@@ -1,13 +1,9 @@
-import { Script, createContext } from 'node:vm'
 import { describe, expect, it } from 'vitest'
 import {
   TERMINAL_FILE_LINK_TAP_CONFORMANCE_CASES,
   columnForTerminalFileLinkTap
 } from '../../../src/shared/terminal-file-link-conformance'
-import { TERMINAL_PATH_TAP_JS } from './terminal-path-tap-injected'
 import { matchFilePathAtColumn, parsePathWithOptionalLineColumn } from './terminal-path-tap'
-
-type InjectedPathMatcher = typeof matchFilePathAtColumn
 
 // Returns the column of the first occurrence of `needle` in `line` (+offset).
 function colOf(line: string, needle: string, offset = 0): number {
@@ -165,24 +161,3 @@ describe('matchFilePathAtColumn', () => {
     expect(matchFilePathAtColumn(line, colOf(line, 'Here'))).toBeNull()
   })
 })
-
-describe('injected matchFilePathAtColumn', () => {
-  const matcher = createInjectedPathMatcher()
-
-  it.each(TERMINAL_FILE_LINK_TAP_CONFORMANCE_CASES)(
-    'matches shared terminal file-link tap case: $name',
-    (testCase) => {
-      expect(matcher(testCase.lineText, columnForTerminalFileLinkTap(testCase))).toEqual(
-        testCase.expected
-      )
-    }
-  )
-})
-
-function createInjectedPathMatcher(): InjectedPathMatcher {
-  const context = createContext({})
-  new Script(
-    `${TERMINAL_PATH_TAP_JS}\nthis.__matchFilePathAtColumn = matchFilePathAtColumn;`
-  ).runInContext(context)
-  return (context as { __matchFilePathAtColumn: InjectedPathMatcher }).__matchFilePathAtColumn
-}

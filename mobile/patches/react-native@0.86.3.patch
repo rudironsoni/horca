@@ -1,0 +1,12 @@
+diff --git a/React/Fabric/Mounting/ComponentViews/Text/RCTParagraphComponentView.mm b/React/Fabric/Mounting/ComponentViews/Text/RCTParagraphComponentView.mm
+index 4f7a652428..9fa8803071 100644
+--- a/React/Fabric/Mounting/ComponentViews/Text/RCTParagraphComponentView.mm
++++ b/React/Fabric/Mounting/ComponentViews/Text/RCTParagraphComponentView.mm
+@@ -141,6 +141,7 @@ using namespace facebook::react;
+ - (void)prepareForRecycle
+ {
+   [super prepareForRecycle];
+   _textView.state = nullptr;
++  _textView.layoutMetrics = EmptyLayoutMetrics;
+   _accessibilityProvider = nil;
+ }

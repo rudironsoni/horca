@@ -101,7 +101,7 @@ export function useMobileSessionStartup(scope: MobileSessionKeyboardStateModel) 
     if (connState !== 'connected') {
       return
     }
-    // Why: keep the current xterm visible while the reconnect snapshot hydrates, not a blank "Loading terminals" surface.
+    // Why: keep the current Ghostty terminal visible while the reconnect snapshot hydrates, not a blank "Loading terminals" surface.
     if (initializedHandlesRef.current.size === 0) {
       setTerminalsLoaded(false)
     }
@@ -118,7 +118,7 @@ export function useMobileSessionStartup(scope: MobileSessionKeyboardStateModel) 
     void (async () => {
       const reportActivationOutcome = (response: RpcSuccess | null): void => {
         if (!disposed && response && headlessActivationNeedsHostRenderer(response.result)) {
-          showToast('Open Orca on the host to wake sleeping agents.', 3000)
+          showToast('Open Horca on the host to wake sleeping agents.', 3000)
         }
       }
       if (client && created !== '1' && !isFloatingWorkspaceRoute) {

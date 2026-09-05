@@ -72,7 +72,7 @@ export function useTerminalLiveInputFocus<T extends TerminalLiveInputFocusTarget
       if (handle !== activeHandleRef.current || !context.canSend || !context.liveInputEnabled) {
         return
       }
-      // WKWebView still owns first responder during its touchend notification.
+      // The native surface still owns the tap while its touch handler completes.
       scheduleTerminalLiveInputFocus(timerRef, () => {
         if (activeHandleRef.current === handle) {
           focusLiveInput()

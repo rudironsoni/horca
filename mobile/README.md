@@ -92,7 +92,7 @@ Use `snapshot` first to find the current element refs, then click/fill those ref
 
 ## Terminal Streaming Repro Without A Phone
 
-Use this when terminal output does not render on device and you need to split server streaming bugs from WebView/UI bugs:
+Use this when terminal output does not render on device and you need to split server streaming bugs from native renderer bugs:
 
 ```bash
 cd mobile
@@ -114,7 +114,7 @@ streamSawMarker: true
 readSawMarker: true
 ```
 
-If this repro fails, debug the desktop runtime/PTY path before the mobile WebView. If it passes but the phone is blank, debug the session screen or `TerminalWebView` readiness/queueing path.
+If this repro fails, debug the desktop runtime/PTY path before the native terminal. If it passes but the phone is blank, debug the session screen or native Ghostty readiness and subscription path.
 
 ## Terminal Color Repro Without A Phone
 
@@ -209,7 +209,7 @@ mobile/
 │   ├── index.tsx          # Home screen — paired hosts list
 │   └── pair-scan.tsx      # QR code scanning screen
 ├── src/
-│   ├── terminal/          # Terminal WebView and xterm bridge
+│   ├── terminal/          # Native Ghostty terminal state and RPC routing
 │   └── transport/         # WebSocket RPC client
 ├── scripts/
 │   ├── test-subscribe.ts  # Desktop streaming repro without a phone

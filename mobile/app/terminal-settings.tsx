@@ -29,8 +29,7 @@ type RestoreValue = 'indefinite' | '60s' | '5m' | '30m'
 
 type TextSizeValue = 'smallest' | 'smaller' | 'default' | 'large' | 'larger' | 'largest'
 
-// scale = baseline zoom the terminal WebView applies on top of fit-to-width.
-// Keep in sync with TERMINAL_TEXT_SCALES; pinch-to-zoom snaps to these values.
+// Keep in sync with TERMINAL_TEXT_SCALES.
 const TEXT_SIZE_OPTIONS: (PickerOption<TextSizeValue> & { scale: number })[] = [
   { value: 'smallest', label: 'Smallest (50%)', scale: 0.5 },
   { value: 'smaller', label: 'Smaller (75%)', scale: 0.75 },

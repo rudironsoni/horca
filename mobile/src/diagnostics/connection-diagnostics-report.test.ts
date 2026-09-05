@@ -26,7 +26,7 @@ describe('buildConnectionDiagnosticsReport', () => {
       nowMs: NOW
     })
 
-    expect(report).toContain('App: Orca Mobile 0.0.29 · ios 26.5.1')
+    expect(report).toContain('App: Horca Mobile 0.0.29 · ios 26.5.1')
     expect(report).toContain('Host Orca version: 1.4.191')
     expect(report).toContain('Endpoint: 100.65.9.106:6768 (Tailscale)')
     expect(report).toContain('State: reconnecting (reconnect attempts: 12)')

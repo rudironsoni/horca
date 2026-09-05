@@ -251,7 +251,7 @@ export default function PairScanScreen() {
           visible={pasteVisible}
           title="Paste pairing code"
           message="Copy the code shown under the QR on your computer."
-          placeholder="orca://pair?code=... or paste the code"
+          placeholder="horca://pair?code=... or paste the code"
           onSubmit={handlePasteSubmit}
           onCancel={() => setPasteVisible(false)}
         />
@@ -266,7 +266,7 @@ export default function PairScanScreen() {
       </Pressable>
 
       <View style={styles.steps}>
-        <Step number={1} text="Open Orca on your computer" />
+        <Step number={1} text="Open Horca on your computer" />
         <Step number={2} text="Go to Settings → Mobile" />
         <Step number={3} text="Scan the QR code" />
       </View>
@@ -349,7 +349,7 @@ export default function PairScanScreen() {
         visible={pasteVisible}
         title="Paste pairing code"
         message="Copy the code shown under the QR on your computer."
-        placeholder="orca://pair?code=... or paste the code"
+        placeholder="horca://pair?code=... or paste the code"
         onSubmit={handlePasteSubmit}
         onCancel={() => setPasteVisible(false)}
       />

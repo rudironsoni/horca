@@ -24,6 +24,7 @@ describe('pairing deep links', () => {
 
   it('extracts the pairing code from a query param', () => {
     expect(extractPairingCodeFromUrl('orca://pair?code=abc123')).toBe('abc123')
+    expect(extractPairingCodeFromUrl('horca://pair?code=abc123')).toBe('abc123')
   })
 
   it('accepts scanner casing and surrounding whitespace', () => {
@@ -60,6 +61,7 @@ describe('pairing deep links', () => {
     const code = encodeOffer()
 
     expect(parsePairingCode(`orca://pair?code=${code}`)).toEqual(offer)
+    expect(parsePairingCode(`horca://pair?code=${code}`)).toEqual(offer)
     expect(parsePairingCode(code)).toEqual(offer)
   })
 

@@ -8,10 +8,7 @@ import {
   triggerError,
   triggerEdgeBump
 } from '../platform/haptics'
-import type {
-  TerminalKeyboardAvoidanceMetrics,
-  TerminalModes
-} from '../terminal/terminal-webview-contract'
+import type { TerminalKeyboardAvoidanceMetrics, TerminalModes } from '../terminal/terminal-state'
 import type { createTerminalLiveAccessoryInput } from '../terminal/terminal-live-accessory-input'
 import { clearTerminalLiveInputFocusTimer } from '../terminal/terminal-live-input'
 import { getRepoIdFromMobileWorktreeId } from './mobile-session-route-helpers'
@@ -29,7 +26,6 @@ export function useMobileSessionAccessorySelection(scope: MobileSessionTerminalI
     toastSeqRef,
     ptyModesRef,
     initialModesSeenRef,
-    terminalRefs,
     liveInputFocusTimerRef,
     sessionTabActionSheetRequestSeqRef,
     activeHandleRef,
@@ -74,7 +70,7 @@ export function useMobileSessionAccessorySelection(scope: MobileSessionTerminalI
       if (node !== null) {
         return
       }
-      // Why: clear only on real route detach; client churn during mount would wipe xterm state mid-subscribe.
+      // Why: clear only on real route detach; client churn during mount would wipe Ghostty terminal state mid-subscribe.
       toastSeqRef.current += 1
       clearTerminalCache()
       clearToastHideTimer()
@@ -111,17 +107,14 @@ export function useMobileSessionAccessorySelection(scope: MobileSessionTerminalI
         return
       }
       if (!text || text.length === 0) {
-        terminalRefs.current.get(handle)?.cancelSelect()
         return
       }
       try {
         await Clipboard.setStringAsync(text)
         triggerSuccess()
-        // Why: Android 13+ shows its own system copy toast; iOS shows none, so only iOS needs our in-app toast.
         if (Platform.OS === 'ios') {
           showToast('Copied')
         }
-        terminalRefs.current.get(handle)?.cancelSelect()
       } catch (e) {
         triggerError()
         const err = e as { name?: string; message?: string }

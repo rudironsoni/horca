@@ -1,5 +1,4 @@
 import { Animated, View, Text, Pressable, ActivityIndicator } from 'react-native'
-import { saveTerminalTextScale } from '../storage/preferences'
 import { MobileBrowserPane } from '../browser/MobileBrowserPane'
 import { TerminalPaneView } from './TerminalPaneView'
 import { MobileNativeChatOverlay } from './MobileNativeChatOverlay'
@@ -21,7 +20,6 @@ export function MobileSessionActiveContent({
     client,
     terminals,
     terminalTextScale,
-    setTerminalTextScale,
     activeHandle,
     markdownDocs,
     fileDocs,
@@ -33,7 +31,6 @@ export function MobileSessionActiveContent({
     dictationMode,
     toastMessage,
     terminalFrameHeightRef,
-    setTerminalFrameWidth,
     handleTerminalTap,
     browserScreencastSupported,
     showToast,
@@ -53,20 +50,13 @@ export function MobileSessionActiveContent({
     copyMarkdownLocalContent,
     discardMarkdownLocalContent,
     saveMarkdownTab,
-    notifyTerminalFrameHeight,
-    setTerminalWebViewRef,
-    handleTerminalWebReady,
+    setTerminalNativeRef,
+    handleTerminalNativeReady,
+    handleTerminalNativeResize,
     handleFileTap,
     handleNativeChatFileTap,
     handleTerminalOpenUrl,
     handleTerminalInput,
-    handleTerminalQueryReply,
-    handleSelectionMode,
-    handleSelectionCopy,
-    handleSelectionEvicted,
-    handleModesChanged,
-    handleKeyboardAvoidanceMetrics,
-    handleHaptic,
     nativeChatImages,
     activeMarkdownTab,
     activeFileTab,
@@ -196,11 +186,6 @@ export function MobileSessionActiveContent({
       style={styles.terminalFrame}
       onLayout={(e) => {
         terminalFrameHeightRef.current = e.nativeEvent.layout.height
-        // Why: notify height imperatively so dock settling re-fits the PTY without rerendering SessionScreen.
-        const nextWidth = Math.round(e.nativeEvent.layout.width)
-        const nextHeight = Math.round(e.nativeEvent.layout.height)
-        setTerminalFrameWidth((prev) => (prev === nextWidth ? prev : nextWidth))
-        notifyTerminalFrameHeight(nextHeight)
       }}
     >
       {terminals.map((terminal) => (
@@ -211,22 +196,11 @@ export function MobileSessionActiveContent({
           keyboardLift={terminal.handle === activeHandle ? activeTerminalKeyboardLift : 0}
           terminalTheme={terminal.terminalTheme}
           textScale={terminalTextScale}
-          onTextScaleChange={(scale) => {
-            // Why: pinch-to-zoom reports a new preset; persist it so the size sticks across panes and launches.
-            setTerminalTextScale(scale)
-            void saveTerminalTextScale(scale)
-          }}
-          onRef={setTerminalWebViewRef}
-          onWebReady={handleTerminalWebReady}
-          onSelectionMode={handleSelectionMode}
-          onSelectionCopy={handleSelectionCopy}
-          onSelectionEvicted={handleSelectionEvicted}
-          onModesChanged={handleModesChanged}
-          onKeyboardAvoidanceMetrics={handleKeyboardAvoidanceMetrics}
-          onHaptic={handleHaptic}
-          onTerminalInput={handleTerminalInput}
-          onTerminalQueryReply={handleTerminalQueryReply}
-          onTerminalTap={handleTerminalTap}
+          onRef={setTerminalNativeRef}
+          onReady={handleTerminalNativeReady}
+          onResize={handleTerminalNativeResize}
+          onInput={handleTerminalInput}
+          onTap={handleTerminalTap}
           onFileTap={handleFileTap}
           onOpenUrl={handleTerminalOpenUrl}
         />

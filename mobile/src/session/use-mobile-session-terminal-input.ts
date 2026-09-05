@@ -1,4 +1,6 @@
 import { useCallback } from 'react'
+import type { TerminalInputEvent } from '@orca/libghostty-terminal'
+import { isTerminalQueryReply } from '../../../src/shared/terminal-query-reply'
 import {
   clearTerminalLiveInputFocusTimer,
   scheduleTerminalLiveInputFocus
@@ -10,7 +12,6 @@ import {
 } from '../terminal/terminal-send-request'
 import { countTerminalGestureInputSequences } from '../terminal/terminal-gesture-input'
 import {
-  isGestureMouseTrackingMode,
   TERMINAL_GESTURE_INPUT_BUCKET_CAPACITY,
   TERMINAL_GESTURE_INPUT_FLUSH_DELAY_MS,
   TERMINAL_GESTURE_INPUT_MAX_PENDING_SEQUENCES,
@@ -26,7 +27,6 @@ export function useMobileSessionTerminalInput(scope: MobileSessionFileActionsMod
     connState,
     toggleTerminalLiveInput,
     activeHandle,
-    ptyModesRef,
     terminalGestureInputBucketsRef,
     terminalGestureInputQueuesRef,
     terminalGestureInputInFlightRef,
@@ -35,6 +35,7 @@ export function useMobileSessionTerminalInput(scope: MobileSessionFileActionsMod
     connStateRef,
     liveInputRef,
     liveInputFocusTimerRef,
+    sendLiveTerminalInputRef,
     terminalUnsubsRef,
     activeHandleRef,
     activeSessionTabTypeRef,
@@ -187,20 +188,29 @@ export function useMobileSessionTerminalInput(scope: MobileSessionFileActionsMod
   )
 
   const handleTerminalInput = useCallback(
-    async (handle: string, bytes: string) => {
+    async (handle: string, inputEvent: TerminalInputEvent) => {
+      const bytes = inputEvent.text
       if (!client || connState !== 'connected' || bytes.length === 0) {
+        return
+      }
+      if (isTerminalQueryReply(bytes)) {
+        void sendMobileTerminalQueryReply({
+          bytes,
+          client: clientRef.current,
+          clientId: deviceTokenRef.current,
+          connected: connStateRef.current === 'connected',
+          handle,
+          hostSupportsQueryReplyInput: hostQueryReplyInputSupportedRef.current,
+          subscribedTerminals: terminalUnsubsRef.current
+        })
         return
       }
       if (handle !== activeHandleRef.current || activeSessionTabTypeRef.current !== 'terminal') {
         return
       }
-      const modes = ptyModesRef.current.get(handle)
-      // Why: WebView gesture bytes can become PTY input, so gate mouse reports behind validation and SSH-safe rate limiting.
-      if (!modes?.altScreen && !isGestureMouseTrackingMode(modes?.mouseTrackingMode)) {
-        return
-      }
       const sequenceCount = countTerminalGestureInputSequences(bytes)
       if (sequenceCount == null) {
+        await sendLiveTerminalInputRef.current(handle, bytes)
         return
       }
       if (!allowTerminalGestureInput(handle, sequenceCount)) {
@@ -227,7 +237,7 @@ export function useMobileSessionTerminalInput(scope: MobileSessionFileActionsMod
     if (!client) {
       return
     }
-    getTerminalRef(target.handle)?.clear()
+    void getTerminalRef(target.handle)?.resetWithText('')
     try {
       await client.sendRequest('terminal.clearBuffer', {
         terminal: target.handle

@@ -101,7 +101,7 @@ describe('terminal live input focus hook', () => {
     vi.useRealTimers()
   })
 
-  it('defers initial terminal surface focus until the WebView touch has completed', () => {
+  it('defers initial input focus until the terminal surface tap has completed', () => {
     vi.useFakeTimers()
     const input = createFocusTarget()
     const harness = createHarness(connectedProps({ current: input }))
@@ -220,7 +220,7 @@ describe('terminal live input focus hook', () => {
     harness.unmount()
   })
 
-  it('keeps the native focus target immediate outside the WebView tap path', () => {
+  it('keeps the input focus target immediate outside the terminal tap path', () => {
     const input = createFocusTarget()
     const harness = createHarness(connectedProps({ current: input }))
 

@@ -172,7 +172,7 @@ export function useMobileNativeChatTerminalStream(args: {
         return
       }
       args.subscribe(handle)
-      // Why: a subscribe turned away by its own gates (no client, no webview yet)
+      // A subscribe turned away by its own gates (no client or surface yet)
       // never reached the host, so charging it an attempt would spend the budget on
       // nothing and could exhaust it before a single real rearm was tried.
       if (args.subscribingRef.current.has(handle) || args.subscriptionsRef.current.has(handle)) {
@@ -184,7 +184,7 @@ export function useMobileNativeChatTerminalStream(args: {
       coveredHandleRef.current = handle
       forgetRearmState(handle)
       // Why: returning to terminal must accept the fresh scrollback snapshot;
-      // the stream was paused while chat covered output that xterm never saw.
+      // the stream was paused while chat covered output that the terminal never saw.
       args.initializedRef.current.delete(handle)
       // Why: covered chat needs the input-floor lease without paying to stream
       // duplicate PTY output. Replace any view stream with a lease-only stream.
@@ -195,7 +195,7 @@ export function useMobileNativeChatTerminalStream(args: {
       return
     }
     if (coveredHandleRef.current === handle || streamIsLeaseOnly) {
-      // Why clear `initialized`: a lease-only stream delivered no scrollback, so xterm
+      // Why clear `initialized`: a lease-only stream delivered no scrollback, so the terminal
       // holds nothing — a stale mark would drop the replacement snapshot and the
       // terminal would stay blank through the resubscribe.
       args.initializedRef.current.delete(handle)

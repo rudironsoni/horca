@@ -1,0 +1,50 @@
+{
+  "name": "@orca/libghostty-terminal",
+  "version": "0.1.0",
+  "description": "Native Ghostty terminal view for Orca mobile",
+  "keywords": [
+    "expo",
+    "ghostty",
+    "libghostty",
+    "react-native",
+    "terminal",
+    "terminal-emulator"
+  ],
+  "homepage": "https://github.com/arcboxlabs/expo-libghostty#readme",
+  "bugs": {
+    "url": "https://github.com/arcboxlabs/expo-libghostty/issues"
+  },
+  "license": "MIT",
+  "author": "AprilNEA <github@sku.moe> (https://github.com/AprilNEA)",
+  "repository": "https://github.com/arcboxlabs/expo-libghostty",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "node internal/module_scripts/build.js",
+    "clean": "node internal/module_scripts/clean.js",
+    "lint": "oxlint src/",
+    "test": "vitest run",
+    "prepare": "node internal/module_scripts/prepare.js",
+    "postinstall": "node scripts/download-xcframework.mjs && node scripts/download-android-libs.mjs",
+    "sync-vendor": "./scripts/sync-vendor.sh",
+    "open:ios": "node internal/module_scripts/open-ios.js",
+    "open:android": "node internal/module_scripts/open-android.js"
+  },
+  "devDependencies": {
+    "@types/react": "~19.2.2",
+    "expo": "^57.0.18",
+    "jsdom": "^29.1.1",
+    "oxlint": "^1.80.0",
+    "prettier": "^3.0.0",
+    "react": "^19.2.3",
+    "react-dom": "19.2.3",
+    "react-native": "0.86.3",
+    "typescript": "^5.9.2",
+    "vitest": "^4.1.10"
+  },
+  "peerDependencies": {
+    "expo": "*",
+    "react": "*",
+    "react-native": "*"
+  }
+}

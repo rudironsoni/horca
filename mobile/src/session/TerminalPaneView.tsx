@@ -1,33 +1,63 @@
-import { useCallback } from 'react'
+import {
+  TerminalView,
+  type TerminalInputEvent,
+  type TerminalTapEvent,
+  type TerminalTheme,
+  type TerminalViewRef
+} from '@orca/libghostty-terminal'
+import { useCallback, useMemo, useRef } from 'react'
 import { StyleSheet, View } from 'react-native'
-import { TerminalWebView } from '../terminal/TerminalWebView'
-import type {
-  MobileTerminalTheme,
-  TerminalKeyboardAvoidanceMetrics,
-  TerminalModes,
-  TerminalWebViewHandle
-} from '../terminal/terminal-webview-contract'
+import type { RuntimeMobileTerminalTheme } from '../../../src/shared/runtime-types'
+import { isUsableTerminalViewport } from '../terminal/terminal-native-viewport-update'
+import { resolveTerminalTapTarget } from '../terminal/terminal-tap-target'
 
 type TerminalPaneViewProps = {
   handle: string
   active: boolean
   keyboardLift: number
-  terminalTheme?: MobileTerminalTheme
+  terminalTheme?: RuntimeMobileTerminalTheme
   textScale: number
-  onRef: (handle: string, ref: TerminalWebViewHandle | null) => void
-  onWebReady: (handle: string) => void
-  onSelectionMode: (handle: string, active: boolean) => void
-  onSelectionCopy: (handle: string, text: string) => void
-  onSelectionEvicted: (handle: string) => void
-  onModesChanged: (handle: string, modes: TerminalModes) => void
-  onKeyboardAvoidanceMetrics: (handle: string, metrics: TerminalKeyboardAvoidanceMetrics) => void
-  onHaptic: (kind: 'selection' | 'success' | 'error' | 'edge-bump') => void
-  onTerminalInput: (handle: string, bytes: string) => void
-  onTerminalQueryReply: (handle: string, bytes: string) => void
-  onTerminalTap: (handle: string) => void
+  onRef: (handle: string, ref: TerminalViewRef | null) => void
+  onReady: (handle: string, cols: number, rows: number) => void
+  onResize: (handle: string, cols: number, rows: number) => void
+  onInput: (handle: string, input: TerminalInputEvent) => void
+  onTap: (handle: string) => void
   onFileTap: (handle: string, pathText: string, line: number | null, column: number | null) => void
   onOpenUrl: (handle: string, url: string) => void
-  onTextScaleChange: (scale: number) => void
+}
+
+const ANSI_COLOR_KEYS = [
+  'black',
+  'red',
+  'green',
+  'yellow',
+  'blue',
+  'magenta',
+  'cyan',
+  'white',
+  'brightBlack',
+  'brightRed',
+  'brightGreen',
+  'brightYellow',
+  'brightBlue',
+  'brightMagenta',
+  'brightCyan',
+  'brightWhite'
+] as const
+
+function toGhosttyTheme(source?: RuntimeMobileTerminalTheme): TerminalTheme | undefined {
+  if (!source) {
+    return undefined
+  }
+  const colors = source.theme
+  return {
+    background: colors.background,
+    foreground: colors.foreground,
+    cursorColor: colors.cursor,
+    selectionBackground: colors.selectionBackground,
+    selectionForeground: colors.selectionForeground,
+    palette: ANSI_COLOR_KEYS.map((key) => colors[key] ?? null)
+  }
 }
 
 export function TerminalPaneView({
@@ -37,31 +67,37 @@ export function TerminalPaneView({
   terminalTheme,
   textScale,
   onRef,
-  onWebReady,
-  onSelectionMode,
-  onSelectionCopy,
-  onSelectionEvicted,
-  onModesChanged,
-  onKeyboardAvoidanceMetrics,
-  onHaptic,
-  onTerminalInput,
-  onTerminalQueryReply,
-  onTerminalTap,
+  onReady,
+  onResize,
+  onInput,
+  onTap,
   onFileTap,
-  onOpenUrl,
-  onTextScaleChange
+  onOpenUrl
 }: TerminalPaneViewProps) {
-  const setRef = useCallback(
-    (ref: TerminalWebViewHandle | null) => {
-      onRef(handle, ref)
+  const readyRef = useRef(false)
+  const setRef = useCallback((ref: TerminalViewRef | null) => onRef(handle, ref), [handle, onRef])
+  const theme = useMemo(() => toGhosttyTheme(terminalTheme), [terminalTheme])
+  const handleTap = useCallback(
+    (event: TerminalTapEvent) => {
+      const target =
+        typeof event.lineText === 'string' && typeof event.column === 'number'
+          ? resolveTerminalTapTarget(event.lineText, event.column)
+          : null
+      if (target?.kind === 'file') {
+        onFileTap(handle, target.file.pathText, target.file.line, target.file.column)
+        return
+      }
+      if (target?.kind === 'url') {
+        onOpenUrl(handle, target.url)
+        return
+      }
+      onTap(handle)
     },
-    [handle, onRef]
+    [handle, onFileTap, onOpenUrl, onTap]
   )
 
   return (
     <View
-      // Why: inactive terminal WebViews stay mounted to preserve xterm state,
-      // while touch and visibility are disabled until the tab is active again.
       pointerEvents={active ? 'auto' : 'none'}
       style={[
         styles.terminalPane,
@@ -69,24 +105,27 @@ export function TerminalPaneView({
         !active && styles.terminalPaneHidden
       ]}
     >
-      <TerminalWebView
+      <TerminalView
         ref={setRef}
-        style={styles.terminalWebView}
-        terminalTheme={terminalTheme}
-        textScale={textScale}
-        onWebReady={() => onWebReady(handle)}
-        onSelectionMode={(a) => onSelectionMode(handle, a)}
-        onSelectionCopy={(t) => onSelectionCopy(handle, t)}
-        onSelectionEvicted={() => onSelectionEvicted(handle)}
-        onModesChanged={(m) => onModesChanged(handle, m)}
-        onKeyboardAvoidanceMetrics={(m) => onKeyboardAvoidanceMetrics(handle, m)}
-        onHaptic={onHaptic}
-        onTerminalInput={(bytes) => onTerminalInput(handle, bytes)}
-        onTerminalQueryReply={(bytes) => onTerminalQueryReply(handle, bytes)}
-        onTerminalTap={() => onTerminalTap(handle)}
-        onFileTap={(pathText, line, column) => onFileTap(handle, pathText, line, column)}
-        onOpenUrl={(url) => onOpenUrl(handle, url)}
-        onTextScaleChange={onTextScaleChange}
+        style={styles.terminal}
+        fontSize={8 * textScale}
+        theme={theme}
+        keyboardEnabled={false}
+        surfaceVisible={active}
+        onTap={({ nativeEvent }) => handleTap(nativeEvent)}
+        onInput={({ nativeEvent }) => onInput(handle, nativeEvent)}
+        onResize={({ nativeEvent }) => {
+          const { cols, rows } = nativeEvent
+          if (!isUsableTerminalViewport({ cols, rows })) {
+            return
+          }
+          if (!readyRef.current) {
+            readyRef.current = true
+            onReady(handle, cols, rows)
+          } else {
+            onResize(handle, cols, rows)
+          }
+        }}
       />
     </View>
   )
@@ -94,12 +133,22 @@ export function TerminalPaneView({
 
 const styles = StyleSheet.create({
   terminalPane: {
-    ...StyleSheet.absoluteFillObject
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0
   },
   terminalPaneHidden: {
-    opacity: 0
+    width: 0,
+    height: 0,
+    overflow: 'hidden'
   },
-  terminalWebView: {
-    flex: 1
+  terminal: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0
   }
 })

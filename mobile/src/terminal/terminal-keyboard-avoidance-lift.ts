@@ -1,4 +1,4 @@
-import type { TerminalKeyboardAvoidanceMetrics } from './terminal-webview-contract'
+import type { TerminalKeyboardAvoidanceMetrics } from './terminal-state'
 
 type ActiveTerminalKeyboardLiftParams = {
   keyboardLift: number

@@ -25,7 +25,7 @@ export function sendMobileTerminalQueryReply({
   hostSupportsQueryReplyInput,
   subscribedTerminals
 }: MobileTerminalQueryReplyOptions): Promise<boolean> {
-  // Why: every subscribed mobile xterm suppresses main's responder, including
+  // Why: every subscribed mobile terminal suppresses main's responder, including
   // hidden panes, so ownership follows the subscription rather than focus.
   // Hosts without terminal.query-reply-input.v1 strip inputKind and would take
   // reply bytes as floor-stealing shell input, so drop (pre-fix behavior).

@@ -2,11 +2,9 @@ import { useCallback, type RefObject } from 'react'
 import * as Clipboard from 'expo-clipboard'
 import { File as FsFile, Paths } from 'expo-file-system'
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator'
-import type { TerminalModes } from '../terminal/terminal-webview-contract'
 import type { RpcClient } from '../transport/rpc-client'
 import type { ConnectionState } from '../transport/types'
 import {
-  buildMobileImagePastePayload,
   prepareMobileClipboardImageBase64,
   saveMobileClipboardImageAsTempFile,
   type MobileClipboardImageResizer
@@ -57,18 +55,6 @@ const resizeMobileClipboardImage: MobileClipboardImageResizer = async (source, t
   }
 }
 
-function buildMobileTerminalClipboardTextPayload(
-  text: string,
-  modes: TerminalModes | undefined
-): string {
-  const wrap = modes?.bracketedPasteMode === true && !modes.altScreen
-  // Why: strip embedded bracketed-paste markers so copied text cannot terminate
-  // paste mode early and turn trailing bytes into shell commands.
-  // eslint-disable-next-line no-control-regex -- intentional bracketed-paste marker stripping
-  const sanitized = wrap ? text.replace(/\x1b\[20[01]~/g, '') : text
-  return wrap ? `\x1b[200~${sanitized}\x1b[201~` : sanitized
-}
-
 type UseMobileTerminalPasteOptions = {
   readonly activeHandle: string | null
   readonly activeHandleRef: RefObject<string | null>
@@ -78,12 +64,11 @@ type UseMobileTerminalPasteOptions = {
   readonly clientRef: RefObject<RpcClient | null>
   readonly connState: ConnectionState
   readonly connStateRef: RefObject<ConnectionState>
-  readonly deviceTokenRef: RefObject<string | null>
   readonly flushPendingLiveInputBeforeExternalSend: (handle: string) => Promise<boolean>
   readonly getActiveWorktreeConnectionId: () => Promise<string | null>
   readonly onError: () => void
   readonly onSuccess: () => void
-  readonly ptyModesRef: RefObject<Map<string, TerminalModes>>
+  readonly pasteTerminalText: (handle: string, text: string) => Promise<boolean>
   readonly refreshCanPaste: () => void
   readonly showToast: (message: string, durationMs?: number) => void
 }
@@ -97,12 +82,11 @@ export function useMobileTerminalPaste({
   clientRef,
   connState,
   connStateRef,
-  deviceTokenRef,
   flushPendingLiveInputBeforeExternalSend,
   getActiveWorktreeConnectionId,
   onError,
   onSuccess,
-  ptyModesRef,
+  pasteTerminalText,
   refreshCanPaste,
   showToast
 }: UseMobileTerminalPasteOptions): () => Promise<void> {
@@ -115,10 +99,7 @@ export function useMobileTerminalPaste({
       const text = await Clipboard.getStringAsync()
       let payload: string | null = null
       if (text.length > 0) {
-        payload = buildMobileTerminalClipboardTextPayload(
-          text,
-          ptyModesRef.current.get(targetHandle)
-        )
+        payload = text
       } else {
         const image = await Clipboard.getImageAsync({ format: 'png' })
         if (!image) {
@@ -130,7 +111,7 @@ export function useMobileTerminalPaste({
         const imagePath = await saveMobileClipboardImageAsTempFile(client, base64, {
           connectionId
         })
-        payload = buildMobileImagePastePayload(imagePath)
+        payload = imagePath.split('\u001b').join('\u241b')
       }
 
       const wrappedBytes = new TextEncoder().encode(payload).byteLength
@@ -155,14 +136,9 @@ export function useMobileTerminalPaste({
       ) {
         return
       }
-      await currentClient.sendRequest('terminal.send', {
-        terminal: targetHandle,
-        text: payload,
-        enter: false,
-        ...(deviceTokenRef.current
-          ? { client: { id: deviceTokenRef.current, type: 'mobile' as const } }
-          : {})
-      })
+      if (!(await pasteTerminalText(targetHandle, payload))) {
+        return
+      }
       onSuccess()
       refreshCanPaste()
     } catch (e) {
@@ -188,12 +164,11 @@ export function useMobileTerminalPaste({
     clientRef,
     connState,
     connStateRef,
-    deviceTokenRef,
     flushPendingLiveInputBeforeExternalSend,
     getActiveWorktreeConnectionId,
     onError,
     onSuccess,
-    ptyModesRef,
+    pasteTerminalText,
     refreshCanPaste,
     showToast
   ])

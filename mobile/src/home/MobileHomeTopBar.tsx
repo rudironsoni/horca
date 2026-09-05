@@ -10,7 +10,7 @@ export function MobileHomeTopBar({ onOpenSettings }: { onOpenSettings: () => voi
         <View style={styles.logoMark}>
           <OrcaLogo size={18} />
         </View>
-        <Text style={styles.brandName}>Orca</Text>
+        <Text style={styles.brandName}>Horca</Text>
       </View>
       <Pressable
         style={({ pressed }) => [styles.iconButton, pressed && styles.iconButtonPressed]}

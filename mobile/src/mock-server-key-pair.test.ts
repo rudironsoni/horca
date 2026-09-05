@@ -29,7 +29,9 @@ function runConcurrentCreator(keyFile: string): ConcurrentCreator {
     join(import.meta.dirname, '../scripts/mock-server-key-pair.ts')
   ).href
   const script = `
-    const { loadOrCreateMockServerKeyPair } = await import(process.argv[1])
+    const imported = await import(process.argv[1])
+    const loadOrCreateMockServerKeyPair =
+      imported.loadOrCreateMockServerKeyPair ?? imported.default.loadOrCreateMockServerKeyPair
     process.stdout.write('READY\\n')
     await new Promise((resolve) => process.stdin.once('data', resolve))
     process.stdout.write('CALLING\\n')

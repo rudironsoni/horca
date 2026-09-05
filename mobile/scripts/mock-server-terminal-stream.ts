@@ -75,7 +75,7 @@ export function handleMockTerminalRequest(
       // the legacy `lines` shape left the session screen in that loop forever.
       const viewport = request.params?.viewport as { cols?: number; rows?: number } | undefined
       // MOCK_TUI=1 arms SGR drag mouse tracking (1002/1006) inside the scrollback
-      // itself so every xterm re-init re-enters the mode - used by mouse/touch
+      // itself so every terminal reset re-enters the mode, used by mouse/touch
       // input repros (#8818).
       const tuiPreamble =
         process.env.MOCK_TUI === '1'

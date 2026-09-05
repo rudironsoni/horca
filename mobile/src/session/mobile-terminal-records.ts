@@ -1,4 +1,4 @@
-import type { MobileTerminalTheme } from '../terminal/terminal-webview-contract'
+import type { MobileTerminalTheme } from '../terminal/terminal-state'
 import type { AgentStatusEntry } from '../../../src/shared/agent-status-types'
 
 export type TerminalRecord = {
@@ -253,7 +253,7 @@ export function mergeTerminalListWithKnownRecords(
     const sessionTerminal = sessionTerminalsByHandle.get(terminal.handle)
     const currentTerminal = currentTerminalsByHandle.get(terminal.handle)
     // Why: terminal.list summaries can omit the mobile theme; keep the richer
-    // session-tab/current record so polling cannot reset TerminalWebView.
+    // session-tab/current record so polling cannot reset the native terminal.
     return {
       ...terminal,
       terminalTheme:

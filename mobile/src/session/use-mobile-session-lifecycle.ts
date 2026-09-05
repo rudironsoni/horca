@@ -1,30 +1,13 @@
-import { useEffect, useRef, useCallback } from 'react'
-import { AppState, type AppStateStatus, Platform } from 'react-native'
+import { useEffect, useCallback } from 'react'
+import { AppState, type AppStateStatus } from 'react-native'
 import { useFocusEffect } from 'expo-router'
 import { loadHosts } from '../transport/host-store'
 import { loadTerminalAccessoryLayout } from '../terminal/terminal-accessory-layout'
-import {
-  recoverActiveTerminalAfterForeground,
-  shouldRecoverTerminalOnAppStateChange
-} from '../terminal/terminal-foreground-recovery'
 import { loadCustomKeys } from '../components/CustomKeyModal'
 import type { MobileSessionTabReconciliationModel } from './use-mobile-session-tab-reconciliation'
 
 export function useMobileSessionLifecycle(scope: MobileSessionTabReconciliationModel) {
-  const {
-    hostId,
-    connState,
-    setCustomKeys,
-    setVisibleBuiltInIds,
-    setHostEndpoint,
-    connStateRef,
-    terminalRefs,
-    initializedHandlesRef,
-    activeHandleRef,
-    scheduleDelayedAction,
-    unsubscribeTerminal,
-    subscribeToTerminal
-  } = scope
+  const { hostId, setCustomKeys, setVisibleBuiltInIds, setHostEndpoint } = scope
   // Why: the shared client owns authenticated identity; this host read only supplies connection-hint metadata.
   useEffect(() => {
     if (!hostId) {
@@ -83,61 +66,7 @@ export function useMobileSessionLifecycle(scope: MobileSessionTabReconciliationM
     }
   }, [])
 
-  const pendingForegroundRecoveryRef = useRef(false)
-  useEffect(() => {
-    let previousAppState: AppStateStatus | null = AppState.currentState
-    const sub = AppState.addEventListener('change', (nextAppState: AppStateStatus) => {
-      const shouldRecover = shouldRecoverTerminalOnAppStateChange(
-        previousAppState,
-        nextAppState,
-        Platform.OS
-      )
-      previousAppState = nextAppState
-      if (!shouldRecover) {
-        return
-      }
-      for (const terminalRef of terminalRefs.current.values()) {
-        terminalRef.prepareForForegroundRecovery()
-      }
-      // Why: iOS can resume a WKWebView with a blank xterm store and no web-ready; invalidate the latch so init waits for the pong.
-      const outcome = recoverActiveTerminalAfterForeground({
-        activeHandleRef,
-        terminalRefs,
-        initializedHandlesRef,
-        connStateRef,
-        unsubscribeTerminal,
-        subscribeToTerminal,
-        schedule: scheduleDelayedAction
-      })
-      pendingForegroundRecoveryRef.current = outcome === 'deferred'
-    })
-    return () => {
-      sub.remove()
-    }
-  }, [scheduleDelayedAction, subscribeToTerminal, unsubscribeTerminal])
-
-  // Why: resume lands mid-reconnect (socket dies in bg); re-run recovery once connected or a blanked WKWebView stays stale.
-  useEffect(() => {
-    if (connState !== 'connected' || !pendingForegroundRecoveryRef.current) {
-      return
-    }
-    pendingForegroundRecoveryRef.current = false
-    if (AppState.currentState !== 'active') {
-      return
-    }
-    recoverActiveTerminalAfterForeground({
-      activeHandleRef,
-      terminalRefs,
-      initializedHandlesRef,
-      connStateRef,
-      unsubscribeTerminal,
-      subscribeToTerminal,
-      schedule: scheduleDelayedAction
-    })
-  }, [connState, scheduleDelayedAction, subscribeToTerminal, unsubscribeTerminal])
-  return {
-    pendingForegroundRecoveryRef
-  }
+  return {}
 }
 
 export type MobileSessionLifecycleModel = MobileSessionTabReconciliationModel &

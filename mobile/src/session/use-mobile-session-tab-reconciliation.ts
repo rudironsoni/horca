@@ -167,7 +167,7 @@ export function useMobileSessionTabReconciliation(scope: MobileSessionMarkdownAc
       setAgentSessionHistorySupported(capabilities.includes(MOBILE_AI_VAULT_CAPABILITY))
       setQuickCommandsSupported(supportsMobileQuickCommands(capabilities))
       // Why: hosts without this capability strip inputKind from terminal.send,
-      // so a forwarded xterm reply would become floor-stealing shell input.
+      // so a forwarded emulator reply would become floor-stealing shell input.
       hostQueryReplyInputSupportedRef.current = capabilities.includes(
         TERMINAL_QUERY_REPLY_INPUT_RUNTIME_CAPABILITY
       )
