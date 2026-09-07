@@ -14,7 +14,9 @@ import {
   createOrcaPaneBuffer,
   createOrcaPaneParser,
   flushWaiters,
+  notifyTitleListeners,
   noopDisposable,
+  orcaPaneModes,
   trackListener
 } from './orca-pane-buffer'
 import { registerOrcaPaneLinkProvider } from './orca-pane-links'
@@ -36,6 +38,7 @@ import {
 export type { OrcaPaneAppearance } from './orca-pane-appearance'
 export class OrcaPaneTerminal {
   readonly element: HTMLCanvasElement
+  readonly textarea: HTMLTextAreaElement
   readonly options: OrcaPaneAppearance
   readonly parser: ReturnType<typeof createOrcaPaneParser>
   readonly engine: GhosttyTerminal
@@ -46,6 +49,7 @@ export class OrcaPaneTerminal {
   private readonly renderListeners = new Set<() => void>()
   private readonly resizeListeners = new Set<(size: { cols: number; rows: number }) => void>()
   private readonly selectionListeners = new Set<() => void>()
+  private readonly titleListeners = new Set<(title: string) => void>()
   private readonly primaryScreenWaiters = new Set<() => void>()
   private customKeyHandler: ((event: KeyboardEvent) => boolean) | null = null
   cellWidth: number
@@ -63,6 +67,7 @@ export class OrcaPaneTerminal {
     this.measureRoot = measureRoot
     const surface = createOrcaPaneSurface(this.options)
     this.element = surface.canvas
+    this.textarea = surface.textarea
     this.engine = surface.engine
     this.renderer = surface.renderer
     this.cellWidth = surface.cellWidth
@@ -99,24 +104,16 @@ export class OrcaPaneTerminal {
 
   write(data: string | Uint8Array, onDone?: () => void): void {
     const text = typeof data === 'string' ? data : new TextDecoder().decode(data)
+    const title = this.engine.title
     this.engine.writePtyOutput(this.parser.consume(text))
     this.refresh()
+    notifyTitleListeners(title, this.engine.title, this.titleListeners)
     flushWaiters(this.isAlternateScreen, this.primaryScreenWaiters)
     onDone?.()
   }
 
-  get modes(): {
-    bracketedPasteMode: boolean
-    mouseTrackingMode: 'none' | 'on'
-    sendFocusMode: boolean
-    showCursor: boolean
-  } {
-    return {
-      bracketedPasteMode: this.engine.getMode(2004),
-      mouseTrackingMode: this.engine.mouseTracking ? 'on' : 'none',
-      sendFocusMode: this.engine.getMode(1004),
-      showCursor: this.engine.getMode(25)
-    }
+  get modes(): ReturnType<typeof orcaPaneModes> {
+    return orcaPaneModes(this.engine)
   }
 
   reset(): void {
@@ -145,7 +142,7 @@ export class OrcaPaneTerminal {
   }
   onTitleChange(listener: (title: string) => void): OrcaDisposable {
     listener(this.engine.title)
-    return noopDisposable()
+    return trackListener(this.titleListeners, listener)
   }
   onSelectionChange(listener: () => void): OrcaDisposable {
     return trackListener(this.selectionListeners, listener)
@@ -203,10 +200,10 @@ export class OrcaPaneTerminal {
     this.paintScheduler.refresh()
   }
   focus(): void {
-    this.element.focus()
+    this.textarea.focus()
   }
   blur(): void {
-    this.element.blur()
+    this.textarea.blur()
   }
   clearSelection(): void {
     clearSelectionOnGhostty(this.engine)
