@@ -72,7 +72,7 @@ describe('createPaneDOM link tooltips', () => {
     pane.terminal.dispose()
   })
 
-  it('paints selected cells from Ghostty render-state', () => {
+  it('paints selected cells from Ghostty render-state', async () => {
     const fillStyles: string[] = []
     HTMLCanvasElement.prototype.getContext = vi.fn(() => {
       const ctx = stubCanvas()
@@ -101,11 +101,14 @@ describe('createPaneDOM link tooltips', () => {
     pane.terminal.write('hello ghostty')
     pane.terminal.selectAll()
     pane.terminal.refresh()
+    await new Promise<void>((resolve) => {
+      requestAnimationFrame(() => resolve())
+    })
     expect(fillStyles.some((style) => style.includes('221'))).toBe(true)
     pane.terminal.dispose()
   })
 
-  it('paints the Ghostty render-state cursor after writing', () => {
+  it('paints the Ghostty render-state cursor after writing', async () => {
     const fillRects: number[][] = []
     HTMLCanvasElement.prototype.getContext = vi.fn(() => stubCanvas(fillRects)) as never
     const leafId = '11111111-1111-4111-8111-111111111111' as TerminalLeafId
@@ -120,6 +123,9 @@ describe('createPaneDOM link tooltips', () => {
     )
     pane.terminal.write('A')
     pane.terminal.refresh()
+    await new Promise<void>((resolve) => {
+      requestAnimationFrame(() => resolve())
+    })
     const cursor = fillRects.find(
       (rect) => rect[1] === 0 && rect[2] > 0 && rect[2] < 40 && rect[3] > 0
     )
