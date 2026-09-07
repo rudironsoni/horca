@@ -28,9 +28,15 @@ import {
   HerdrEventRefresh,
   type HerdrLivePaneListener,
   type HerdrPaneExitListener,
+  type HerdrPaneTerminalTitleListener,
   type HerdrSurfaceSync
 } from './herdr-runtime-event-refresh'
-export type { HerdrLivePaneListener, HerdrPaneExitListener, HerdrSurfaceSync }
+export type {
+  HerdrLivePaneListener,
+  HerdrPaneExitListener,
+  HerdrPaneTerminalTitleListener,
+  HerdrSurfaceSync
+}
 
 export type HerdrAgentRollup = {
   agents: HerdrBindingAgentState[]
@@ -52,7 +58,8 @@ export class HerdrRuntimeManager {
     private readonly sharedName?: () => string | undefined,
     private readonly onLivePaneIds?: HerdrLivePaneListener,
     private readonly surfaceSync?: HerdrSurfaceSync,
-    private readonly onPaneExited?: HerdrPaneExitListener
+    private readonly onPaneExited?: HerdrPaneExitListener,
+    private readonly onPaneTerminalTitle?: HerdrPaneTerminalTitleListener
   ) {
     this.eventRefresh = new HerdrEventRefresh({
       transport: this.transport,
@@ -63,6 +70,7 @@ export class HerdrRuntimeManager {
       surfaceSync: this.surfaceSync,
       onLivePaneIds: this.onLivePaneIds,
       onPaneExited: this.onPaneExited,
+      onPaneTerminalTitle: this.onPaneTerminalTitle,
       snapshot: (sessionName) => this.snapshot(sessionName)
     })
   }
