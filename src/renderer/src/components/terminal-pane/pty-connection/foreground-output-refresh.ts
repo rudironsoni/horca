@@ -163,6 +163,7 @@ export function bindForegroundOutputRefresh(session: ConnectPanePtySession): voi
     if (shouldHide) {
       if (!session.releaseHiddenDeliveryClaim) {
         session.releaseHiddenDeliveryClaim = acquireHiddenRendererPtyDeliveryClaim(ptyId)
+        session.registerSideEffectFactConsumerForPty(ptyId)
       }
     } else if (session.releaseHiddenDeliveryClaim) {
       session.releaseHiddenDeliveryClaim()
