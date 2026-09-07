@@ -67,6 +67,7 @@ describe('createPaneDOM link tooltips', () => {
     pane.terminal.scrollToBottom()
     expect(pane.terminalHost.contains(pane.terminal.element)).toBe(true)
     expect(pane.terminal.element.tagName).toBe('CANVAS')
+    expect(pane.terminal.textarea.className).toBe('xterm-helper-textarea')
     expect(pane.terminal.serialize()).toContain('hello ghostty')
     pane.terminal.dispose()
   })
