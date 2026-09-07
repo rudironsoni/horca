@@ -69,6 +69,7 @@ export function openIosTerminal(
   const container = document.createElement('div')
   document.body.appendChild(container)
   const textarea = document.createElement('textarea')
+  textarea.className = 'xterm-helper-textarea'
   const compositionView = document.createElement('div')
   compositionView.className = 'composition-view'
   const listeners = new Set<(data: string) => void>()
@@ -138,7 +139,7 @@ export function openIosTerminal(
 }
 
 export function dispatchKey(
-  { textarea }: IosHangulRig,
+  rig: IosHangulRig,
   type: 'keydown' | 'keypress' | 'keyup',
   init: {
     key: string
@@ -160,7 +161,10 @@ export function dispatchKey(
   Object.defineProperty(event, 'keyCode', { value: init.keyCode ?? init.key.charCodeAt(0) })
   Object.defineProperty(event, 'charCode', { value: init.charCode ?? 0 })
   Object.defineProperty(event, 'isComposing', { value: init.isComposing ?? false })
-  textarea.dispatchEvent(event)
+  rig.textarea.dispatchEvent(event)
+  if (type === 'keydown' && init.key === 'Enter' && !event.defaultPrevented) {
+    rig.terminal.input('\r')
+  }
   return event.defaultPrevented
 }
 
