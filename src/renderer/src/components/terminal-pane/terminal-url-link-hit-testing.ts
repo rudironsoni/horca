@@ -1,4 +1,9 @@
-import type { IBufferLine, IBufferRange, IDisposable, Terminal } from '@xterm/xterm'
+import type {
+  IBufferLine,
+  IBufferRange,
+  IDisposable,
+  Terminal
+} from '../../../../shared/orca-terminal-surface'
 import type { HttpLinkSourceOwner } from '@/lib/http-link-routing'
 import { buildEdgeWrappedHttpLogicalLineCandidates } from './edge-wrapped-terminal-http-links'
 import { buildHardWrappedHttpLogicalLineCandidates } from './hard-wrapped-terminal-http-links'
@@ -104,7 +109,9 @@ export function openHttpLinkAtTerminalMouseEvent(
   if (!position) {
     return false
   }
-  return openHttpLinkAtBufferPosition(terminal.buffer.active, position, terminal.cols, deps)
+  return terminal.buffer
+    ? openHttpLinkAtBufferPosition(terminal.buffer.active, position, terminal.cols, deps)
+    : false
 }
 
 export function findHttpLinkAtTerminalMouseEvent(
@@ -115,7 +122,7 @@ export function findHttpLinkAtTerminalMouseEvent(
     return null
   }
   const position = getTerminalBufferPositionForMouseEvent(terminal, event)
-  return position
+  return position && terminal.buffer
     ? findHttpLinkAtBufferPosition(terminal.buffer.active, position, terminal.cols)
     : null
 }
@@ -130,7 +137,9 @@ export function installHttpLinkClickFallback(
     }
     const position = getTerminalBufferPositionForMouseEvent(terminal, event)
     return Boolean(
-      position && findHttpLinkAtBufferPosition(terminal.buffer.active, position, terminal.cols)
+      position &&
+      terminal.buffer &&
+      findHttpLinkAtBufferPosition(terminal.buffer.active, position, terminal.cols)
     )
   }
   const ptyMouseSuppression = installTerminalLinkPtyMouseSuppression(
@@ -161,7 +170,7 @@ export function installHttpLinkClickFallback(
     )
     if (handled) {
       event.preventDefault()
-      terminal.clearSelection()
+      terminal.clearSelection?.()
     }
   }
 

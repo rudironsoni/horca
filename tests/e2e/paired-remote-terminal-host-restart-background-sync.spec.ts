@@ -241,7 +241,7 @@ async function readPaneContent(page: Page, webTabId: string): Promise<string> {
   return page.evaluate((id) => {
     const manager = window.__paneManagers?.get(id)
     const pane = manager?.getActivePane?.() ?? manager?.getPanes?.()[0] ?? null
-    return pane?.serializeAddon?.serialize?.() ?? ''
+    return pane?.serializeController?.serialize?.() ?? ''
   }, webTabId)
 }
 

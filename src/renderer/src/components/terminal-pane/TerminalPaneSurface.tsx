@@ -206,7 +206,7 @@ export function TerminalPaneSurface({
           <TerminalSearch
             isOpen={searchOpen}
             onClose={() => setSearchOpen(false)}
-            searchAddon={activePane.searchAddon ?? null}
+            searchController={activePane.searchController ?? null}
             searchStateRef={searchStateRef}
           />,
           activePane.container

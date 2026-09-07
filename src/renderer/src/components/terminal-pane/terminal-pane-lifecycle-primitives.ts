@@ -1,4 +1,4 @@
-import type { Terminal } from '@xterm/xterm'
+import type { OrcaPaneTerminal as Terminal } from '../../lib/pane-manager/orca-pane-terminal'
 import type { TerminalLayoutSnapshot, TerminalTab } from '../../../../shared/terminal-tab-types'
 import type { PtyTransport } from './pty-transport'
 import type { PaneCwdMap } from './resolve-split-cwd'
@@ -30,7 +30,7 @@ export function recordRuntimeCreatedTerminalPaneSplit(
 }
 
 export type TerminalScrollbackPaneManager = {
-  getPanes(): { terminal: Pick<Terminal, 'options'> }[]
+  getPanes(): { terminal: { options: { scrollback?: number } } }[]
 }
 
 export function applyTerminalScrollbackRowsToMountedPanes(
