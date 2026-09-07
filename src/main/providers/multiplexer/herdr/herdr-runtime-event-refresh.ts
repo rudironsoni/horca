@@ -1,6 +1,11 @@
 import type { EventSubscriptionSpecEncoded } from '@herdr/sdk'
 import { runKeyedSerializedOperation } from '../../../cli/keyed-promise-queue'
 import type { HerdrHostTransport, HerdrSessionSnapshot } from './herdr-runtime-contract'
+import {
+  readHerdrPaneUpdatedTitle,
+  readHerdrSnapshotPaneTitles,
+  type HerdrPaneTerminalTitleListener
+} from './herdr-pty-title-forward'
 import { rememberOrcaPaneBindings } from './herdr-binding-metadata'
 import {
   collectHerdrSurfaceActions,
@@ -47,6 +52,7 @@ const RECONCILE_EVENT_KINDS = new Set<string>(RECONCILE_EVENT_SPECS.map((spec) =
 
 export type HerdrLivePaneListener = (sessionName: string, paneIds: ReadonlySet<string>) => void
 export type HerdrPaneExitListener = (sessionName: string, paneId: string) => void
+export type { HerdrPaneTerminalTitleListener }
 
 export type HerdrSurfaceSync = {
   persist: (surface: HerdrImportedSurface) => void
@@ -77,6 +83,7 @@ export type HerdrEventRefreshHost = {
   surfaceSync?: HerdrSurfaceSync
   onLivePaneIds?: HerdrLivePaneListener
   onPaneExited?: HerdrPaneExitListener
+  onPaneTerminalTitle?: HerdrPaneTerminalTitleListener
   snapshot: (sessionName: string) => Promise<HerdrSessionSnapshot>
 }
 
@@ -98,6 +105,10 @@ export class HerdrEventRefresh {
         if (kind === 'pane.exited' && 'paneId' in event) {
           const paneId = String(event.paneId)
           this.host.onPaneExited?.(sessionName, paneId)
+        }
+        const updatedTitle = readHerdrPaneUpdatedTitle(event)
+        if (updatedTitle) {
+          this.host.onPaneTerminalTitle?.(sessionName, updatedTitle.paneId, updatedTitle.title)
         }
         if (RECONCILE_EVENT_KINDS.has(kind)) {
           this.schedule(sessionName)
@@ -146,6 +157,9 @@ export class HerdrEventRefresh {
     }
     await runKeyedSerializedOperation(this.host.reconcileQueues, sessionName, async () => {
       const snapshot = await this.host.snapshot(sessionName)
+      for (const { paneId, title } of readHerdrSnapshotPaneTitles(snapshot.panes)) {
+        this.host.onPaneTerminalTitle?.(sessionName, paneId, title)
+      }
       for (const graph of graphs) {
         rememberOrcaPaneBindings(
           this.host.paneIdsBySessionAndBinding,
