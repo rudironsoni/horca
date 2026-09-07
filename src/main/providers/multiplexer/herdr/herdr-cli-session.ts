@@ -1,4 +1,4 @@
-import { existsSync } from 'node:fs'
+import { existsSync, unlinkSync } from 'node:fs'
 import { runProcess, spawnProcess } from '../../../../shared/child-process/run-process'
 import { buildWslExecArgs } from '../../../../shared/wsl-login-shell-command'
 import { resolveWslExecutablePath } from '../../../wsl/wsl-executable-path'
@@ -74,33 +74,18 @@ export async function startDetachedHerdrCommand(
   wslDistro?: string
 ): Promise<void> {
   const spec = herdrHostProcessSpec(command, wslDistro)
-  // Why: a piped stdin on a detached server dies as soon as Electron drops the
-  // fd. Keep stdout/stderr so a failed start still has a diagnostic.
-  const child = spawnProcess({ ...spec, detached: true, stdio: ['ignore', 'pipe', 'pipe'] })
+  // Why: ignore stdio. Piped stdout/stderr destroyed after 100ms SIGPIPE the
+  // server when it logs later, so the unix socket never appears.
+  const child = spawnProcess({ ...spec, detached: true, stdio: ['ignore', 'ignore', 'ignore'] })
   child.unref()
   await new Promise<void>((resolve, reject) => {
     let settled = false
-    let output = ''
-    const take = (chunk: Buffer | string): void => {
-      output += chunk.toString()
-      if (output.length > 4000) {
-        output = output.slice(-4000)
-      }
-    }
-    child.stdout?.on('data', take)
-    child.stderr?.on('data', take)
     const finish = (error?: Error): void => {
       if (settled) {
         return
       }
       settled = true
       clearTimeout(started)
-      // Why: piped stdio on a live detached server keeps Electron's event loop
-      // open, so Playwright worker teardown waits out the 120s close budget.
-      child.stdout?.removeAllListeners()
-      child.stderr?.removeAllListeners()
-      child.stdout?.destroy()
-      child.stderr?.destroy()
       if (error) {
         reject(error)
       } else {
@@ -116,14 +101,7 @@ export async function startDetachedHerdrCommand(
         finish()
         return
       }
-      const detail = output.trim()
-      finish(
-        new Error(
-          `Herdr server exited during startup with code ${code ?? 'unknown'}${
-            detail ? `: ${detail}` : ''
-          }`
-        )
-      )
+      finish(new Error(`Herdr server exited during startup with code ${code ?? 'unknown'}`))
     })
   })
 }
@@ -142,21 +120,53 @@ export class HerdrCliSessionManager {
       startServer: (name) => this.startServer(name),
       timeoutMs: this.options.timeoutMs,
       socketReady: async (name) =>
-        existsSync(herdrSessionSocketPath(herdrConfigHomeForSession(name), name))
+        existsSync(
+          herdrSessionSocketPath(
+            herdrConfigHomeForSession(name, herdrServerEnvironment(undefined, name)),
+            name
+          )
+        )
     })
   }
 
   private async listSessions(): Promise<HerdrListedSession[]> {
-    return parseHerdrSessionList(await this.run(['session', 'list', '--json']))
+    const configHome = herdrConfigHomeForSession(
+      DEFAULT_HERDR_SESSION_NAME,
+      herdrServerEnvironment(undefined, DEFAULT_HERDR_SESSION_NAME)
+    )
+    const sock = herdrSessionSocketPath(configHome, DEFAULT_HERDR_SESSION_NAME)
+    if (!existsSync(sock)) {
+      return []
+    }
+    try {
+      return parseHerdrSessionList(await this.run(['session', 'list', '--json']))
+    } catch {
+      try {
+        unlinkSync(sock)
+      } catch {
+        // leftover socket from a dead server
+      }
+      return []
+    }
   }
 
   private async startServer(sessionName: string): Promise<void> {
+    const staleSocket = herdrSessionSocketPath(
+      herdrConfigHomeForSession(sessionName, herdrServerEnvironment(undefined, sessionName)),
+      sessionName
+    )
+    try {
+      unlinkSync(staleSocket)
+    } catch {
+      // no leftover socket from a previous dead server
+    }
     const command = this.options.serverCommandFor
       ? await this.options.serverCommandFor(sessionName)
       : await (async () => {
           const base = await this.options.commandFor(['--session', sessionName, 'server'])
           return { ...base, env: herdrServerEnvironment(base.env, sessionName) }
         })()
+    console.info('[herdr] starting session', sessionName)
     await startDetachedHerdrCommand(command, this.options.wslDistro)
   }
 
