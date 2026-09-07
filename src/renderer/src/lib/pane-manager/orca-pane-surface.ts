@@ -5,6 +5,7 @@ import { measureCellSize, type OrcaPaneAppearance } from './orca-pane-appearance
 
 export function createOrcaPaneSurface(appearance: OrcaPaneAppearance): {
   canvas: HTMLCanvasElement
+  textarea: HTMLTextAreaElement
   engine: GhosttyTerminal
   renderer: GhosttyRenderer
   cellWidth: number
@@ -14,6 +15,10 @@ export function createOrcaPaneSurface(appearance: OrcaPaneAppearance): {
   const canvas = document.createElement('canvas')
   canvas.className = 'xterm orca-terminal-canvas'
   canvas.tabIndex = 0
+  const textarea = document.createElement('textarea')
+  textarea.className = 'xterm-helper-textarea'
+  textarea.tabIndex = 0
+  textarea.setAttribute('aria-label', 'Terminal input')
   const host = getGhosttyVtHostOrThrow()
   const engine = new GhosttyTerminal(host, {
     cols: 80,
@@ -27,6 +32,7 @@ export function createOrcaPaneSurface(appearance: OrcaPaneAppearance): {
   })
   return {
     canvas,
+    textarea,
     engine,
     renderer,
     cellWidth: cells.width,
