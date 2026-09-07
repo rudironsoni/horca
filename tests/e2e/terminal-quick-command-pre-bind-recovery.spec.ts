@@ -281,14 +281,14 @@ process.stdout.write(${JSON.stringify(`${marker}\n`)})
           () =>
             orcaPage.evaluate((tabId) => {
               const pane = window.__paneManagers?.get(tabId)?.getPanes()[0]
-              return pane?.serializeAddon.serialize() ?? ''
+              return pane?.serializeController.serialize() ?? ''
             }, blocked.tabId),
           { message: 'Quick Command marker never reached the visible xterm' }
         )
         .toContain(marker)
       const targetContent = await orcaPage.evaluate((tabId) => {
         const pane = window.__paneManagers?.get(tabId)?.getPanes()[0]
-        return pane?.serializeAddon.serialize() ?? ''
+        return pane?.serializeController.serialize() ?? ''
       }, blocked.tabId)
       expect(exactMarkerLineCount(targetContent, marker)).toBe(1)
 

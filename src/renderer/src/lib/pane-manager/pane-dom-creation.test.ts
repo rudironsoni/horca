@@ -1,57 +1,38 @@
 // @vitest-environment happy-dom
-import { describe, expect, it, vi } from 'vitest'
+import { beforeAll, describe, expect, it, vi } from 'vitest'
 import type { TerminalLeafId } from '../../../../shared/stable-pane-id'
+import { getGhosttyVtHostOrThrow } from '../../../../ghostty-vt/host-singleton'
 import { createPaneDOM } from './pane-dom-creation'
 
-const webLinksAddonMock = vi.hoisted(() => ({
-  handler: null as ((event: MouseEvent, uri: string) => void) | null,
-  options: null as { hover?: (event: MouseEvent, uri: string) => void; leave?: () => void } | null
-}))
-
-vi.mock('@xterm/addon-fit', () => ({
-  FitAddon: vi.fn().mockImplementation(function FitAddon() {
-    return {}
-  })
-}))
-
-vi.mock('@xterm/addon-search', () => ({
-  SearchAddon: vi.fn().mockImplementation(function SearchAddon() {
-    return {}
-  })
-}))
-
-vi.mock('@xterm/addon-serialize', () => ({
-  SerializeAddon: vi.fn().mockImplementation(function SerializeAddon() {
-    return {}
-  })
-}))
-
-vi.mock('@xterm/addon-unicode11', () => ({
-  Unicode11Addon: vi.fn().mockImplementation(function Unicode11Addon() {
-    return {}
-  })
-}))
-
-vi.mock('@xterm/addon-web-links', () => ({
-  WebLinksAddon: vi.fn().mockImplementation(function WebLinksAddon(handler, options) {
-    webLinksAddonMock.handler = handler
-    webLinksAddonMock.options = options
-    return {}
-  })
-}))
-
-vi.mock('@xterm/xterm', () => ({
-  Terminal: vi.fn().mockImplementation(function Terminal() {
-    return {
-      options: {},
-      loadAddon: vi.fn(),
-      open: vi.fn()
-    }
-  })
-}))
+function stubCanvas(fillRects?: number[][]): CanvasRenderingContext2D {
+  const ctx = {
+    font: '',
+    textBaseline: 'top',
+    fillStyle: '',
+    strokeStyle: '',
+    lineWidth: 1,
+    measureText: () => ({ width: 8 }),
+    setTransform: vi.fn(),
+    beginPath: vi.fn(),
+    moveTo: vi.fn(),
+    lineTo: vi.fn(),
+    stroke: vi.fn(),
+    strokeRect: vi.fn(),
+    fillRect: vi.fn((x: number, y: number, w: number, h: number) => {
+      fillRects?.push([x, y, w, h])
+    }),
+    fillText: vi.fn()
+  }
+  return ctx as unknown as CanvasRenderingContext2D
+}
 
 describe('createPaneDOM link tooltips', () => {
-  it('anchors WebLinks hover text to the unpadded terminal window corner', () => {
+  beforeAll(() => {
+    getGhosttyVtHostOrThrow()
+    HTMLCanvasElement.prototype.getContext = vi.fn(() => stubCanvas()) as never
+  })
+
+  it('anchors hover text to the unpadded terminal window corner', () => {
     const leafId = '11111111-1111-4111-8111-111111111111' as TerminalLeafId
     const pane = createPaneDOM(
       1,
@@ -63,97 +44,167 @@ describe('createPaneDOM link tooltips', () => {
       vi.fn()
     )
 
-    // Why: corner offsets live in .pane-link-tooltip (terminal.css); JS only
-    // toggles visibility so padding/offset cannot drift back into inline styles.
     expect(pane.linkTooltip.classList.contains('pane-link-tooltip')).toBe(true)
     expect(pane.linkTooltip.style.left).toBe('')
     expect(pane.linkTooltip.style.bottom).toBe('')
     expect(pane.linkTooltip.style.display).toBe('none')
+    expect(pane.terminal.element.tagName).toBe('CANVAS')
+    pane.terminal.dispose()
   })
 
-  // Why: the caller owns the hint, so dropping the wiring is a compile error rather
-  // than a silent fall back to stale copy.
-  it('re-resolves the caller hint on every hover so setting changes apply live', () => {
-    const leafId = '11111111-1111-4111-8111-111111111111' as TerminalLeafId
-    let hint = 'first hint'
-    const pane = createPaneDOM(
-      1,
-      leafId,
-      { linkOpenHint: () => hint },
-      { active: null } as never,
-      {} as never,
-      vi.fn(),
-      vi.fn()
-    )
-
-    webLinksAddonMock.options?.hover?.({} as MouseEvent, 'http://localhost:5180/')
-    expect(pane.linkTooltip.textContent).toBe('http://localhost:5180/ (first hint)')
-
-    hint = 'second hint'
-    webLinksAddonMock.options?.hover?.({} as MouseEvent, 'http://localhost:5180/')
-    expect(pane.linkTooltip.textContent).toBe('http://localhost:5180/ (second hint)')
-  })
-
-  it('lets callers replace WebLinks hover text for display-only labels', async () => {
-    const labeledText = 'http://main.orca.localhost:60016/ (localhost:5180; click to open)'
+  it('constructs an Orca Ghostty canvas terminal, not xterm', () => {
     const leafId = '11111111-1111-4111-8111-111111111111' as TerminalLeafId
     const pane = createPaneDOM(
       1,
       leafId,
-      {
-        linkOpenHint: () => 'open hint',
-        formatLinkTooltip: async () => labeledText
-      },
+      { linkOpenHint: () => 'open hint' },
       { active: null } as never,
       {} as never,
       vi.fn(),
       vi.fn()
     )
-
-    webLinksAddonMock.options?.hover?.({} as MouseEvent, 'http://localhost:5180/')
-    await Promise.resolve()
-
-    expect(pane.linkTooltip.textContent).toBe(labeledText)
+    pane.terminal.write('hello ghostty')
+    pane.terminal.scrollToBottom()
+    expect(pane.terminalHost.contains(pane.terminal.element)).toBe(true)
+    expect(pane.terminal.element.tagName).toBe('CANVAS')
+    expect(pane.terminal.serialize()).toContain('hello ghostty')
+    pane.terminal.dispose()
   })
 
-  // Why: the hovered pane's host decides where its links can go, so both hooks must
-  // receive that pane's id rather than resolving against global state.
-  it('identifies the hovered pane to both tooltip hooks', () => {
+  it('paints selected cells from Ghostty render-state', () => {
+    const fillStyles: string[] = []
+    HTMLCanvasElement.prototype.getContext = vi.fn(() => {
+      const ctx = stubCanvas()
+      let fill = ''
+      Object.defineProperty(ctx, 'fillStyle', {
+        set(value: string) {
+          fillStyles.push(value)
+          fill = value
+        },
+        get() {
+          return fill
+        }
+      })
+      return ctx
+    }) as never
     const leafId = '11111111-1111-4111-8111-111111111111' as TerminalLeafId
-    const linkOpenHint = vi.fn(() => 'open hint')
-    const formatLinkTooltip = vi.fn(() => null)
-    createPaneDOM(
-      7,
+    const pane = createPaneDOM(
+      1,
       leafId,
-      { linkOpenHint, formatLinkTooltip },
+      { linkOpenHint: () => 'open hint' },
       { active: null } as never,
       {} as never,
       vi.fn(),
       vi.fn()
     )
-
-    webLinksAddonMock.options?.hover?.({} as MouseEvent, 'http://localhost:5180/')
-
-    expect(linkOpenHint).toHaveBeenCalledWith(7)
-    expect(formatLinkTooltip).toHaveBeenCalledWith(7, 'http://localhost:5180/', 'open hint')
+    pane.terminal.write('hello ghostty')
+    pane.terminal.selectAll()
+    pane.terminal.refresh()
+    expect(fillStyles.some((style) => style.includes('221'))).toBe(true)
+    pane.terminal.dispose()
   })
 
-  it('identifies the clicked pane to link routing', () => {
+  it('paints the Ghostty render-state cursor after writing', () => {
+    const fillRects: number[][] = []
+    HTMLCanvasElement.prototype.getContext = vi.fn(() => stubCanvas(fillRects)) as never
     const leafId = '11111111-1111-4111-8111-111111111111' as TerminalLeafId
-    const onLinkClick = vi.fn()
-    createPaneDOM(
-      7,
+    const pane = createPaneDOM(
+      1,
       leafId,
-      { linkOpenHint: () => 'open hint', onLinkClick },
+      { linkOpenHint: () => 'open hint' },
       { active: null } as never,
       {} as never,
       vi.fn(),
       vi.fn()
     )
-    const event = {} as MouseEvent
+    pane.terminal.write('A')
+    pane.terminal.refresh()
+    const cursor = fillRects.find(
+      (rect) => rect[1] === 0 && rect[2] > 0 && rect[2] < 40 && rect[3] > 0
+    )
+    expect(cursor).toBeDefined()
+    pane.terminal.dispose()
+  })
 
-    webLinksAddonMock.handler?.(event, 'https://example.com')
+  it('encodes Ghostty mouse bytes on pointerdown', () => {
+    const leafId = '11111111-1111-4111-8111-111111111111' as TerminalLeafId
+    const pane = createPaneDOM(
+      1,
+      leafId,
+      { linkOpenHint: () => 'open hint' },
+      { active: null } as never,
+      {} as never,
+      vi.fn(),
+      vi.fn()
+    )
+    const inputs: string[] = []
+    pane.terminal.onData((data) => inputs.push(data))
+    pane.terminal.write('\x1b[?1000h')
+    pane.terminal.element.dispatchEvent(
+      new MouseEvent('pointerdown', { clientX: 12, clientY: 8, button: 0, bubbles: true })
+    )
+    expect(inputs.some((seq) => seq.length > 0)).toBe(true)
+    pane.terminal.dispose()
+  })
 
-    expect(onLinkClick).toHaveBeenCalledWith(7, event, 'https://example.com')
+  it('paints IME preedit on the canvas at the Ghostty cursor', () => {
+    const texts: string[] = []
+    HTMLCanvasElement.prototype.getContext = vi.fn(() => {
+      const ctx = stubCanvas()
+      ctx.fillText = vi.fn((value: string) => {
+        texts.push(value)
+      })
+      return ctx
+    }) as never
+    const leafId = '11111111-1111-4111-8111-111111111111' as TerminalLeafId
+    const pane = createPaneDOM(
+      1,
+      leafId,
+      { linkOpenHint: () => 'open hint' },
+      { active: null } as never,
+      {} as never,
+      vi.fn(),
+      vi.fn()
+    )
+    pane.terminal.write('A')
+    pane.terminal.element.dispatchEvent(new CompositionEvent('compositionupdate', { data: '가' }))
+    pane.terminal.setPreedit('가')
+    expect(texts.some((value) => value.includes('가'))).toBe(true)
+    pane.terminal.dispose()
+  })
+
+  it('selects dragged text through Ghostty gestures on the pane canvas', () => {
+    const leafId = '11111111-1111-4111-8111-111111111111' as TerminalLeafId
+    const pane = createPaneDOM(
+      1,
+      leafId,
+      { linkOpenHint: () => 'open hint' },
+      { active: null } as never,
+      {} as never,
+      vi.fn(),
+      vi.fn()
+    )
+    pane.terminal.write('hello world')
+    const width = pane.terminal.cellWidth
+    pane.terminal.element.dispatchEvent(
+      new MouseEvent('pointerdown', {
+        clientX: 1,
+        clientY: 1,
+        button: 0,
+        buttons: 1,
+        bubbles: true
+      })
+    )
+    pane.terminal.element.dispatchEvent(
+      new MouseEvent('pointermove', {
+        clientX: width * 5,
+        clientY: 1,
+        button: 0,
+        buttons: 1,
+        bubbles: true
+      })
+    )
+    expect(pane.terminal.getSelection()).toContain('hello')
+    pane.terminal.dispose()
   })
 })

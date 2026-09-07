@@ -121,9 +121,9 @@ async function installRevealRenderProbe(page: Page, tabId: string): Promise<void
         // clearTextureAtlas() routes through RenderService and, crucially, also
         // requests a redraw — which is exactly what the paused gate then eats.
         const withAtlas = pane as unknown as {
-          webglAddon?: { clearTextureAtlas?: () => void }
+          gpuRenderer?: { clearTextureAtlas?: () => void }
         }
-        withAtlas.webglAddon?.clearTextureAtlas?.()
+        withAtlas.gpuRenderer?.clearTextureAtlas?.()
         return true
       },
       plainRefresh: () => {
@@ -201,12 +201,12 @@ async function installSynchronizedRevealProbe(page: Page, tabId: string): Promis
         [])
     ][0] as
       | {
-          serializeAddon?: { serialize?: () => string }
+          serializeController?: { serialize?: () => string }
           terminal: unknown
-          webglAddon?: unknown
+          gpuRenderer?: unknown
         }
       | undefined
-    const addon = pane?.webglAddon as { clearTextureAtlas: () => void } | null | undefined
+    const addon = pane?.gpuRenderer as { clearTextureAtlas: () => void } | null | undefined
     type SyncRenderService = {
       _renderer?:
         | { renderRows?: (start: number, end: number) => void }
@@ -293,7 +293,7 @@ async function installSynchronizedRevealProbe(page: Page, tabId: string): Promis
       read: () => ({
         atlasClears,
         fullViewportRenderRows,
-        screen: pane.serializeAddon?.serialize?.() ?? '',
+        screen: pane.serializeController?.serialize?.() ?? '',
         synchronizedOutput: modes.synchronizedOutput === true
       })
     }
