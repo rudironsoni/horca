@@ -15,7 +15,7 @@ type FakePaneManager = {
   refreshAllPanes: Mock<() => void>
 }
 
-function createPane(options: { webglAddon?: FakeWebglAddon | null } = {}): ManagedPaneInternal {
+function createPane(options: { gpuRenderer?: FakeWebglAddon | null } = {}): ManagedPaneInternal {
   const leafId = '33333333-3333-4333-8333-333333333333' as never
   return {
     id: 1,
@@ -28,24 +28,24 @@ function createPane(options: { webglAddon?: FakeWebglAddon | null } = {}): Manag
       loadAddon: vi.fn()
     } as never,
     container: {} as never,
-    xtermContainer: {} as never,
+    terminalHost: {} as never,
     linkTooltip: {} as never,
     terminalGpuAcceleration: 'on',
     gpuRenderingEnabled: true,
     webglAttachmentDeferred: false,
     webglDisabledAfterContextLoss: false,
     hasComplexScriptOutput: false,
-    webglAddon: (options.webglAddon ?? null) as never,
+    gpuRenderer: (options.gpuRenderer ?? null) as never,
     ligaturesAddon: null,
     fitResizeObserver: null,
     pendingObservedFitRafId: null,
     pendingWebglRefreshRafId: null,
-    fitAddon: {
+    fitController: {
       proposeDimensions: vi.fn(() => ({ cols: 80, rows: 23 })),
       fit: vi.fn()
     } as never,
-    searchAddon: {} as never,
-    serializeAddon: {} as never,
+    searchController: {} as never,
+    serializeController: {} as never,
     unicode11Addon: {} as never,
     webLinksAddon: {} as never,
     compositionHandler: null,
@@ -119,25 +119,25 @@ describe('schedulePaneRevealRepaint', () => {
   })
 
   it('repaints only after the post-reveal frame has settled', () => {
-    const webglAddon = { clearTextureAtlas: vi.fn() }
-    const pane = createPane({ webglAddon })
+    const gpuRenderer = { clearTextureAtlas: vi.fn() }
+    const pane = createPane({ gpuRenderer })
     registerPaneManager(() => [pane])
     schedulePaneRevealRepaint(() => [pane])
 
     // First frame: reveal layout may still be in flight; redraw requests fired
     // here can be dropped by the renderer without retry.
     flushFrame()
-    expect(webglAddon.clearTextureAtlas).not.toHaveBeenCalled()
+    expect(gpuRenderer.clearTextureAtlas).not.toHaveBeenCalled()
     expect(pane.terminal.refresh).not.toHaveBeenCalled()
 
     flushFrame()
-    expect(webglAddon.clearTextureAtlas).toHaveBeenCalledTimes(1)
+    expect(gpuRenderer.clearTextureAtlas).toHaveBeenCalledTimes(1)
     expect(pane.terminal.refresh).toHaveBeenCalledWith(0, 23)
   })
 
   it('coordinates a settled atlas clear across recovery-eligible managers', () => {
-    const pane = createPane({ webglAddon: { clearTextureAtlas: vi.fn() } })
-    const siblingPane = createPane({ webglAddon: { clearTextureAtlas: vi.fn() } })
+    const pane = createPane({ gpuRenderer: { clearTextureAtlas: vi.fn() } })
+    const siblingPane = createPane({ gpuRenderer: { clearTextureAtlas: vi.fn() } })
     const targetManager = registerPaneManager(() => [pane])
     const siblingManager = registerPaneManager(() => [siblingPane])
 
@@ -147,13 +147,15 @@ describe('schedulePaneRevealRepaint', () => {
 
     expect(targetManager.resetWebglTextureAtlases).toHaveBeenCalledTimes(1)
     expect(siblingManager.resetWebglTextureAtlases).toHaveBeenCalledTimes(1)
-    expect((siblingPane.webglAddon as never as FakeWebglAddon).clearTextureAtlas).toHaveBeenCalled()
+    expect(
+      (siblingPane.gpuRenderer as never as FakeWebglAddon).clearTextureAtlas
+    ).toHaveBeenCalled()
     expect(siblingPane.terminal.refresh).toHaveBeenCalledWith(0, 23)
   })
 
   it('coalesces concurrent reveal clears into one global recovery', () => {
-    const firstPane = createPane({ webglAddon: { clearTextureAtlas: vi.fn() } })
-    const secondPane = createPane({ webglAddon: { clearTextureAtlas: vi.fn() } })
+    const firstPane = createPane({ gpuRenderer: { clearTextureAtlas: vi.fn() } })
+    const secondPane = createPane({ gpuRenderer: { clearTextureAtlas: vi.fn() } })
     const firstManager = registerPaneManager(() => [firstPane])
     const secondManager = registerPaneManager(() => [secondPane])
 
@@ -174,14 +176,14 @@ describe('schedulePaneRevealRepaint', () => {
     flushFrame()
     flushFrame()
 
-    expect(pane.webglAddon).not.toBeNull()
+    expect(pane.gpuRenderer).not.toBeNull()
     expect(manager.resetWebglTextureAtlases).toHaveBeenCalledTimes(1)
     expect(pane.terminal.refresh).toHaveBeenCalled()
   })
 
   it('resolves the pane list at repaint time, not at scheduling time', () => {
-    const stalePane = createPane({ webglAddon: { clearTextureAtlas: vi.fn() } })
-    const livePane = createPane({ webglAddon: { clearTextureAtlas: vi.fn() } })
+    const stalePane = createPane({ gpuRenderer: { clearTextureAtlas: vi.fn() } })
+    const livePane = createPane({ gpuRenderer: { clearTextureAtlas: vi.fn() } })
     const panes = [stalePane]
     registerPaneManager(() => panes)
     schedulePaneRevealRepaint(() => panes)
@@ -191,10 +193,10 @@ describe('schedulePaneRevealRepaint', () => {
     flushFrame()
 
     expect(
-      (stalePane.webglAddon as never as FakeWebglAddon).clearTextureAtlas
+      (stalePane.gpuRenderer as never as FakeWebglAddon).clearTextureAtlas
     ).not.toHaveBeenCalled()
     expect(
-      (livePane.webglAddon as never as FakeWebglAddon).clearTextureAtlas
+      (livePane.gpuRenderer as never as FakeWebglAddon).clearTextureAtlas
     ).toHaveBeenCalledTimes(1)
   })
 
@@ -204,29 +206,29 @@ describe('schedulePaneRevealRepaint', () => {
         throw new Error('pane torn down mid-frame')
       }
     } as never as ManagedPaneInternal
-    const webglAddon = { clearTextureAtlas: vi.fn() }
-    const livePane = createPane({ webglAddon })
+    const gpuRenderer = { clearTextureAtlas: vi.fn() }
+    const livePane = createPane({ gpuRenderer })
     registerPaneManager(() => [explosivePane, livePane])
     schedulePaneRevealRepaint(() => [explosivePane, livePane])
 
     flushFrame()
     flushFrame()
 
-    expect(webglAddon.clearTextureAtlas).toHaveBeenCalledTimes(1)
+    expect(gpuRenderer.clearTextureAtlas).toHaveBeenCalledTimes(1)
     expect(livePane.terminal.refresh).toHaveBeenCalled()
   })
 
   it('falls back to a timeout when animation frames are unavailable', () => {
     vi.useFakeTimers()
     vi.stubGlobal('requestAnimationFrame', undefined)
-    const webglAddon = { clearTextureAtlas: vi.fn() }
-    const pane = createPane({ webglAddon })
+    const gpuRenderer = { clearTextureAtlas: vi.fn() }
+    const pane = createPane({ gpuRenderer })
     registerPaneManager(() => [pane])
 
     schedulePaneRevealRepaint(() => [pane])
     vi.runAllTimers()
 
-    expect(webglAddon.clearTextureAtlas).toHaveBeenCalledTimes(1)
+    expect(gpuRenderer.clearTextureAtlas).toHaveBeenCalledTimes(1)
     vi.useRealTimers()
   })
 
@@ -256,15 +258,15 @@ describe('schedulePaneRevealRepaint', () => {
     it('presents the settled buffer without wiping the shared glyph atlas', () => {
       // The plain-refocus path must NOT clear the atlas — the clear is a
       // same-config shared wipe that re-arms the mid-stream page-merge race.
-      const webglAddon = { clearTextureAtlas: vi.fn() }
-      const pane = createPane({ webglAddon })
+      const gpuRenderer = { clearTextureAtlas: vi.fn() }
+      const pane = createPane({ gpuRenderer })
       schedulePaneRevealPresent(() => [pane])
 
       flushFrame()
       expect(pane.terminal.refresh).not.toHaveBeenCalled()
 
       flushFrame()
-      expect(webglAddon.clearTextureAtlas).not.toHaveBeenCalled()
+      expect(gpuRenderer.clearTextureAtlas).not.toHaveBeenCalled()
       expect(pane.terminal.refresh).toHaveBeenCalledWith(0, 23)
     })
 
@@ -275,7 +277,7 @@ describe('schedulePaneRevealRepaint', () => {
       flushFrame()
       flushFrame()
 
-      expect(pane.webglAddon).not.toBeNull()
+      expect(pane.gpuRenderer).not.toBeNull()
       expect(pane.terminal.refresh).toHaveBeenCalled()
     })
 
@@ -289,7 +291,7 @@ describe('schedulePaneRevealRepaint', () => {
       flushFrame()
 
       expect(pane.webglDisabledAfterContextLoss).toBe(false)
-      expect(pane.webglAddon).not.toBeNull()
+      expect(pane.gpuRenderer).not.toBeNull()
       expect(pane.terminal.refresh).toHaveBeenCalledTimes(2)
       expect(pane.terminal.refresh).toHaveBeenNthCalledWith(2, 0, 23)
     })

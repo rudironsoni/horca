@@ -244,7 +244,7 @@ export function createReattachPayloadHandlers(
     } else if (ctx.connectResult?.coldRestore) {
       let destinationRows = session.pane.terminal.rows
       try {
-        const proposedDestination = session.pane.fitAddon.proposeDimensions()
+        const proposedDestination = session.pane.fitController.proposeDimensions()
         if (
           proposedDestination &&
           Number.isFinite(proposedDestination.rows) &&

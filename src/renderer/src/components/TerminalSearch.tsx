@@ -1,8 +1,8 @@
 import { useEffect, useState, useCallback } from 'react'
 import { ChevronUp, ChevronDown, X, CaseSensitive, Regex } from 'lucide-react'
-import type { SearchAddon } from '@xterm/addon-search'
 import { Button } from '@/components/ui/button'
 import type { SearchState } from '@/components/terminal-pane/keyboard-handlers'
+import type { PaneSearchController } from '@/lib/pane-manager/pane-manager-types'
 import { translate } from '@/i18n/i18n'
 import { getFindRequestQuery } from '@/lib/find-query-bounds'
 import { safeFind } from './terminal-search-safe-find'
@@ -10,23 +10,22 @@ import { safeFind } from './terminal-search-safe-find'
 type TerminalSearchProps = {
   isOpen: boolean
   onClose: () => void
-  searchAddon: SearchAddon | null
+  searchController: PaneSearchController | null
   searchStateRef: React.RefObject<SearchState>
 }
 
-function clearTerminalSearch(searchAddon: SearchAddon | null): void {
-  if (!searchAddon) {
+function clearTerminalSearch(searchController: PaneSearchController | null): void {
+  if (!searchController) {
     return
   }
-  searchAddon.clearDecorations()
-  // Why: xterm keeps the active match selected after decorations are cleared.
-  searchAddon.findNext('')
+  searchController.clearDecorations()
+  searchController.findNext('')
 }
 
 export default function TerminalSearch({
   isOpen,
   onClose,
-  searchAddon,
+  searchController,
   searchStateRef
 }: TerminalSearchProps): React.JSX.Element | null {
   const [query, setQuery] = useState('')
@@ -40,42 +39,17 @@ export default function TerminalSearch({
   // current match a brighter orange, matching the contrast VS Code and
   // iTerm2 use for terminal search. xterm requires #RRGGBB format for
   // the background colors.
-  const searchOptions = useCallback(
-    (incremental: boolean = false) => ({
-      caseSensitive,
-      regex,
-      incremental,
-      decorations: {
-        matchBackground: '#5c4a00',
-        matchBorder: '#5c4a00',
-        matchOverviewRuler: '#ffcc00',
-        activeMatchBackground: '#c4580e',
-        activeMatchBorder: '#ffcf6b',
-        activeMatchColorOverviewRuler: '#ff9900'
-      }
-    }),
-    [caseSensitive, regex]
-  )
-
   const findNext = useCallback(() => {
-    if (searchAddon && requestQuery) {
-      safeFind(
-        (term, options) => searchAddon.findNext(term, options),
-        requestQuery,
-        searchOptions()
-      )
+    if (searchController && requestQuery) {
+      safeFind((term) => searchController.findNext(term), requestQuery)
     }
-  }, [searchAddon, requestQuery, searchOptions])
+  }, [searchController, requestQuery])
 
   const findPrevious = useCallback(() => {
-    if (searchAddon && requestQuery) {
-      safeFind(
-        (term, options) => searchAddon.findPrevious(term, options),
-        requestQuery,
-        searchOptions()
-      )
+    if (searchController && requestQuery) {
+      safeFind((term) => searchController.findPrevious(term), requestQuery)
     }
-  }, [searchAddon, requestQuery, searchOptions])
+  }, [searchController, requestQuery])
 
   const handleInputRef = useCallback((input: HTMLInputElement | null): void => {
     input?.focus()
@@ -83,9 +57,9 @@ export default function TerminalSearch({
 
   useEffect(
     () => () => {
-      clearTerminalSearch(searchAddon)
+      clearTerminalSearch(searchController)
     },
-    [searchAddon]
+    [searchController]
   )
 
   useEffect(() => {
@@ -94,21 +68,17 @@ export default function TerminalSearch({
     searchStateRef.current = { query: requestQuery ?? '', caseSensitive, regex }
 
     if (!isOpen) {
-      clearTerminalSearch(searchAddon)
+      clearTerminalSearch(searchController)
       return
     }
     if (!requestQuery) {
-      clearTerminalSearch(searchAddon)
+      clearTerminalSearch(searchController)
       return
     }
-    if (searchAddon) {
-      safeFind(
-        (term, options) => searchAddon.findNext(term, options),
-        requestQuery,
-        searchOptions(true)
-      )
+    if (searchController) {
+      safeFind((term) => searchController.findNext(term), requestQuery)
     }
-  }, [requestQuery, searchAddon, isOpen, caseSensitive, regex, searchStateRef, searchOptions])
+  }, [requestQuery, searchController, isOpen, caseSensitive, regex, searchStateRef])
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {

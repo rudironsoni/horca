@@ -21,7 +21,7 @@ function createPane() {
       dataset: {},
       getBoundingClientRect: () => ({ width: 800, height: 600 })
     },
-    fitAddon: {
+    fitController: {
       proposeDimensions: vi.fn(() => null),
       fit: vi.fn()
     }

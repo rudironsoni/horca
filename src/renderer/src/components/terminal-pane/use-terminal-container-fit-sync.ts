@@ -48,7 +48,7 @@ export function useTerminalContainerFitSync({
     }
     // Why: ResizeObserver fires on every incremental size change during
     // continuous window resizes or layout animations.  Each fitPanes() call
-    // triggers fitAddon.fit() -> terminal.resize() which, when the column
+    // triggers fitController.fit() -> terminal.resize() which, when the column
     // count changes, reflows the entire scrollback buffer and recalculates
     // the viewport scroll position. On Windows, a single reflow of 10 000
     // scrollback lines can block the renderer for 500 ms-2 s, freezing the

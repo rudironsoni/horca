@@ -1,4 +1,4 @@
-import type { IDisposable } from '@xterm/xterm'
+import type { OrcaDisposable as IDisposable } from '../../../../shared/orca-terminal-surface'
 import type { ManagedPane, PaneManager } from '@/lib/pane-manager/pane-manager'
 import type { UseTerminalPaneLifecycleDeps } from './terminal-pane-lifecycle-types'
 import {

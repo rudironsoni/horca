@@ -295,7 +295,7 @@ describe('PR workflow parallelism', () => {
       (step) => step.uses === './.github/actions/install-node-dependencies'
     )
 
-    for (const jobName of ['typecheck', 'git_compatibility', 'xterm_patch_sync']) {
+    for (const jobName of ['typecheck', 'git_compatibility']) {
       expect(installFor(jobName).with, jobName).toBeUndefined()
     }
     expect(installFor('static_analysis').with['native-runtime']).toBe('node')
@@ -460,7 +460,6 @@ describe('PR workflow parallelism', () => {
       'typecheck',
       'git_compatibility',
       'codex_index_heal_contract',
-      'xterm_patch_sync',
       'shell_contracts',
       'test',
       'orcad_browser',

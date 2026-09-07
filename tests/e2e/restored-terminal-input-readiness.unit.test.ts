@@ -7,7 +7,7 @@ type TestPane = {
     dataset: { ptyId: string }
     __orcaE2eTerminalInputReadinessInstanceId?: string
   }
-  serializeAddon: { serialize: () => string }
+  serializeController: { serialize: () => string }
   terminal: { input: (data: string, wasUserInput: boolean) => void }
 }
 
@@ -65,7 +65,7 @@ describe('restored terminal input readiness', () => {
     })
     installPaneWindow({
       container: { dataset: { ptyId: 'pty-1' } },
-      serializeAddon: { serialize: () => content },
+      serializeController: { serialize: () => content },
       terminal: { input }
     })
 
@@ -83,7 +83,7 @@ describe('restored terminal input readiness', () => {
     })
     installPaneWindow({
       container: { dataset: { ptyId: 'pty-1' } },
-      serializeAddon: { serialize: () => content },
+      serializeController: { serialize: () => content },
       terminal: { input }
     })
 
@@ -95,7 +95,7 @@ describe('restored terminal input readiness', () => {
     const input = vi.fn()
     installPaneWindow({
       container: { dataset: { ptyId: 'pty-other' } },
-      serializeAddon: { serialize: () => 'unrelated terminal output' },
+      serializeController: { serialize: () => 'unrelated terminal output' },
       terminal: { input }
     })
 
@@ -111,7 +111,7 @@ describe('restored terminal input readiness', () => {
     })
     const replacementPane: TestPane = {
       container: { dataset: { ptyId: 'pty-1' } },
-      serializeAddon: { serialize: () => replacementContent },
+      serializeController: { serialize: () => replacementContent },
       terminal: { input: replacementInput }
     }
     const firstInput = vi.fn((data: string) => {
@@ -120,7 +120,7 @@ describe('restored terminal input readiness', () => {
     })
     activePane = {
       container: { dataset: { ptyId: 'pty-1' } },
-      serializeAddon: { serialize: () => '' },
+      serializeController: { serialize: () => '' },
       terminal: { input: firstInput }
     }
     Object.defineProperty(globalThis, 'window', {
@@ -151,7 +151,7 @@ describe('restored terminal input readiness', () => {
     })
     const replacementPane: TestPane = {
       container: { dataset: { ptyId: 'pty-1' } },
-      serializeAddon: { serialize: () => replacementContent },
+      serializeController: { serialize: () => replacementContent },
       terminal: { input: replacementInput }
     }
     let originalInputCalls = 0
@@ -164,7 +164,7 @@ describe('restored terminal input readiness', () => {
     })
     activePane = {
       container: { dataset: { ptyId: 'pty-1' } },
-      serializeAddon: { serialize: () => '' },
+      serializeController: { serialize: () => '' },
       terminal: { input: firstInput }
     }
     Object.defineProperty(globalThis, 'window', {

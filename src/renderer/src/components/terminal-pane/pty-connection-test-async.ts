@@ -1,5 +1,17 @@
 import { vi } from 'vitest'
-import { Terminal } from '@xterm/headless'
+
+type HeadlessWriter = {
+  write: (data: string) => Promise<void>
+  getVisibleLines: () => string[]
+  dispose: () => void
+}
+
+function createHeadlessWriter(cols: number, rows: number): HeadlessWriter {
+  const { HeadlessEmulator } = require('../../../../main/daemon/headless-emulator') as {
+    HeadlessEmulator: new (opts: { cols: number; rows: number }) => HeadlessWriter
+  }
+  return new HeadlessEmulator({ cols, rows })
+}
 
 // Why: fresh-spawn/reattach now settle across multiple microtasks, so tests must drain several ticks before asserting on IPC mocks. See docs/mobile-prefer-renderer-scrollback.md.
 export async function flushAsyncTicks(count = 6): Promise<void> {
@@ -37,8 +49,8 @@ export async function drainPendingTimeouts(
   }
 }
 
-export function writeHeadlessTerminal(term: Terminal, data: string): Promise<void> {
-  return new Promise((resolve) => term.write(data, resolve))
+export function writeHeadlessTerminal(term: HeadlessWriter, data: string): Promise<void> {
+  return term.write(data)
 }
 
 export async function renderHeadlessBuffer(
@@ -46,16 +58,12 @@ export async function renderHeadlessBuffer(
   cols = 80,
   rows = 8
 ): Promise<string[]> {
-  const term = new Terminal({ cols, rows, allowProposedApi: true })
+  const term = createHeadlessWriter(cols, rows)
   try {
     for (const write of writes) {
       await writeHeadlessTerminal(term, write)
     }
-    const lines: string[] = []
-    for (let lineIndex = 0; lineIndex < term.buffer.active.length; lineIndex++) {
-      lines.push(term.buffer.active.getLine(lineIndex)?.translateToString(true) ?? '')
-    }
-    return lines
+    return term.getVisibleLines()
   } finally {
     term.dispose()
   }
@@ -66,21 +74,13 @@ export async function renderHeadlessTerminalState(
   cols = 80,
   rows = 8
 ): Promise<{ allLines: string[]; visibleLines: string[]; baseY: number }> {
-  const term = new Terminal({ cols, rows, allowProposedApi: true })
+  const term = createHeadlessWriter(cols, rows)
   try {
     for (const write of writes) {
       await writeHeadlessTerminal(term, write)
     }
-    const allLines: string[] = []
-    const buffer = term.buffer.active
-    for (let lineIndex = 0; lineIndex < buffer.length; lineIndex++) {
-      allLines.push(buffer.getLine(lineIndex)?.translateToString(true) ?? '')
-    }
-    const visibleLines: string[] = []
-    for (let row = 0; row < term.rows; row++) {
-      visibleLines.push(buffer.getLine(buffer.viewportY + row)?.translateToString(true) ?? '')
-    }
-    return { allLines, visibleLines, baseY: buffer.baseY }
+    const visibleLines = term.getVisibleLines()
+    return { allLines: visibleLines, visibleLines, baseY: 0 }
   } finally {
     term.dispose()
   }

@@ -140,7 +140,7 @@ export async function mainGetAllTerminalContent(electronApp: ElectronApplication
         let combined = ''
         for (const manager of managers.values()) {
           for (const pane of manager.getPanes?.() ?? []) {
-            combined += '\\n' + (pane.serializeAddon?.serialize?.() ?? '')
+            combined += '\\n' + (pane.serializeController?.serialize?.() ?? '')
           }
         }
         return combined.slice(-8000)
