@@ -4,6 +4,7 @@ import {
   applyPointerSelection,
   resetSelectionGesture
 } from '../../ghostty-vt/ghostty-selection-gesture'
+import { readGridLine } from '../../ghostty-vt/ghostty-grid-introspection'
 import { GhosttyTerminal } from '../../ghostty-vt/ghostty-terminal'
 import { readScrollbar, scrollViewport } from '../../ghostty-vt/ghostty-scroll'
 import { GHOSTTY_VT_REVISION } from '../../ghostty-vt/revision'
@@ -170,6 +171,17 @@ describe('GhosttyTerminal', () => {
       surface
     )
     expect(terminal.readSelection()).toContain('hello world')
+  })
+
+  it('exposes wrap, wide cells, and bold from Ghostty grid introspection', () => {
+    terminal = new GhosttyTerminal(getGhosttyVtHost(), { cols: 8, rows: 4 })
+    terminal.writePtyOutput('\x1b[1m日本語\x1b[0mabcdefghij')
+    const { host, term } = terminal.hostHandle()
+    const first = readGridLine(host, term, 8, 0)
+    const second = readGridLine(host, term, 8, 1)
+    expect(first?.cells[0]?.width).toBe(2)
+    expect(first?.cells[0]?.bold).toBe(true)
+    expect(second?.isWrapped).toBe(true)
   })
 
   it('scrolls the viewport to bottom without a result code', () => {
