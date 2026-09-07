@@ -31,8 +31,9 @@ function createPane(bufferType: 'normal' | 'alternate'): {
   bufferChangeDisposables: { dispose: ReturnType<typeof vi.fn> }[]
   triggerBufferChange: (bufferType: 'normal' | 'alternate', index?: number) => void
 } {
-  const bufferChangeHandlers: ((buffer: { type: 'normal' | 'alternate' }) => void)[] = []
+  const primaryHandlers: (() => void)[] = []
   const bufferChangeDisposables: { dispose: ReturnType<typeof vi.fn> }[] = []
+  let isAlternateScreen = bufferType === 'alternate'
   const pane: ManagedPaneInternal = {
     id: 1,
     leafId: TEST_LEAF_ID,
@@ -40,36 +41,33 @@ function createPane(bufferType: 'normal' | 'alternate'): {
     terminal: {
       rows: 24,
       refresh: vi.fn(),
-      buffer: {
-        active: {
-          type: bufferType,
-          length: 24
-        },
-        onBufferChange: vi.fn((handler: (buffer: { type: 'normal' | 'alternate' }) => void) => {
-          const disposable = { dispose: vi.fn() }
-          bufferChangeHandlers.push(handler)
-          bufferChangeDisposables.push(disposable)
-          return disposable
-        })
-      }
+      get isAlternateScreen() {
+        return isAlternateScreen
+      },
+      whenPrimaryScreen: vi.fn((callback: () => void) => {
+        const disposable = { dispose: vi.fn() }
+        primaryHandlers.push(callback)
+        bufferChangeDisposables.push(disposable)
+        return disposable
+      })
     } as never,
     container: {
       querySelectorAll: vi.fn(() => [])
     } as never,
-    xtermContainer: {} as never,
+    terminalHost: {} as never,
     linkTooltip: {} as never,
     terminalGpuAcceleration: 'auto',
     gpuRenderingEnabled: true,
     webglAttachmentDeferred: false,
     webglDisabledAfterContextLoss: false,
     hasComplexScriptOutput: false,
-    webglAddon: null,
+    gpuRenderer: null,
     ligaturesAddon: null,
     fitResizeObserver: null,
     pendingObservedFitRafId: null,
-    fitAddon: {} as never,
-    searchAddon: {} as never,
-    serializeAddon: {
+    fitController: {} as never,
+    searchController: {} as never,
+    serializeController: {
       serialize: vi.fn(() => '')
     } as never,
     unicode11Addon: {} as never,
@@ -82,8 +80,12 @@ function createPane(bufferType: 'normal' | 'alternate'): {
   return {
     pane,
     bufferChangeDisposables,
-    triggerBufferChange: (bufferType, index = bufferChangeHandlers.length - 1) =>
-      bufferChangeHandlers[index]?.({ type: bufferType })
+    triggerBufferChange: (nextType, index = primaryHandlers.length - 1) => {
+      isAlternateScreen = nextType === 'alternate'
+      if (!isAlternateScreen) {
+        primaryHandlers[index]?.()
+      }
+    }
   }
 }
 

@@ -43,6 +43,20 @@ describe('focusTerminalTabSurface', () => {
     expect(textarea.focus).toHaveBeenCalled()
   })
 
+  it('focuses the Ghostty canvas when no helper textarea exists', () => {
+    flushAnimationFrames()
+    const canvas = { focus: vi.fn() }
+    vi.stubGlobal('document', {
+      querySelector: vi.fn((selector: string) =>
+        selector === '[data-terminal-tab-id="tab-1"] canvas.xterm' ? canvas : null
+      )
+    })
+
+    focusTerminalTabSurface('tab-1')
+
+    expect(canvas.focus).toHaveBeenCalled()
+  })
+
   it('optionally refreshes the focused helper native input context', () => {
     flushAnimationFrames()
     const textarea = { focus: vi.fn() }

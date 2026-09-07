@@ -168,7 +168,7 @@ export async function getTerminalContentForPtyId(
       for (const manager of window.__paneManagers?.values() ?? []) {
         for (const pane of manager.getPanes?.() ?? []) {
           if (pane.container?.dataset?.ptyId === ptyId) {
-            return (pane.serializeAddon?.serialize?.() ?? '').slice(-charLimit)
+            return (pane.serializeController?.serialize?.() ?? '').slice(-charLimit)
           }
         }
       }

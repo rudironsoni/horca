@@ -1,4 +1,4 @@
-import type { IDisposable } from '@xterm/xterm'
+import type { OrcaDisposable as IDisposable } from '../../../../../shared/orca-terminal-surface'
 import type { HasPty } from '../terminal-dead-session-reconcile'
 
 export type PanePtyBinding = IDisposable & {
