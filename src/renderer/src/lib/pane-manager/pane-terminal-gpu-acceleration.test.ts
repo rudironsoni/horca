@@ -13,25 +13,25 @@ function createPane(): ManagedPaneInternal {
       rows: 24
     } as never,
     container: {} as never,
-    xtermContainer: {} as never,
+    terminalHost: {} as never,
     linkTooltip: {} as never,
     terminalGpuAcceleration: 'auto',
     gpuRenderingEnabled: true,
     webglAttachmentDeferred: false,
     webglDisabledAfterContextLoss: false,
     hasComplexScriptOutput: false,
-    webglAddon: {
+    gpuRenderer: {
       dispose: vi.fn()
     } as never,
     ligaturesAddon: null,
     fitResizeObserver: null,
     pendingObservedFitRafId: null,
-    fitAddon: {
+    fitController: {
       proposeDimensions: vi.fn(() => ({ cols: 80, rows: 23 })),
       fit: vi.fn()
     } as never,
-    searchAddon: {} as never,
-    serializeAddon: {} as never,
+    searchController: {} as never,
+    serializeController: {} as never,
     unicode11Addon: {} as never,
     webLinksAddon: {} as never,
     compositionHandler: null,
@@ -61,8 +61,8 @@ describe('applyTerminalGpuAcceleration', () => {
 
     applyTerminalGpuAcceleration([pane], options, 'off')
 
-    expect(pane.webglAddon).toBeNull()
-    expect(pane.fitAddon.fit).toHaveBeenCalledTimes(1)
+    expect(pane.gpuRenderer).toBeNull()
+    expect(pane.fitController.fit).toHaveBeenCalledTimes(1)
   })
 
   it('keeps complex-script panes on WebGL when switching from forced WebGL back to auto', () => {
@@ -79,8 +79,8 @@ describe('applyTerminalGpuAcceleration', () => {
 
     applyTerminalGpuAcceleration([pane], options, 'auto')
 
-    expect(pane.webglAddon).not.toBeNull()
-    expect(pane.fitAddon.fit).not.toHaveBeenCalled()
+    expect(pane.gpuRenderer).not.toBeNull()
+    expect(pane.fitController.fit).not.toHaveBeenCalled()
   })
 
   it('clears context-loss latches when the acceleration mode changes', () => {
@@ -126,7 +126,7 @@ describe('applyTerminalGpuAcceleration', () => {
 
     applyTerminalGpuAcceleration([pane], options, 'auto')
 
-    expect(pane.webglAddon).toBeNull()
-    expect(pane.fitAddon.fit).toHaveBeenCalledTimes(1)
+    expect(pane.gpuRenderer).toBeNull()
+    expect(pane.fitController.fit).toHaveBeenCalledTimes(1)
   })
 })

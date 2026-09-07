@@ -257,7 +257,7 @@ export function useTerminalPaneChatState(controller: TerminalPaneTitleController
       return null
     }
     const pane = managerRef.current?.getPanes().find((candidate) => candidate.leafId === chatLeafId)
-    return pane?.serializeAddon.serialize({ scrollback: 0 }) ?? null
+    return pane?.serializeController.serialize({ scrollback: 0 }) ?? null
     // oxlint-disable-next-line react-hooks/exhaustive-deps -- managerRef is a stable ref container.
   }, [chatLeafId])
 

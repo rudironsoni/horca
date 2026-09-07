@@ -1,4 +1,4 @@
-import type { IDisposable } from '@xterm/xterm'
+import type { OrcaDisposable as IDisposable } from '../../../../shared/orca-terminal-surface'
 import { FLOATING_TERMINAL_WORKTREE_ID } from '../../../../shared/constants'
 import type { PaneManagerOptions } from '@/lib/pane-manager/pane-manager'
 import { useAppStore } from '@/store'

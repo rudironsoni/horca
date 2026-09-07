@@ -1,4 +1,4 @@
-import type { Terminal } from '@xterm/xterm'
+import type { OrcaPaneTerminal as Terminal } from './orca-pane-terminal'
 
 // Why: xterm misclassifies Windows Ctrl+Alt chords as AltGr and drops the ones
 // that never compose a keypress (#8734); repairing the classification lets

@@ -57,7 +57,7 @@ vi.mock('sonner', () => ({
 function makePane(capturedText: string): ManagedPane {
   return {
     leafId: LEAF_ID,
-    serializeAddon: {
+    serializeController: {
       serialize: vi.fn(() => capturedText)
     },
     terminal: {

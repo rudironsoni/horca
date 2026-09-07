@@ -14,13 +14,13 @@ export function clearPaneWebglContextLossForRetry(pane: ManagedPaneInternal): bo
 }
 
 export function reattachWebglIfNeeded(pane: ManagedPaneInternal): void {
-  if (pane.gpuRenderingEnabled && !pane.webglAddon && clearPaneWebglContextLossForRetry(pane)) {
+  if (pane.gpuRenderingEnabled && !pane.gpuRenderer && clearPaneWebglContextLossForRetry(pane)) {
     attachWebgl(pane)
   }
 }
 
 export function rebuildAttachedWebgl(pane: ManagedPaneInternal): void {
-  if (!pane.webglAddon || pane.webglDisabledAfterContextLoss) {
+  if (!pane.gpuRenderer || pane.webglDisabledAfterContextLoss) {
     return
   }
   if (pane.webglAttachmentDeferred) {

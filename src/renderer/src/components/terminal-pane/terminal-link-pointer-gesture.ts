@@ -1,4 +1,5 @@
-import type { IDisposable, Terminal } from '@xterm/xterm'
+import type { OrcaDisposable as IDisposable } from '../../../../shared/orca-terminal-surface'
+import type { OrcaPaneTerminal as Terminal } from '../../lib/pane-manager/orca-pane-terminal'
 import { isTerminalOwnedLinkGesture } from './terminal-link-activation'
 
 const DRAG_THRESHOLD_PX = 4
