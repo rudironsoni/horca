@@ -114,6 +114,7 @@ export function notifySelectionListeners(listeners: Set<() => void>): void {
 export function bindOrcaPaneSession(
   pane: {
     element: HTMLCanvasElement
+    textarea: HTMLTextAreaElement
     engine: GhosttyTerminal
     encodeKey: (event: KeyboardEvent) => string
     encodeMouse: (event: MouseEvent) => string
@@ -134,7 +135,7 @@ export function bindOrcaPaneSession(
 ): () => void {
   const unbindPointer = bindGhosttyPointerInput(pane, policy.onSelectionChange)
   const unbindKeys = bindGhosttyKeyboardInput({
-    element: pane.element,
+    element: pane.textarea,
     encodeKey: (event) => pane.encodeKey(event),
     input: (data) => pane.input(data),
     customKeyHandler: policy.customKeyHandler
@@ -150,6 +151,7 @@ export function bindOrcaPaneSession(
 export function bindGhosttyPointerInput(
   pane: {
     element: HTMLCanvasElement
+    textarea?: HTMLTextAreaElement
     engine: GhosttyTerminal
     encodeMouse: (event: MouseEvent) => string
     input: (data: string) => void
@@ -191,16 +193,17 @@ export function bindGhosttyPointerInput(
   pane.element.addEventListener('pointerdown', send)
   pane.element.addEventListener('pointerup', send)
   pane.element.addEventListener('pointermove', send)
-  pane.element.addEventListener('compositionstart', onComposition)
-  pane.element.addEventListener('compositionupdate', onComposition)
-  pane.element.addEventListener('compositionend', onComposition)
+  const host: HTMLElement = pane.textarea ?? pane.element
+  host.addEventListener('compositionstart', onComposition)
+  host.addEventListener('compositionupdate', onComposition)
+  host.addEventListener('compositionend', onComposition)
   return () => {
     pane.element.removeEventListener('pointerdown', send)
     pane.element.removeEventListener('pointerup', send)
     pane.element.removeEventListener('pointermove', send)
-    pane.element.removeEventListener('compositionstart', onComposition)
-    pane.element.removeEventListener('compositionupdate', onComposition)
-    pane.element.removeEventListener('compositionend', onComposition)
+    host.removeEventListener('compositionstart', onComposition)
+    host.removeEventListener('compositionupdate', onComposition)
+    host.removeEventListener('compositionend', onComposition)
     disposeSelectionGesture(pane.engine)
   }
 }
