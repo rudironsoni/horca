@@ -103,23 +103,25 @@ async function patchAtlasCounter(page: Page): Promise<boolean> {
     const panes = [
       ...((
         manager as unknown as
-          | { panes?: Map<number, { webglAddon?: { clearTextureAtlas: () => void } | null }> }
+          | { panes?: Map<number, { gpuRenderer?: { clearTextureAtlas: () => void } | null }> }
           | undefined
       )?.panes?.values?.() ?? [])
     ]
-    const webglAddons = panes
-      .map((pane) => pane.webglAddon)
-      .filter((webglAddon): webglAddon is { clearTextureAtlas: () => void } => Boolean(webglAddon))
-    if (webglAddons.length === 0) {
+    const gpuRenderers = panes
+      .map((pane) => pane.gpuRenderer)
+      .filter((gpuRenderer): gpuRenderer is { clearTextureAtlas: () => void } =>
+        Boolean(gpuRenderer)
+      )
+    if (gpuRenderers.length === 0) {
       return false
     }
     const globalWithCounter = window as typeof window & {
       __documentVisibilityAtlasResetCount?: number
     }
     globalWithCounter.__documentVisibilityAtlasResetCount = 0
-    for (const webglAddon of webglAddons) {
-      const originalClearTextureAtlas = webglAddon.clearTextureAtlas.bind(webglAddon)
-      webglAddon.clearTextureAtlas = () => {
+    for (const gpuRenderer of gpuRenderers) {
+      const originalClearTextureAtlas = gpuRenderer.clearTextureAtlas.bind(gpuRenderer)
+      gpuRenderer.clearTextureAtlas = () => {
         globalWithCounter.__documentVisibilityAtlasResetCount =
           (globalWithCounter.__documentVisibilityAtlasResetCount ?? 0) + 1
         originalClearTextureAtlas()
@@ -143,10 +145,10 @@ async function countPatchedWebglAddons(page: Page): Promise<number> {
     return [
       ...((
         manager as unknown as
-          | { panes?: Map<number, { webglAddon?: { clearTextureAtlas: () => void } | null }> }
+          | { panes?: Map<number, { gpuRenderer?: { clearTextureAtlas: () => void } | null }> }
           | undefined
       )?.panes?.values?.() ?? [])
-    ].filter((pane) => pane.webglAddon).length
+    ].filter((pane) => pane.gpuRenderer).length
   })
 }
 

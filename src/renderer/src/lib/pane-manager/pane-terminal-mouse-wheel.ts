@@ -1,4 +1,3 @@
-import type { Terminal } from '@xterm/xterm'
 import {
   createTerminalTuiMouseWheelDistanceState,
   normalizeTerminalTuiMouseWheelMultiplier,
@@ -21,8 +20,11 @@ const XTERM_MOUSE_REPORTING_CLASS = 'enable-mouse-events'
 const REPLAYED_WHEEL_EVENT_PROPERTY = '__orcaReplayedTerminalWheelEvent'
 const DOM_DELTA_LINE = 1
 
-type TerminalWheelTarget = Pick<Terminal, 'attachCustomWheelEventHandler' | 'element' | 'rows'> & {
-  modes: Pick<Terminal['modes'], 'mouseTrackingMode'>
+type TerminalWheelTarget = {
+  element: HTMLElement
+  rows: number
+  modes: { mouseTrackingMode?: 'none' | 'vt200' | 'any' | boolean | string }
+  attachCustomWheelEventHandler?: (handler: (event: WheelEvent) => boolean) => void
 }
 
 type TerminalMouseWheelMultiplierOptions = {
@@ -188,7 +190,7 @@ export function attachTerminalMouseWheelMultiplier(
   options: TerminalMouseWheelMultiplierOptions = {}
 ): void {
   const replayState = createTerminalTuiMouseWheelReplayState()
-  terminal.attachCustomWheelEventHandler((event) => {
+  const handleWheel = (event: WheelEvent): boolean => {
     if (
       terminal.modes.mouseTrackingMode === 'none' ||
       !shouldMultiplyTerminalMouseWheel(event, terminal.element)
@@ -216,5 +218,18 @@ export function attachTerminalMouseWheelMultiplier(
     queueTerminalTuiWheelReports(replayState, terminal, target, event, reportCount)
 
     return false
-  })
+  }
+  if (terminal.attachCustomWheelEventHandler) {
+    terminal.attachCustomWheelEventHandler(handleWheel)
+    return
+  }
+  terminal.element.addEventListener(
+    'wheel',
+    (event) => {
+      if (!handleWheel(event)) {
+        event.preventDefault()
+      }
+    },
+    { passive: false }
+  )
 }

@@ -72,7 +72,7 @@ async function readDividerGeometry(page: Page): Promise<DividerGeometry> {
         : null
       let proposed = null
       try {
-        proposed = pane?.fitAddon.proposeDimensions() ?? null
+        proposed = pane?.fitController.proposeDimensions() ?? null
       } catch {
         proposed = null
       }

@@ -1,4 +1,9 @@
-import type { IDisposable, ILink, ILinkProvider, Terminal } from '@xterm/xterm'
+import type {
+  IDisposable,
+  ILink,
+  ILinkProvider,
+  Terminal
+} from '../../../../shared/orca-terminal-surface'
 import {
   extractTerminalFileLinkCandidates,
   extractTerminalFileLinks,
@@ -80,7 +85,7 @@ function preferLongestNonOverlappingLinks(links: ProvidedFileLink[]): ProvidedFi
   const selected: ProvidedFileLink[] = []
   const byLengthDescending = [...links].sort(
     (a, b) =>
-      b.link.text.length - a.link.text.length ||
+      (b.link.text?.length ?? 0) - (a.link.text?.length ?? 0) ||
       a.link.range.start.y - b.link.range.start.y ||
       a.link.range.start.x - b.link.range.start.x
   )
@@ -281,7 +286,7 @@ export function installFilePathLinkClickFallback(
     }
 
     const position = getTerminalBufferPositionForMouseEvent(terminal, event)
-    if (!position) {
+    if (!position || !terminal.buffer) {
       return
     }
     const runtimeEnvironmentId =
@@ -307,7 +312,7 @@ export function installFilePathLinkClickFallback(
     if (opened) {
       event.preventDefault()
       event.stopPropagation()
-      terminal.clearSelection()
+      terminal.clearSelection?.()
     }
   }
 

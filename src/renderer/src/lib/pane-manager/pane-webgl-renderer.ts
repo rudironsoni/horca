@@ -1,7 +1,5 @@
-import type { WebglAddon } from '@xterm/addon-webgl'
 import type { ManagedPaneInternal } from './pane-manager-types'
 import { recordTerminalWebglDiagnostic } from '../../../../shared/terminal-webgl-diagnostics'
-import { getLivePaneCensus } from './pane-manager-registry'
 import {
   getTerminalWebglAutoDecision,
   resetTerminalWebglAutoDecision
@@ -9,7 +7,6 @@ import {
 import { safeFit, safeFitAndThen } from './pane-fit'
 import { setPaneFitWebglAttachHook } from './pane-fit-webgl-attach-signal'
 import { repairPaneWebglCanvasDprMismatch } from './terminal-canvas-dpr-repair'
-import { recordPaneWebglContextLoss } from './pane-webgl-context-loss-policy'
 import { presentPaneViewport } from './pane-viewport-present'
 
 export {
@@ -17,8 +14,6 @@ export {
   presentPaneViewportPreservingSynchronizedOutput
 } from './pane-viewport-present'
 import {
-  getTerminalWebglAddonConstructor,
-  primeTerminalWebglAddon,
   rearmTerminalWebglAddonLoad,
   setTerminalWebglAddonLoadHandlers
 } from './terminal-webgl-addon-loader'
@@ -96,16 +91,6 @@ export function shouldUseTerminalWebgl(pane: ManagedPaneInternal): boolean {
   return getTerminalWebglAutoDecision().allowWebgl
 }
 
-function refreshTerminalAfterWebglAttach(pane: ManagedPaneInternal): void {
-  try {
-    // Why: a newly attached WebGL canvas starts empty; repaint immediately so
-    // resume/reparent/settings toggles do not look frozen until new output.
-    pane.terminal.refresh(0, pane.terminal.rows - 1)
-  } catch {
-    /* ignore - pane may have been disposed in the meantime */
-  }
-}
-
 export function cancelPendingWebglRefresh(pane: ManagedPaneInternal): void {
   if (pane.pendingWebglRefreshRafId == null) {
     return
@@ -118,7 +103,7 @@ export function cancelPendingWebglRefresh(pane: ManagedPaneInternal): void {
 
 export function isPaneWebglContextLost(pane: ManagedPaneInternal): boolean {
   try {
-    const renderer = (pane.webglAddon as unknown as XtermWebglAddonInternals | null)?._renderer
+    const renderer = (pane.gpuRenderer as unknown as XtermWebglAddonInternals | null)?._renderer
     return renderer?._gl?.isContextLost?.() === true
   } catch {
     return true
@@ -131,16 +116,16 @@ export function disposeWebgl(
 ): void {
   cancelPendingWebglRefresh(pane)
   panesAwaitingWebglAddon.delete(pane)
-  if (!pane.webglAddon) {
+  if (!pane.gpuRenderer) {
     return
   }
-  releaseXtermWebglContext(pane.webglAddon)
+  releaseXtermWebglContext(pane.gpuRenderer)
   try {
-    pane.webglAddon.dispose()
+    pane.gpuRenderer.dispose?.()
   } catch {
     /* ignore */
   }
-  pane.webglAddon = null
+  pane.gpuRenderer = null
   if (options?.refreshDimensions) {
     // Why: DOM and WebGL renderer cell metrics differ after teardown. Without
     // a refit, Linux DOM scrollbars can desync and trigger visible reflow jitter.
@@ -159,12 +144,12 @@ export function disposeWebgl(
   }
 }
 
-function releaseXtermWebglContext(webglAddon: ManagedPaneInternal['webglAddon']): void {
+function releaseXtermWebglContext(gpuRenderer: ManagedPaneInternal['gpuRenderer']): void {
   try {
     // Why: xterm removes the canvas on dispose, but Windows/ANGLE can keep the
     // driver context alive long enough for rapid terminal activation to hit
     // Chromium's active WebGL context budget (#6874).
-    const renderer = (webglAddon as unknown as XtermWebglAddonInternals | null)?._renderer
+    const renderer = (gpuRenderer as unknown as XtermWebglAddonInternals | null)?._renderer
     renderer?._gl?.getExtension('WEBGL_lose_context')?.loseContext()
     if (renderer?._canvas) {
       renderer._canvas.width = 0
@@ -187,7 +172,7 @@ export function clearWebglTextureAtlas(pane: ManagedPaneInternal): void {
     // Why: rapid TUI redraws can corrupt xterm's WebGL glyph atlas without a
     // context-loss event. Clearing the atlas preserves GPU rendering and forces
     // a fresh paint when the pane becomes visible/focused again.
-    pane.webglAddon?.clearTextureAtlas()
+    pane.gpuRenderer?.clearTextureAtlas?.()
   } catch {
     /* ignore — pane may have been disposed in the meantime */
   }
@@ -223,7 +208,7 @@ function refitAfterLateWebglAttach(pane: ManagedPaneInternal): void {
  *  grid measured under the DOM renderer. */
 function attachWebglAndRefit(pane: ManagedPaneInternal, diagnosticKind: string): void {
   attachWebgl(pane)
-  if (pane.webglAddon) {
+  if (pane.gpuRenderer) {
     recordTerminalWebglDiagnostic(diagnosticKind, { paneId: pane.id })
     refitAfterLateWebglAttach(pane)
   }
@@ -237,7 +222,7 @@ export function attachWebglAfterFitIfMissing(pane: ManagedPaneInternal): void {
   // The per-pane failure latch stays honored: genuinely failed attaches retry
   // only at recovery boundaries.
   if (
-    !pane.webglAddon &&
+    !pane.gpuRenderer &&
     pane.gpuRenderingEnabled &&
     !pane.webglAttachmentDeferred &&
     !pane.webglDisabledAfterContextLoss &&
@@ -256,79 +241,4 @@ setPaneFitWebglAttachHook((pane) => {
   repairPaneWebglCanvasDprMismatch(pane)
 })
 
-export function attachWebgl(pane: ManagedPaneInternal): void {
-  if (
-    !ENABLE_WEBGL_RENDERER ||
-    !pane.gpuRenderingEnabled ||
-    !shouldUseTerminalWebgl(pane) ||
-    pane.webglAttachmentDeferred ||
-    pane.webglDisabledAfterContextLoss ||
-    pane.webglAttachFailedSinceRecovery
-  ) {
-    // Why: nulling the reference here used to leak a still-loaded addon that
-    // kept painting stale frames while every recovery path (atlas reset,
-    // reattach, diagnostics) treated the pane as DOM-rendered. Dispose so the
-    // pane genuinely falls back to the DOM renderer.
-    disposeWebgl(pane, { refreshDimensions: true })
-    return
-  }
-  // Single-addon invariant: never stack a second addon on a live one.
-  disposeWebgl(pane)
-  const WebglAddonConstructor = getTerminalWebglAddonConstructor()
-  if (!WebglAddonConstructor) {
-    // Only reachable if a pane opens before the primed load resolves; the
-    // continuation in primeTerminalWebglAddon attaches this pane the moment it
-    // does, and the fit hook is the later backstop.
-    panesAwaitingWebglAddon.add(pane)
-    void primeTerminalWebglAddon()
-    return
-  }
-  let webglAddon: WebglAddon | null = null
-  try {
-    webglAddon = new WebglAddonConstructor()
-    const addon = webglAddon
-    addon.onContextLoss(() => {
-      console.warn(
-        '[terminal] WebGL context lost for pane',
-        pane.id,
-        '— falling back to DOM renderer'
-      )
-      // Why: a lost context is the decisive signal for a post-wake garble
-      // report — it means the glyph atlas was wiped (needs a full reset), not
-      // just a missed repaint. Silent breadcrumb; the console.warn stays.
-      // Census rides along: a GPU-process death loses every pane's context at
-      // once, and the crash-report ring coalesces repeats, so the count has to
-      // be in the payload rather than in the number of crumbs.
-      const census = getLivePaneCensus()
-      const lossesInWindow = recordPaneWebglContextLoss(pane)
-      recordTerminalWebglDiagnostic('webgl-context-loss', {
-        paneId: pane.id,
-        lossesInWindow,
-        livePanes: census.panes,
-        livePaneManagers: census.managers
-      })
-      // Why: context loss switches this pane to DOM until the next resume or
-      // settled reveal; the bounded loss window refuses unstable retries.
-      pane.webglDisabledAfterContextLoss = true
-      disposeWebgl(pane, { refreshDimensions: true })
-    })
-    pane.terminal.loadAddon(addon)
-    pane.webglAddon = addon
-    refreshTerminalAfterWebglAttach(pane)
-  } catch (err) {
-    if (pane.terminalGpuAcceleration === 'auto') {
-      // Why: "auto" tries the faster renderer first, but one failed attach is
-      // enough signal to keep new auto panes on DOM until the setting changes.
-      suggestedRendererType = 'dom'
-    }
-    pane.webglAttachFailedSinceRecovery = true
-    // WebGL not available — default DOM renderer is fine, but log it for debugging
-    console.warn('[terminal] WebGL unavailable for pane', pane.id, '— using DOM renderer:', err)
-    try {
-      webglAddon?.dispose()
-    } catch {
-      /* ignore — a half-constructed addon may throw on dispose */
-    }
-    pane.webglAddon = null
-  }
-}
+export function attachWebgl(_pane: ManagedPaneInternal): void {}

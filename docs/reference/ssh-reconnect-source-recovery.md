@@ -7,12 +7,12 @@ cause with the fix it implies.
 
 ## The shape of the problem
 
-A reconnect remounts the pane (`tab.generation` is its React key), so the xterm is disposed with its
+A reconnect remounts the pane (`tab.generation` is its React key), so the pane terminal is disposed with its
 buffer and something must repaint it. Today that is a **byte tail**: `reattachSshPtySession` sends
 `requireReplay: true` and the relay returns `RecentPtyOutputBuffer.read()` — the last 100KB, read
 non-destructively, with no notion of what this client already consumed.
 
-Two costs follow. Main's `@xterm/headless` model never sees those bytes (the tail bypasses
+Two costs follow. Main's `HeadlessEmulator` (libghostty-vt) never sees those bytes (the tail bypasses
 `onPtyData`), so it is stale by exactly the outage — which is what forces
 `sshReconnectPaintsFromModel` to restrict the grid repaint to the alternate screen. And a shell loses
 outage output past 100KB permanently.

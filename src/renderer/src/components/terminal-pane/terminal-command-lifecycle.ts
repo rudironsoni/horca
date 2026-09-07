@@ -1,4 +1,5 @@
-import type { Terminal, IDisposable } from '@xterm/xterm'
+import type { OrcaDisposable as IDisposable } from '../../../../shared/orca-terminal-surface'
+import type { OrcaPaneTerminal as Terminal } from '../../lib/pane-manager/orca-pane-terminal'
 import { createOsc133CommandFinishedScanner } from '../../../../shared/terminal-osc133-command-finished'
 
 type TerminalCommandLifecycleOptions = {

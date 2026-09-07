@@ -122,7 +122,7 @@ test('focuses the pane a client split creates on a paired remote workspace @head
             return Object.fromEntries(
               (manager?.getPanes() ?? []).map((pane) => [
                 pane.leafId,
-                pane.serializeAddon?.serialize?.() ?? ''
+                pane.serializeController?.serialize?.() ?? ''
               ])
             )
           }, webTabId),
@@ -215,7 +215,7 @@ test('focuses the pane a client split creates on a paired remote workspace @head
             return Object.fromEntries(
               (manager?.getPanes() ?? []).map((pane) => [
                 pane.leafId,
-                pane.serializeAddon?.serialize?.() ?? ''
+                pane.serializeController?.serialize?.() ?? ''
               ])
             )
           }, webTabId),

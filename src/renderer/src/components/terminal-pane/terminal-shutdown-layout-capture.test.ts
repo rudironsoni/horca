@@ -103,7 +103,7 @@ describe('captureTerminalShutdownLayout', () => {
       leafId: LEAF_ID,
       stablePaneId: LEAF_ID,
       terminal,
-      serializeAddon: {
+      serializeController: {
         serialize: vi.fn(() => {
           order.push('serialize')
           return `snapshot:${terminal.pendingOutput}`
@@ -147,7 +147,7 @@ describe('captureTerminalShutdownLayout', () => {
       leafId: LEAF_ID,
       stablePaneId: LEAF_ID,
       terminal: mockTerminal(50_000),
-      serializeAddon: {
+      serializeController: {
         serialize: vi.fn(() => 'x'.repeat(512 * 1024))
       }
     }
@@ -172,7 +172,7 @@ describe('captureTerminalShutdownLayout', () => {
     })
 
     expect(mocks.flushTerminalOutput).not.toHaveBeenCalled()
-    expect(pane.serializeAddon.serialize).not.toHaveBeenCalled()
+    expect(pane.serializeController.serialize).not.toHaveBeenCalled()
     expect(layout.buffersByLeafId).toBeUndefined()
     expect(layout.ptyIdsByLeafId).toEqual({ [LEAF_ID]: 'pty-1' })
     expect(layout.titlesByLeafId).toEqual({ [LEAF_ID]: 'local shell' })
@@ -186,7 +186,7 @@ describe('captureTerminalShutdownLayout', () => {
       leafId: LEAF_ID,
       stablePaneId: LEAF_ID,
       terminal: mockTerminal(512),
-      serializeAddon: {
+      serializeController: {
         serialize: vi.fn((options?: { scrollback?: number }) =>
           multibyteRow.repeat(options?.scrollback ?? 0)
         )
@@ -230,7 +230,7 @@ describe('captureTerminalShutdownLayout', () => {
       leafId: LEAF_ID,
       stablePaneId: LEAF_ID,
       terminal: mockTerminal(512),
-      serializeAddon: { serialize }
+      serializeController: { serialize }
     }
     const manager = {
       getPanes: vi.fn(() => [pane]),
@@ -269,7 +269,7 @@ describe('captureTerminalShutdownLayout', () => {
       leafId: LEAF_ID,
       stablePaneId: LEAF_ID,
       terminal: mockTerminal(5_000),
-      serializeAddon: { serialize }
+      serializeController: { serialize }
     }
     const manager = {
       getPanes: vi.fn(() => [pane]),
@@ -298,7 +298,7 @@ describe('captureTerminalShutdownLayout', () => {
       leafId: LEAF_ID,
       stablePaneId: LEAF_ID,
       terminal: mockTerminal(1_000),
-      serializeAddon: {
+      serializeController: {
         serialize: vi.fn(() => '')
       }
     }
@@ -336,7 +336,7 @@ describe('captureTerminalShutdownLayout', () => {
       leafId: LEAF_ID,
       stablePaneId: LEAF_ID,
       terminal: mockTerminal(1_000),
-      serializeAddon: {
+      serializeController: {
         serialize: vi.fn(() => 'dead scrollback')
       }
     }
@@ -345,7 +345,7 @@ describe('captureTerminalShutdownLayout', () => {
       leafId: LEAF_ID_2,
       stablePaneId: LEAF_ID_2,
       terminal: mockTerminal(1_000),
-      serializeAddon: {
+      serializeController: {
         serialize: vi.fn(() => 'live scrollback')
       }
     }
@@ -383,7 +383,7 @@ describe('captureTerminalShutdownLayout', () => {
       leafId: LEAF_ID,
       stablePaneId: LEAF_ID,
       terminal: mockTerminal(1_000),
-      serializeAddon: {
+      serializeController: {
         serialize: vi.fn(() => 'first scrollback')
       }
     }
@@ -392,7 +392,7 @@ describe('captureTerminalShutdownLayout', () => {
       leafId: LEAF_ID_2,
       stablePaneId: LEAF_ID_2,
       terminal: mockTerminal(1_000),
-      serializeAddon: {
+      serializeController: {
         serialize: vi.fn(() => 'second scrollback')
       }
     }
@@ -432,7 +432,7 @@ describe('captureTerminalShutdownLayout', () => {
       leafId: LEAF_ID,
       stablePaneId: LEAF_ID,
       terminal: mockTerminal(1_000),
-      serializeAddon: {
+      serializeController: {
         serialize: vi.fn(() => '')
       }
     }
@@ -441,7 +441,7 @@ describe('captureTerminalShutdownLayout', () => {
       leafId: LEAF_ID_2,
       stablePaneId: LEAF_ID_2,
       terminal: mockTerminal(1_000),
-      serializeAddon: {
+      serializeController: {
         serialize: vi.fn(() => '')
       }
     }
@@ -470,7 +470,7 @@ describe('captureTerminalShutdownLayout', () => {
       leafId: LEAF_ID,
       stablePaneId: LEAF_ID,
       terminal: mockTerminal(1_000),
-      serializeAddon: {
+      serializeController: {
         serialize: vi.fn(() => '')
       }
     }
@@ -479,7 +479,7 @@ describe('captureTerminalShutdownLayout', () => {
       leafId: LEAF_ID_2,
       stablePaneId: LEAF_ID_2,
       terminal: mockTerminal(1_000),
-      serializeAddon: {
+      serializeController: {
         serialize: vi.fn(() => '')
       }
     }

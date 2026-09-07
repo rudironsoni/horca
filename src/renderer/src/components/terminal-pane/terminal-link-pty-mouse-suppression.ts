@@ -1,4 +1,5 @@
-import type { IDisposable, Terminal } from '@xterm/xterm'
+import type { OrcaDisposable as IDisposable } from '../../../../shared/orca-terminal-surface'
+import type { Terminal } from '../../../../shared/orca-terminal-surface'
 import {
   isTerminalLinkActionActivation,
   isTerminalLinkDirectActivation
@@ -40,7 +41,9 @@ export function installTerminalLinkPtyMouseSuppression(
     if (previousMouseEventsRequireAlt === null) {
       return
     }
-    terminal.options.mouseEventsRequireAlt = previousMouseEventsRequireAlt
+    if (terminal.options) {
+      terminal.options.mouseEventsRequireAlt = previousMouseEventsRequireAlt
+    }
     previousMouseEventsRequireAlt = null
     ownerDocument?.removeEventListener('mouseup', queueRestore)
     ownerWindow?.removeEventListener('blur', restore)
@@ -84,9 +87,11 @@ export function installTerminalLinkPtyMouseSuppression(
       return
     }
     restore()
-    previousMouseEventsRequireAlt = Boolean(terminal.options.mouseEventsRequireAlt)
+    previousMouseEventsRequireAlt = Boolean(terminal.options?.mouseEventsRequireAlt)
     // Why: an Orca-owned link gesture must not also reach a mouse-aware child TUI.
-    terminal.options.mouseEventsRequireAlt = true
+    if (terminal.options) {
+      terminal.options.mouseEventsRequireAlt = true
+    }
     ownerDocument?.addEventListener('mouseup', queueRestore)
     ownerWindow?.addEventListener('blur', restore)
   }

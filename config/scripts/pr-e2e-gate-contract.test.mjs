@@ -597,9 +597,9 @@ describe('PR E2E gate contract', () => {
       'src/renderer/src/components/terminal-pane/xterm-bypass-policy.ts',
       'src/renderer/src/lib/pane-manager/terminal-ime-anchor.ts',
       'src/shared/terminal-unicode-provider.ts',
-      // The xterm fork owns the helper textarea the IME attaches to; no file here says "ime".
-      'config/patches/@xterm__xterm@6.1.0-beta.287.patch',
-      'config/patches/xterm-src/browser/Terminal.ts',
+      // Ghostty Canvas2D owns the focused surface the IME attaches to; no file here says "ime".
+      'src/ghostty-vt/ghostty-renderer.ts',
+      'src/renderer/src/lib/pane-manager/orca-pane-terminal.ts',
       // The harness is source too: breaking the runner or a probe is how the lane goes blind.
       'config/scripts/run-terminal-ibus-hangul-e2e.mjs',
       'config/scripts/terminal-ime-engagement-receipt.mjs',
