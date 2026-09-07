@@ -1,4 +1,4 @@
-import type { IBufferLine, IBufferRange } from '@xterm/xterm'
+import type { IBufferLine, IBufferRange } from '../../../../shared/orca-terminal-surface'
 import {
   canStartHardWrappedPath,
   getHardWrappedPathPrefix,

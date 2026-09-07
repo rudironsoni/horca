@@ -256,7 +256,7 @@ function createPane(paneId: number) {
     stablePaneId: leafId,
     terminal,
     container: createPaneContainer(),
-    fitAddon: {
+    fitController: {
       fit: vi.fn(),
       proposeDimensions: vi.fn(() => ({ cols: terminal.cols, rows: terminal.rows }))
     }

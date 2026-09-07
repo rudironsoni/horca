@@ -200,7 +200,7 @@ export class PaneManager {
   }
 
   hasWebglRenderer(paneId: number): boolean {
-    return this.panes.get(paneId)?.webglAddon != null
+    return this.panes.get(paneId)?.gpuRenderer != null
   }
 
   getLeafId(numericPaneId: number): TerminalLeafId | null {
