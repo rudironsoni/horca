@@ -209,7 +209,10 @@ export const test = base.extend<OrcaTestFixtures, OrcaWorkerFixtures>({
     const { ELECTRON_RUN_AS_NODE: _unused, ...cleanEnv } = process.env
     void _unused
     const homeIsolation = createElectronHomeIsolation({
-      inheritedEnv: cleanEnv,
+      inheritedEnv: {
+        ...cleanEnv,
+        TEST_WORKER_INDEX: String(testInfo.workerIndex)
+      },
       launchEnv,
       extraEnv: orcaAppExtraEnv,
       userDataDir
