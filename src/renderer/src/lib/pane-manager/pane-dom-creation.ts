@@ -30,6 +30,7 @@ export function createPaneDOM(
   const userOpts = options.terminalOptions?.(id) ?? {}
   const terminal = new OrcaPaneTerminal(terminalHost, userOpts)
   terminalHost.appendChild(terminal.element)
+  terminalHost.appendChild(terminal.textarea)
 
   let linkTooltipHoverToken = 0
   const linkTooltip = document.createElement('div')
