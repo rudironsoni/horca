@@ -1,11 +1,7 @@
 import { readGridLine } from '../../../../ghostty-vt/ghostty-grid-introspection'
 import type { GhosttyTerminal } from '../../../../ghostty-vt/ghostty-terminal'
-import type {
-  IBuffer,
-  IBufferLine,
-  IParser,
-  OrcaDisposable
-} from '../../../../shared/orca-terminal-surface'
+import { HeadlessVtQueryParser } from '../../../../ghostty-vt/headless-vt-query-parser'
+import type { IBuffer, IBufferLine, OrcaDisposable } from '../../../../shared/orca-terminal-surface'
 
 export function createOrcaPaneBuffer(
   engine: GhosttyTerminal,
@@ -60,11 +56,8 @@ export function createOrcaPaneBuffer(
   }
 }
 
-export function createOrcaPaneParser(): IParser {
-  return {
-    registerCsiHandler: () => noopDisposable(),
-    registerOscHandler: () => noopDisposable()
-  }
+export function createOrcaPaneParser(): HeadlessVtQueryParser {
+  return new HeadlessVtQueryParser()
 }
 
 export function noopDisposable(): OrcaDisposable {
