@@ -44,7 +44,7 @@ export function bindRegisterPaneSerializer(session: ConnectPanePtySession): void
           // output from the seed instead of the transient TUI bytes, and every
           // later restore painted only the TUI screen (#6106).
           const data = serializeWithAbsoluteCursor(
-            session.pane.serializeAddon,
+            session.pane.serializeController,
             session.pane.terminal,
             { scrollback: opts?.scrollbackRows }
           )

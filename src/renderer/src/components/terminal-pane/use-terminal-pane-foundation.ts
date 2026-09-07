@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
-import type { IDisposable } from '@xterm/xterm'
+import type { OrcaDisposable as IDisposable } from '../../../../shared/orca-terminal-surface'
 import { useAppStore } from '../../store'
 import { hydrateRuntimeEnvironmentSshState } from '@/runtime/runtime-environment-ssh-state'
 import { LOCAL_EXECUTION_HOST_ID, type ExecutionHostId } from '../../../../shared/execution-host'

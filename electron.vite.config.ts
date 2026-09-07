@@ -1,5 +1,6 @@
+import { copyFileSync } from 'node:fs'
 import { isBuiltin } from 'node:module'
-import { resolve } from 'node:path'
+import { join, resolve } from 'node:path'
 import { defineConfig, type UserConfig } from 'electron-vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
@@ -10,8 +11,6 @@ import { createDistributionTranslationCatalogPlugin } from './src/shared/horca/d
 import packageJson from './package.json' with { type: 'json' }
 
 const BUNDLED_MAIN_DEPENDENCIES = new Set([
-  '@xterm/headless',
-  '@xterm/addon-serialize',
   'psl',
   // Why: Windows NSIS deploys app.asar before external resources; bootstrap must
   // not race the later resources/node_modules copy.
@@ -204,9 +203,25 @@ function createMainBootstrapPlugin() {
   }
 }
 
+function copyGhosttyVtWasmToMainOutput(): { name: string; closeBundle: () => void } {
+  return {
+    name: 'copy-ghostty-vt-wasm',
+    closeBundle() {
+      const sourceDir = resolve('src/ghostty-vt')
+      const destDir = resolve('out/main')
+      for (const name of ['ghostty-vt.wasm', 'write-pty-trampoline.wasm'] as const) {
+        copyFileSync(join(sourceDir, name), join(destDir, name))
+      }
+    }
+  }
+}
+
 export const electronViteConfig: UserConfig = {
   main: {
-    plugins: [createDistributionTranslationCatalogPlugin(orcaDistribution)],
+    plugins: [
+      createDistributionTranslationCatalogPlugin(orcaDistribution),
+      copyGhosttyVtWasmToMainOutput()
+    ],
     build: {
       // Why: 'esbuild' makes rolldown disable its own minifier and re-print every
       // chunk through esbuild, which is undeclared here and only resolves via
@@ -291,17 +306,7 @@ export const electronViteConfig: UserConfig = {
       ORCA_DIAGNOSTICS_TOKEN_URL: ORCA_DIAGNOSTICS_TOKEN_URL_LITERAL,
       ORCA_DISTRIBUTION: ORCA_DISTRIBUTION_LITERAL
     },
-    // Why: @xterm/headless declares "exports": null in package.json, which
-    // prevents Vite's default resolver from finding the CJS entry. Point
-    // directly at the published main file so the bundler can inline it.
-    resolve: {
-      alias: {
-        '@xterm/headless': resolve('node_modules/@xterm/headless/lib-headless/xterm-headless.js'),
-        '@xterm/addon-serialize': resolve(
-          'node_modules/@xterm/addon-serialize/lib/addon-serialize.js'
-        )
-      }
-    }
+    resolve: {}
   },
   preload: {
     build: {

@@ -43,7 +43,7 @@ type TestWebglAddon = {
 
 type ManagedPaneInternals = {
   terminal: TestTerminal & { constructor: new (options: Record<string, unknown>) => TestTerminal }
-  webglAddon: TestWebglAddon & { constructor: new () => TestWebglAddon }
+  gpuRenderer: TestWebglAddon & { constructor: new () => TestWebglAddon }
 }
 
 type AtlasBudgetResult = {
@@ -116,13 +116,13 @@ async function runAtlasBudgetScenario(page: Page): Promise<AtlasBudgetResult> {
           ).panes?.values() ?? [])
         ][0] ?? null)
       : null
-    if (!pane?.webglAddon) {
+    if (!pane?.gpuRenderer) {
       throw new Error('Active pane WebGL internals unavailable')
     }
 
     const TerminalCtor = pane.terminal.constructor
-    const WebglCtor = pane.webglAddon.constructor
-    const AtlasCtor = pane.webglAddon._renderer._charAtlas.constructor
+    const WebglCtor = pane.gpuRenderer.constructor
+    const AtlasCtor = pane.gpuRenderer._renderer._charAtlas.constructor
     const realBudget = AtlasCtor.maxAtlasPages
     const realMaxTextureSize = AtlasCtor.maxTextureSize
     const budget = 4
@@ -297,12 +297,12 @@ async function runAtlasReplacementScenario(page: Page): Promise<AtlasReplacement
           ).panes?.values() ?? [])
         ][0] ?? null)
       : null
-    if (!pane?.webglAddon) {
+    if (!pane?.gpuRenderer) {
       throw new Error('Active pane WebGL internals unavailable')
     }
 
     const TerminalCtor = pane.terminal.constructor
-    const WebglCtor = pane.webglAddon.constructor as new (options?: {
+    const WebglCtor = pane.gpuRenderer.constructor as new (options?: {
       customGlyphs?: boolean
     }) => TestWebglAddon
     const host = document.createElement('div')

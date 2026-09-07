@@ -14,43 +14,45 @@ const storeState = vi.hoisted(() => ({
   keybindings: {} as Record<string, string[]>
 }))
 
-vi.mock('@xterm/xterm', () => ({
-  Terminal: class {
+vi.mock('@/lib/ghostty-vt-web-host', () => ({
+  primeGhosttyVtHost: () => Promise.resolve({})
+}))
+vi.mock('@/lib/pane-manager/orca-pane-terminal', () => ({
+  OrcaPaneTerminal: class {
     cols = 80
     rows = 24
-    buffer = { active: { cursorY: 0 } }
+    cursor = { x: 0, y: 0 }
     customKeyHandler: ((event: KeyboardEvent) => boolean) | null = null
-    element = document.createElement('div')
+    element = document.createElement('canvas')
     modes = { bracketedPasteMode: false }
-    unicode = { activeVersion: '6', versions: ['6', '11'], register: vi.fn() }
+    options = {}
     write = vi.fn((_data: string, callback?: () => void) => callback?.())
-    open = vi.fn()
     focus = vi.fn()
     dispose = vi.fn()
     resize = vi.fn()
     reset = vi.fn()
+    applyMetrics = vi.fn()
     paste = vi.fn()
     input = vi.fn()
-    loadAddon = vi.fn()
-    attachCustomWheelEventHandler = vi.fn()
     scrollToTop = vi.fn()
     scrollToBottom = vi.fn()
     selectAll = vi.fn()
     getSelection = vi.fn(() => '')
-    attachCustomKeyEventHandler = vi.fn((handler: (event: KeyboardEvent) => boolean) => {
-      this.customKeyHandler = handler
-    })
+    encodeKey = vi.fn(() => '')
     onData = vi.fn(() => ({ dispose: vi.fn() }))
 
     constructor() {
+      this.customKeyHandler = (event: KeyboardEvent) => {
+        this.element.dispatchEvent(event)
+        return !event.defaultPrevented
+      }
       terminalHarness.instances.push(this)
     }
   }
 }))
-vi.mock(import('@/lib/pane-manager/pane-terminal-options'), async (importOriginal) => ({
-  ...(await importOriginal()),
-  buildDefaultTerminalOptions: () => ({})
-}))
+vi.mock(import('@/lib/pane-manager/pane-terminal-options'), async (importOriginal) =>
+  importOriginal()
+)
 vi.mock('@/components/terminal-pane/terminal-user-input-signal', () => ({
   subscribeToTerminalUserInput: () => ({ dispose: vi.fn() })
 }))

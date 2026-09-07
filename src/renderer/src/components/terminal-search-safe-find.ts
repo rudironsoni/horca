@@ -1,9 +1,7 @@
-import type { SearchAddon } from '@xterm/addon-search'
-
-type SearchOptions = Parameters<SearchAddon['findNext']>[1]
+type SearchOptions = { caseSensitive?: boolean; regex?: boolean }
 
 /**
- * Why: @xterm/addon-search builds match-highlight decorations whose width is
+ * Why: search highlight decorations whose width is
  * `Math.min(terminal.cols - matchCol, remainingSize)`. When the live viewport is
  * narrower than the buffer column where a match starts — e.g. searching content
  * laid out at a wider width before the pane reflowed, or a collapsed/0-col

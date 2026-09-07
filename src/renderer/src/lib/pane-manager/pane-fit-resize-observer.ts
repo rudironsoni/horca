@@ -7,7 +7,7 @@ type ProposedDimensions = {
 }
 
 type StableFitPane = ManagedPane &
-  Partial<Pick<ManagedPaneInternal, 'xtermContainer' | 'pendingObservedFitRafId'>>
+  Partial<Pick<ManagedPaneInternal, 'terminalHost' | 'pendingObservedFitRafId'>>
 
 const MAX_STABILITY_FRAMES = 8
 const pendingStableFitRafIds = new WeakMap<StableFitPane, number>()
@@ -30,12 +30,12 @@ function setPendingObservedFitRafId(pane: StableFitPane, id: number | null): voi
 }
 
 function getFitElement(pane: StableFitPane): HTMLElement {
-  return pane.xtermContainer ?? pane.container
+  return pane.terminalHost ?? pane.container
 }
 
 function getProposedDimensions(pane: StableFitPane): ProposedDimensions | null {
   try {
-    return pane.fitAddon.proposeDimensions() ?? null
+    return pane.fitController.proposeDimensions() ?? null
   } catch {
     return null
   }
@@ -149,7 +149,7 @@ export function attachPaneFitResizeObserver(pane: ManagedPaneInternal): void {
     requestStablePaneFit(pane)
   })
 
-  observer.observe(pane.xtermContainer)
+  observer.observe(pane.terminalHost)
   pane.fitResizeObserver = observer
 }
 

@@ -8,19 +8,12 @@ import {
 import { runGuardedWriteCompletionStep } from './xterm-write-callback-guard'
 
 export type ForegroundTerminalOutputTarget = {
-  buffer?: {
-    active?: {
-      type?: string
-      cursorY?: number
-      baseY?: number
-      viewportY?: number
-    }
-  }
+  isAlternateScreen?: boolean
+  cursor?: { x: number; y: number }
+  baseY?: number
+  viewportY?: number
   rows?: number
-  _core?: {
-    refresh?(start: number, end: number, sync?: boolean): void
-  }
-  refresh?(start: number, end: number): void
+  refresh?(start?: number, end?: number): void
   write(data: string, callback?: () => void): void
 }
 
@@ -47,7 +40,7 @@ type ViewportSnapshot = {
 
 function refreshVisibleRows(
   terminal: ForegroundTerminalOutputTarget,
-  synchronously: boolean,
+  _synchronously: boolean,
   shouldReleaseRenderPause?: () => boolean,
   span?: ParsedDirtyRowSpan | null
 ): void {
@@ -69,27 +62,20 @@ function refreshVisibleRows(
     const end = span ? Math.min(Math.max(span.end, start), lastRow) : lastRow
     // Why: DOM-rendered Windows ConPTY rewrites need an immediate repair, while
     // WebGL can merge this request into xterm's already-queued frame.
-    if (synchronously && typeof terminal._core?.refresh === 'function') {
-      terminal._core.refresh(start, end, true)
-      return
-    }
     if (typeof terminal.refresh === 'function') {
       terminal.refresh(start, end)
-      return
     }
-    terminal._core?.refresh?.(start, end, false)
   } catch {
     // Ignore disposed terminals; PTY output can race pane teardown.
   }
 }
 
 function captureViewportSnapshot(terminal: ForegroundTerminalOutputTarget): ViewportSnapshot {
-  const active = terminal.buffer?.active
   return {
-    type: typeof active?.type === 'string' ? active.type : null,
-    cursorY: typeof active?.cursorY === 'number' ? active.cursorY : null,
-    baseY: typeof active?.baseY === 'number' ? active.baseY : null,
-    viewportY: typeof active?.viewportY === 'number' ? active.viewportY : null
+    type: terminal.isAlternateScreen ? 'alternate' : 'normal',
+    cursorY: typeof terminal.cursor?.y === 'number' ? terminal.cursor.y : null,
+    baseY: typeof terminal.baseY === 'number' ? terminal.baseY : null,
+    viewportY: typeof terminal.viewportY === 'number' ? terminal.viewportY : null
   }
 }
 

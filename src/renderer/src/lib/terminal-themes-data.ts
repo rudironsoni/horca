@@ -1,4 +1,4 @@
-import type { ITheme } from '@xterm/xterm'
+import type { ITheme } from '../../../shared/orca-terminal-surface'
 
 import { TERMINAL_THEME_CATALOG } from './terminal-themes'
 
