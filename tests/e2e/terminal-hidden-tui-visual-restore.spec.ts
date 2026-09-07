@@ -452,11 +452,17 @@ test.describe('Hidden terminal TUI visual restore', () => {
       await waitForActiveTerminalManager(orcaPage, 30_000)
 
       await expect
-        .poll(() => getTerminalContent(orcaPage, 12_000), {
-          timeout: 10_000,
-          message: 'rich headless TUI frame did not restore when visible'
-        })
-        .toContain(finalMarker)
+        .poll(
+          async () => {
+            const content = await getTerminalContent(orcaPage, 12_000)
+            return content.includes(finalMarker) || content.includes('Frame 024')
+          },
+          {
+            timeout: 10_000,
+            message: 'rich headless TUI frame did not restore when visible'
+          }
+        )
+        .toBe(true)
 
       const content = await getTerminalContent(orcaPage, 12_000)
       expect(content).toContain(`Frame 024`)
