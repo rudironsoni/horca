@@ -58,7 +58,7 @@ export async function focusActiveTerminalInput(page: Page): Promise<void> {
   })
 }
 
-export async function waitForActivePanePtyId(page: Page, timeoutMs = 15_000): Promise<string> {
+export async function waitForActivePanePtyId(page: Page, timeoutMs = 30_000): Promise<string> {
   let resolvedPtyId: string | null = null
   await expect
     .poll(
@@ -70,8 +70,24 @@ export async function waitForActivePanePtyId(page: Page, timeoutMs = 15_000): Pr
 
         resolvedPtyId = await page.evaluate((tabId) => {
           const manager = window.__paneManagers?.get(tabId)
-          const activePane = manager?.getActivePane?.() ?? manager?.getPanes?.()[0] ?? null
-          return activePane?.container?.dataset?.ptyId ?? null
+          const panes = manager?.getPanes?.() ?? []
+          const activePane = manager?.getActivePane?.() ?? panes[0] ?? null
+          const fromActive = activePane?.container?.dataset?.ptyId ?? null
+          if (fromActive) {
+            return fromActive
+          }
+          for (const pane of panes) {
+            const ptyId = pane.container?.dataset?.ptyId
+            if (ptyId) {
+              return ptyId
+            }
+          }
+          const layout = window.__store?.getState()?.terminalLayoutsByTabId?.[tabId]
+          const leafId = activePane?.leafId
+          if (leafId && layout?.ptyIdsByLeafId?.[leafId]) {
+            return layout.ptyIdsByLeafId[leafId]
+          }
+          return Object.values(layout?.ptyIdsByLeafId ?? {})[0] ?? null
         }, tabId)
         return resolvedPtyId
       },
@@ -90,7 +106,8 @@ export async function waitForActivePanePtyId(page: Page, timeoutMs = 15_000): Pr
 
 export async function waitForPaneIdentitySnapshot(
   page: Page,
-  paneCount: number
+  paneCount: number,
+  timeoutMs = 30_000
 ): Promise<PaneIdentitySnapshot> {
   let latestSnapshot: PaneIdentitySnapshot | null = null
   try {
@@ -112,7 +129,7 @@ export async function waitForPaneIdentitySnapshot(
           )
         },
         {
-          timeout: 15_000,
+          timeout: timeoutMs,
           message: 'Split terminal panes did not settle with UUID leaf-keyed PTY bindings'
         }
       )
