@@ -313,13 +313,13 @@ async function readTerminalRenderDiagnostics(page: Page): Promise<TerminalRender
             )
             return line?.translateToString(true) ?? ''
           }).join('\n')
-          const serializedText = managedPane.serializeAddon?.serialize?.() ?? visibleText
+          const serializedText = managedPane.serializeController?.serialize?.() ?? visibleText
           return {
             tabId: managerTabId,
             paneId: managedPane.id,
             hasComplexScriptOutput: managedPane.hasComplexScriptOutput === true,
             hasMarker: serializedText.includes('LONG_TABLE_SCROLL_RESTORE_'),
-            hasWebgl: Boolean(managedPane.webglAddon)
+            hasWebgl: Boolean(managedPane.gpuRenderer)
           }
         })
     )
@@ -329,7 +329,7 @@ async function readTerminalRenderDiagnostics(page: Page): Promise<TerminalRender
       viewportY: buffer.viewportY,
       baseY: buffer.baseY,
       hasComplexScriptOutput: pane.hasComplexScriptOutput === true,
-      hasWebgl: Boolean(pane.webglAddon),
+      hasWebgl: Boolean(pane.gpuRenderer),
       canvasCount: pane.container.querySelectorAll('canvas').length,
       cursorHidden: terminalCore?.coreService?.isCursorHidden ?? null,
       visibleLineTails,

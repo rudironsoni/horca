@@ -149,7 +149,7 @@ describe('applyTerminalAppearance theme assignment', () => {
         dataset: {},
         getBoundingClientRect: () => ({ width: measurable ? 800 : 0, height: measurable ? 600 : 0 })
       },
-      fitAddon: {
+      fitController: {
         proposeDimensions: () => (measurable ? { cols: 80, rows: 24 } : undefined)
       }
     } as unknown as ManagedPane
@@ -344,7 +344,7 @@ describe('applyTerminalAppearance theme assignment', () => {
         dataset: {},
         getBoundingClientRect: () => ({ width: measurable ? 800 : 0, height: measurable ? 600 : 0 })
       },
-      fitAddon: {
+      fitController: {
         fit: vi.fn(),
         proposeDimensions: () => (measurable ? { cols: 80, rows: 24 } : undefined)
       }
@@ -384,7 +384,7 @@ describe('applyTerminalAppearance theme assignment', () => {
         dataset: {},
         getBoundingClientRect: () => ({ width: measurable ? 800 : 0, height: measurable ? 600 : 0 })
       },
-      fitAddon: {
+      fitController: {
         fit: vi.fn(),
         proposeDimensions: () => (measurable ? { cols: 80, rows: 24 } : undefined)
       }

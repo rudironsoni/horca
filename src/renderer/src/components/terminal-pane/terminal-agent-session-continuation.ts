@@ -54,7 +54,7 @@ export function prepareAgentSessionContinuationFromPane({
   const status = state.agentStatusByPaneKey[paneKey]
   const sourceAgent = resolveSourceAgent({ pane, tabId, worktreeId })
   const transcriptPath = status?.providerSession?.transcriptPath?.trim() || null
-  const capturedText = transcriptPath ? '' : pane.serializeAddon.serialize({ scrollback: 800 })
+  const capturedText = transcriptPath ? '' : pane.serializeController.serialize({ scrollback: 800 })
   const source = {
     // Why: prefer the same-host transcript so opening the dialog does not serialize large scrollback.
     capturedText,

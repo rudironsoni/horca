@@ -18,7 +18,6 @@
  * Runs everywhere: no ConPTY needed, so this also guards macOS and Linux.
  */
 import { describe, expect, it } from 'vitest'
-import type { Terminal } from '@xterm/headless'
 import { HeadlessEmulator } from './headless-emulator'
 import { WideCellGrid, readGridRows } from './__fixtures__/terminal-wide-cell-grid'
 
@@ -37,8 +36,7 @@ type Painted = { rows: string[]; emulator: HeadlessEmulator }
 function paint(cols: number, sequence: string): Painted {
   const emulator = new HeadlessEmulator({ cols, rows: ROWS })
   emulator.writeSync(sequence)
-  const terminal = (emulator as unknown as { terminal: Terminal }).terminal
-  return { rows: readGridRows(terminal, ROWS), emulator }
+  return { rows: readGridRows(emulator), emulator }
 }
 
 function rowsOf(cols: number, sequence: string): string[] {
@@ -149,8 +147,7 @@ describe('repaint over wide characters (#15192)', () => {
         const emulator = new HeadlessEmulator({ cols, rows: ROWS })
         emulator.writeSync(written)
         emulator.resize(target, ROWS)
-        const terminal = (emulator as unknown as { terminal: Terminal }).terminal
-        const reflowed = readGridRows(terminal, ROWS)
+        const reflowed = readGridRows(emulator)
         emulator.dispose()
         const direct = rowsOf(target, written)
         if (reflowed.join('|') !== direct.join('|')) {

@@ -39,7 +39,7 @@ export async function readVisiblePaneContents(page: Page): Promise<string[]> {
     return (
       manager
         ?.getPanes()
-        .map((pane) => pane.serializeAddon?.serialize?.({ scrollback: 200 }) ?? '') ?? []
+        .map((pane) => pane.serializeController?.serialize?.({ scrollback: 200 }) ?? '') ?? []
     )
   }, snapshot.tabId)
 }

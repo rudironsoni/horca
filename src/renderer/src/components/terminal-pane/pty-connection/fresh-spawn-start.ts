@@ -298,7 +298,8 @@ export function bindStartFreshSpawn(session: ConnectPanePtySession): void {
         session.finishReattachLiveDataDeferral(Boolean(resolvedPtyId), outputCallbacks.generation)
         return resolvedPtyId
       })
-      .catch(async () => {
+      .catch(async (err) => {
+        console.warn('[orca-terminal] fresh spawn failed', err)
         releaseDeferredCwdFence()
         session.finishReattachLiveDataDeferral(false, outputCallbacks.generation)
         if (
