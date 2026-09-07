@@ -3,10 +3,10 @@ import { pathToFileURL } from 'node:url'
 
 const isProductSource = (file) => !/\.test\.tsx?$/.test(file)
 
-// Why config/patches: the xterm fork owns the helper textarea an input method attaches to, so a
-// patch edit can break composition without touching a file named "ime".
+// Why ghostty-vt + orca-pane: Canvas2D Ghostty owns the focused surface an input method
+// attaches to, so a renderer or encode edit can break composition without a file named "ime".
 const NATIVE_IME_PRODUCT_SOURCE =
-  /^(?:config\/patches\/|src\/shared\/terminal-unicode-provider\.ts$|src\/renderer\/src\/lib\/pane-manager\/terminal-ime-|src\/renderer\/src\/components\/terminal-pane\/(?:terminal-ime-|terminal-ios-hangul-|xterm-bypass-policy))/
+  /^(?:src\/ghostty-vt\/|src\/shared\/terminal-unicode-provider\.ts$|src\/renderer\/src\/lib\/pane-manager\/(?:terminal-ime-|orca-pane-)|src\/renderer\/src\/components\/terminal-pane\/(?:terminal-ime-|terminal-ios-hangul-|xterm-bypass-policy))/
 
 /** The harness itself: the session runner, the boundary probes, and the native specs. */
 const NATIVE_IME_HARNESS =
@@ -107,7 +107,7 @@ export const PR_E2E_SOURCE_ROUTES = [
     ],
     matches: (file) =>
       isProductSource(file) &&
-      /^(?:config\/patches\/|src\/renderer\/src\/components\/terminal-pane\/(?:terminal-ime-|use-terminal-pane-lifecycle|xterm-bypass-policy|terminal-option-shortcut-policy))/.test(
+      /^(?:src\/ghostty-vt\/|src\/renderer\/src\/lib\/pane-manager\/orca-pane-|src\/renderer\/src\/components\/terminal-pane\/(?:terminal-ime-|use-terminal-pane-lifecycle|xterm-bypass-policy|terminal-option-shortcut-policy))/.test(
         file
       )
   },

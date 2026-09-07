@@ -31,12 +31,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   deviceTraceKeystrokes,
+  loadIosDeviceTrace,
+  replayIosDeviceTrace
+} from './terminal-ios-hangul-device-trace'
+import {
   disposeOpenTerminals,
   dispatchKey,
-  loadIosDeviceTrace,
   openIosTerminal,
   pretendIosWeb,
-  replayIosDeviceTrace,
   typeJamo,
   typePrintable,
   type IosHangulRig

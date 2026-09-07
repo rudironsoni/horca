@@ -1,4 +1,3 @@
-import type { Terminal } from '@xterm/xterm'
 import { getShortcutPlatform } from '@/lib/shortcut-platform'
 import { installTerminalImeCompositionTracker } from '@/components/terminal-pane/terminal-ime-composition-tracker'
 import { installTerminalImeNativeTextForwarder } from '@/components/terminal-pane/terminal-ime-native-text-forwarder'
@@ -29,7 +28,7 @@ export type PreviewImeBridgeOptions = {
  * forwarded unchanged, never masked or reduced to a boolean.
  */
 export function installPreviewImeBridge(
-  terminal: Terminal,
+  terminal: { element: HTMLElement; input: (data: string) => void },
   options: PreviewImeBridgeOptions
 ): PreviewImeBridge | null {
   if (getShortcutPlatform() !== 'darwin') {

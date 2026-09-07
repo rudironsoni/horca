@@ -1,4 +1,13 @@
-import type { IBuffer, IBufferCell, IBufferLine } from '@xterm/xterm'
+type ImeAnchorLine = {
+  length: number
+  translateToString: (trimRight?: boolean, startCol?: number, endCol?: number) => string
+  getCell: (column: number) => { getChars: () => string; getWidth: () => number } | undefined
+}
+
+type ImeAnchorBuffer = {
+  baseY: number
+  getLine: (y: number) => ImeAnchorLine | undefined
+}
 
 export type TerminalImeAnchor = {
   row: number
@@ -11,7 +20,7 @@ const CURSOR_AGENT_EMPTY_PROMPTS = ['Plan, search, build anything', 'Add a follo
 const CURSOR_AGENT_HEADER_SCAN_ROWS = 6
 
 export function resolveCursorAgentImeAnchor(args: {
-  buffer: IBuffer
+  buffer: ImeAnchorBuffer
   rows: number
   cols: number
   cursorX: number
@@ -26,7 +35,7 @@ export function resolveCursorAgentImeAnchor(args: {
 }
 
 function findCursorAgentScreenInputAnchor(args: {
-  buffer: IBuffer
+  buffer: ImeAnchorBuffer
   rows: number
   cols: number
   knownCursorAgent?: boolean
@@ -49,11 +58,11 @@ function findCursorAgentScreenInputAnchor(args: {
   return null
 }
 
-function getVisibleLine(buffer: IBuffer, row: number): IBufferLine | undefined {
+function getVisibleLine(buffer: ImeAnchorBuffer, row: number): ImeAnchorLine | undefined {
   return buffer.getLine(buffer.baseY + row)
 }
 
-function hasCursorAgentHeader(buffer: IBuffer, rows: number): boolean {
+function hasCursorAgentHeader(buffer: ImeAnchorBuffer, rows: number): boolean {
   const scanRows = Math.min(rows, CURSOR_AGENT_HEADER_SCAN_ROWS)
   for (let row = 0; row < scanRows; row++) {
     if (getVisibleLine(buffer, row)?.translateToString(true).trim() === CURSOR_AGENT_HEADER) {
@@ -64,7 +73,7 @@ function hasCursorAgentHeader(buffer: IBuffer, rows: number): boolean {
 }
 
 function resolveCursorAgentInputColumn(
-  line: IBufferLine,
+  line: ImeAnchorLine,
   cols: number,
   allowTypedInput: boolean
 ): number | null {
@@ -85,7 +94,7 @@ function resolveCursorAgentInputColumn(
   return findLineContentEndColumn(line, inputColumn, cols) ?? inputColumn
 }
 
-function findCursorAgentInputStartColumn(line: IBufferLine, cols: number): number | null {
+function findCursorAgentInputStartColumn(line: ImeAnchorLine, cols: number): number | null {
   const maxColumn = Math.min(line.length, cols)
   for (let column = 0; column < maxColumn - 1; column++) {
     const markerCell = line.getCell(column)
@@ -102,7 +111,7 @@ function findCursorAgentInputStartColumn(line: IBufferLine, cols: number): numbe
 }
 
 function findLineContentEndColumn(
-  line: IBufferLine,
+  line: ImeAnchorLine,
   startColumn: number,
   cols: number
 ): number | null {
@@ -117,14 +126,17 @@ function findLineContentEndColumn(
   return null
 }
 
-function isBlankLine(line: IBufferLine | undefined): boolean {
+function isBlankLine(line: ImeAnchorLine | undefined): boolean {
   return !line || line.translateToString(true).trim() === ''
 }
 
-function isCellChar(cell: IBufferCell | undefined, expected: string): cell is IBufferCell {
+function isCellChar(
+  cell: { getChars: () => string; getWidth: () => number } | undefined,
+  expected: string
+): cell is { getChars: () => string; getWidth: () => number } {
   return !!cell && cell.getWidth() > 0 && getCellChars(cell) === expected
 }
 
-function getCellChars(cell: IBufferCell): string {
+function getCellChars(cell: { getChars: () => string }): string {
   return cell.getChars() || ' '
 }
