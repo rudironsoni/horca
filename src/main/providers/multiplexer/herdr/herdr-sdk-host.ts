@@ -21,7 +21,7 @@ import {
   herdrSessionControlArgs,
   herdrSessionControlStreamFromProcess
 } from './herdr-session-control'
-import { herdrSessionSocketPath } from './herdr-session-socket-path'
+import { herdrConfigHomeForSession, herdrSessionSocketPath } from './herdr-session-socket-path'
 import { HerdrWslSocketRelay } from './herdr-wsl-socket-relay'
 
 export type HerdrSdkHostOptions = {
@@ -53,7 +53,11 @@ export class HerdrSdkHost implements HerdrHostTransport {
           if (this.options.wslDistro) {
             throw new Error(`Herdr WSL relay is not listening for session ${sessionName}`)
           }
-          return { sessionName }
+          const configHome = herdrConfigHomeForSession(sessionName)
+          return {
+            sessionName,
+            socketPath: herdrSessionSocketPath(configHome, sessionName)
+          }
         }
       })
     this.sessionManager = new HerdrCliSessionManager({
