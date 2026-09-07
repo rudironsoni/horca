@@ -2,6 +2,20 @@ import { describe, expect, it } from 'vitest'
 import { ensureStockHerdrSession } from './herdr-stock-session'
 
 describe('ensureStockHerdrSession', () => {
+  it('starts the server when session list fails', async () => {
+    const starts: string[] = []
+    await ensureStockHerdrSession(new Map(), 'orca', {
+      listSessions: async () => {
+        throw new Error('dead socket')
+      },
+      startServer: async (name) => {
+        starts.push(name)
+      },
+      socketReady: async () => true
+    })
+    expect(starts).toEqual(['orca'])
+  })
+
   it('starts the server when the named session is not running', async () => {
     const starts: string[] = []
     let running = false
