@@ -200,7 +200,7 @@ async function readPaneContent(page: Page, webTabId: string): Promise<string> {
   return page.evaluate((id) => {
     const manager = window.__paneManagers?.get(id)
     const pane = manager?.getActivePane?.() ?? manager?.getPanes?.()[0] ?? null
-    return pane?.serializeAddon?.serialize?.() ?? ''
+    return pane?.serializeController?.serialize?.() ?? ''
   }, webTabId)
 }
 
@@ -221,7 +221,7 @@ async function readPaneDiagnostics(
         recoveryState: pane?.container?.dataset?.ptyRecoveryState ?? null,
         cols: pane?.terminal?.cols ?? null,
         rows: pane?.terminal?.rows ?? null,
-        bufferLength: pane?.serializeAddon?.serialize?.()?.length ?? null,
+        bufferLength: pane?.serializeController?.serialize?.()?.length ?? null,
         paneLeafIds: manager?.getPanes?.().map((entry) => entry.leafId ?? null) ?? null,
         storeTabPtyId: tab?.ptyId ?? null,
         storeTabLayout: tab?.paneLayout ? JSON.stringify(tab.paneLayout) : null,

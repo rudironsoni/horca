@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import type { IDisposable } from '@xterm/xterm'
+import type { OrcaDisposable as IDisposable } from '../../../../shared/orca-terminal-surface'
 import { normalizeDesktopTerminalScrollbackRows } from '../../../../shared/terminal-scrollback-policy'
 import { applyTerminalAppearance } from './terminal-appearance'
 import { installMouseHideWhileTyping } from './mouse-hide-while-typing'

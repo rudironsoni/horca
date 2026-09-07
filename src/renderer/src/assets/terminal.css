@@ -25,9 +25,14 @@
   outline: none;
 }
 
-.pane-manager-root .xterm {
+.pane-manager-root .xterm,
+.pane-manager-root .orca-terminal-canvas {
   height: 100%;
   width: 100%;
+}
+
+.orca-terminal-canvas {
+  display: block;
 }
 
 .pane-manager-root .xterm-viewport {
