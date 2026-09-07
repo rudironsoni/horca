@@ -64,6 +64,11 @@ export function noopDisposable(): OrcaDisposable {
   return { dispose: () => undefined }
 }
 
+export function trackListener<T>(listeners: Set<T>, listener: T): OrcaDisposable {
+  listeners.add(listener)
+  return { dispose: () => listeners.delete(listener) }
+}
+
 export function flushWaiters(active: boolean, waiters: Set<() => void>): void {
   if (active || waiters.size === 0) {
     return
