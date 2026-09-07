@@ -1,4 +1,4 @@
-import type { ILink, ILinkProvider, Terminal } from '@xterm/xterm'
+import type { ILink, ILinkProvider, Terminal } from '../../../../shared/orca-terminal-surface'
 import type { AppState } from '@/store'
 import { useAppStore } from '@/store'
 import { activateTabAndFocusPane } from '@/lib/activate-tab-and-focus-pane'
@@ -165,7 +165,9 @@ export function createTerminalHandleLinkProvider(
         callback(undefined)
         return
       }
-      const logicalLine = buildWrappedLogicalLine(terminal.buffer.active, bufferLineNumber)
+      const logicalLine = terminal.buffer
+        ? buildWrappedLogicalLine(terminal.buffer.active, bufferLineNumber)
+        : null
       if (
         !logicalLine ||
         (!logicalLine.text.includes(TERMINAL_HANDLE_PREFIX) &&
@@ -228,7 +230,7 @@ export function createTerminalHandleLinkProvider(
                 })
               }
               if (handled) {
-                terminal.clearSelection()
+                terminal.clearSelection?.()
               }
             },
             hover: () => {

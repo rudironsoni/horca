@@ -17,10 +17,10 @@ permissions:
 
 jobs:
   # Why: a README/docs-only PR used to start the full matrix (test shards,
-  # two package jobs, typecheck, git compat, xterm, shell contracts). Path
+  # two package jobs, typecheck, git compat, shell contracts). Path
   # filters on `on.pull_request` would drop the `verify` check entirely; this
   # detector keeps verify as the required aggregate and skips the expensive jobs.
-  # Per-job outputs also skip git-compat/xterm/packaging/shell when those
+  # Per-job outputs also skip git-compat/packaging/shell when those
   # inputs are unchanged; empty diffs fail closed and run everything.
   code_paths:
     name: detect code-relevant changes
@@ -33,7 +33,6 @@ jobs:
       typecheck: ${{ steps.filter.outputs.typecheck }}
       git_compatibility: ${{ steps.filter.outputs.git_compatibility }}
       codex_index_heal_contract: ${{ steps.filter.outputs.codex_index_heal_contract }}
-      xterm_patch_sync: ${{ steps.filter.outputs.xterm_patch_sync }}
       shell_contracts: ${{ steps.filter.outputs.shell_contracts }}
       test: ${{ steps.filter.outputs.test }}
       orcad_browser: ${{ steps.filter.outputs.orcad_browser }}
@@ -410,39 +409,6 @@ jobs:
           ORCA_CODEX_CONTRACT_BINARY="$RUNNER_TEMP/codex-cli/node_modules/.bin/codex" \
             pnpm exec vitest run --config config/vitest.config.ts \
             src/main/codex/codex-index-heal-binary-contract.test.ts
-
-  xterm_patch_sync:
-    name: xterm patch sync
-    needs: [code_paths]
-    if: needs.code_paths.outputs.xterm_patch_sync == 'true'
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-        with:
-          persist-credentials: false
-
-      - uses: ./.github/actions/install-node-dependencies
-
-      # Why: the check rebuilds every package in the manifest from a pinned upstream
-      # commit — @xterm/xterm and its three addons, each built twice (once unmodified to
-      # prove the toolchain still reproduces the published bundles, once patched). Caching
-      # the npm metadata and the shallow clone keeps the repeated cost to the builds
-      # themselves; the key is the manifest, so a commit, package or toolchain bump
-      # invalidates it.
-      - name: Restore upstream xterm build inputs
-        uses: actions/cache@v5
-        with:
-          path: |
-            ~/.npm
-            ${{ runner.temp }}/xterm-patch-build/upstream/.git
-          key: xterm-upstream-${{ hashFiles('config/patches/xterm-upstream.json') }}
-
-      - name: Verify xterm patches match the pinned upstream build
-        env:
-          WORK_DIR: ${{ runner.temp }}/xterm-patch-build
-        run: node config/scripts/regenerate-xterm-patches.mjs --check --work-dir="$WORK_DIR"
 
   shell_contracts:
     name: shell contracts
@@ -964,7 +930,6 @@ jobs:
       - typecheck
       - git_compatibility
       - codex_index_heal_contract
-      - xterm_patch_sync
       - shell_contracts
       - test
       - orcad_browser
@@ -996,8 +961,6 @@ jobs:
           GIT_COMPATIBILITY_SHOULD_RUN: ${{ needs.code_paths.outputs.git_compatibility }}
           CODEX_INDEX_HEAL_CONTRACT: ${{ needs.codex_index_heal_contract.result }}
           CODEX_INDEX_HEAL_CONTRACT_SHOULD_RUN: ${{ needs.code_paths.outputs.codex_index_heal_contract }}
-          XTERM_PATCH_SYNC: ${{ needs.xterm_patch_sync.result }}
-          XTERM_PATCH_SYNC_SHOULD_RUN: ${{ needs.code_paths.outputs.xterm_patch_sync }}
           SHELL_CONTRACTS: ${{ needs.shell_contracts.result }}
           SHELL_CONTRACTS_SHOULD_RUN: ${{ needs.code_paths.outputs.shell_contracts }}
           TEST: ${{ needs.test.result }}
@@ -1042,7 +1005,6 @@ jobs:
           check_job typecheck "$TYPECHECK" "$TYPECHECK_SHOULD_RUN"
           check_job git_compatibility "$GIT_COMPATIBILITY" "$GIT_COMPATIBILITY_SHOULD_RUN"
           check_job codex_index_heal_contract "$CODEX_INDEX_HEAL_CONTRACT" "$CODEX_INDEX_HEAL_CONTRACT_SHOULD_RUN"
-          check_job xterm_patch_sync "$XTERM_PATCH_SYNC" "$XTERM_PATCH_SYNC_SHOULD_RUN"
           check_job shell_contracts "$SHELL_CONTRACTS" "$SHELL_CONTRACTS_SHOULD_RUN"
           check_job test "$TEST" "$TEST_SHOULD_RUN"
           check_job orcad_browser "$ORCAD_BROWSER" "$ORCAD_BROWSER_SHOULD_RUN"

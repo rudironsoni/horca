@@ -1,4 +1,4 @@
-import type { Terminal } from '@xterm/xterm'
+import type { OrcaPaneTerminal as Terminal } from '../../lib/pane-manager/orca-pane-terminal'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { installTerminalLinkifierClickPriming } from './terminal-linkifier-click-priming'
 

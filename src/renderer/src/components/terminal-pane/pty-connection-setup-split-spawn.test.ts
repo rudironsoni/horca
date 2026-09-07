@@ -188,7 +188,7 @@ describe('connectPanePty', () => {
         }) as DOMRect
     })
     ;(
-      pane.fitAddon as unknown as { proposeDimensions: () => { cols: number; rows: number } }
+      pane.fitController as unknown as { proposeDimensions: () => { cols: number; rows: number } }
     ).proposeDimensions = vi.fn(() => ({ cols: 120, rows: 40 }))
     pane.terminal.resize.mockImplementation((cols: number, rows: number) => {
       pane.terminal.cols = cols
@@ -301,11 +301,11 @@ describe('connectPanePty', () => {
     pane.container = mainContainer
     siblingPane.container = setupContainer
     ;(
-      pane.fitAddon as unknown as {
+      pane.fitController as unknown as {
         proposeDimensions: () => { cols: number; rows: number }
       }
     ).proposeDimensions = vi.fn(() => proposedGrid)
-    pane.fitAddon.fit = vi.fn(() => {
+    pane.fitController.fit = vi.fn(() => {
       pane.terminal.cols = proposedGrid.cols
       pane.terminal.rows = proposedGrid.rows
     })

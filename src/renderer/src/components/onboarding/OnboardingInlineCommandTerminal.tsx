@@ -378,5 +378,8 @@ function terminalReadyForCommand(element: HTMLElement | null): boolean {
   // Why: pasting before the login shell renders a prompt can double-echo the
   // draft command. Visible terminal text is the least intrusive readiness signal.
   const renderedText = element.querySelector('.xterm-rows')?.textContent?.trim() ?? ''
-  return renderedText.length > 0
+  if (renderedText.length > 0) {
+    return true
+  }
+  return Boolean(element.querySelector('canvas.xterm'))
 }

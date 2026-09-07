@@ -1,8 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { Terminal } from '@xterm/xterm'
-import '@xterm/xterm/css/xterm.css'
 import { getShortcutPlatform } from '@/lib/shortcut-platform'
-import { subscribeToTerminalUserInput } from '@/components/terminal-pane/terminal-user-input-signal'
 import { composeActiveTerminalTheme } from '@/components/terminal-pane/terminal-appearance'
 import { useSystemPrefersDark } from '@/components/terminal-pane/use-system-prefers-dark'
 import { TerminalKittyKeyboardModeTracker } from '../../../../shared/terminal-kitty-keyboard-mode-tracker'
@@ -12,10 +9,10 @@ import {
   buildPreviewAppearanceOptions,
   buildPreviewTerminalOptions
 } from './preview-terminal-options'
-import { syncPreviewTerminalLigatures } from './preview-terminal-ligatures'
-import { installPreviewTerminalCompatibility } from './preview-terminal-compatibility'
 import { createPreviewClipboardPaster } from './preview-terminal-paste'
 import { installPreviewImeBridge, type PreviewImeBridge } from './preview-terminal-ime-bridge'
+import { OrcaPaneTerminal } from '@/lib/pane-manager/orca-pane-terminal'
+import { primeGhosttyVtHost } from '@/lib/ghostty-vt-web-host'
 import type { DashboardCardTerminalInput } from '../../../../shared/dashboard-snapshot'
 import { terminalPreviewUnavailableMessage } from './terminal-preview-unavailable-message'
 import { getBuiltinTheme, resolveEffectiveTerminalAppearance } from '@/lib/terminal-theme'
@@ -61,7 +58,7 @@ export function AgentTerminalPreview({
   className?: string
 }): React.JSX.Element {
   const containerRef = useRef<HTMLDivElement>(null)
-  const terminalRef = useRef<Terminal | null>(null)
+  const terminalRef = useRef<OrcaPaneTerminal | null>(null)
   const settings = useAppStore((state) => state.settings)
   const systemPrefersDark = useSystemPrefersDark()
   const macOptionAsAlt = useEffectiveMacOptionAsAlt(settings?.terminalMacOptionAsAlt)
@@ -102,12 +99,10 @@ export function AgentTerminalPreview({
       return
     }
     let disposed = false
-    let terminal: Terminal | null = null
+    let terminal: OrcaPaneTerminal | null = null
     let offData: (() => void) | null = null
-    let userInputDisposable: { dispose: () => void } | null = null
     let imeBridge: PreviewImeBridge | null = null
     let disposeKeyHandler: (() => void) | null = null
-    let disposeTerminalCompatibility: (() => void) | null = null
     // Why: mirrors the pane's tracker — the policy needs the flags the TUI
     // negotiated, and this preview parses the same output stream the pane does.
     const kittyKeyboardModes = new TerminalKittyKeyboardModeTracker()
@@ -137,7 +132,6 @@ export function AgentTerminalPreview({
     }
     boxResizeObserver?.observe(container)
 
-    let replayDepth = 0
     const writeReplayed = (chunk: string, onDone?: () => void, live = false): void => {
       // Why: a redelivered snapshot repeats the TUI's one-time kitty push, so
       // replayed bytes must apply as idempotent sets (see the tracker's docs).
@@ -146,9 +140,7 @@ export function AgentTerminalPreview({
       } else {
         kittyKeyboardModes.scanReplay(chunk)
       }
-      replayDepth++
       terminal?.write(chunk, () => {
-        replayDepth--
         scheduleFit()
         onDone?.()
       })
@@ -215,32 +207,11 @@ export function AgentTerminalPreview({
       })
     }
 
-    const installTerminalCompatibility = (): void => {
-      if (!terminal) {
-        return
-      }
-      disposeTerminalCompatibility = installPreviewTerminalCompatibility(terminal, {
-        getSettings: () => settingsRef.current
-      })
-    }
-
     const installInputRouting = (): void => {
       if (!terminal) {
         return
       }
-      let pendingUserInputSignals = 0
-      userInputDisposable = subscribeToTerminalUserInput(terminal, () => {
-        pendingUserInputSignals = Math.min(32, pendingUserInputSignals + 1)
-      })
       terminal.onData((data) => {
-        const signaledUserInput = pendingUserInputSignals > 0
-        if (signaledUserInput) {
-          pendingUserInputSignals--
-        }
-        // Why: core's signal distinguishes real input from parser replies, so typing survives live replay without forwarding synthetic CPR/DA bytes.
-        if (userInputDisposable ? !signaledUserInput : replayDepth > 0) {
-          return
-        }
         void window.api.terminalPreview.input(ptyId, data)
       })
     }
@@ -252,27 +223,21 @@ export function AgentTerminalPreview({
     ): void => {
       const snap = connection.snapshot!
       if (!terminal) {
-        terminal = new Terminal(
+        terminal = new OrcaPaneTerminal(
+          container,
           buildPreviewTerminalOptions({
             settings: settingsRef.current,
-            terminalInput: terminalInputRef.current,
-            macOptionIsMeta: macOptionAsAltRef.current === 'true',
-            theme: terminalTheme,
-            themeMode: terminalMode,
             cols: clamp(snap.cols ?? FALLBACK_COLS, 2, 500),
             rows: clamp(snap.rows ?? FALLBACK_ROWS, 2, 200),
             scrollback: PREVIEW_SCROLLBACK_BUFFER_ROWS
           })
         )
-        try {
-          terminal.open(container)
-        } catch {
-          terminal.dispose()
-          terminal = null
-          return
-        }
+        container.appendChild(terminal.element)
+        terminal.resize(
+          clamp(snap.cols ?? FALLBACK_COLS, 2, 500),
+          clamp(snap.rows ?? FALLBACK_ROWS, 2, 200)
+        )
         terminalRef.current = terminal
-        installTerminalCompatibility()
         installInputRouting()
         installImeNativeTextBridge()
         installKeyHandler()
@@ -333,11 +298,7 @@ export function AgentTerminalPreview({
         setPtyGone(true)
         offData?.()
         offData = null
-        userInputDisposable?.dispose()
-        userInputDisposable = null
         disposeImeNativeTextBridge()
-        disposeTerminalCompatibility?.()
-        disposeTerminalCompatibility = null
         disposeKeyHandler?.()
         disposeKeyHandler = null
         terminal?.dispose()
@@ -379,7 +340,11 @@ export function AgentTerminalPreview({
       writeLive(payload)
     })
 
-    void setup()
+    void primeGhosttyVtHost().then(() => {
+      if (!disposed) {
+        void setup()
+      }
+    })
 
     return () => {
       disposed = true
@@ -391,9 +356,7 @@ export function AgentTerminalPreview({
       disposeAppMenuClipboard()
       disposeRightClickPaste()
       offData?.()
-      userInputDisposable?.dispose()
       disposeImeNativeTextBridge()
-      disposeTerminalCompatibility?.()
       disposeKeyHandler?.()
       void window.api.terminalPreview.unsubscribe(ptyId)
       terminal?.dispose()
@@ -409,11 +372,8 @@ export function AgentTerminalPreview({
     if (!terminal) {
       return
     }
-    Object.assign(
-      terminal.options,
-      buildPreviewAppearanceOptions(settings, macOptionAsAlt === 'true')
-    )
-    syncPreviewTerminalLigatures(terminal, settings)
+    Object.assign(terminal.options, buildPreviewAppearanceOptions(settings))
+    terminal.applyMetrics()
   }, [settings, macOptionAsAlt])
 
   return (

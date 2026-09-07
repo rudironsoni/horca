@@ -2,12 +2,11 @@ import { refreshTerminalImeInputContext } from '@/components/terminal-pane/termi
 import { UNCOVERED_TERMINAL_LEAF_SELECTOR } from '@/components/terminal-pane/native-chat-covered-pane'
 
 /**
- * Move keyboard focus into the xterm instance for a freshly-mounted terminal
- * tab. Handles the two-step race where React must first mount the new
- * TerminalPane/xterm before the hidden .xterm-helper-textarea exists —
+ * Move keyboard focus into the terminal canvas for a freshly-mounted tab.
  * double-rAF waits for that commit so focus lands on the new tab instead of
  * whatever surface (menu trigger, body, previous tab) just relinquished it.
  */
+
 function cssAttributeString(value: string): string {
   return value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
 }
@@ -55,6 +54,13 @@ function canUseSinglePaneStaleLeafFallback(tabId: string, leafId: string): boole
   return expectedLeafIds?.length === 1 && !expectedLeafIds.includes(leafId)
 }
 
+function queryFocusSurface(scope: string): HTMLElement | null {
+  return (
+    (document.querySelector(`${scope} .xterm-helper-textarea`) as HTMLElement | null) ??
+    (document.querySelector(`${scope} canvas.xterm`) as HTMLElement | null)
+  )
+}
+
 export function focusTerminalTabSurface(
   tabId: string,
   leafId?: string | null,
@@ -75,12 +81,11 @@ export function focusTerminalTabSurface(
       if (tabElement?.getAttribute('data-terminal-chat-view') === 'true') {
         return
       }
-      // Why: a split chat tab keeps a covered xterm under the chat leaf; the
-      // tab-wide query must skip it or the deferred focus lands on it.
-      const scopedSelector = leafId
-        ? `[data-terminal-tab-id="${escapedTabId}"] [data-leaf-id="${cssAttributeString(leafId)}"]${UNCOVERED_TERMINAL_LEAF_SELECTOR} .xterm-helper-textarea`
-        : `[data-terminal-tab-id="${escapedTabId}"] ${UNCOVERED_TERMINAL_LEAF_SELECTOR} .xterm-helper-textarea`
-      const scoped = document.querySelector(scopedSelector) as HTMLElement | null
+      const tabScope = `[data-terminal-tab-id="${escapedTabId}"]`
+      const uncoveredScope = leafId
+        ? `${tabScope} [data-leaf-id="${cssAttributeString(leafId)}"]${UNCOVERED_TERMINAL_LEAF_SELECTOR}`
+        : `${tabScope} ${UNCOVERED_TERMINAL_LEAF_SELECTOR}`
+      const scoped = queryFocusSurface(uncoveredScope)
       if (scoped) {
         focusTerminalHelper(scoped, options)
         return
@@ -94,7 +99,7 @@ export function focusTerminalTabSurface(
         // Why: old single-pane remounts could remint the leaf id. Only recover
         // after the tab layout no longer expects the requested leaf.
         const tabScopedHelpers = document.querySelectorAll(
-          `[data-terminal-tab-id="${escapedTabId}"] ${UNCOVERED_TERMINAL_LEAF_SELECTOR} .xterm-helper-textarea`
+          `${tabScope} ${UNCOVERED_TERMINAL_LEAF_SELECTOR} .xterm-helper-textarea, ${tabScope} ${UNCOVERED_TERMINAL_LEAF_SELECTOR} canvas.xterm`
         )
         if (tabScopedHelpers.length === 1) {
           const fallback = tabScopedHelpers.item(0) as HTMLElement | null
@@ -105,9 +110,7 @@ export function focusTerminalTabSurface(
         }
         return
       }
-      const fallback = document.querySelector(
-        `${UNCOVERED_TERMINAL_LEAF_SELECTOR} .xterm-helper-textarea`
-      ) as HTMLElement | null
+      const fallback = queryFocusSurface(UNCOVERED_TERMINAL_LEAF_SELECTOR)
       if (fallback) {
         focusTerminalHelper(fallback, options)
       }
