@@ -84,7 +84,7 @@ export function installTerminalPaneInputHandling(context: PaneInputContext): voi
   const imeNativeTextForwarder =
     isMac && !isIosWeb
       ? installTerminalImeNativeTextForwarder({
-          terminalElement: pane.terminal.element,
+          terminalElement: pane.terminal.textarea,
           isComposing: () => imeCompositionTracker.isActive(),
           sendInput: (data) => pane.terminal.input(data),
           getKittyKeyboardFlags: () => paneKittyKeyboardModesRef.current.get(pane.id)?.flags ?? 0
