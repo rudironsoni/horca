@@ -3,7 +3,6 @@ import type { GhosttyTerminal } from '../../../../ghostty-vt/ghostty-terminal'
 import type {
   IBuffer,
   ILinkProvider,
-  IParser,
   OrcaDisposable
 } from '../../../../shared/orca-terminal-surface'
 import {
@@ -36,7 +35,7 @@ export type { OrcaPaneAppearance } from './orca-pane-appearance'
 export class OrcaPaneTerminal {
   readonly element: HTMLCanvasElement
   readonly options: OrcaPaneAppearance
-  readonly parser: IParser
+  readonly parser: ReturnType<typeof createOrcaPaneParser>
   readonly engine: GhosttyTerminal
   readonly linkProviders = new Set<ILinkProvider>()
   private readonly renderer: ReturnType<typeof createOrcaPaneSurface>['renderer']
@@ -80,7 +79,8 @@ export class OrcaPaneTerminal {
     return createOrcaPaneBuffer(this.engine, () => this.baseY)
   }
   write(data: string | Uint8Array, onDone?: () => void): void {
-    this.engine.writePtyOutput(data)
+    const text = typeof data === 'string' ? data : new TextDecoder().decode(data)
+    this.engine.writePtyOutput(this.parser.consume(text))
     this.refresh()
     flushWaiters(this.isAlternateScreen, this.primaryScreenWaiters)
     onDone?.()
