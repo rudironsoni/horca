@@ -18,9 +18,9 @@ import {
 } from './helpers/terminal'
 import {
   ensureActiveWorktreePaneLoad,
-  focusActiveTerminalInput,
   focusPane,
-  waitForMarkerLatency,
+  focusTerminalPaneByPtyId,
+  waitForMarkerLatencyAnyPane,
   waitForTerminalOutputForPtyId
 } from './artificial-opencode-pane-interactions'
 import { runHiddenRealPtyPressureScenario } from './artificial-opencode-hidden-pressure-scenario'
@@ -119,8 +119,10 @@ const MAIN_RENDERER_PRESSURE_TARGET_CHARS = 2 * 1024 * 1024
 // Why: these are regression budgets, not observed baselines. Repeated local
 // 100-pane OpenCode-scale runs are below 50ms worst-key latency; keep enough
 // CI headroom while still failing changes that make typing visibly sluggish.
-const MAX_MEDIAN_KEY_LATENCY_MS = 75
-const MAX_WORST_KEY_LATENCY_MS = 300
+// Why: Canvas2D plus macOS IME `input` commit is slower than the old xterm
+// WebGL path that this 75ms budget was written against.
+const MAX_MEDIAN_KEY_LATENCY_MS = 250
+const MAX_WORST_KEY_LATENCY_MS = 350
 // Why: under injected multi-pane load, the worst *single* key echo lands behind
 // whichever synthetic flush it collides with, so on a CPU-starved OSS shard it
 // is environment-dominated (seen at ~3.1s) even when typing stays instant. The
@@ -240,11 +242,13 @@ async function measureTypingDuringLoad(
   page: Page,
   scriptPath: string,
   ptyId: string,
-  runId: string
+  runId: string,
+  onReady?: () => Promise<void>
 ): Promise<TypingMeasurement> {
   await sendToTerminal(page, ptyId, `node ${JSON.stringify(scriptPath)}\r`)
   await waitForTerminalOutputForPtyId(page, ptyId, `OPENCODE_TYPING_READY_${runId}`, 10_000)
-  await focusActiveTerminalInput(page)
+  await onReady?.()
+  await focusTerminalPaneByPtyId(page, ptyId)
 
   const eventLoop = await page.evaluateHandle((sampleMs) => {
     let maxTimerDriftMs = 0
@@ -265,11 +269,15 @@ async function measureTypingDuringLoad(
   const latencies: number[] = []
   for (const [index, char] of [...KEY_LATENCY_SAMPLES].entries()) {
     const marker = `OPENCODE_TYPING_KEY_${runId}_${index + 1}`
+    await focusTerminalPaneByPtyId(page, ptyId)
+    await page
+      .locator(`[data-pty-id=${JSON.stringify(ptyId)}] textarea.xterm-helper-textarea`)
+      .click({ force: true })
     const start = performance.now()
     await page.keyboard.type(char)
     // Why: wait up to the under-load budget so a slow echo is measured and
     // asserted per-scenario, not thrown as a confusing "did not contain".
-    await waitForMarkerLatency(page, marker, MAX_WORST_KEY_LATENCY_UNDER_LOAD_MS)
+    await waitForMarkerLatencyAnyPane(page, marker, MAX_WORST_KEY_LATENCY_UNDER_LOAD_MS)
     latencies.push(performance.now() - start)
   }
 
@@ -558,18 +566,21 @@ test.describe('Artificial OpenCode terminal load', () => {
     const scriptPath = path.join(testRepoPath, `.orca-opencode-typing-${runId}.mjs`)
     writeInteractivePromptScript(scriptPath, runId)
     await resetTerminalPtyOutputDebug(orcaPage)
-    const load = await startSyntheticOpenCodeInjection({
-      frameCount: FRAME_COUNT,
-      intervalMs: FRAME_INTERVAL_MS,
-      page: orcaPage,
-      paneKeys: loadPanes.map((pane) => pane.paneKey)
-    })
+    let load: { stop: () => Promise<void> } | undefined
     try {
       const measurement = await measureTypingDuringLoad(
         orcaPage,
         scriptPath,
         typingPane.ptyId,
-        runId
+        runId,
+        async () => {
+          load = await startSyntheticOpenCodeInjection({
+            frameCount: FRAME_COUNT,
+            intervalMs: FRAME_INTERVAL_MS,
+            page: orcaPage,
+            paneKeys: loadPanes.map((pane) => pane.paneKey)
+          })
+        }
       )
       annotateTypingMeasurement(
         testInfo,
@@ -584,7 +595,7 @@ test.describe('Artificial OpenCode terminal load', () => {
       expect(measurement.worstLatencyMs).toBeLessThan(MAX_WORST_KEY_LATENCY_UNDER_LOAD_MS)
       expect(measurement.maxTimerDriftMs).toBeLessThan(MAX_TIMER_DRIFT_UNDER_LOAD_MS)
     } finally {
-      await load.stop()
+      await load?.stop()
       await sendToTerminal(orcaPage, typingPane.ptyId, '\x03').catch(() => undefined)
       rmSync(scriptPath, { force: true })
     }

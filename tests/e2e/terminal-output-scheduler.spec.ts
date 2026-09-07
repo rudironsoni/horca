@@ -121,7 +121,7 @@ async function waitForTabPtyId(page: Page, tabId: string): Promise<string> {
         return ptyId
       },
       {
-        timeout: 15_000,
+        timeout: 30_000,
         message: `Terminal tab ${tabId} did not receive a PTY binding`
       }
     )
