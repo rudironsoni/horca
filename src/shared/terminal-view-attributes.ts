@@ -34,7 +34,7 @@ export type TerminalViewAttributes = {
   cursorBlink: boolean
 }
 
-// Mirror of @xterm XParseColor RGB_REX: r/g/b channels in 1-4 hex digits.
+// Mirror of XParseColor RGB_REX: r/g/b channels in 1-4 hex digits.
 const X_RGB_SPEC_RE =
   /^([\da-f])\/([\da-f])\/([\da-f])$|^([\da-f]{2})\/([\da-f]{2})\/([\da-f]{2})$|^([\da-f]{3})\/([\da-f]{3})\/([\da-f]{3})$|^([\da-f]{4})\/([\da-f]{4})\/([\da-f]{4})$/
 const X_HASH_SPEC_RE = /^[\da-f]+$/
