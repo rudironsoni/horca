@@ -2,7 +2,7 @@
  * Primary Device Attributes (DA1) responders for the daemon's headless emulator.
  *
  * Both callers answer DA1 on behalf of a renderer that cannot, and both consume
- * the query so the renderer's xterm never sees it and cannot double-reply:
+ * the query so the renderer never sees it and cannot double-reply:
  *
  * - ConPTY 1.22+ blocks at spawn awaiting a DA1 reply.
  * - The shell-ready barrier queues all inbound input until the ready marker,
@@ -11,13 +11,17 @@
  *   would release it. That caller's `reply` must write straight to the
  *   subprocess, past the queue, or the deadlock remains.
  */
-import type { Terminal } from '@xterm/headless'
 
-type DeviceAttributesParser = Pick<Terminal['parser'], 'registerCsiHandler'>
+type DeviceAttributesParser = {
+  registerCsiHandler: (
+    id: { final: string },
+    handler: (params: number[]) => boolean
+  ) => { dispose: () => void }
+}
 
 const PRIMARY_DEVICE_ATTRIBUTES_QUERIES = ['\x1b[c', '\x1b[0c'] as const
 
-/** Matches what the renderer's xterm answers for xterm-* TERMs, so consuming the
+/** Matches what the renderer answers for xterm-* TERMs, so consuming the
  *  query upstream cannot change the capabilities a TUI sees. */
 export const STARTUP_DA1_RESPONSE = '\x1b[?1;2c'
 

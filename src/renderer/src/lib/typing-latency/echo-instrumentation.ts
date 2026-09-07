@@ -8,7 +8,7 @@
  */
 import { getUtf8ByteLength } from '../../../../shared/utf8-byte-limits'
 import { subscribeToTerminalUserInput } from '@/components/terminal-pane/terminal-user-input-signal'
-import type { Terminal } from '@xterm/xterm'
+import type { OrcaPaneTerminal as Terminal } from '../pane-manager/orca-pane-terminal'
 import {
   clearEchoDispatchSelection,
   drainTimedOutEchoCandidates,

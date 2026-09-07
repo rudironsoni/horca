@@ -273,7 +273,7 @@ describe('connectPanePty', () => {
         rows: 24,
         seq: 64
       })
-      pane.fitAddon.proposeDimensions = vi.fn(() => undefined) as never
+      pane.fitController.proposeDimensions = vi.fn(() => undefined) as never
       transport.resize.mockClear()
 
       dataCallback('hidden output\r\n', { seq: 16, rawLength: 16 })
@@ -292,7 +292,7 @@ describe('connectPanePty', () => {
         'live-after-hidden'
       )
 
-      pane.fitAddon.proposeDimensions = vi.fn(() => ({ cols: 120, rows: 40 })) as never
+      pane.fitController.proposeDimensions = vi.fn(() => ({ cols: 120, rows: 40 })) as never
       safeFit(pane as never)
       await flushAsyncTicks(20)
 

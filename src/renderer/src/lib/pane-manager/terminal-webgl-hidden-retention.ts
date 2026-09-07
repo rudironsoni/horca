@@ -17,7 +17,7 @@ const retainedEntries: RetainedHiddenEntry[] = []
 function liveContextCount(entry: RetainedHiddenEntry): number {
   let count = 0
   for (const pane of entry.livePanes()) {
-    if (pane.webglAddon) {
+    if (pane.gpuRenderer) {
       count += 1
     }
   }
