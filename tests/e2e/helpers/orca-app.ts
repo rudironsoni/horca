@@ -25,7 +25,7 @@ import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync
 import os from 'node:os'
 import path from 'node:path'
 import { TEST_REPO_PATH_FILE } from '../global-setup'
-import { cleanupE2EDaemons, closeElectronAppForE2E } from './electron-process-shutdown'
+import { cleanupE2EDaemons, forceQuitElectronAppForE2E } from './electron-process-shutdown'
 import { getOrcaElectronLaunchArgs } from './electron-launch-args'
 import { retryTransientMainEvaluate } from './electron-main-evaluate-retry'
 import { getE2ECompletedOnboardingProfile } from './e2e-completed-onboarding-profile'
@@ -263,15 +263,16 @@ export const test = base.extend<OrcaTestFixtures, OrcaWorkerFixtures>({
       )
       assertElectronResolvedIsolatedHome(resolvedHome, homeIsolation)
     } catch (error) {
-      await closeElectronAppForE2E(app)
+      await forceQuitElectronAppForE2E(app)
       await cleanupE2EDaemons(userDataDir)
       await removeUserDataDirAfterShutdown(userDataDir)
       throw error
     }
     await provideFixture(app)
-    // Why: the Playwright close promise can settle before all Electron and PTY
-    // descendants are gone in CI; worker teardown then hangs on open handles.
-    await closeElectronAppForE2E(app)
+    // Why: Ghostty WASM plus a detached Herdr server can keep Electron's event
+    // loop alive through a graceful close, so Playwright's worker teardown waits
+    // the full 120s budget. Force-quit the tree, then drop the Playwright handle.
+    await forceQuitElectronAppForE2E(app)
     await cleanupE2EDaemons(userDataDir)
     await removeUserDataDirAfterShutdown(userDataDir)
   },
