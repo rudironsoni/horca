@@ -1,4 +1,3 @@
-import type { Terminal } from '@xterm/xterm'
 import { isEditableTarget } from '@/lib/editable-target'
 import { APP_MENU_PASTE_EVENT } from '@/lib/app-menu-paste'
 import {
@@ -8,7 +7,11 @@ import {
 import { copyTerminalSelection } from '@/components/terminal-pane/terminal-selection-copy'
 import type { PreviewTerminalPasteSource } from './preview-terminal-paste'
 
-type PreviewTerminalSelection = Pick<Terminal, 'getSelection' | 'selectAll' | 'clearSelection'>
+type PreviewTerminalSelection = {
+  getSelection: () => string
+  selectAll: () => void
+  clearSelection: () => void
+}
 
 /**
  * Routes Edit-menu and context-menu clipboard commands to the preview terminal.

@@ -1,9 +1,8 @@
-import type { ITerminalOptions } from '@xterm/xterm'
 import { DESKTOP_TERMINAL_SCROLLBACK_ROWS_DEFAULT } from '../../../../shared/terminal-scrollback-policy'
 import { LIGHT_BG_MIN_CONTRAST } from '@/lib/terminal-contrast-correction'
 
-type TerminalCursorStyle = NonNullable<ITerminalOptions['cursorStyle']>
-type TerminalCursorInactiveStyle = NonNullable<ITerminalOptions['cursorInactiveStyle']>
+type TerminalCursorStyle = 'block' | 'bar' | 'underline'
+type TerminalCursorInactiveStyle = TerminalCursorStyle | 'outline'
 
 export const DEFAULT_TERMINAL_SCROLL_SENSITIVITY = 1.15
 export const DEFAULT_TERMINAL_FAST_SCROLL_SENSITIVITY = 5
@@ -28,49 +27,37 @@ export function resolveTerminalCursorInactiveStyle(
   return (cursorStyle ?? 'block') === 'block' ? 'outline' : (cursorStyle ?? 'block')
 }
 
-export function buildDefaultTerminalOptions(): ITerminalOptions {
+export function buildDefaultTerminalOptions(): {
+  cursorBlink: boolean
+  cursorStyle: TerminalCursorStyle
+  cursorInactiveStyle: TerminalCursorInactiveStyle
+  fontSize: number
+  fontFamily: string
+  fontWeight: string
+  fontWeightBold: string
+  lineHeight: number
+  scrollback: number
+  scrollSensitivity: number
+  fastScrollSensitivity: number
+  allowTransparency: boolean
+  minimumContrastRatio: number
+} {
   const cursorStyle: TerminalCursorStyle = 'block'
 
   return {
-    allowProposedApi: true,
     cursorBlink: true,
     cursorStyle,
     cursorInactiveStyle: resolveTerminalCursorInactiveStyle(cursorStyle),
     fontSize: 14,
-    // Cross-platform fallback chain; keep in sync with FALLBACK_FONTS in layout-serialization.ts.
     fontFamily:
       '"SF Mono", "Menlo", "Monaco", "Cascadia Mono", "Consolas", "DejaVu Sans Mono", "Liberation Mono", "Symbols Nerd Font Mono", "MesloLGS Nerd Font", "JetBrainsMono Nerd Font", "Hack Nerd Font", monospace',
     fontWeight: '300',
     fontWeightBold: '500',
+    lineHeight: 1.2,
     scrollback: DESKTOP_TERMINAL_SCROLLBACK_ROWS_DEFAULT,
-    // Why: Orca's default terminal cells are taller than many users' baseline
-    // terminal, so a small multiplier keeps row-per-wheel movement familiar.
     scrollSensitivity: DEFAULT_TERMINAL_SCROLL_SENSITIVITY,
     fastScrollSensitivity: DEFAULT_TERMINAL_FAST_SCROLL_SENSITIVITY,
     allowTransparency: false,
-    // Initial value only; applyTerminalAppearance re-gates by background luminance (#7934) before any content paints.
-    minimumContrastRatio: LIGHT_BG_MIN_CONTRAST,
-    // Why: on macOS, non-US layouts rely on Option to compose characters like @ and €.
-    macOptionIsMeta: false,
-    macOptionClickForcesSelection: true,
-    drawBoldTextInBrightColors: true,
-    scrollbar: {
-      // Why: slim VS Code-style scrollbar (VS Code uses 14). FitAddon reserves
-      // this as a gutter, costing ~1 column per pane — accepted tradeoff so the
-      // scrollbar never covers content (evidence in PR #5051). The v1.4.51
-      // table corruption #4877 fixed by zeroing this was actually the ZWJ
-      // width bug; it stays fixed by shared/terminal-unicode-provider.ts. Width
-      // also enables the overview ruler, whose border is hidden in
-      // composeActiveTerminalTheme.
-      width: 7
-    },
-    // Why: advertise kitty keyboard protocol support so CLIs that probe
-    // (CSI ? u) know Orca accepts enhanced key reporting. Orca still writes
-    // CSI-u for Shift+Enter on non-Windows platforms; programs that respect
-    // the handshake otherwise fall back to legacy encodings and miss it.
-    // Matches VS Code's xtermTerminal.ts.
-    vtExtensions: {
-      kittyKeyboard: true
-    }
+    minimumContrastRatio: LIGHT_BG_MIN_CONTRAST
   }
 }

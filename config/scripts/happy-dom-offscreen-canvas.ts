@@ -1,5 +1,5 @@
-// Why: happy-dom exposes OffscreenCanvas without a default canvas adapter. xterm prefers that API
-// and then cannot open in tests that already provide the HTML canvas text-metric stand-in.
+// Why: happy-dom exposes OffscreenCanvas without a default canvas adapter. Ghostty Canvas2D
+// drawing needs the HTML canvas text-metric stand-in already installed for tests.
 
 const OFFSCREEN_CANVAS_COMPATIBILITY_INSTALLED = Symbol.for(
   'orca.happyDomOffscreenCanvasCompatibility'
