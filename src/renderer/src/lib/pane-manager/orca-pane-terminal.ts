@@ -60,8 +60,7 @@ export class OrcaPaneTerminal {
     this.cellWidth = surface.cellWidth
     this.cellHeight = surface.cellHeight
     this.parser = createOrcaPaneParser()
-    this.unbindInput = bindOrcaPaneSession({
-      ...this,
+    this.unbindInput = bindOrcaPaneSession(this, {
       customKeyHandler: () => this.customKeyHandler,
       onSelectionChange: () => notifySelectionListeners(this.selectionListeners)
     })

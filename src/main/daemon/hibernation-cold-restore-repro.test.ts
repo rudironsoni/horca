@@ -109,7 +109,8 @@ describe('agent hibernation cold-restore (alt-screen TUI)', () => {
     const manager = new HistoryManager(dir)
     const reader = new HistoryReader(dir)
     const em = new HeadlessEmulator({ cols: 80, rows: 24 })
-    // Alt-screen but nothing drawn: SerializeAddon emits only a bare cursor-home, so the payload never re-enters alt-screen.
+    // Alt-screen with no cells: Ghostty formatter may emit empty ANSI. Replay
+    // must still stay on the normal screen (modes.alternateScreen is the flag).
     em.writeSync(ALT_SCREEN_ON)
 
     await manager.openSession(sessionId, { cwd: '/home/user/project', cols: 80, rows: 24 })
@@ -118,7 +119,7 @@ describe('agent hibernation cold-restore (alt-screen TUI)', () => {
 
     const info = await reader.detectColdRestore(sessionId)
     expect(info!.modes.alternateScreen).toBe(true)
-    const adapterScrollback = info!.scrollbackAnsi || info!.snapshotAnsi || null
+    const adapterScrollback = info!.scrollbackAnsi || info!.snapshotAnsi || ''
     expect(adapterScrollback).not.toContain(ALT_SCREEN_ON)
 
     const fresh = new HeadlessEmulator({ cols: 80, rows: 24 })
