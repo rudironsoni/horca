@@ -21,11 +21,22 @@ describe('stock Herdr session process', () => {
     const env = herdrServerEnvironment(
       {
         PATH: '/bin',
-        HOME: '/private/var/folders/t6/jmkhfw452wx9x27cvtj03qmh0000gq/T/orca-e2e-userdata-abcdefgh/home'
+        HOME: '/private/var/folders/t6/jmkhfw452wx9x27cvtj03qmh0000gq/T/orca-e2e-userdata-abcdefgh/home',
+        ORCA_E2E_HOME_DIR: ''
+      },
+      'horca'
+    )
+    const other = herdrServerEnvironment(
+      {
+        PATH: '/bin',
+        HOME: '/private/var/folders/t6/jmkhfw452wx9x27cvtj03qmh0000gq/T/orca-e2e-userdata-ijklmnop/home',
+        ORCA_E2E_HOME_DIR: ''
       },
       'horca'
     )
     expect(env.XDG_CONFIG_HOME).toMatch(/^\/tmp\/\.horca-h-/)
+    expect(other.XDG_CONFIG_HOME).toMatch(/^\/tmp\/\.horca-h-/)
+    expect(env.XDG_CONFIG_HOME).not.toBe(other.XDG_CONFIG_HOME)
     expect(
       Buffer.byteLength(herdrSessionSocketPath(env.XDG_CONFIG_HOME ?? '', 'horca'), 'utf8')
     ).toBeLessThanOrEqual(103)
