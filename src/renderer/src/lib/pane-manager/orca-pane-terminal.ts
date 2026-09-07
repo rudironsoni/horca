@@ -17,15 +17,17 @@ import {
   flushWaiters,
   noopDisposable
 } from './orca-pane-buffer'
+import { registerOrcaPaneLinkProvider } from './orca-pane-links'
 import { createOrcaPaneSurface } from './orca-pane-surface'
 import {
-  bindGhosttyPointerInput,
+  bindOrcaPaneSession,
   clearSelectionOnGhostty,
   encodeGhosttyKey,
   encodeGhosttyMouse,
   findGhosttyNext,
   findGhosttyPrevious,
   hitTestGhosttyHyperlink,
+  notifySelectionListeners,
   pasteIntoGhostty,
   selectAllOnGhostty
 } from './orca-pane-terminal-io'
@@ -36,12 +38,15 @@ export class OrcaPaneTerminal {
   readonly options: OrcaPaneAppearance
   readonly parser: IParser
   readonly engine: GhosttyTerminal
+  readonly linkProviders = new Set<ILinkProvider>()
   private readonly renderer: ReturnType<typeof createOrcaPaneSurface>['renderer']
   private readonly measureRoot: HTMLElement
   private readonly dataListeners = new Set<(data: string) => void>()
   private readonly renderListeners = new Set<() => void>()
   private readonly resizeListeners = new Set<(size: { cols: number; rows: number }) => void>()
+  private readonly selectionListeners = new Set<() => void>()
   private readonly primaryScreenWaiters = new Set<() => void>()
+  private customKeyHandler: ((event: KeyboardEvent) => boolean) | null = null
   cellWidth: number
   cellHeight: number
   private unbindInput = (): void => undefined
@@ -55,7 +60,11 @@ export class OrcaPaneTerminal {
     this.cellWidth = surface.cellWidth
     this.cellHeight = surface.cellHeight
     this.parser = createOrcaPaneParser()
-    this.unbindInput = bindGhosttyPointerInput(this)
+    this.unbindInput = bindOrcaPaneSession({
+      ...this,
+      customKeyHandler: () => this.customKeyHandler,
+      onSelectionChange: () => notifySelectionListeners(this.selectionListeners)
+    })
   }
 
   get cols(): number {
@@ -136,20 +145,24 @@ export class OrcaPaneTerminal {
     listener(this.engine.title)
     return noopDisposable()
   }
-  onSelectionChange(_listener: () => void): OrcaDisposable {
-    return noopDisposable()
+  onSelectionChange(listener: () => void): OrcaDisposable {
+    this.selectionListeners.add(listener)
+    return { dispose: () => this.selectionListeners.delete(listener) }
   }
   onWriteParsed(listener: () => void): OrcaDisposable {
     return this.onData(() => listener())
   }
-  attachCustomKeyEventHandler(_handler: (event: KeyboardEvent) => boolean): void {}
-  registerLinkProvider(_provider: ILinkProvider): OrcaDisposable {
-    return noopDisposable()
+  attachCustomKeyEventHandler(handler: (event: KeyboardEvent) => boolean): void {
+    this.customKeyHandler = handler
+  }
+  registerLinkProvider(provider: ILinkProvider): OrcaDisposable {
+    return registerOrcaPaneLinkProvider(this.linkProviders, provider)
   }
   registerCharacterJoiner(_handler: (text: string) => number[][]): number {
     return 0
   }
   deregisterCharacterJoiner(_id: number): void {}
+
   hasSelection(): boolean {
     return this.getSelection().length > 0
   }
@@ -158,6 +171,7 @@ export class OrcaPaneTerminal {
     | undefined {
     return undefined
   }
+
   resize(cols: number, rows: number): void {
     this.engine.resize({ cols, rows, cellWidthPx: this.cellWidth, cellHeightPx: this.cellHeight })
     this.refresh()
@@ -206,6 +220,7 @@ export class OrcaPaneTerminal {
   clearSelection(): void {
     clearSelectionOnGhostty(this.engine)
     this.refresh()
+    notifySelectionListeners(this.selectionListeners)
   }
 
   setPreedit(text: string): void {
@@ -215,6 +230,7 @@ export class OrcaPaneTerminal {
   selectAll(): void {
     selectAllOnGhostty(this.engine)
     this.refresh()
+    notifySelectionListeners(this.selectionListeners)
   }
 
   paste(text: string): void {
