@@ -28,8 +28,14 @@ afterEach(() => {
 
 type MockChild = EventEmitter & {
   stdin: EventEmitter & { write: ReturnType<typeof vi.fn>; end: ReturnType<typeof vi.fn> }
-  stdout: EventEmitter & { setEncoding: ReturnType<typeof vi.fn> }
-  stderr: EventEmitter & { setEncoding: ReturnType<typeof vi.fn> }
+  stdout: EventEmitter & {
+    setEncoding: ReturnType<typeof vi.fn>
+    destroy: ReturnType<typeof vi.fn>
+  }
+  stderr: EventEmitter & {
+    setEncoding: ReturnType<typeof vi.fn>
+    destroy: ReturnType<typeof vi.fn>
+  }
   kill: ReturnType<typeof vi.fn>
   unref: ReturnType<typeof vi.fn>
 }
@@ -42,9 +48,10 @@ function createChild(): MockChild {
       end: vi.fn()
     }),
     stdout: Object.assign(new EventEmitter(), {
-      setEncoding: vi.fn()
+      setEncoding: vi.fn(),
+      destroy: vi.fn()
     }),
-    stderr: Object.assign(new EventEmitter(), { setEncoding: vi.fn() }),
+    stderr: Object.assign(new EventEmitter(), { setEncoding: vi.fn(), destroy: vi.fn() }),
     kill: vi.fn(),
     unref: vi.fn()
   })
@@ -143,6 +150,22 @@ describe('HerdrSdkHost terminal control', () => {
     )
     child.emit('close', 0)
     await expect(started).resolves.toBeUndefined()
+    expect(child.stdout.destroy).toHaveBeenCalled()
+    expect(child.stderr.destroy).toHaveBeenCalled()
+  })
+
+  it('drops herdr stdio when the detached server stays up', async () => {
+    vi.useFakeTimers()
+    const child = createChild()
+    spawnProcessMock.mockReturnValue(child)
+    const started = startDetachedHerdrCommand({
+      file: '/mock/herdr',
+      args: ['--session', 'horca', 'server']
+    })
+    await vi.advanceTimersByTimeAsync(100)
+    await expect(started).resolves.toBeUndefined()
+    expect(child.stdout.destroy).toHaveBeenCalled()
+    expect(child.stderr.destroy).toHaveBeenCalled()
   })
 
   it('rejects when a detached herdr server exits non-zero before ready', async () => {
