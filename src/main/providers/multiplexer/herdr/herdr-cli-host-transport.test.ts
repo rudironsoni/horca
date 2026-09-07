@@ -65,6 +65,23 @@ function loadTransport() {
 }
 
 describe('HerdrSdkHost terminal control', () => {
+  it('gives terminal control the relocated Herdr config home', () => {
+    const transport = loadTransport()
+    const child = createChild()
+    spawnProcessMock.mockReturnValue(child)
+    const longHome =
+      '/private/var/folders/t6/jmkhfw452wx9x27cvtj03qmh0000gq/T/orca-e2e-userdata-abcdefgh/home'
+    const previousHome = process.env.HOME
+    process.env.HOME = longHome
+    try {
+      transport.controlTerminal('horca', 'w1:p1', { cols: 80, rows: 24 })
+    } finally {
+      process.env.HOME = previousHome
+    }
+    const env = spawnProcessMock.mock.calls[0]?.[0]?.env as NodeJS.ProcessEnv | undefined
+    expect(env?.XDG_CONFIG_HOME).toMatch(/^\/tmp\/\.horca-h-/)
+  })
+
   it('streams terminal frames and buffers them until subscribed', async () => {
     const transport = loadTransport()
     const child = createChild()
