@@ -1,10 +1,11 @@
+import { readGridLine } from '../../../../ghostty-vt/ghostty-grid-introspection'
+import type { GhosttyTerminal } from '../../../../ghostty-vt/ghostty-terminal'
 import type {
   IBuffer,
   IBufferLine,
   IParser,
   OrcaDisposable
 } from '../../../../shared/orca-terminal-surface'
-import type { GhosttyTerminal } from '../../../../ghostty-vt/ghostty-terminal'
 
 export function createOrcaPaneBuffer(
   engine: GhosttyTerminal,
@@ -15,7 +16,7 @@ export function createOrcaPaneBuffer(
       const cursor = engine.cursor
       const origin = baseY()
       const cols = engine.cols
-      const lines = engine.readViewportText().split('\n')
+      const { host, term } = engine.hostHandle()
       return {
         cursorX: cursor.x,
         cursorY: cursor.y,
@@ -24,21 +25,32 @@ export function createOrcaPaneBuffer(
         viewportY: origin,
         type: engine.isAlternateScreen ? 'alternate' : 'normal',
         getLine: (y: number): IBufferLine | undefined => {
-          const text = lines[y - origin] ?? ''
+          const line = readGridLine(host, term, cols, y)
+          if (!line) {
+            return undefined
+          }
           return {
             length: cols,
-            isWrapped: false,
-            translateToString: (_trim?: boolean, startCol?: number, endCol?: number) =>
-              text.slice(startCol ?? 0, endCol ?? text.length),
+            isWrapped: line.isWrapped,
+            translateToString: (_trim?: boolean, startCol?: number, endCol?: number) => {
+              const start = startCol ?? 0
+              const end = endCol ?? cols
+              return line.cells
+                .slice(start, end)
+                .map((cell) => cell.chars)
+                .join('')
+            },
             getCell: (column: number) => {
-              const chars = [...text]
-              const ch = chars[column] ?? ''
+              const cell = line.cells[column]
+              if (!cell) {
+                return undefined
+              }
               return {
-                getChars: () => ch,
-                getWidth: () => (ch ? 1 : 0),
-                isBold: () => false,
-                isDim: () => false,
-                isFgDefault: () => true
+                getChars: () => cell.chars,
+                getWidth: () => cell.width,
+                isBold: () => cell.bold,
+                isDim: () => cell.dim,
+                isFgDefault: () => cell.fgDefault
               }
             }
           }
