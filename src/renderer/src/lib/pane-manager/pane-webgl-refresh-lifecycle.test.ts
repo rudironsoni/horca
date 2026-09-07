@@ -9,7 +9,7 @@ import {
 } from './terminal-scroll-intent-rebuild'
 
 function createPane(
-  overrides: Partial<Pick<ManagedPaneInternal, 'pendingWebglRefreshRafId' | 'webglAddon'>> = {}
+  overrides: Partial<Pick<ManagedPaneInternal, 'pendingWebglRefreshRafId' | 'gpuRenderer'>> = {}
 ): ManagedPaneInternal {
   const leafId = '11111111-1111-4111-8111-111111111111' as never
   return {
@@ -31,14 +31,14 @@ function createPane(
       dataset: {},
       getBoundingClientRect: () => ({ width: 800, height: 600 })
     } as never,
-    xtermContainer: {} as never,
+    terminalHost: {} as never,
     linkTooltip: {} as never,
     terminalGpuAcceleration: 'off',
     gpuRenderingEnabled: false,
     webglAttachmentDeferred: false,
     webglDisabledAfterContextLoss: false,
     hasComplexScriptOutput: false,
-    fitAddon: {
+    fitController: {
       fit: vi.fn(),
       proposeDimensions: vi.fn(() => ({ cols: 100, rows: 24 })),
       dispose: vi.fn()
@@ -47,11 +47,11 @@ function createPane(
     pendingInitialFitRafId: null,
     pendingWebglRefreshRafId: null,
     pendingObservedFitRafId: null,
-    searchAddon: { dispose: vi.fn() } as never,
-    serializeAddon: { dispose: vi.fn() } as never,
+    searchController: { dispose: vi.fn() } as never,
+    serializeController: { dispose: vi.fn() } as never,
     unicode11Addon: { dispose: vi.fn() } as never,
     webLinksAddon: { dispose: vi.fn() } as never,
-    webglAddon: { dispose: vi.fn() } as never,
+    gpuRenderer: { dispose: vi.fn() } as never,
     ligaturesAddon: null,
     compositionHandler: null,
     pendingSplitScrollState: null,
@@ -75,7 +75,7 @@ describe('pane WebGL refresh lifecycle', () => {
 
     disposeWebgl(pane, { refreshDimensions: true })
 
-    expect(pane.webglAddon).toBeNull()
+    expect(pane.gpuRenderer).toBeNull()
     expect(pane.pendingWebglRefreshRafId).toBe(29)
   })
 
@@ -90,12 +90,12 @@ describe('pane WebGL refresh lifecycle', () => {
 
     disposeWebgl(pane, { refreshDimensions: true })
     refreshFrame.current?.(0)
-    expect(pane.fitAddon.fit).not.toHaveBeenCalled()
+    expect(pane.fitController.fit).not.toHaveBeenCalled()
     expect(pane.terminal.refresh).not.toHaveBeenCalled()
 
     endTerminalScrollIntentBufferRebuild(pane.terminal)
     await Promise.resolve()
-    expect(pane.fitAddon.fit).toHaveBeenCalledTimes(1)
+    expect(pane.fitController.fit).toHaveBeenCalledTimes(1)
     expect(pane.terminal.refresh).toHaveBeenCalledTimes(1)
   })
 
@@ -104,7 +104,7 @@ describe('pane WebGL refresh lifecycle', () => {
     const canvas = { width: 120, height: 40 }
     const dispose = vi.fn()
     const pane = createPane({
-      webglAddon: {
+      gpuRenderer: {
         dispose,
         _renderer: {
           _gl: {
@@ -120,18 +120,18 @@ describe('pane WebGL refresh lifecycle', () => {
     expect(loseContext).toHaveBeenCalledTimes(1)
     expect(dispose).toHaveBeenCalledTimes(1)
     expect(canvas).toEqual({ width: 0, height: 0 })
-    expect(pane.webglAddon).toBeNull()
+    expect(pane.gpuRenderer).toBeNull()
   })
 
   it('disposes WebGL when rendering is suspended', () => {
     const dispose = vi.fn()
-    const pane = createPane({ webglAddon: { dispose } as never })
+    const pane = createPane({ gpuRenderer: { dispose } as never })
 
     suspendPaneRendering([pane])
 
     expect(pane.webglAttachmentDeferred).toBe(true)
     expect(dispose).toHaveBeenCalledTimes(1)
-    expect(pane.webglAddon).toBeNull()
+    expect(pane.gpuRenderer).toBeNull()
   })
 
   it('cancels a pending WebGL refresh when the pane is disposed', () => {
@@ -139,7 +139,7 @@ describe('pane WebGL refresh lifecycle', () => {
     vi.stubGlobal('cancelAnimationFrame', cancelAnimationFrame)
     const pane = createPane({
       pendingWebglRefreshRafId: 31,
-      webglAddon: null
+      gpuRenderer: null
     })
     const panes = new Map([[pane.id, pane]])
 

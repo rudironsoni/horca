@@ -1,6 +1,5 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
-@import '@xterm/xterm/css/xterm.css';
 @import 'katex/dist/katex.min.css';
 @import './rich-markdown-editor.css';
 @import './markdown-preview.css';
@@ -623,7 +622,8 @@
 /* ── Editor-style scrollbar (matches Monaco) ────────── */
 
 .scrollbar-editor,
-.xterm .xterm-viewport {
+.xterm .xterm-viewport,
+.orca-terminal-canvas {
   scrollbar-width: thin;
   scrollbar-color: rgba(121, 121, 121, 0.4) transparent;
 }

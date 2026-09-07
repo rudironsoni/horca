@@ -1,16 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Terminal } from '@xterm/xterm'
-import { LigaturesAddon } from '@xterm/addon-ligatures'
 import { Moon, Sun } from 'lucide-react'
-import '@xterm/xterm/css/xterm.css'
+import { OrcaPaneTerminal } from '@/lib/pane-manager/orca-pane-terminal'
+import { primeGhosttyVtHost } from '@/lib/ghostty-vt-web-host'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { buildDefaultTerminalOptions } from '@/lib/pane-manager/pane-terminal-options'
 import { buildFontFamily } from '@/components/terminal-pane/layout-serialization'
 import { composeActiveTerminalTheme } from '@/components/terminal-pane/terminal-appearance'
 import { clampNumber, resolveEffectiveTerminalAppearance } from '@/lib/terminal-theme'
-import { resolveTerminalMinimumContrastRatio } from '@/lib/terminal-contrast-correction'
 import { resolveTerminalFontWeights } from '../../../../shared/terminal-fonts'
-import { resolveTerminalLigaturesEnabled } from '../../../../shared/terminal-ligatures'
 import { normalizeTerminalLineHeight } from '../../../../shared/terminal-line-height-settings'
 import { PREVIEW_BUFFER } from './terminal-preview-content'
 import { SettingsSwitch } from './SettingsFormControls'
@@ -59,8 +55,7 @@ export function TerminalSettingsPreview({
   showThemeToggle
 }: TerminalSettingsPreviewProps): React.JSX.Element {
   const containerRef = useRef<HTMLDivElement | null>(null)
-  const terminalRef = useRef<Terminal | null>(null)
-  const ligaturesAddonRef = useRef<LigaturesAddon | null>(null)
+  const terminalRef = useRef<OrcaPaneTerminal | null>(null)
   const skipInitialOptionMutationRef = useRef(false)
   const skipInitialThemeRewriteRef = useRef(false)
 
@@ -123,41 +118,30 @@ export function TerminalSettingsPreview({
     )
     skipInitialOptionMutationRef.current = true
     skipInitialThemeRewriteRef.current = true
-    // Why: DOM renderer only — WebGL contexts are scarce and multiple previews can mount at once.
-    // Why disableStdin: read-only; tabIndex/aria-hidden on the wrapper don't reach xterm's internal textarea, but this does.
-    const terminal = new Terminal({
-      ...buildDefaultTerminalOptions(),
-      disableStdin: true,
-      // Why mirror cursorInactiveStyle: preview is never focused, and xterm defaults the unfocused cursor to a hollow outline.
-      cursorInactiveStyle: settings.terminalCursorStyle,
-      cursorStyle: settings.terminalCursorStyle,
-      cursorBlink: settings.terminalCursorBlink,
-      fontSize: settings.terminalFontSize,
-      fontFamily: buildFontFamily(effectiveFontFamily),
-      fontWeight: weights.fontWeight,
-      fontWeightBold: weights.fontWeightBold,
-      lineHeight: terminalLineHeight,
-      theme: composedTheme ?? undefined,
-      allowTransparency:
-        settings.terminalBackgroundOpacity !== undefined && settings.terminalBackgroundOpacity < 1,
-      cols: PREVIEW_COLS,
-      rows: PREVIEW_ROWS
-    })
-    terminalRef.current = terminal
-
-    try {
-      terminal.open(container)
+    let disposed = false
+    let terminal: OrcaPaneTerminal | null = null
+    void primeGhosttyVtHost().then(() => {
+      if (disposed || !containerRef.current) {
+        return
+      }
+      terminal = new OrcaPaneTerminal(containerRef.current, {
+        cursorStyle: settings.terminalCursorStyle,
+        cursorBlink: settings.terminalCursorBlink,
+        fontSize: settings.terminalFontSize,
+        fontFamily: buildFontFamily(effectiveFontFamily),
+        fontWeight: weights.fontWeight,
+        fontWeightBold: weights.fontWeightBold,
+        lineHeight: terminalLineHeight
+      })
+      containerRef.current.appendChild(terminal.element)
+      terminal.resize(PREVIEW_COLS, PREVIEW_ROWS)
       terminal.write(PREVIEW_BUFFER)
-    } catch (err) {
-      terminalRef.current = null
-      terminal.dispose()
-      throw err
-    }
+      terminalRef.current = terminal
+    })
 
     return () => {
-      ligaturesAddonRef.current?.dispose()
-      ligaturesAddonRef.current = null
-      terminal.dispose()
+      disposed = true
+      terminal?.dispose()
       terminalRef.current = null
     }
     // Why empty deps: mount effect runs once; later setting changes flow through the option-mutation effects below.
@@ -184,9 +168,8 @@ export function TerminalSettingsPreview({
     terminal.options.fontWeightBold = weights.fontWeightBold
     terminal.options.lineHeight = terminalLineHeight
     terminal.options.cursorStyle = settings.terminalCursorStyle
-    // Why: mirror so the unfocused cursor reflects the chosen shape (xterm defaults inactive to 'outline'; see constructor).
-    terminal.options.cursorInactiveStyle = settings.terminalCursorStyle
     terminal.options.cursorBlink = settings.terminalCursorBlink
+    terminal.applyMetrics()
   }, [
     settings.terminalFontSize,
     settings.terminalFontWeightBold,
@@ -203,20 +186,17 @@ export function TerminalSettingsPreview({
       return
     }
     terminal.options.theme = composedTheme
-    // Why: share applyTerminalAppearance's gating helper (#7934) so the preview can't drift from live panes.
     terminal.options.minimumContrastRatio = resolveTerminalMinimumContrastRatio(
       composedTheme.background,
       effectiveMode,
       settings.terminalMinimumContrastRatio
     )
-    // Why: xterm renders an alpha-channel background opaque unless allowTransparency is set (matches applyTerminalAppearance).
     terminal.options.allowTransparency =
       settings.terminalBackgroundOpacity !== undefined && settings.terminalBackgroundOpacity < 1
     if (skipInitialThemeRewriteRef.current) {
       skipInitialThemeRewriteRef.current = false
       return
     }
-    // Why reset() not clear(): buffer ends mid-line on the prompt, so clear()+write would duplicate the trailing fragment.
     terminal.reset()
     terminal.write(PREVIEW_BUFFER)
   }, [
@@ -225,31 +205,6 @@ export function TerminalSettingsPreview({
     settings.terminalBackgroundOpacity,
     settings.terminalMinimumContrastRatio
   ])
-
-  useEffect(() => {
-    const terminal = terminalRef.current
-    if (!terminal) {
-      return
-    }
-    const enabled = resolveTerminalLigaturesEnabled(settings.terminalLigatures, effectiveFontFamily)
-    const current = ligaturesAddonRef.current
-    if (enabled && !current) {
-      const addon = new LigaturesAddon()
-      try {
-        terminal.loadAddon(addon)
-        ligaturesAddonRef.current = addon
-        // Why: sample is written before this effect runs; repaint so already-rendered operators switch to ligature glyphs.
-        terminal.refresh(0, terminal.rows - 1)
-      } catch (err) {
-        addon.dispose()
-        console.warn('[settings preview] ligatures addon failed to attach', err)
-        ligaturesAddonRef.current = null
-      }
-    } else if (!enabled && current) {
-      current.dispose()
-      ligaturesAddonRef.current = null
-    }
-  }, [settings.terminalLigatures, effectiveFontFamily])
 
   const showToggle = showThemeToggle && modeOverride === undefined
 

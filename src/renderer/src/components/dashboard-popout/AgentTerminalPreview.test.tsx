@@ -13,13 +13,14 @@ const terminalHarness = vi.hoisted(() => ({
     resize: ReturnType<typeof vi.fn>
     reset: ReturnType<typeof vi.fn>
     paste: ReturnType<typeof vi.fn>
-    input: ReturnType<typeof vi.fn>
+    input: ReturnType<typeof vi.fn<(data: string) => void>>
     scrollToTop: ReturnType<typeof vi.fn>
     scrollToBottom: ReturnType<typeof vi.fn>
     selectAll: ReturnType<typeof vi.fn>
     modes: { bracketedPasteMode: boolean }
     selectionText: string
     customKeyHandler: ((event: KeyboardEvent) => boolean) | null
+    element: HTMLCanvasElement
   }[],
   userInputListener: null as (() => void) | null,
   userInputDispose: vi.fn()
@@ -42,45 +43,48 @@ const imeHarness = vi.hoisted(() => ({
   claimResult: false
 }))
 
-vi.mock('@xterm/xterm', () => ({
-  Terminal: class {
+vi.mock('@/lib/ghostty-vt-web-host', () => ({
+  primeGhosttyVtHost: () => Promise.resolve({})
+}))
+vi.mock('@/lib/pane-manager/orca-pane-terminal', () => ({
+  OrcaPaneTerminal: class {
     cols = 80
     rows = 24
-    buffer = { active: { cursorY: 0 } }
+    cursor = { x: 0, y: 0 }
     writeCallbacks: (() => void)[] = []
     onDataListener: ((data: string) => void) | null = null
-    customKeyHandler: ((event: KeyboardEvent) => boolean) | null = null
     selectionText = ''
+    options = {}
     write = vi.fn((_data: string, callback?: () => void) => {
       if (callback) {
         this.writeCallbacks.push(callback)
       }
     })
-    open = vi.fn()
     focus = vi.fn()
     dispose = vi.fn()
     resize = vi.fn()
     reset = vi.fn()
+    applyMetrics = vi.fn()
     modes = { bracketedPasteMode: false }
     paste = vi.fn((data: string) => {
-      terminalHarness.userInputListener?.()
       this.onDataListener?.(data)
     })
     input = vi.fn((data: string) => {
-      terminalHarness.userInputListener?.()
       this.onDataListener?.(data)
     })
-    element = document.createElement('div')
-    unicode = { activeVersion: '6', versions: ['6', '11'], register: vi.fn() }
-    loadAddon = vi.fn()
-    attachCustomWheelEventHandler = vi.fn()
+    element = document.createElement('canvas')
     scrollToTop = vi.fn()
     scrollToBottom = vi.fn()
     selectAll = vi.fn()
     getSelection = vi.fn(() => this.selectionText)
-    attachCustomKeyEventHandler = vi.fn((handler: (event: KeyboardEvent) => boolean) => {
-      this.customKeyHandler = handler
-    })
+    clearSelection = vi.fn()
+    encodeKey = vi.fn(() => '')
+    get customKeyHandler(): ((event: KeyboardEvent) => boolean) | null {
+      return (event: KeyboardEvent) => {
+        this.element.dispatchEvent(event)
+        return !event.defaultPrevented
+      }
+    }
     onData = vi.fn((listener: (data: string) => void) => {
       this.onDataListener = listener
       return { dispose: vi.fn() }
@@ -91,10 +95,9 @@ vi.mock('@xterm/xterm', () => ({
     }
   }
 }))
-vi.mock(import('@/lib/pane-manager/pane-terminal-options'), async (importOriginal) => ({
-  ...(await importOriginal()),
-  buildDefaultTerminalOptions: () => ({})
-}))
+vi.mock(import('@/lib/pane-manager/pane-terminal-options'), async (importOriginal) =>
+  importOriginal()
+)
 vi.mock('@/components/terminal-pane/terminal-user-input-signal', () => ({
   subscribeToTerminalUserInput: (_terminal: unknown, listener: () => void) => {
     terminalHarness.userInputListener = listener
@@ -204,9 +207,7 @@ describe('AgentTerminalPreview', () => {
     expect(terminal.write).toHaveBeenCalledWith('\x1b[6n', expect.any(Function))
 
     act(() => {
-      terminalHarness.userInputListener?.()
-      terminal.onDataListener?.('k')
-      terminal.onDataListener?.('\x1b[1;1R')
+      terminal.input('k')
     })
     expect(input).toHaveBeenCalledTimes(1)
     expect(input).toHaveBeenCalledWith('pty-1', 'k')
@@ -232,17 +233,27 @@ describe('AgentTerminalPreview', () => {
     // A claimed native-text key bypasses xterm AND the clipboard chords.
     imeHarness.claimResult = true
     terminal.selectionText = 'selected text'
-    const handled = terminal.customKeyHandler!(
-      new KeyboardEvent('keydown', { key: 'C', code: 'KeyC', ctrlKey: true, shiftKey: true })
-    )
-    expect(handled).toBe(false)
+    const claimed = new KeyboardEvent('keydown', {
+      key: 'C',
+      code: 'KeyC',
+      ctrlKey: true,
+      shiftKey: true,
+      cancelable: true
+    })
+    terminal.customKeyHandler!(claimed)
+    expect(claimed.defaultPrevented).toBe(true)
     expect(writeClipboardText).not.toHaveBeenCalled()
     expect(writeTerminalClipboardText).not.toHaveBeenCalled()
 
     // Unclaimed events still reach the chord handling.
     imeHarness.claimResult = false
     const copied = terminal.customKeyHandler!(
-      new KeyboardEvent('keydown', { key: 'c', code: 'KeyC', metaKey: true })
+      new KeyboardEvent('keydown', {
+        key: 'c',
+        code: 'KeyC',
+        metaKey: true,
+        cancelable: true
+      })
     )
     expect(copied).toBe(false)
     expect(writeTerminalClipboardText).toHaveBeenCalledWith('selected text')
@@ -319,13 +330,17 @@ describe('AgentTerminalPreview', () => {
       shiftKey: true,
       cancelable: true
     })
-    const handled = terminal.customKeyHandler!(keydown)
-    const keyupHandled = terminal.customKeyHandler!(
-      new KeyboardEvent('keyup', { key: 'C', code: 'KeyC', ctrlKey: true, shiftKey: true })
-    )
-    expect(handled).toBe(false)
-    expect(keyupHandled).toBe(false)
+    terminal.customKeyHandler!(keydown)
+    const keyup = new KeyboardEvent('keyup', {
+      key: 'C',
+      code: 'KeyC',
+      ctrlKey: true,
+      shiftKey: true,
+      cancelable: true
+    })
+    terminal.customKeyHandler!(keyup)
     expect(keydown.defaultPrevented).toBe(true)
+    expect(keyup.defaultPrevented).toBe(true)
     expect(writeTerminalClipboardText).toHaveBeenCalledWith('selected text')
     expect(writeClipboardText).not.toHaveBeenCalled()
   })
@@ -336,11 +351,17 @@ describe('AgentTerminalPreview', () => {
     const terminal = terminalHarness.instances[0]!
     await waitFor(() => expect(terminal.customKeyHandler).not.toBeNull())
 
-    const handled = terminal.customKeyHandler!(
-      new KeyboardEvent('keydown', { key: 'C', code: 'KeyC', ctrlKey: true, shiftKey: true })
-    )
-    expect(handled).toBe(false)
+    const keydown = new KeyboardEvent('keydown', {
+      key: 'C',
+      code: 'KeyC',
+      ctrlKey: true,
+      shiftKey: true,
+      cancelable: true
+    })
+    terminal.customKeyHandler!(keydown)
+    expect(keydown.defaultPrevented).toBe(true)
     expect(writeTerminalClipboardText).not.toHaveBeenCalled()
+    expect(terminal.input).not.toHaveBeenCalled()
   })
 
   it('leaves bare Ctrl+C available to the terminal without a selection', async () => {
@@ -440,7 +461,7 @@ describe('AgentTerminalPreview', () => {
       bubbles: true,
       cancelable: true
     })
-    expect(terminal.customKeyHandler!(keydown)).toBe(false)
+    terminal.customKeyHandler!(keydown)
     expect(keydown.defaultPrevented).toBe(false)
 
     const keypress = new KeyboardEvent('keypress', {
@@ -482,7 +503,12 @@ describe('AgentTerminalPreview', () => {
     await waitFor(() => expect(terminal.customKeyHandler).not.toBeNull())
 
     const altBackspace = (): KeyboardEvent =>
-      new KeyboardEvent('keydown', { key: 'Backspace', code: 'Backspace', altKey: true })
+      new KeyboardEvent('keydown', {
+        key: 'Backspace',
+        code: 'Backspace',
+        altKey: true,
+        cancelable: true
+      })
     expect(terminal.customKeyHandler!(altBackspace())).toBe(false)
     expect(terminal.input).toHaveBeenCalledWith('\x1b\x7f')
 
@@ -511,7 +537,12 @@ describe('AgentTerminalPreview', () => {
     await waitFor(() => expect(terminal.customKeyHandler).not.toBeNull())
 
     const altBackspace = (): KeyboardEvent =>
-      new KeyboardEvent('keydown', { key: 'Backspace', code: 'Backspace', altKey: true })
+      new KeyboardEvent('keydown', {
+        key: 'Backspace',
+        code: 'Backspace',
+        altKey: true,
+        cancelable: true
+      })
     expect(terminal.customKeyHandler!(altBackspace())).toBe(true)
 
     // The TUI exits and pops once on the live stream.
@@ -531,7 +562,12 @@ describe('AgentTerminalPreview', () => {
     await waitFor(() => expect(terminal.customKeyHandler).not.toBeNull())
 
     const handled = terminal.customKeyHandler!(
-      new KeyboardEvent('keydown', { key: 'ArrowUp', code: 'ArrowUp', metaKey: true })
+      new KeyboardEvent('keydown', {
+        key: 'ArrowUp',
+        code: 'ArrowUp',
+        metaKey: true,
+        cancelable: true
+      })
     )
 
     expect(handled).toBe(false)
@@ -608,7 +644,6 @@ describe('AgentTerminalPreview', () => {
 
     await waitFor(() => expect(view.getByText(/No live terminal/)).toBeInTheDocument())
     expect(terminal.dispose).toHaveBeenCalledTimes(1)
-    expect(terminalHarness.userInputDispose).toHaveBeenCalledTimes(1)
     expect(unsubscribe).toHaveBeenCalledWith('pty-1')
   })
 
@@ -644,12 +679,9 @@ describe('AgentTerminalPreview', () => {
     const box = host.parentElement!
     Object.defineProperty(box, 'clientWidth', { configurable: true, value: 900 })
     Object.defineProperty(box, 'clientHeight', { configurable: true, value: 480 })
-    // 80×24 grid rendered at 800×384 → 10×16 cells → the box holds 90×30.
-    const screen = document.createElement('div')
-    screen.className = 'xterm-screen'
-    Object.defineProperty(screen, 'offsetWidth', { configurable: true, value: 800 })
-    Object.defineProperty(screen, 'offsetHeight', { configurable: true, value: 384 })
-    host.appendChild(screen)
+    const terminal = terminalHarness.instances[0]!
+    Object.defineProperty(terminal.element, 'offsetWidth', { configurable: true, value: 800 })
+    Object.defineProperty(terminal.element, 'offsetHeight', { configurable: true, value: 384 })
 
     await vi.advanceTimersByTimeAsync(200)
     expect(fit).toHaveBeenCalledTimes(1)

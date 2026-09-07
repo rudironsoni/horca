@@ -1,4 +1,7 @@
-import type { Terminal } from '@xterm/xterm'
+type PreviewPasteTerminal = {
+  paste: (text: string) => void
+  modes: { bracketedPasteMode: boolean }
+}
 import { getShortcutPlatform } from '@/lib/shortcut-platform'
 import {
   executeTerminalPastePlan,
@@ -19,7 +22,7 @@ export type PreviewTerminalPasteSource = 'keyboard' | 'app-menu' | 'right-click'
 export function createPreviewClipboardPaster(deps: {
   ptyId: string
   container: HTMLElement
-  getTerminal: () => Terminal | null
+  getTerminal: () => PreviewPasteTerminal | null
   getTerminalInput: () => DashboardCardTerminalInput | null
   isDisposed: () => boolean
 }): (activeElementAtDispatch: Element | null, source: PreviewTerminalPasteSource) => Promise<void> {

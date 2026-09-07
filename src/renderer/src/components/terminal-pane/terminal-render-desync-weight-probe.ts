@@ -12,7 +12,7 @@ import type { BufferLike } from './terminal-render-desync-frame'
  *  - atlas captured a stale config -> atlasConfig* diverges from options
  *  - renderer buffer cells latched bold -> boldTextCells is viewport-wide
  *  - stuck rasterizer font (failed ctx.font assignment) -> fontProbe* set
- *    (fontProbe fields are maintained by the patched @xterm/addon-webgl atlas)
+ *    (fontProbe fields are maintained by the glyph atlas)
  */
 export type SentinelWeightProbe = {
   optionsFontWeight: string | null

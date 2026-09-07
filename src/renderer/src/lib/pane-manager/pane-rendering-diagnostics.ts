@@ -15,6 +15,6 @@ export function collectPaneRenderingDiagnostics(
     webglAttachFailedSinceRecovery: pane.webglAttachFailedSinceRecovery === true,
     hasComplexScriptOutput: pane.hasComplexScriptOutput,
     terminalWebglAutoDecision: getTerminalWebglAutoDecision(),
-    hasWebgl: Boolean(pane.webglAddon)
+    hasWebgl: Boolean(pane.gpuRenderer)
   }))
 }
