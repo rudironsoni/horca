@@ -1,3 +1,4 @@
+import { HeadlessVtQueryParser } from '../../ghostty-vt/headless-vt-query-parser'
 import { GhosttyTerminal } from '../../ghostty-vt/ghostty-terminal'
 import type { TerminalCursorContext } from '../../shared/terminal-composer-draft'
 import { advancePartialEscapeTail } from '../../shared/terminal-partial-escape-tail'
@@ -6,9 +7,18 @@ import type { TerminalViewAttributes } from '../../shared/terminal-view-attribut
 import { getGhosttyVtHost } from './ghostty-vt-node-host'
 import { TerminalMouseModeMirror } from './terminal-mouse-mode-mirror'
 import { TerminalOscCwdTitleScanner } from './terminal-osc-cwd-title-scanner'
+import {
+  collectHeadlessOscLinks,
+  headlessFrameRestoreAnsi,
+  headlessModes,
+  serializeHeadlessAnsiBuffers
+} from './headless-emulator-snapshot'
 import { buildRehydrateSequences } from './terminal-mode-rehydrate-sequences'
-import { splitTerminalSnapshotAnsi } from './terminal-snapshot-ansi-buffers'
-import type { TerminalModes, TerminalSnapshot } from './types'
+import {
+  installTerminalViewAttributeResponder,
+  type TerminalViewAttributeResponder
+} from './terminal-view-attribute-responder'
+import type { TerminalSnapshot } from './types'
 
 export type HeadlessEmulatorOptions = {
   cols: number
@@ -39,6 +49,8 @@ export class HeadlessEmulator {
   private queryReplyForwardingDepth = 0
   private partialEscapeTail = ''
   private pushedCursorHidden = false
+  private readonly queryParser = new HeadlessVtQueryParser()
+  private viewAttributeResponder: TerminalViewAttributeResponder | null = null
 
   constructor(opts: HeadlessEmulatorOptions) {
     this.oscText = new TerminalOscCwdTitleScanner({
@@ -61,21 +73,24 @@ export class HeadlessEmulator {
     this.conptyDa1OverrideInstalled = true
   }
 
-  get responderParser(): {
-    registerCsiHandler: (
-      id: { final: string },
-      handler: (params: number[]) => boolean
-    ) => { dispose: () => void }
-  } {
-    return {
-      registerCsiHandler: () => ({ dispose: () => undefined })
-    }
+  get responderParser(): HeadlessVtQueryParser {
+    return this.queryParser
   }
 
-  installViewAttributeResponder(_getBaseAttributes: () => TerminalViewAttributes | null): void {}
+  installViewAttributeResponder(getBaseAttributes: () => TerminalViewAttributes | null): void {
+    if (this.viewAttributeResponder) {
+      return
+    }
+    this.viewAttributeResponder = installTerminalViewAttributeResponder({
+      parser: this.queryParser,
+      getBaseAttributes,
+      emitReply: (reply) => this.emitQueryReply(reply)
+    })
+  }
 
   applyPushedViewAttributes(attributes: TerminalViewAttributes): void {
     this.pushedCursorHidden = attributes.cursorStyle === 'bar' && attributes.cursorBlink === false
+    this.viewAttributeResponder?.clearColorOverrides()
   }
 
   applyKittyKeyboardFlags(flags: number): Promise<void> {
@@ -90,7 +105,10 @@ export class HeadlessEmulator {
   }
 
   write(data: string, opts: HeadlessEmulatorWriteOptions = {}): Promise<void> {
-    this.writeSync(this.maybeAnswerConptyDa1(data, opts.forwardQueryReplies === true))
+    const remaining = this.maybeAnswerConptyDa1(data, opts.forwardQueryReplies === true)
+    this.withForwarding(opts.forwardQueryReplies === true, () => {
+      this.writeSync(remaining)
+    })
     return Promise.resolve()
   }
 
@@ -101,7 +119,7 @@ export class HeadlessEmulator {
     this.oscText.scan(data)
     this.mouseModes.scan(data)
     this.partialEscapeTail = advancePartialEscapeTail(this.partialEscapeTail, data)
-    this.terminal.writePtyOutput(data)
+    this.terminal.writePtyOutput(this.queryParser.consume(data))
     return true
   }
 
@@ -121,14 +139,16 @@ export class HeadlessEmulator {
   }
 
   getSnapshot(opts: { scrollbackRows?: number } = {}): TerminalSnapshot {
-    const modes = this.getModes()
-    const { snapshotAnsi, scrollbackAnsi } = this.serializeAnsiBuffers(modes)
+    const modes = headlessModes(this.terminal, this.mouseModes)
+    const { snapshotAnsi, scrollbackAnsi } = serializeHeadlessAnsiBuffers(this.terminal, modes)
     return {
       snapshotAnsi,
       scrollbackAnsi,
-      oscLinks: this.collectOscLinks(opts.scrollbackRows),
+      oscLinks: collectHeadlessOscLinks(this.terminal, this.restoredOscLinks, opts.scrollbackRows),
       rehydrateSequences: buildRehydrateSequences(modes),
-      frameRestoreAnsi: modes.alternateScreen ? this.buildFrameRestoreAnsi(modes) : undefined,
+      frameRestoreAnsi: modes.alternateScreen
+        ? headlessFrameRestoreAnsi(this.terminal, modes)
+        : undefined,
       cwd: this.oscText.cwd,
       modes,
       cols: this.terminal.cols,
@@ -267,66 +287,6 @@ export class HeadlessEmulator {
         this.queryReplyForwardingDepth -= 1
       }
     }
-  }
-
-  private getModes(): TerminalModes {
-    const mouseTrackingMode = this.mouseModes.mouseTrackingMode
-    return {
-      bracketedPaste: this.terminal.getMode(2004),
-      mouseTracking: mouseTrackingMode !== 'none',
-      mouseTrackingMode,
-      sgrMouseMode: this.mouseModes.sgrMouseMode,
-      sgrMousePixelsMode: this.mouseModes.sgrMousePixelsMode,
-      applicationCursor: this.terminal.getMode(1),
-      alternateScreen: this.terminal.isAlternateScreen,
-      kittyKeyboardFlags: this.terminal.kittyKeyboardFlags
-    }
-  }
-
-  private buildFrameRestoreAnsi(modes: TerminalModes): string {
-    const cursor = this.terminal.cursor
-    const parts = ['\x1b[0m\x1b[?1049h', buildRehydrateSequences(modes)]
-    if (this.terminal.getMode(1004)) {
-      parts.push('\x1b[?1004h')
-    }
-    if (this.terminal.getMode(25) === false) {
-      parts.push('\x1b[?25l')
-    }
-    parts.push(`\x1b[${cursor.y + 1};${cursor.x + 1}H`, '\x1b7')
-    return parts.join('')
-  }
-
-  private serializeAnsiBuffers(modes: TerminalModes): {
-    snapshotAnsi: string
-    scrollbackAnsi: string
-  } {
-    const snapshotAnsi = this.terminal.readVt()
-    if (!modes.alternateScreen) {
-      return splitTerminalSnapshotAnsi(snapshotAnsi, modes)
-    }
-    const clone = new GhosttyTerminal(getGhosttyVtHost(), {
-      cols: this.terminal.cols,
-      rows: this.terminal.rows
-    })
-    try {
-      clone.restore(this.terminal.capture())
-      clone.writePtyOutput('\x1b[?1049l')
-      return { snapshotAnsi, scrollbackAnsi: clone.readVt() }
-    } finally {
-      clone.dispose()
-    }
-  }
-
-  private collectOscLinks(scrollbackRows: number | undefined): TerminalOscLinkRange[] {
-    const live = this.terminal.collectHyperlinkRanges()
-    const startRow =
-      scrollbackRows === undefined
-        ? 0
-        : Math.max(0, this.terminal.totalRows - this.terminal.rows - scrollbackRows)
-    const windowed = live
-      .filter((link) => link.row >= startRow)
-      .map((link) => ({ ...link, row: link.row - startRow }))
-    return [...windowed, ...this.restoredOscLinks]
   }
 
   private cursorLineText(): string {
