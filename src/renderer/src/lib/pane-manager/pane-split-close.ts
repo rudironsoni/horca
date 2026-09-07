@@ -102,7 +102,7 @@ function prepareMovedPanesForSplit(
 
     // Why: DOM reparenting can silently invalidate a WebGL context without
     // firing contextlost, so dispose before the move and reattach after settle.
-    const hadWebgl = !!pane.webglAddon
+    const hadWebgl = !!pane.gpuRenderer
     disposeWebgl(pane)
     return { pane, scrollState, hadWebgl }
   })

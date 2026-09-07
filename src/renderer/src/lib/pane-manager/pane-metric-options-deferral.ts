@@ -123,6 +123,7 @@ function writePaneMetricOptions(
   if (options.lineHeight !== undefined) {
     target.lineHeight = options.lineHeight
   }
+  pane.terminal.applyMetrics()
 }
 
 /**

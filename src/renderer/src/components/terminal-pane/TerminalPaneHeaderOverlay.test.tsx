@@ -33,9 +33,9 @@ function makePane(id: number): ManagedPane {
     container: document.createElement('div'),
     linkTooltip: document.createElement('div'),
     terminal: {} as ManagedPane['terminal'],
-    fitAddon: {} as ManagedPane['fitAddon'],
-    searchAddon: {} as ManagedPane['searchAddon'],
-    serializeAddon: {} as ManagedPane['serializeAddon']
+    fitController: {} as ManagedPane['fitController'],
+    searchController: {} as ManagedPane['searchController'],
+    serializeController: {} as ManagedPane['serializeController']
   }
 }
 

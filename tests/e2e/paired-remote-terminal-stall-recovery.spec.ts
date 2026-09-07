@@ -221,7 +221,7 @@ async function findHostPaneWithMarker(
         target = await page.evaluate((expectedMarker) => {
           for (const [tabId, manager] of window.__paneManagers?.entries() ?? []) {
             for (const pane of manager.getPanes?.() ?? []) {
-              const content = pane.serializeAddon?.serialize?.() ?? ''
+              const content = pane.serializeController?.serialize?.() ?? ''
               const ptyId = pane.container?.dataset?.ptyId
               if (content.includes(expectedMarker) && ptyId) {
                 return { paneId: pane.id, ptyId, tabId }

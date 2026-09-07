@@ -1,4 +1,5 @@
-import type { IDisposable, Terminal } from '@xterm/xterm'
+import type { OrcaDisposable as IDisposable } from '../../../../shared/orca-terminal-surface'
+import type { OrcaPaneTerminal as Terminal } from '../../lib/pane-manager/orca-pane-terminal'
 import type { PtyTransport } from './pty-transport'
 
 export const XTERM_COMPOSITION_SESSION_START_EVENT = 'xterm-composition-session-start'

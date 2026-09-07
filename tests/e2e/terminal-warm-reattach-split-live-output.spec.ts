@@ -133,13 +133,13 @@ async function probePane(page: Page, tabId: string, ptyId: string): Promise<Pane
       }
       let proposed: { cols: number; rows: number } | null = null
       try {
-        proposed = pane.fitAddon.proposeDimensions() ?? null
+        proposed = pane.fitController.proposeDimensions() ?? null
       } catch {
         proposed = null
       }
       const rect = pane.container.getBoundingClientRect()
       return {
-        content: pane.serializeAddon.serialize(),
+        content: pane.serializeController.serialize(),
         cols: pane.terminal.cols,
         rows: pane.terminal.rows,
         proposed,

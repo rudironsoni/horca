@@ -1,19 +1,6 @@
 /**
- * A cell-level model of a terminal grid in which one glyph can occupy two cells,
- * plus readers for the same view out of a real xterm buffer.
- *
- * Why a model rather than hand-written expectations (#15192): the cases that
- * matter are repaints whose cursor lands on a wide glyph's TRAILING cell, and
- * the correct outcome there — blank the orphaned leading half — is too fiddly to
- * spell out for every width and column by hand.
- *
- * What agreement does and does not prove: the model shares no code with xterm - its
- * own width oracle, cursor and erase semantics - so agreement is not a code-reuse
- * tautology. But its rules were chosen to match observed behaviour, so it is a
- * regression detector that locks in today's semantics, not a first-principles oracle.
- * If both were wrong in the same way it would not notice.
+ * A cell-level model of a terminal grid in which one glyph can occupy two cells.
  */
-import type { Terminal } from '@xterm/headless'
 
 /** Code points that occupy two console cells: Hangul, CJK ideographs, kana, fullwidth forms. */
 const WIDE = /[ᄀ-ᅟ⺀-鿿가-힣豈-﫿︰-﹏！-｠￠-￦]/
@@ -94,7 +81,6 @@ export class WideCellGrid {
         continue
       }
       const width = isWideGlyph(ch) ? 2 : 1
-      // A wide glyph that does not fit blanks the rest of the row and wraps whole.
       if (this.col + width > this.cols) {
         const cells = this.at(this.row)
         for (let col = this.col; col < this.cols; col += 1) {
@@ -134,40 +120,10 @@ export class WideCellGrid {
   }
 }
 
-/** Physical rows, right-trimmed. A wide glyph's trailing cell contributes nothing, as in the model. */
-export function readGridRows(terminal: Terminal, rowCount = terminal.rows): string[] {
-  const buffer = terminal.buffer.active
-  const out: string[] = []
-  for (let row = 0; row < rowCount; row += 1) {
-    out.push((buffer.getLine(row)?.translateToString(false) ?? '').replace(/\s+$/, ''))
-  }
-  return out
+export function readGridRows(source: { getVisibleLines(): string[] }): string[] {
+  return source.getVisibleLines().map((line) => line.replace(/\s+$/, ''))
 }
 
-/**
- * Rows joined across xterm's wrap continuations, with whitespace removed.
- *
- * Why whitespace-free: when a wide glyph cannot fit, xterm blanks the last cell
- * and wraps the glyph whole. That blank is indistinguishable in the buffer from
- * a space the program wrote, so a joined line gains one space per seam at some
- * widths and not others. Dropping spaces removes an ambiguity the buffer really
- * does not carry, and keeps what this is for: a doubled or missing glyph still
- * shows. (Same normalization as headless-emulator-wide-char-snapshot.test.ts.)
- */
-export function readWrappedLineGlyphs(terminal: Terminal): string[] {
-  const buffer = terminal.buffer.active
-  const lines: string[] = []
-  for (let row = 0; row < buffer.length; row += 1) {
-    const line = buffer.getLine(row)
-    if (!line) {
-      continue
-    }
-    const text = line.translateToString(false)
-    if (line.isWrapped && lines.length > 0) {
-      lines[lines.length - 1] += text
-    } else {
-      lines.push(text)
-    }
-  }
-  return lines.map((line) => line.replace(/\s+/g, ''))
+export function readWrappedLineGlyphs(source: { getVisibleLines(): string[] }): string[] {
+  return source.getVisibleLines().map((line) => line.replace(/\s+/g, ''))
 }

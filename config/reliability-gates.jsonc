@@ -15366,23 +15366,24 @@
       "providers": ["local", "daemon", "ssh", "remote-runtime"],
       "coveredPlatforms": ["macos"],
       "coveredProviders": [],
-      "coverageNotes": "Renderer-unit convergence corpus over a real xterm parser, plus manual CDP pixel evidence on the macOS WebGL renderer. The repaint span is provider-independent because it is computed from xterm's parse, not from the transport; SSH/WSL/remote were not exercised live.",
+      "coverageNotes": "Daemon-unit corpus over HeadlessEmulator (libghostty-vt). The repaint span is provider-independent because it is computed from Ghostty parse, not from the transport; SSH/WSL/remote were not exercised live.",
       "motivatingLinks": [
         "https://github.com/stablyai/orca/pull/2669",
         "https://github.com/stablyai/orca/pull/4669",
         "https://github.com/stablyai/orca/pull/8178"
       ],
-      "invariant": "The row span Orca asks xterm to repaint after a forced foreground refresh must cover every viewport row whose rendered content changed during that write, plus the cursor row before and after it; when the span cannot be established — unobservable parse, viewport scroll, or a normal/alternate buffer flip — the whole viewport must be repainted.",
-      "oracle": "A real @xterm/headless parser replays an adversarial corpus (in-place bottom-row redraws, standalone CR overwrite, backspace, erase-in-line, erase-in-display above and below the cursor, full clear, wide CJK, emoji, combining marks, ZWJ sequences, scroll-region insert/delete, reverse index, DEC 2026 frames, alternate-screen enter and exit, viewport scroll, narrow panes). Each viewport row is serialized cell-by-cell with its attributes before and after the write, and every row that differs must fall inside the span the settle path requested. A vacuity guard asserts each case actually moves the screen.",
+      "invariant": "The row span Orca asks the Ghostty renderer to repaint after a forced foreground refresh must cover every viewport row whose rendered content changed during that write, plus the cursor row before and after it; when the span cannot be established — unobservable parse, viewport scroll, or a normal/alternate buffer flip — the whole viewport must be repainted.",
+      "oracle": "HeadlessEmulator (libghostty-vt) replays an adversarial corpus (in-place bottom-row redraws, standalone CR overwrite, backspace, erase-in-line, erase-in-display above and below the cursor, full clear, wide CJK, emoji, combining marks, ZWJ sequences, scroll-region insert/delete, reverse index, DEC 2026 frames, alternate-screen enter and exit, viewport scroll, narrow panes). Each viewport row is serialized from Ghostty viewport text before and after the write, and every row that differs must fall inside the span the settle path requested. A vacuity guard asserts each case actually moves the screen.",
       "commands": [
-        "pnpm exec vitest run --config config/vitest.config.ts src/renderer/src/lib/pane-manager/terminal-foreground-repair-convergence.test.ts"
+        "pnpm exec vitest run --config config/vitest.config.ts src/main/daemon/headless-emulator.test.ts src/main/daemon/headless-emulator-wide-char-repaint.test.ts"
       ],
       "testFiles": [
-        "src/renderer/src/lib/pane-manager/terminal-foreground-repair-convergence.test.ts"
+        "src/main/daemon/headless-emulator.test.ts",
+        "src/main/daemon/headless-emulator-wide-char-repaint.test.ts"
       ],
       "assertionRefs": [
         {
-          "file": "src/renderer/src/lib/pane-manager/terminal-foreground-repair-convergence.test.ts",
+          "file": "src/main/daemon/headless-emulator.test.ts",
           "assertions": [
             "every viewport row whose serialized cells changed lies inside the requested repaint span",
             "the cursor row before and after the write is inside the requested repaint span",
@@ -16155,7 +16156,7 @@
       "providers": ["remote-runtime", "ssh", "local", "daemon"],
       "coveredPlatforms": ["macos"],
       "coveredProviders": ["remote-runtime"],
-      "coverageNotes": "Local macOS evidence covers runtime-RPC stream budgets, paired-renderer parse/discard credit, and negotiated host-side suppression for hidden paired desktop panes. Deferred credit is shared by local and remote transports, batches ACKs at 192 KiB or 4 ms, grows per-stream windows from 512 KiB to 2 MiB and aggregate windows from 2 MiB to 8 MiB, bounds queued output to 256 KiB per stream, and caps each multiplex connection at 32 active or pending streams for an 8 MiB aggregate pending-output ceiling. Deterministic tests cover replay ordering, stale generations, malformed frames, hidden panes, queue eviction, disposal, send/recovery failure, repeated pending-slot replacement, reconnect, mixed-version pause negotiation, and round-robin fairness. The opt-in benchmark covers 1/20/100 ms RTT and 1/4/8 viewers, exact protocol-frame allocations, scheduler CPU, and measured @xterm/headless parser CPU/retained heap. Live Android restore evidence, browser/WebGL parser measurements, and legacy JSON subscribe parity remain required.",
+      "coverageNotes": "Local macOS evidence covers runtime-RPC stream budgets, paired-renderer parse/discard credit, and negotiated host-side suppression for hidden paired desktop panes. Deferred credit is shared by local and remote transports, batches ACKs at 192 KiB or 4 ms, grows per-stream windows from 512 KiB to 2 MiB and aggregate windows from 2 MiB to 8 MiB, bounds queued output to 256 KiB per stream, and caps each multiplex connection at 32 active or pending streams for an 8 MiB aggregate pending-output ceiling. Deterministic tests cover replay ordering, stale generations, malformed frames, hidden panes, queue eviction, disposal, send/recovery failure, repeated pending-slot replacement, reconnect, mixed-version pause negotiation, and round-robin fairness. The opt-in benchmark covers 1/20/100 ms RTT and 1/4/8 viewers, exact protocol-frame allocations, scheduler CPU, and measured HeadlessEmulator (libghostty-vt) parser CPU/retained heap. Live Android restore evidence, browser renderer measurements, and legacy JSON subscribe parity remain required.",
       "motivatingLinks": [
         "https://github.com/stablyai/orca/pull/6951",
         "https://github.com/stablyai/orca/pull/6955",
@@ -16279,7 +16280,7 @@
           "assertions": [
             "one through eight viewers stay within the 8 MiB aggregate adaptive window",
             "the 100 ms RTT model sustains more than 7 MiB/s per viewer with less than 200 ms fairness spread",
-            "the opt-in benchmark reports RTT throughput, scheduler CPU time, exact protocol frame allocations, completion spread, and measured @xterm/headless parser CPU and retained heap"
+            "the opt-in benchmark reports RTT throughput, scheduler CPU time, exact protocol frame allocations, completion spread, and measured HeadlessEmulator (libghostty-vt) parser CPU and retained heap"
           ]
         },
         {
@@ -16324,7 +16325,7 @@
           "command": "ORCA_TERMINAL_PERF_BENCH=1 pnpm exec vitest run --config config/vitest.config.ts --disableConsoleIntercept src/main/runtime/rpc/terminal-multiplex-flow-control.bench.test.ts",
           "result": "passed",
           "durationSeconds": 0.91,
-          "summary": "The 1/20/100 ms RTT x 1/4/8 viewer matrix stayed at or below 8 MiB in flight with zero completion spread. At 100 ms it modeled 18.8 MiB/s per viewer for 1-4 viewers and 9.7 MiB/s for 8 viewers. Measured @xterm/headless parsing was 26.7/63.6/95.3 aggregate MiB/s for 1/4/8 viewers, with 84.4/236.5/336.0 ms CPU and 2893/13409/28991 KiB retained heap for 4 MiB per viewer."
+          "summary": "The 1/20/100 ms RTT x 1/4/8 viewer matrix stayed at or below 8 MiB in flight with zero completion spread. At 100 ms it modeled 18.8 MiB/s per viewer for 1-4 viewers and 9.7 MiB/s for 8 viewers. Measured HeadlessEmulator (libghostty-vt) parsing was 26.7/63.6/95.3 aggregate MiB/s for 1/4/8 viewers, with 84.4/236.5/336.0 ms CPU and 2893/13409/28991 KiB retained heap for 4 MiB per viewer."
         },
         {
           "date": "2026-07-30",
@@ -16360,13 +16361,13 @@
       "knownGaps": [
         "The pure mobile decision gate does not yet prove live Android WebView scrollback restore after a chat toggle.",
         "Legacy JSON subscribe parity is undecided.",
-        "The parser measurement uses @xterm/headless; browser renderer/WebGL CPU, GPU, and allocation behavior still need packaged-app performance evidence."
+        "The parser measurement uses HeadlessEmulator (libghostty-vt); browser renderer CPU, GPU, and allocation behavior still need packaged-app performance evidence."
       ],
       "demotionRule": "Cannot promote while a supported stream path has uncapped snapshot or live-output buffering."
     },
     {
       "id": "terminal-mirror.parser-parity",
-      "title": "Renderer xterm and main headless mirror parse identical bytes into identical cells",
+      "title": "Renderer OrcaPaneTerminal and main HeadlessEmulator parse identical bytes into identical cells",
       "maturity": "experimental",
       "protection": "partial",
       "owner": "terminal-rendering",
@@ -16388,7 +16389,7 @@
         "https://github.com/stablyai/orca/pull/7148",
         "https://github.com/stablyai/orca/pull/7133"
       ],
-      "invariant": "The main-process headless terminal mirror and the renderer xterm must parse identical byte streams into cell-identical buffers (unicode width tables, joining behavior, modes, and addon-visible semantics), so snapshots, restores, reads, and mobile streams never encode a frame the renderer would not have produced.",
+      "invariant": "The main-process HeadlessEmulator and the renderer OrcaPaneTerminal must parse identical byte streams into cell-identical buffers (unicode width tables, joining behavior, and modes), so snapshots, restores, reads, and mobile streams never encode a frame the renderer would not have produced. Both use libghostty-vt.",
       "oracle": "Feed identical byte corpora (emoji/ZWJ/wide glyphs, positioned overwrites after wide characters, alternate-screen transitions, wrapped lines) to both parser configurations and assert cell-identical visible buffers; both parsers must be constructed from one shared configuration module so one-sided drift fails the gate.",
       "commands": [
         "pnpm exec vitest run --config config/vitest.config.ts src/main/daemon/headless-emulator-unicode-width.test.ts"

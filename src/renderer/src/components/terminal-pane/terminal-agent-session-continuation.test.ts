@@ -26,7 +26,7 @@ vi.mock('sonner', () => ({ toast: { error: vi.fn() } }))
 function makePane(capturedText: string): ManagedPane {
   return {
     leafId: LEAF_ID,
-    serializeAddon: { serialize: vi.fn(() => capturedText) },
+    serializeController: { serialize: vi.fn(() => capturedText) },
     terminal: { focus: vi.fn() }
   } as unknown as ManagedPane
 }
@@ -91,7 +91,7 @@ describe('prepareAgentSessionContinuationFromPane', () => {
       initialCwd: '/repo/worktree/packages/app'
     })
 
-    expect(pane.serializeAddon.serialize).not.toHaveBeenCalled()
+    expect(pane.serializeController.serialize).not.toHaveBeenCalled()
     expect(request).toMatchObject({
       worktreeId: 'wt-1',
       groupId: 'group-1',
@@ -117,7 +117,7 @@ describe('prepareAgentSessionContinuationFromPane', () => {
       initialCwd: '/repo/worktree'
     })
 
-    expect(pane.serializeAddon.serialize).toHaveBeenCalledWith({ scrollback: 800 })
+    expect(pane.serializeController.serialize).toHaveBeenCalledWith({ scrollback: 800 })
     expect(request?.source).toMatchObject({
       capturedText: 'latest terminal context',
       transcriptPath: null

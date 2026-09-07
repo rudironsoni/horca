@@ -125,7 +125,7 @@ export function installRunDeferredConnect(session: ConnectPanePtySession): void 
     session.cols = session.pane.terminal.cols
     session.rows = session.pane.terminal.rows
 
-    // Why: if fitAddon resolved to 0×0, the container likely has no layout
+    // Why: if fitController resolved to 0×0, the container likely has no layout
     // dimensions (display:none, unmounted, or zero-size parent). Surface a
     // diagnostic so the user sees something instead of a blank pane.
     // Gate on visibility: background/hidden tabs (orchestration workers, CLI
@@ -192,9 +192,14 @@ export function installRunDeferredConnect(session: ConnectPanePtySession): void 
     bindHiddenOutputSeqAndSkip(session)
     bindHiddenRestoreStateAndSshProbe(session)
 
-    bindPrepaintParkedSshSnapshot(session)
-    bindHandleReattachResult(session)
-    runDeferredSessionAttach(session)
+    try {
+      bindPrepaintParkedSshSnapshot(session)
+      bindHandleReattachResult(session)
+      runDeferredSessionAttach(session)
+    } catch (err) {
+      console.warn('[orca-terminal] deferred-connect failed', err)
+      session.reportError(err instanceof Error ? err.message : String(err))
+    }
   }
 
   // Why: Wayland/CI compositors can starve rAF while timers/CDP stay responsive; the terminal must still start its PTY once.

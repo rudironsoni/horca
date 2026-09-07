@@ -36,7 +36,7 @@ export async function waitForRestoredTerminalInputReady(
             }
             container.__orcaE2eTerminalInputReadinessInstanceId ??= crypto.randomUUID()
             const paneInstanceId = container.__orcaE2eTerminalInputReadinessInstanceId
-            const output = pane.serializeAddon?.serialize?.() ?? ''
+            const output = pane.serializeController?.serialize?.() ?? ''
             if (
               pendingAttempts.some(
                 (attempt) =>

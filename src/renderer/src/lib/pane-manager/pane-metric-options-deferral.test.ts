@@ -12,13 +12,16 @@ import {
 } from './pane-metric-options-deferral'
 
 function makePane(): ManagedPane {
-  return { id: 1, terminal: { options: {} } } as unknown as ManagedPane
+  return { id: 1, terminal: { options: {}, applyMetrics: vi.fn() } } as unknown as ManagedPane
 }
 
 // Mirrors PaneManager.getPanes(), which returns a fresh toPublicPane() wrapper
 // per call — so deferral state must not be keyed on the pane object identity.
 function makeInternalPane(): ManagedPaneInternal {
-  return { id: 1, terminal: { options: {} } } as unknown as ManagedPaneInternal
+  return {
+    id: 1,
+    terminal: { options: {}, applyMetrics: vi.fn() }
+  } as unknown as ManagedPaneInternal
 }
 
 describe('pane-metric-options-deferral', () => {
@@ -147,7 +150,7 @@ describe('canApplyPaneMetricOptions gating', () => {
       id: 2,
       terminal: { options: {} },
       container: { getBoundingClientRect: () => rect },
-      fitAddon: { proposeDimensions: () => ({ cols, rows: 20 }) }
+      fitController: { proposeDimensions: () => ({ cols, rows: 20 }) }
     } as unknown as ManagedPane
   }
 
