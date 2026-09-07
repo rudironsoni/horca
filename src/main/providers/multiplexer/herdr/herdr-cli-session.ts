@@ -1,7 +1,14 @@
+import { existsSync } from 'node:fs'
 import { runProcess, spawnProcess } from '../../../../shared/child-process/run-process'
 import { buildWslExecArgs } from '../../../../shared/wsl-login-shell-command'
 import { resolveWslExecutablePath } from '../../../wsl/wsl-executable-path'
 import { ensureStockHerdrSession, type HerdrListedSession } from './herdr-stock-session'
+import { DEFAULT_HERDR_SESSION_NAME } from '../../../../shared/horca/terminal-backend'
+import {
+  ensureHerdrConfigHome,
+  herdrConfigHomeForSession,
+  herdrSessionSocketPath
+} from './herdr-session-socket-path'
 
 export type HerdrCommand = { file: string; args: string[]; env?: NodeJS.ProcessEnv }
 export type HerdrCommandFactory = (herdrArgs: string[]) => HerdrCommand | Promise<HerdrCommand>
@@ -25,12 +32,18 @@ export function parseHerdrSessionList(stdout: string): HerdrListedSession[] {
   )
 }
 
-export function herdrServerEnvironment(base: NodeJS.ProcessEnv | undefined): NodeJS.ProcessEnv {
+export function herdrServerEnvironment(
+  base: NodeJS.ProcessEnv | undefined,
+  sessionName = DEFAULT_HERDR_SESSION_NAME
+): NodeJS.ProcessEnv {
   const env = { ...process.env, ...base }
   for (const name of Object.keys(env)) {
     if (name.startsWith('HERDR_')) {
       delete env[name]
     }
+  }
+  if (process.platform !== 'win32') {
+    env.XDG_CONFIG_HOME = ensureHerdrConfigHome(herdrConfigHomeForSession(sessionName, env))
   }
   return env
 }
@@ -61,10 +74,21 @@ export async function startDetachedHerdrCommand(
   wslDistro?: string
 ): Promise<void> {
   const spec = herdrHostProcessSpec(command, wslDistro)
-  const child = spawnProcess({ ...spec, detached: true })
+  // Why: a piped stdin on a detached server dies as soon as Electron drops the
+  // fd. Keep stdout/stderr so a failed start still has a diagnostic.
+  const child = spawnProcess({ ...spec, detached: true, stdio: ['ignore', 'pipe', 'pipe'] })
   child.unref()
   await new Promise<void>((resolve, reject) => {
     let settled = false
+    let output = ''
+    const take = (chunk: Buffer | string): void => {
+      output += chunk.toString()
+      if (output.length > 4000) {
+        output = output.slice(-4000)
+      }
+    }
+    child.stdout?.on('data', take)
+    child.stderr?.on('data', take)
     const finish = (error?: Error): void => {
       if (settled) {
         return
@@ -82,7 +106,18 @@ export async function startDetachedHerdrCommand(
     }, 100)
     child.once('error', (error) => finish(error))
     child.once('close', (code) => {
-      finish(new Error(`Herdr server exited during startup with code ${code ?? 'unknown'}`))
+      if (code === 0 || code === null) {
+        finish()
+        return
+      }
+      const detail = output.trim()
+      finish(
+        new Error(
+          `Herdr server exited during startup with code ${code ?? 'unknown'}${
+            detail ? `: ${detail}` : ''
+          }`
+        )
+      )
     })
   })
 }
@@ -99,7 +134,9 @@ export class HerdrCliSessionManager {
     await ensureStockHerdrSession(this.sessionPromises, sessionName, {
       listSessions: () => this.listSessions(),
       startServer: (name) => this.startServer(name),
-      timeoutMs: this.options.timeoutMs
+      timeoutMs: this.options.timeoutMs,
+      socketReady: async (name) =>
+        existsSync(herdrSessionSocketPath(herdrConfigHomeForSession(name), name))
     })
   }
 
@@ -112,14 +149,17 @@ export class HerdrCliSessionManager {
       ? await this.options.serverCommandFor(sessionName)
       : await (async () => {
           const base = await this.options.commandFor(['--session', sessionName, 'server'])
-          return { ...base, env: herdrServerEnvironment(base.env) }
+          return { ...base, env: herdrServerEnvironment(base.env, sessionName) }
         })()
     await startDetachedHerdrCommand(command, this.options.wslDistro)
   }
 
   private async runCli(args: string[], input?: string): Promise<string> {
     const command = await this.options.commandFor(args)
-    const spec = herdrHostProcessSpec(command, this.options.wslDistro)
+    const spec = herdrHostProcessSpec(
+      { ...command, env: herdrServerEnvironment(command.env) },
+      this.options.wslDistro
+    )
     const result = await runProcess({
       ...spec,
       input,
