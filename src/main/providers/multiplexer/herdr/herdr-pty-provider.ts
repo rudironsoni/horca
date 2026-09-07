@@ -17,6 +17,7 @@ import {
   emitHerdrPtyReplay,
   killAllHerdrBindings
 } from './herdr-pty-provider-runtime'
+import { createHerdrPaneTitleListener } from './herdr-pty-title-forward'
 import { attachHerdrPty } from './herdr-pty-restore'
 import { isOrcaFallbackId, subscribeOrcaFallback } from './herdr-pty-orca-fallback'
 import type { HerdrHostTransport } from './herdr-runtime-contract'
@@ -206,7 +207,8 @@ export class HerdrPtyProvider extends HerdrPtyProviderIo implements IPtyProvider
       this.sharedName,
       this.livePaneListener,
       this.surfaceSync,
-      this.paneExitListener
+      this.paneExitListener,
+      this.paneTerminalTitleListener
     )
   }
 
@@ -218,6 +220,11 @@ export class HerdrPtyProvider extends HerdrPtyProviderIo implements IPtyProvider
 
   private readonly paneExitListener = (sessionName: string, paneId: string) =>
     retireExitedHerdrPane(this.bindings, sessionName, paneId, (payload) => this.emitExit(payload))
+
+  private readonly paneTerminalTitleListener = createHerdrPaneTitleListener(
+    this.bindings,
+    (payload) => this.emitData(payload)
+  )
 
   private bindController(
     input: Omit<HerdrPtyBinding, 'sequenceChars' | 'snapshot' | 'detached' | 'unsubscribe'>
