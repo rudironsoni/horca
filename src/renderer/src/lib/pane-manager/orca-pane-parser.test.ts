@@ -54,6 +54,25 @@ describe('OrcaPaneTerminal CSI/OSC ingest', () => {
     terminal.dispose()
   })
 
+  it('keeps a completion marker after a synchronized table dump', () => {
+    const terminal = new OrcaPaneTerminal(document.createElement('div'))
+    const top = 'RAW_EMOJI_FIXTURE_TABLE_TOP_unit'
+    const marker = 'RAW_EMOJI_FIXTURE_TABLE_RESTORE_unit'
+    const lines = Array.from({ length: 80 }, (_, index) => `${'━'.repeat(40)} row-${index}`)
+    terminal.write(
+      `\x1b[?2026h\x1b[2J\x1b[H${top}\r\n${lines.join('\r\n')}\r\nTAIL\r\n\x1b[?2026l${marker}\r\n`
+    )
+    const serialized = terminal.serialize()
+    const plain = terminal.engine.readViewportText()
+    const combined = `${serialized}\n${plain}`
+    expect(combined).toContain(marker)
+    expect(combined).toContain(top)
+    const wide = Array.from({ length: 200 }, (_, index) => `┌${'─'.repeat(135)}┐ ${index} 🦤`)
+    terminal.write(`\x1b[2J\x1b[H${wide.join('\r\n')}\r\n${marker}\r\n`)
+    expect(terminal.serialize()).toContain(marker)
+    terminal.dispose()
+  })
+
   it('leaves unmatched CSI for Ghostty when the handler returns false', () => {
     const terminal = new OrcaPaneTerminal(document.createElement('div'))
     let hits = 0
