@@ -1,4 +1,4 @@
-import type { IBufferLine } from '@xterm/xterm'
+import type { IBufferLine } from '../../../../shared/orca-terminal-surface'
 import { TERMINAL_HTTP_URL_MAX_LENGTH } from './terminal-http-link-limits'
 import { translateLineWithColumns, type WrappedLogicalLine } from './wrapped-terminal-link-ranges'
 

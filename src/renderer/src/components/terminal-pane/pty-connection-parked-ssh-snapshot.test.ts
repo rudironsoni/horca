@@ -240,7 +240,7 @@ describe('connectPanePty', () => {
     }
 
     const pane = createPane(1)
-    pane.fitAddon.proposeDimensions = vi.fn(() => ({ cols: 80, rows: 24 }))
+    pane.fitController.proposeDimensions = vi.fn(() => ({ cols: 80, rows: 24 }))
     const { writes } = captureCallbackTerminalWrites(pane)
     const binding = connectPanePty(
       pane as never,

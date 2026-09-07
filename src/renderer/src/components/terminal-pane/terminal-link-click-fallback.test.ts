@@ -1,4 +1,4 @@
-import type { IDisposable } from '@xterm/xterm'
+import type { OrcaDisposable as IDisposable } from '../../../../shared/orca-terminal-surface'
 import { describe, expect, it, vi } from 'vitest'
 import {
   installFilePathLinkClickFallback,
