@@ -69,6 +69,33 @@ export function trackListener<T>(listeners: Set<T>, listener: T): OrcaDisposable
   return { dispose: () => listeners.delete(listener) }
 }
 
+export function orcaPaneModes(engine: GhosttyTerminal): {
+  bracketedPasteMode: boolean
+  mouseTrackingMode: 'none' | 'on'
+  sendFocusMode: boolean
+  showCursor: boolean
+} {
+  return {
+    bracketedPasteMode: engine.getMode(2004),
+    mouseTrackingMode: engine.mouseTracking ? 'on' : 'none',
+    sendFocusMode: engine.getMode(1004),
+    showCursor: engine.getMode(25)
+  }
+}
+
+export function notifyTitleListeners(
+  before: string,
+  after: string,
+  listeners: Set<(title: string) => void>
+): void {
+  if (before === after) {
+    return
+  }
+  for (const listener of listeners) {
+    listener(after)
+  }
+}
+
 export function flushWaiters(active: boolean, waiters: Set<() => void>): void {
   if (active || waiters.size === 0) {
     return
