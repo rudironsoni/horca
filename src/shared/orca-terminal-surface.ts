@@ -45,7 +45,7 @@ export type ILinkProvider = {
 
 export type IParser = {
   registerCsiHandler: (
-    id: { final: string },
+    id: { prefix?: string; final: string },
     handler: (params: (number | number[])[]) => boolean
   ) => OrcaDisposable
   registerOscHandler: (ident: number, handler: (data: string) => boolean) => OrcaDisposable
