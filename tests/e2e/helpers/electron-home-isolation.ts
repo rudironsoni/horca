@@ -14,7 +14,8 @@ const RESTRICTED_ENV_KEYS = new Set([
   'ZDOTDIR',
   'ORCA_ORIG_ZDOTDIR',
   'BASH_ENV',
-  'ENV'
+  'ENV',
+  'XDG_CONFIG_HOME'
 ])
 
 type ElectronHomeIsolationOptions = {
@@ -74,6 +75,7 @@ export function createElectronHomeIsolation({
   // short names). Git canonicalizes worktree paths, so a non-canonical HOME
   // makes freshly created worktrees invisible to Orca's listing comparisons.
   const isolatedHome = realpathSync.native(requestedIsolatedHome)
+  mkdirSync(path.join(isolatedHome, '.config'), { recursive: true, mode: 0o700 })
   // Why: a bad fixture path must fail before Electron can resolve a real Codex
   // home; userData isolation alone does not change app.getPath('home').
   if (areSameHomePath(isolatedHome, realHome)) {
@@ -89,8 +91,10 @@ export function createElectronHomeIsolation({
       ...extraEnv,
       HOME: isolatedHome,
       USERPROFILE: isolatedHome,
+      XDG_CONFIG_HOME: path.join(isolatedHome, '.config'),
       ORCA_E2E_USER_DATA_DIR: userDataDir,
-      ORCA_E2E_HOME_DIR: isolatedHome
+      ORCA_E2E_HOME_DIR: isolatedHome,
+      TEST_WORKER_INDEX: inheritedEnv.TEST_WORKER_INDEX ?? '0'
     }
   }
 }
