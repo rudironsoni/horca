@@ -179,7 +179,11 @@ export async function forceQuitElectronAppForE2E(app: ElectronApplication): Prom
   await waitForExit(proc, PROCESS_EXIT_TIMEOUT_MS)
   releaseExitedProcessPipes(proc)
   // Hands the dead app back to Playwright so worker teardown has nothing left to wait on.
-  await app.close().catch(() => undefined)
+  await withTimeout(
+    app.close().catch(() => undefined),
+    PROCESS_EXIT_TIMEOUT_MS,
+    'Timed out settling Playwright electron handle'
+  ).catch(() => undefined)
 }
 
 export async function closeElectronAppForE2E(app: ElectronApplication): Promise<void> {
@@ -189,16 +193,14 @@ export async function closeElectronAppForE2E(app: ElectronApplication): Promise<
   releasePipes()
   try {
     await withTimeout(app.close(), GRACEFUL_CLOSE_TIMEOUT_MS, 'Timed out closing Electron app')
-    if (proc) {
-      const exited = await waitForExit(proc, PROCESS_EXIT_TIMEOUT_MS)
-      if (!exited) {
-        await forceKillProcessTree(proc)
-      }
-    }
   } catch {
-    if (proc) {
+    /* close may still be pending; kill the tree and settle Playwright's handle */
+  }
+  try {
+    if (proc && !hasExited(proc)) {
       await forceKillProcessTree(proc)
     }
+    await app.close().catch(() => undefined)
   } finally {
     proc.off('exit', releasePipes)
     releasePipes()
