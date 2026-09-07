@@ -1,4 +1,4 @@
-import type { IBuffer } from '@xterm/xterm'
+import type { IBuffer } from '../../../../../shared/orca-terminal-surface'
 import { resolveCursorAgentImeAnchor } from '@/lib/pane-manager/terminal-ime-anchor'
 import { CSI_SEQUENCE_PATTERN } from '../../../../../shared/ansi-escape-sequences'
 

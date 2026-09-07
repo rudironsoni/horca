@@ -11,7 +11,7 @@ type TerminalPtyReadinessWindow = Window & {
     {
       getPanes?: () => {
         container?: HTMLElement
-        serializeAddon?: { serialize?: () => string }
+        serializeController?: { serialize?: () => string }
       }[]
     }
   >
@@ -28,7 +28,7 @@ export async function getTerminalContentForPtyId(
       for (const manager of paneManagers?.values() ?? []) {
         for (const pane of manager.getPanes?.() ?? []) {
           if (pane.container?.dataset?.ptyId === ptyId) {
-            return (pane.serializeAddon?.serialize?.() ?? '').slice(-charLimit)
+            return (pane.serializeController?.serialize?.() ?? '').slice(-charLimit)
           }
         }
       }
@@ -52,7 +52,9 @@ export async function waitForPtyPaneMounted(
             if (
               manager
                 .getPanes?.()
-                .some((pane) => pane.container?.dataset?.ptyId === ptyId && pane.serializeAddon)
+                .some(
+                  (pane) => pane.container?.dataset?.ptyId === ptyId && pane.serializeController
+                )
             ) {
               return true
             }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { Terminal } from '@xterm/xterm'
+import type { OrcaPaneTerminal as Terminal } from './orca-pane-terminal'
 import {
   isTerminalLinkifierHoverActive,
   resetTerminalLinkifierHoverState

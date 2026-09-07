@@ -132,7 +132,7 @@ function performSafeFit(pane: ManagedPane): boolean {
     if (canPreserveScrollIntentForFit(pane)) {
       captureScrollForFit()
     }
-    pane.fitAddon.fit()
+    pane.fitController.fit()
     return true
   } catch {
     // Container may not have dimensions yet.

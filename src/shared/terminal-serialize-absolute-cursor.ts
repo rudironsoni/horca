@@ -1,4 +1,4 @@
-// Why this module exists: @xterm/addon-serialize restores the cursor with
+// Why this module exists: VT serializers restore the cursor with
 // RELATIVE moves (CUD/CUB) computed from where it assumes replay leaves the
 // cursor. When the final content row is filled exactly to the right margin,
 // replay leaves the fresh terminal wrap-pending (internal x == cols), so the

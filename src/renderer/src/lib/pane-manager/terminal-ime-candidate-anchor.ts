@@ -1,4 +1,25 @@
-import type { Terminal } from '@xterm/xterm'
+type ImeCandidateTerminal = {
+  element?: HTMLElement
+  textarea?: HTMLTextAreaElement
+  cols: number
+  rows: number
+  buffer?: {
+    active: {
+      cursorX: number
+      cursorY: number
+      baseY: number
+      getLine: (y: number) =>
+        | {
+            length: number
+            translateToString: (trimRight?: boolean, startCol?: number, endCol?: number) => string
+            getCell: (
+              column: number
+            ) => { getChars: () => string; getWidth: () => number } | undefined
+          }
+        | undefined
+    }
+  }
+}
 import { resolveCursorAgentImeAnchor, type TerminalImeAnchor } from './terminal-ime-anchor'
 
 type ImeAnchorCellMetrics = {
@@ -34,7 +55,9 @@ type ImeAnchorStyleProperty = 'top' | 'left' | 'height' | 'lineHeight'
  * Returns the installed handler so the caller can remove it on dispose, or null
  * when the terminal has not opened its DOM yet.
  */
-export function installTerminalImeCandidateAnchor(terminal: Terminal): (() => void) | null {
+export function installTerminalImeCandidateAnchor(
+  terminal: ImeCandidateTerminal
+): (() => void) | null {
   if (!terminal.element || !terminal.textarea) {
     return null
   }
@@ -107,7 +130,13 @@ export function installTerminalImeCandidateAnchor(terminal: Terminal): (() => vo
   }
 
   const resolveAnchor = (): { anchor: TerminalImeAnchor; isCursorAgent: boolean } => {
-    const buf = terminal.buffer.active
+    const buf = terminal.buffer?.active
+    if (!buf) {
+      return {
+        anchor: { row: 0, column: 0 },
+        isCursorAgent: false
+      }
+    }
     // Why: Cursor Agent draws its prompt UI while leaving xterm's public cursor
     // on a blank row, so the OS IME anchor needs the rendered prompt row instead.
     const cursorAgentAnchor = resolveCursorAgentImeAnchor({
