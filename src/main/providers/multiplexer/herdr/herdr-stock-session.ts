@@ -21,7 +21,7 @@ export async function ensureStockHerdrSession(
     return await existing
   }
   const run = (async () => {
-    const sessions = await ops.listSessions()
+    const sessions = await ops.listSessions().catch(() => [])
     const listedRunning = sessions.some(
       (session) => session.name === sessionName && session.running
     )
