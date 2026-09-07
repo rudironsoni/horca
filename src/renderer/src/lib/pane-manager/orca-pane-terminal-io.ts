@@ -1,4 +1,6 @@
 import { encodeBrowserKey } from '../../../../ghostty-vt/ghostty-key-encode'
+import type { ILinkProvider } from '../../../../shared/orca-terminal-surface'
+import { bindOrcaPaneLinkProviders } from './orca-pane-links'
 import { encodeBrowserMouse } from '../../../../ghostty-vt/ghostty-mouse-encode'
 import { searchNext, searchPrevious } from '../../../../ghostty-vt/ghostty-search'
 import {
@@ -77,6 +79,65 @@ export function hitTestGhosttyHyperlink(
   return hit?.uri ?? null
 }
 
+export function bindGhosttyKeyboardInput(pane: {
+  element: HTMLElement
+  encodeKey: (event: KeyboardEvent) => string
+  input: (data: string) => void
+  customKeyHandler: () => ((event: KeyboardEvent) => boolean) | null
+}): () => void {
+  const onKey = (event: KeyboardEvent): void => {
+    const handler = pane.customKeyHandler()
+    if (handler && handler(event) === false) {
+      return
+    }
+    const seq = pane.encodeKey(event)
+    if (!seq) {
+      return
+    }
+    event.preventDefault()
+    pane.input(seq)
+  }
+  pane.element.addEventListener('keydown', onKey)
+  pane.element.addEventListener('keyup', onKey)
+  return () => {
+    pane.element.removeEventListener('keydown', onKey)
+    pane.element.removeEventListener('keyup', onKey)
+  }
+}
+
+export function notifySelectionListeners(listeners: Set<() => void>): void {
+  for (const listener of listeners) {
+    listener()
+  }
+}
+
+export function bindOrcaPaneSession(pane: {
+  element: HTMLCanvasElement
+  engine: GhosttyTerminal
+  encodeKey: (event: KeyboardEvent) => string
+  encodeMouse: (event: MouseEvent) => string
+  input: (data: string) => void
+  refresh: () => void
+  setPreedit: (text: string) => void
+  customKeyHandler: () => ((event: KeyboardEvent) => boolean) | null
+  onSelectionChange: () => void
+  cellWidth: number
+  cellHeight: number
+  cols: number
+  rows: number
+  baseY: number
+  linkProviders: Set<ILinkProvider>
+}): () => void {
+  const unbindPointer = bindGhosttyPointerInput(pane)
+  const unbindKeys = bindGhosttyKeyboardInput(pane)
+  const unbindLinks = bindOrcaPaneLinkProviders(pane)
+  return () => {
+    unbindPointer()
+    unbindKeys()
+    unbindLinks()
+  }
+}
+
 export function bindGhosttyPointerInput(pane: {
   element: HTMLCanvasElement
   engine: GhosttyTerminal
@@ -84,6 +145,7 @@ export function bindGhosttyPointerInput(pane: {
   input: (data: string) => void
   refresh: () => void
   setPreedit: (text: string) => void
+  onSelectionChange?: () => void
   cellWidth: number
   cellHeight: number
   cols: number
@@ -91,6 +153,7 @@ export function bindGhosttyPointerInput(pane: {
 }): () => void {
   const send = (event: MouseEvent): void => {
     if (!pane.engine.mouseTracking) {
+      const before = pane.engine.readSelection()
       const rect = pane.element.getBoundingClientRect()
       applyPointerSelection(pane.engine, event, {
         left: rect.left,
@@ -101,6 +164,9 @@ export function bindGhosttyPointerInput(pane: {
         rows: pane.rows
       })
       pane.refresh()
+      if (pane.engine.readSelection() !== before) {
+        pane.onSelectionChange?.()
+      }
       return
     }
     const seq = pane.encodeMouse(event)
