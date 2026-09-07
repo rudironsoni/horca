@@ -1,4 +1,6 @@
-import type { Terminal } from '@xterm/xterm'
+type CursorBlinkTerminal = {
+  options: { cursorBlink?: boolean }
+}
 
 /**
  * Park `cursorBlink` while a pane is hidden.
@@ -25,9 +27,9 @@ import type { Terminal } from '@xterm/xterm'
  * Resume restores the parked value rather than the settings value, so a pane that
  * was not blinking before the hide never comes back blinking.
  */
-const parkedCursorBlink = new WeakMap<Terminal, boolean>()
+const parkedCursorBlink = new WeakMap<object, boolean>()
 
-export function suspendTerminalCursorBlink(terminal: Terminal): void {
+export function suspendTerminalCursorBlink(terminal: CursorBlinkTerminal): void {
   if (parkedCursorBlink.has(terminal)) {
     return
   }
@@ -36,7 +38,7 @@ export function suspendTerminalCursorBlink(terminal: Terminal): void {
 }
 
 /** Restores the pre-suspend blink state. No-op on a terminal that was never suspended. */
-export function resumeTerminalCursorBlink(terminal: Terminal): void {
+export function resumeTerminalCursorBlink(terminal: CursorBlinkTerminal): void {
   if (!parkedCursorBlink.has(terminal)) {
     return
   }
@@ -50,7 +52,10 @@ export function resumeTerminalCursorBlink(terminal: Terminal): void {
  * writing the option directly would re-arm the blink timer behind a hidden surface
  * until the next reveal.
  */
-export function setTerminalCursorBlinkOption(terminal: Terminal, enabled: boolean): void {
+export function setTerminalCursorBlinkOption(
+  terminal: CursorBlinkTerminal,
+  enabled: boolean
+): void {
   if (parkedCursorBlink.has(terminal)) {
     parkedCursorBlink.set(terminal, enabled)
     return
@@ -58,6 +63,6 @@ export function setTerminalCursorBlinkOption(terminal: Terminal, enabled: boolea
   terminal.options.cursorBlink = enabled
 }
 
-export function isTerminalCursorBlinkSuspended(terminal: Terminal): boolean {
+export function isTerminalCursorBlinkSuspended(terminal: CursorBlinkTerminal): boolean {
   return parkedCursorBlink.has(terminal)
 }

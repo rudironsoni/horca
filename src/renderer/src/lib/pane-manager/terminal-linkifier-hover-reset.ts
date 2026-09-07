@@ -1,5 +1,3 @@
-import type { Terminal } from '@xterm/xterm'
-
 type LinkifierHoverCache = {
   _lastBufferCell?: unknown
   _activeLine?: number
@@ -29,12 +27,12 @@ type TerminalCoreWithLinkifier = {
  * cache makes the next mousemove re-evaluate providers so the link and its
  * hover underline recover without a scroll.
  *
- * Reaches into xterm internals (`@xterm/xterm` 6.1.0-beta.287 `Linkifier`)
+ * Reaches into the terminal linkifier hover cache
  * because there is no public API to invalidate the hover cache. Guarded so a
  * future xterm build that renames these fields degrades to the pre-fix
  * behavior (link recovers on the next genuine cell change) instead of throwing.
  */
-export function resetTerminalLinkifierHoverState(terminal: Terminal): void {
+export function resetTerminalLinkifierHoverState(terminal: unknown): void {
   try {
     const linkifier = (terminal as unknown as TerminalCoreWithLinkifier)._core?.linkifier
     // Why: window blur can strand xterm's active link without another mouse
@@ -57,7 +55,7 @@ export function resetTerminalLinkifierHoverState(terminal: Terminal): void {
     }
     // Why: keep the cursor recoverable if a future xterm build omits the
     // private cleanup method or has no last mouse event for it to use.
-    terminal.element
+    ;(terminal as { element?: HTMLElement }).element
       ?.querySelector<HTMLElement>('.xterm-screen')
       ?.classList.remove('xterm-cursor-pointer')
   } catch {
@@ -75,7 +73,7 @@ export function resetTerminalLinkifierHoverState(terminal: Terminal): void {
  * resetTerminalLinkifierHoverState} so a renamed field degrades to "not
  * hovering" rather than throwing.
  */
-export function isTerminalLinkifierHoverActive(terminal: Terminal): boolean {
+export function isTerminalLinkifierHoverActive(terminal: unknown): boolean {
   try {
     const linkifier = (terminal as unknown as TerminalCoreWithLinkifier)._core?.linkifier
     return Boolean(linkifier && '_currentLink' in linkifier && linkifier._currentLink)

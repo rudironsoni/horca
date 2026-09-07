@@ -1,4 +1,4 @@
-import type { IBufferLine, IBufferRange } from '@xterm/xterm'
+import type { IBufferLine, IBufferRange } from '../../../../shared/orca-terminal-surface'
 import { extractTerminalFileLinkCandidates, resolveTerminalFileLink } from '@/lib/terminal-links'
 import { isRemoteRuntimeFileOperation } from '@/runtime/runtime-file-client'
 import {

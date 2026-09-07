@@ -8,7 +8,7 @@
  * runs per pane manager and on every font/opacity tweak, but the attributes
  * are app-global, so identical snapshots publish once.
  */
-import type { ITheme } from '@xterm/xterm'
+import type { ITheme } from '../../../../shared/orca-terminal-surface'
 import type { GlobalSettings } from '../../../../shared/global-settings-types'
 import type { TerminalColorSchemeMode } from '../../../../shared/terminal-color-scheme-protocol'
 import type {
