@@ -67,18 +67,16 @@ export async function getTerminalContent(page: Page, charLimit = 4000): Promise<
         return ''
       }
 
-      const activePane = manager.getActivePane?.()
-      if (!activePane) {
-        const panes = manager.getPanes?.() ?? []
-        if (panes.length === 0) {
-          return ''
-        }
-        const text = panes[0].serializeController?.serialize?.() ?? ''
-        return text.slice(-charLimit)
+      const pane = manager.getActivePane?.() ?? manager.getPanes?.()[0]
+      if (!pane) {
+        return ''
       }
-
-      const text = activePane.serializeController?.serialize?.() ?? ''
-      return text.slice(-charLimit)
+      const engine = (pane.terminal as { engine?: { readViewportText?: () => string } }).engine
+      const plain = engine?.readViewportText?.() ?? ''
+      if (plain) {
+        return plain.slice(-charLimit)
+      }
+      return (pane.serializeController?.serialize?.() ?? '').slice(-charLimit)
     },
     { tabId, charLimit }
   )
