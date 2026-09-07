@@ -299,7 +299,7 @@ async function describeActiveTerminalPanes(page: Page): Promise<PaneDescriptor[]
           const rendering = diagnostics.find((diagnostic) => diagnostic.paneId === pane.id)
           let proposed: { cols: number; rows: number } | null = null
           try {
-            proposed = pane.fitAddon.proposeDimensions() ?? null
+            proposed = pane.fitController.proposeDimensions() ?? null
           } catch {
             proposed = null
           }
@@ -378,7 +378,7 @@ async function readPaneContent(
       const pane = manager
         ?.getPanes?.()
         .find((candidate) => candidate.container.dataset.ptyId === ptyId)
-      const content = pane?.serializeAddon?.serialize?.() ?? ''
+      const content = pane?.serializeController?.serialize?.() ?? ''
       return content.slice(-charLimit)
     },
     { tabId, ptyId, charLimit }

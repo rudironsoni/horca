@@ -88,19 +88,19 @@ export function matchSearchNavigate(
 }
 
 export function runTerminalSearchNavigation(
-  pane: Pick<ManagedPane, 'searchAddon'>,
+  pane: Pick<ManagedPane, 'searchController'>,
   direction: SearchNavigationDirection,
   searchState: SearchState
 ): boolean {
   const options = { caseSensitive: searchState.caseSensitive, regex: searchState.regex }
   return direction === 'next'
     ? safeFind(
-        (term, findOptions) => pane.searchAddon.findNext(term, findOptions),
+        (term, findOptions) => pane.searchController.findNext(term, findOptions),
         searchState.query,
         options
       )
     : safeFind(
-        (term, findOptions) => pane.searchAddon.findPrevious(term, findOptions),
+        (term, findOptions) => pane.searchController.findPrevious(term, findOptions),
         searchState.query,
         options
       )

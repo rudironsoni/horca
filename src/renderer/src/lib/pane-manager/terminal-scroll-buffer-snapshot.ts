@@ -1,13 +1,10 @@
 export type TerminalScrollBufferType = 'normal' | 'alternate'
 
 export type TerminalScrollBufferTarget = {
-  buffer?: {
-    active?: {
-      type?: string
-      viewportY?: number
-      baseY?: number
-    }
-  }
+  isAlternateScreen?: boolean
+  viewportY?: number
+  baseY?: number
+  buffer?: { active?: { viewportY?: number; baseY?: number } }
 }
 
 export type TerminalScrollBufferSnapshot = {
@@ -19,14 +16,13 @@ export type TerminalScrollBufferSnapshot = {
 export function readTerminalScrollBufferSnapshot(
   terminal: TerminalScrollBufferTarget
 ): TerminalScrollBufferSnapshot | null {
-  const buffer = terminal.buffer?.active
-  const viewportY = buffer?.viewportY
-  const baseY = buffer?.baseY
+  const viewportY = terminal.viewportY ?? terminal.buffer?.active?.viewportY
+  const baseY = terminal.baseY ?? terminal.buffer?.active?.baseY
   if (typeof viewportY !== 'number' || typeof baseY !== 'number') {
     return null
   }
   return {
-    bufferType: buffer?.type === 'alternate' ? 'alternate' : 'normal',
+    bufferType: terminal.isAlternateScreen ? 'alternate' : 'normal',
     viewportY,
     baseY
   }
