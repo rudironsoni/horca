@@ -1,8 +1,10 @@
-import type { Terminal } from '@xterm/xterm'
 import { copyTerminalSelection } from '@/components/terminal-pane/terminal-selection-copy'
 import type { PreviewTerminalPasteSource } from './preview-terminal-paste'
 
-type PreviewRightClickTerminal = Pick<Terminal, 'getSelection' | 'clearSelection'>
+type PreviewRightClickTerminal = {
+  getSelection: () => string
+  clearSelection: () => void
+}
 
 /**
  * Terminal-style right-click for the preview terminal, mirroring the pane's

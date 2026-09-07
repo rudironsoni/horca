@@ -4,7 +4,7 @@ import type { ManagedPane, ManagedPaneInternal } from './pane-manager-types'
 // a title/banner can shrink the inner fittable area while the outer stays put.
 // Round to whole pixels so sub-pixel jitter never reads as a resize.
 export function readFitClientSize(pane: ManagedPane): { width: number; height: number } | null {
-  const element = (pane as ManagedPaneInternal).xtermContainer ?? pane.container
+  const element = (pane as ManagedPaneInternal).terminalHost ?? pane.container
   const measure = element?.getBoundingClientRect
   if (typeof measure !== 'function') {
     return null

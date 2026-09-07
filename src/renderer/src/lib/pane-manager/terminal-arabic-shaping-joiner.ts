@@ -1,6 +1,9 @@
-import type { Terminal } from '@xterm/xterm'
+type JoinerTerminal = {
+  registerCharacterJoiner?: (handler: (text: string) => number[][]) => number
+  deregisterCharacterJoiner?: (id: number) => void
+}
 
-type ArabicShapingTerminal = Pick<Terminal, 'registerCharacterJoiner' | 'deregisterCharacterJoiner'>
+type ArabicShapingTerminal = JoinerTerminal
 
 type LazyArabicShapingJoinerState = {
   cleanup: (() => void) | null
@@ -167,11 +170,14 @@ export function registerArabicShapingJoiner(
   isShapingActive: () => boolean
 ): () => void {
   // Why: DOM renderer letter-spacing breaks grid alignment for joined runs, so join only while WebGL is the live renderer.
+  if (!terminal.registerCharacterJoiner || !terminal.deregisterCharacterJoiner) {
+    return () => undefined
+  }
   const joinerId = terminal.registerCharacterJoiner((text) =>
     isShapingActive() ? findRtlJoinRanges(text) : []
   )
   return () => {
-    terminal.deregisterCharacterJoiner(joinerId)
+    terminal.deregisterCharacterJoiner?.(joinerId)
   }
 }
 

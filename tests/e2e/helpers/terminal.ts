@@ -55,13 +55,6 @@ export async function focusActiveTerminalInput(page: Page): Promise<void> {
     state.setActiveTab(tabId)
     state.setActiveTabType('terminal')
     pane.terminal.focus()
-    const textarea = pane.container.querySelector(
-      '.xterm-helper-textarea'
-    ) as HTMLTextAreaElement | null
-    if (!textarea) {
-      throw new Error('Active terminal has no xterm helper textarea')
-    }
-    textarea.focus()
   })
 }
 

@@ -247,20 +247,15 @@ console.log(
   '\nSnapshot/replay payloads always contain \\x1b[?, so the includes() gate never fires on\nthe reattach path — it only helps the live per-chunk path.'
 )
 
-// Reference point: xterm parses the same bytes right after these scans run, so its cost
-// is the yardstick for whether the scans are worth cutting.
-const xtermHeadless = await import('@xterm/headless')
-const Terminal = xtermHeadless.Terminal ?? xtermHeadless.default.Terminal
-const writeToXterm = (data) =>
-  new Promise((resolve) => {
-    const terminal = new Terminal({ cols: 120, rows: 40, scrollback: 5000, allowProposedApi: true })
-    const start = performance.now()
-    terminal.write(data, () => {
-      const elapsed = performance.now() - start
-      terminal.dispose()
-      resolve(elapsed)
-    })
-  })
+const writeToXterm = async (data) => {
+  const { HeadlessEmulator } = await import('../../src/main/daemon/headless-emulator.ts')
+  const terminal = new HeadlessEmulator({ cols: 120, rows: 40, scrollback: 5000 })
+  const start = performance.now()
+  await terminal.write(data)
+  const elapsed = performance.now() - start
+  terminal.dispose()
+  return elapsed
+}
 
 console.log(`\n== xterm headless parse of the same payload (reference) ==`)
 console.log(`${pad('payload', 36)} ${pad('size', 8)} ${pad('xterm write', 11)}`)

@@ -110,7 +110,7 @@ describe('reattach payload SSH reconnect model paint', () => {
     // Kitty pushes made during the outage exist only in the replay, so the replay
     // scan layers ON TOP of the snapshot baseline — inverted, the baseline wins.
     expect.soft(session.kittyKeyboardModes.scanReplay).toHaveBeenCalledWith(RELAY_TAIL)
-    expect.soft(session.pane.fitAddon.proposeDimensions).toHaveBeenCalledTimes(2)
+    expect.soft(session.pane.fitController.proposeDimensions).toHaveBeenCalledTimes(2)
     expect.soft(fireLog).toContain('kitty:snapshot-baseline')
     expect
       .soft(fireLog.indexOf('kitty:scan-replay'))
@@ -131,7 +131,7 @@ describe('reattach payload SSH reconnect model paint', () => {
 
     expect(probe).toHaveBeenCalledTimes(1)
     expect(paintedBytes(fireLog)).toContain(MODEL_MARKER)
-    expect(session.pane.fitAddon.proposeDimensions).toHaveBeenCalledTimes(2)
+    expect(session.pane.fitController.proposeDimensions).toHaveBeenCalledTimes(2)
     expect(ctx.reattachPayloadApplied).toBe(true)
   })
 
@@ -151,7 +151,7 @@ describe('reattach payload SSH reconnect model paint', () => {
     // The veto is decided before the fetch: probing first would burn
     // SSH_REATTACH_MODEL_SNAPSHOT_TIMEOUT_MS inside the coordinator only to discard it.
     expect(probe).not.toHaveBeenCalled()
-    expect(session.pane.fitAddon.proposeDimensions).not.toHaveBeenCalled()
+    expect(session.pane.fitController.proposeDimensions).not.toHaveBeenCalled()
     const painted = paintedBytes(fireLog)
     expect(painted).toContain(exitedReplay)
     expect(painted).not.toContain(MODEL_MARKER)
@@ -174,7 +174,7 @@ describe('reattach payload SSH reconnect model paint', () => {
 
     expect(probe).not.toHaveBeenCalled()
     // Park painting measures for its own width checks, but must not pay a third reconnect check.
-    expect(session.pane.fitAddon.proposeDimensions).toHaveBeenCalledTimes(2)
+    expect(session.pane.fitController.proposeDimensions).toHaveBeenCalledTimes(2)
     const painted = paintedBytes(fireLog)
     expect(painted).toContain(PARK_MARKER)
     expect(painted).not.toContain(MODEL_MARKER)

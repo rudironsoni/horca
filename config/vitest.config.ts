@@ -23,7 +23,8 @@ export default defineConfig({
       resolve('config/horca/vitest-distribution-profile.ts'),
       resolve('config/scripts/happy-dom-offscreen-canvas.ts'),
       resolve('config/scripts/happy-dom-mutation-observer-retention.ts'),
-      resolve('config/scripts/vitest-host-ports-setup.ts')
+      resolve('config/scripts/vitest-host-ports-setup.ts'),
+      resolve('config/scripts/vitest-ghostty-vt-host-setup.ts')
     ],
     include: [
       'src/**/*.test.ts',

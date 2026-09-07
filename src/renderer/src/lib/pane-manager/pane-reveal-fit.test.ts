@@ -42,7 +42,7 @@ function createPane(options: {
     id: 3,
     lastFitClientSize: options.lastFitClientSize,
     terminal: options.terminal,
-    fitAddon: { proposeDimensions: vi.fn(() => options.proposed ?? undefined) }
+    fitController: { proposeDimensions: vi.fn(() => options.proposed ?? undefined) }
   } as unknown as RevealTestPane
   mocks.readFitClientSize.mockImplementation(() => options.currentSize)
   return pane

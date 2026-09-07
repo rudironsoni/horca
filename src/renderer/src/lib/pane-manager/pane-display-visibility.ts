@@ -1,7 +1,7 @@
 import type { ManagedPane, ManagedPaneInternal } from './pane-manager-types'
 
 export function isManagedPaneDisplayNone(pane: ManagedPane): boolean {
-  const element = (pane as ManagedPaneInternal).xtermContainer ?? pane.container
+  const element = (pane as ManagedPaneInternal).terminalHost ?? pane.container
   const view = element?.ownerDocument?.defaultView
   if (!element || !view) {
     return false

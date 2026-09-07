@@ -128,7 +128,7 @@ export type MockPane = {
   stablePaneId: string
   terminal: MockPaneTerminal
   container: HTMLElement
-  fitAddon: {
+  fitController: {
     fit: Mock<() => void>
     proposeDimensions: Mock<() => { cols: number; rows: number }>
   }
@@ -201,7 +201,7 @@ export function createPane(paneId: number): MockPane {
     stablePaneId: leafId,
     terminal,
     container: createPaneContainer(),
-    fitAddon: {
+    fitController: {
       fit: vi.fn(),
       proposeDimensions: vi.fn(() => ({ cols: terminal.cols, rows: terminal.rows }))
     }

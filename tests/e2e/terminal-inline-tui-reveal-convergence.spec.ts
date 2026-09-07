@@ -93,7 +93,7 @@ async function probeRevealedPane(page: Page, tabId: string): Promise<RevealProbe
       }
       let proposed: { cols: number; rows: number } | null = null
       try {
-        proposed = pane.fitAddon.proposeDimensions() ?? null
+        proposed = pane.fitController.proposeDimensions() ?? null
       } catch {
         proposed = null
       }

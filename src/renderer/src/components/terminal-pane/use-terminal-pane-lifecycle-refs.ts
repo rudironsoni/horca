@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import type { IDisposable } from '@xterm/xterm'
+import type { OrcaDisposable as IDisposable } from '../../../../shared/orca-terminal-surface'
 import type { TerminalPaneVisibilitySnapshot } from './terminal-pane-lifecycle-primitives'
 import type { ReplayingPanesRef } from './replay-guard'
 import type { installTerminalLinkPointerGesture } from './terminal-link-pointer-gesture'

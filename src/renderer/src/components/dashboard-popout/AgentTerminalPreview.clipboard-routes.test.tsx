@@ -52,59 +52,59 @@ const imeHarness = vi.hoisted(() => ({
   claimResult: false
 }))
 
-vi.mock('@xterm/xterm', () => ({
-  Terminal: class {
+vi.mock('@/lib/ghostty-vt-web-host', () => ({
+  primeGhosttyVtHost: () => Promise.resolve({})
+}))
+vi.mock('@/lib/pane-manager/orca-pane-terminal', () => ({
+  OrcaPaneTerminal: class {
     cols = 80
     rows = 24
-    buffer = { active: { cursorY: 0 } }
+    cursor = { x: 0, y: 0 }
     writeCallbacks: (() => void)[] = []
     onDataListener: ((data: string) => void) | null = null
     customKeyHandler: ((event: KeyboardEvent) => boolean) | null = null
     selectionText = ''
+    options = {}
     write = vi.fn((_data: string, callback?: () => void) => {
       if (callback) {
         this.writeCallbacks.push(callback)
       }
     })
-    open = vi.fn()
     focus = vi.fn()
     dispose = vi.fn()
     resize = vi.fn()
     reset = vi.fn()
+    applyMetrics = vi.fn()
     modes = { bracketedPasteMode: false }
     paste = vi.fn((data: string) => {
-      terminalHarness.userInputListener?.()
       this.onDataListener?.(data)
     })
     input = vi.fn((data: string) => {
-      terminalHarness.userInputListener?.()
       this.onDataListener?.(data)
     })
-    element = document.createElement('div')
-    unicode = { activeVersion: '6', versions: ['6', '11'], register: vi.fn() }
-    loadAddon = vi.fn()
-    attachCustomWheelEventHandler = vi.fn()
+    element = document.createElement('canvas')
     scrollToTop = vi.fn()
     scrollToBottom = vi.fn()
     selectAll = vi.fn()
     getSelection = vi.fn(() => this.selectionText)
-    attachCustomKeyEventHandler = vi.fn((handler: (event: KeyboardEvent) => boolean) => {
-      this.customKeyHandler = handler
-    })
+    encodeKey = vi.fn(() => '')
     onData = vi.fn((listener: (data: string) => void) => {
       this.onDataListener = listener
       return { dispose: vi.fn() }
     })
 
     constructor() {
+      this.customKeyHandler = (event: KeyboardEvent) => {
+        this.element.dispatchEvent(event)
+        return !event.defaultPrevented
+      }
       terminalHarness.instances.push(this)
     }
   }
 }))
-vi.mock(import('@/lib/pane-manager/pane-terminal-options'), async (importOriginal) => ({
-  ...(await importOriginal()),
-  buildDefaultTerminalOptions: () => ({})
-}))
+vi.mock(import('@/lib/pane-manager/pane-terminal-options'), async (importOriginal) =>
+  importOriginal()
+)
 vi.mock('@/components/terminal-pane/terminal-user-input-signal', () => ({
   subscribeToTerminalUserInput: (_terminal: unknown, listener: () => void) => {
     terminalHarness.userInputListener = listener
@@ -352,12 +352,20 @@ describe('AgentTerminalPreview clipboard routes', () => {
     // The repeat is swallowed without a second clipboard read, and so is the keyup.
     expect(
       terminal.customKeyHandler!(
-        new KeyboardEvent('keydown', { key: 'v', code: 'KeyV', ctrlKey: true, repeat: true })
+        new KeyboardEvent('keydown', {
+          key: 'v',
+          code: 'KeyV',
+          ctrlKey: true,
+          repeat: true,
+          cancelable: true
+        })
       )
     ).toBe(false)
-    expect(terminal.customKeyHandler!(new KeyboardEvent('keyup', { key: 'v', code: 'KeyV' }))).toBe(
-      false
-    )
+    expect(
+      terminal.customKeyHandler!(
+        new KeyboardEvent('keyup', { key: 'v', code: 'KeyV', cancelable: true })
+      )
+    ).toBe(false)
     expect(readClipboardText).toHaveBeenCalledTimes(1)
   })
 

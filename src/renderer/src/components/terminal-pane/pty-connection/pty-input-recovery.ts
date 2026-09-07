@@ -206,7 +206,7 @@ export function installPtyInputRecovery(session: ConnectPanePtySession): void {
     }
     let proposed: { cols: number; rows: number } | undefined
     try {
-      proposed = session.pane.fitAddon.proposeDimensions()
+      proposed = session.pane.fitController.proposeDimensions() ?? undefined
     } catch {
       proposed = undefined
     }

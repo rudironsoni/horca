@@ -175,7 +175,7 @@ export async function waitForAllPanesToHaveContent(
           }
 
           const paneStates = panes.map((pane) => {
-            const content = pane.serializeAddon?.serialize?.() ?? ''
+            const content = pane.serializeController?.serialize?.() ?? ''
             // oxlint-disable-next-line no-control-regex -- stripping terminal control chars is intentional
             const stripped = content.replace(/[\s\x00-\x1f]/g, '')
             return { id: pane.id, hasContent: stripped.length > 0 }

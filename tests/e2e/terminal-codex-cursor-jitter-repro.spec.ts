@@ -233,7 +233,7 @@ async function getTerminalContentForTab(
     ({ tabId, charLimit }) => {
       const manager = window.__paneManagers?.get(tabId)
       const activePane = manager?.getActivePane?.() ?? manager?.getPanes?.()[0] ?? null
-      const text = activePane?.serializeAddon?.serialize?.() ?? ''
+      const text = activePane?.serializeController?.serialize?.() ?? ''
       return text.slice(-charLimit)
     },
     { tabId, charLimit }
@@ -562,7 +562,7 @@ async function readCaptureTarget(page: Page, tabId: string, ptyId: string): Prom
         cursorX: terminal.buffer.active.cursorX,
         cursorY: terminal.buffer.active.cursorY,
         suppressed: false,
-        renderer: pane.webglAddon ? 'webgl' : 'dom',
+        renderer: pane.gpuRenderer ? 'webgl' : 'dom',
         windowsPty: (terminal.options.windowsPty ?? null) as {
           backend?: string
           buildNumber?: number

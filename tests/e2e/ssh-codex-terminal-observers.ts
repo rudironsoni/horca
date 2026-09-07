@@ -23,7 +23,7 @@ export async function waitForRemoteFixtureCleanFinalInHiddenPane(
             const tabId = state?.activeTabIdByWorktree?.[remoteWorktreeId] ?? null
             const manager = tabId ? window.__paneManagers?.get(tabId) : null
             const pane = manager?.getActivePane?.() ?? manager?.getPanes?.()[0] ?? null
-            return pane?.serializeAddon?.serialize?.().includes(cleanFinalText) === true
+            return pane?.serializeController?.serialize?.().includes(cleanFinalText) === true
           },
           { remoteWorktreeId, cleanFinalText: REMOTE_CODEX_FIXTURE_CLEAN_FINAL_TEXT }
         ),
@@ -53,7 +53,7 @@ export async function waitForRealRemoteCodexCompletion(
                 : null
           const manager = tabId ? window.__paneManagers?.get(tabId) : null
           const pane = manager?.getActivePane?.() ?? manager?.getPanes?.()[0] ?? null
-          return pane?.serializeAddon?.serialize?.() ?? ''
+          return pane?.serializeController?.serialize?.() ?? ''
         })
         return content.split(doneMarker).length - 1
       },
@@ -95,7 +95,7 @@ export async function waitForRealRemoteCodexBackgroundStatus(page: Page): Promis
                 : null
           const manager = tabId ? window.__paneManagers?.get(tabId) : null
           const pane = manager?.getActivePane?.() ?? manager?.getPanes?.()[0] ?? null
-          return pane?.serializeAddon?.serialize?.() ?? ''
+          return pane?.serializeController?.serialize?.() ?? ''
         })
         return /background terminal|Working for background terminal|REMOTE_CODEX_PHASE/i.test(
           content
