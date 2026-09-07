@@ -19,7 +19,7 @@ export function hasVisibleRect(rect: DOMRect | null): rect is DOMRect {
 
 export function readProposedPaneGrid(pane: ManagedPane): { cols: number; rows: number } | null {
   try {
-    const dimensions = pane.fitAddon.proposeDimensions()
+    const dimensions = pane.fitController.proposeDimensions()
     if (!dimensions || dimensions.cols <= 0 || dimensions.rows <= 0) {
       return null
     }
