@@ -16,23 +16,24 @@ export function createPaintScheduler(paint: () => void): {
   }
   return {
     refresh() {
+      dirty = true
       if (queued) {
-        dirty = true
         return
       }
-      paint()
-      queued = true
-      dirty = false
       if (typeof requestAnimationFrame !== 'function') {
-        queued = false
+        dirty = false
+        paint()
         return
       }
+      queued = true
       raf = requestAnimationFrame(() => {
         queued = false
         raf = 0
-        if (dirty) {
-          paint()
+        if (!dirty) {
+          return
         }
+        dirty = false
+        paint()
       })
     },
     flush() {
