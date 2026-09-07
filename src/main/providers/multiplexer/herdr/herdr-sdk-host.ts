@@ -12,6 +12,7 @@ import { HerdrSdkRuntime } from './herdr-sdk-runtime'
 import {
   HerdrCliSessionManager,
   herdrHostProcessSpec,
+  herdrServerEnvironment,
   type HerdrCommandFactory,
   type HerdrCommand
 } from './herdr-cli-session'
@@ -115,11 +116,21 @@ export class HerdrSdkHost implements HerdrHostTransport {
     if (command instanceof Promise || this.options.wslDistro) {
       return createHerdrSessionControlFromOpen(async () => {
         const resolved = await command
-        const child = spawnProcess(herdrHostProcessSpec(resolved, this.options.wslDistro))
+        const child = spawnProcess(
+          herdrHostProcessSpec(
+            this.options.wslDistro
+              ? resolved
+              : { ...resolved, env: herdrServerEnvironment(resolved.env, sessionName) },
+            this.options.wslDistro
+          )
+        )
         return herdrSessionControlStreamFromProcess(child)
       })
     }
-    return createHerdrSessionControlController(command)
+    return createHerdrSessionControlController({
+      ...command,
+      env: herdrServerEnvironment(command.env, sessionName)
+    })
   }
 
   async disconnect(): Promise<void> {
