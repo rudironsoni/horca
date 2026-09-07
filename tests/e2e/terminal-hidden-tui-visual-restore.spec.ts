@@ -131,14 +131,10 @@ async function readTuiCursorState(page: Page): Promise<TuiCursorState> {
     if (!pane) {
       throw new Error('Active terminal pane is unavailable')
     }
-    const terminalCore = (
-      pane.terminal as unknown as {
-        _core?: { coreService?: { isCursorHidden?: boolean; isCursorInitialized?: boolean } }
-      }
-    )._core
+    const modes = (pane.terminal as unknown as { modes?: { showCursor?: boolean } }).modes
     return {
-      hidden: terminalCore?.coreService?.isCursorHidden ?? null,
-      initialized: terminalCore?.coreService?.isCursorInitialized ?? null
+      hidden: modes?.showCursor === false,
+      initialized: modes !== undefined
     }
   })
 }
