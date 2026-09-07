@@ -1,4 +1,3 @@
-import type { ITerminalOptions } from '@xterm/xterm'
 import type { ExecutionHostId } from '../../../../shared/execution-host'
 import type { TuiAgent } from '../../../../shared/tui-agent'
 import {
@@ -57,9 +56,9 @@ export function shouldDisableKittyKeyboardForTerminal(
  * local Windows ConPTY panes and leave every other pane untouched. Merged after
  * `buildDefaultTerminalOptions()`, so `{}` keeps the advertised default on.
  */
-export function buildTerminalKeyboardProtocolOptions(
-  context: TerminalKeyboardProtocolContext
-): Partial<ITerminalOptions> {
+export function buildTerminalKeyboardProtocolOptions(context: TerminalKeyboardProtocolContext): {
+  vtExtensions?: { kittyKeyboard: boolean }
+} {
   if (!shouldDisableKittyKeyboardForTerminal(context)) {
     return {}
   }

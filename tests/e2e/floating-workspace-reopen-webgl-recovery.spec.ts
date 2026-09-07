@@ -117,7 +117,7 @@ async function waitForFloatingWebglPane(page: Page): Promise<boolean> {
     manager?.setTerminalGpuAcceleration?.('on')
   }, FLOATING_WORKTREE_ID)
   // Why: getPanes()/getActivePane() return a public projection without
-  // webglAddon; getRenderingDiagnostics() is the supported way to observe
+  // gpuRenderer; getRenderingDiagnostics() is the supported way to observe
   // whether WebGL is attached.
   const attached = await page
     .waitForFunction(

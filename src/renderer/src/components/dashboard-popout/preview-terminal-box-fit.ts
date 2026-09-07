@@ -1,6 +1,8 @@
-import type { Terminal } from '@xterm/xterm'
-
-type PreviewBoxFitTerminal = Pick<Terminal, 'rows' | 'buffer'>
+type PreviewBoxFitTerminal = {
+  rows: number
+  element: HTMLElement
+  cursor: { y: number }
+}
 
 /**
  * Scales the preview terminal down to the dialog box it lives in. The terminal
@@ -16,7 +18,7 @@ export function createPreviewBoxFit(args: {
 }): { fit: () => void; schedule: () => void } {
   const fit = (): void => {
     const terminal = args.getTerminal()
-    const screen = args.container.querySelector<HTMLElement>('.xterm-screen')
+    const screen = terminal?.element
     const box = args.container.parentElement
     if (!screen || !box || !terminal) {
       return
@@ -24,7 +26,7 @@ export function createPreviewBoxFit(args: {
     const scale = Math.min(1, box.clientWidth / Math.max(1, screen.offsetWidth))
     args.container.style.transform = scale < 1 ? `scale(${scale})` : ''
     const cellHeight = screen.offsetHeight / Math.max(1, terminal.rows)
-    const cursorBottom = (terminal.buffer.active.cursorY + 1) * cellHeight * scale
+    const cursorBottom = (terminal.cursor.y + 1) * cellHeight * scale
     const anchorTop = cursorBottom <= box.clientHeight
     box.style.alignItems = anchorTop ? 'flex-start' : 'flex-end'
     args.container.style.transformOrigin = anchorTop ? 'top left' : 'bottom left'

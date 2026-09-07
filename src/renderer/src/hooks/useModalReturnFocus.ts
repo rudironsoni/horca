@@ -102,7 +102,7 @@ export function useModalReturnFocus(visible: boolean): {
   }, [focusCapturedElement, focusFirstMatchingSurface])
 
   const focusFallbackSurface = useCallback((): void => {
-    focusFirstMatchingSurface(['.xterm-helper-textarea', '.monaco-editor textarea'])
+    focusFirstMatchingSurface(['.xterm-helper-textarea', 'canvas.xterm', '.monaco-editor textarea'])
   }, [focusFirstMatchingSurface])
 
   const requestBrowserFocus = useCallback((detail: BrowserFocusRequestDetail): void => {

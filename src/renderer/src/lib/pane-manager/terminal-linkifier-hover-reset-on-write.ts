@@ -1,8 +1,12 @@
-import type { IDisposable, Terminal } from '@xterm/xterm'
+import type { OrcaDisposable as IDisposable } from '../../../../shared/orca-terminal-surface'
 import {
-  isTerminalLinkifierHoverActive,
-  resetTerminalLinkifierHoverState
+  isTerminalLinkifierHoverActive as isWriteParsedTerminalLinkifierHoverActive,
+  resetTerminalLinkifierHoverState as resetWriteParsedTerminalLinkifierHoverState
 } from './terminal-linkifier-hover-reset'
+
+type WriteParsedTerminal = {
+  onWriteParsed?: (listener: () => void) => IDisposable
+}
 
 // Why: coalesce bursts of streamed output into at most one hover-cache reset
 // per window so continuous agent output does not force a provider re-query on
@@ -15,7 +19,7 @@ const HOVER_RESET_THROTTLE_MS = 150
  *
  * Why: xterm re-runs link providers only on mousemove when the hovered buffer
  * cell changes, and it caches provider replies per line with no content-change
- * invalidation ({@link resetTerminalLinkifierHoverState} documents the fields).
+ * invalidation ({@link resetWriteParsedTerminalLinkifierHoverState} documents the fields).
  * A URL an agent streams into a visible pane under a stationary pointer is
  * therefore never underlined — and its native activation stays dead — until the
  * pointer crosses to a different line, which is the "click the terminal a few
@@ -25,8 +29,10 @@ const HOVER_RESET_THROTTLE_MS = 150
  * Sibling of the visibility-resume reset (see terminal-visibility-resume.ts),
  * which only covers reveal — not output streaming into an already-visible pane.
  */
-export function installTerminalLinkifierHoverResetOnWrite(terminal: Terminal): IDisposable {
-  // Why: never let this break pane creation if a Terminal stub or a future
+export function installWriteParsedTerminalLinkifierHoverResetOnWrite(
+  terminal: WriteParsedTerminal
+): IDisposable {
+  // Why: never let this break pane creation if a WriteParsedTerminal stub or a future
   // xterm build lacks onWriteParsed — links then recover on the next cell
   // change, as they did before this reset existed.
   if (typeof terminal.onWriteParsed !== 'function') {
@@ -41,12 +47,12 @@ export function installTerminalLinkifierHoverResetOnWrite(terminal: Terminal): I
     // line, dropping the reset would leave that link dead until a line change.
     // The retry performs the reset once the hover ends. (timer stays non-null
     // during the retry so a concurrent write does not stack a second timer.)
-    if (isTerminalLinkifierHoverActive(terminal)) {
+    if (isWriteParsedTerminalLinkifierHoverActive(terminal)) {
       timer = setTimeout(flush, HOVER_RESET_THROTTLE_MS)
       return
     }
     timer = null
-    resetTerminalLinkifierHoverState(terminal)
+    resetWriteParsedTerminalLinkifierHoverState(terminal)
   }
   const scheduleReset = (): void => {
     if (timer !== null) {
