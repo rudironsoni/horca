@@ -6,6 +6,8 @@ export type PtyDataEvent = {
   sequenceChars?: number
   transformed?: boolean
   seq?: number
+  /** OSC/BEL reconstructed from Herdr pane title. Must not enter the emulator. */
+  syntheticSideEffects?: boolean
 }
 
 /** Notification-bearing fact a thinning transport detected while it held
