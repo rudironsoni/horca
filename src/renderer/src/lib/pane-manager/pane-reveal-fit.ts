@@ -28,7 +28,7 @@ export function paneFitClientSizeChanged(pane: ManagedPane): boolean {
 // there anyway, so reveal must not force a reflow.
 function proposedGridMatchesTerminal(pane: ManagedPane): boolean {
   try {
-    const proposed = pane.fitAddon.proposeDimensions()
+    const proposed = pane.fitController.proposeDimensions()
     if (!proposed) {
       return true
     }

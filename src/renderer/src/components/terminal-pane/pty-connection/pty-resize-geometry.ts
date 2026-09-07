@@ -61,7 +61,7 @@ export function installPtyResizeGeometry(session: ConnectPanePtySession): void {
     }
     let proposed: { cols: number; rows: number } | undefined
     try {
-      proposed = session.pane.fitAddon.proposeDimensions()
+      proposed = session.pane.fitController.proposeDimensions() ?? undefined
     } catch {
       proposed = undefined
     }
@@ -122,7 +122,7 @@ export function installPtyResizeGeometry(session: ConnectPanePtySession): void {
             session.handleObservedPaneGeometry
           )
         })
-  // Why: pane.xtermContainer is created later in pane-lifecycle's
+  // Why: pane.terminalHost is created later in pane-lifecycle's
   // attachWebgl/initial-fit path; pane.container is always present at the
   // moment connectPanePty runs (it's the .pane element). Both report the
   // same layout signal — when the outer pane resizes, the inner xterm

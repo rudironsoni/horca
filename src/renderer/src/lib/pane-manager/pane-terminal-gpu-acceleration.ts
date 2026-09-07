@@ -36,7 +36,7 @@ export function applyTerminalGpuAcceleration(
     }
     if (
       pane.gpuRenderingEnabled &&
-      !pane.webglAddon &&
+      !pane.gpuRenderer &&
       !pane.webglAttachmentDeferred &&
       !pane.webglDisabledAfterContextLoss
     ) {

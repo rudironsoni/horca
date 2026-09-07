@@ -4,7 +4,7 @@ import { recoverVisibleTerminalWindowWake } from './terminal-visibility-resume'
 import { repairPaneWebglCanvasDpr } from '@/lib/pane-manager/terminal-canvas-dpr-repair'
 import { presentPaneViewport } from '@/lib/pane-manager/pane-webgl-renderer'
 import { recordTerminalFreezeBreadcrumb } from './terminal-freeze-breadcrumbs'
-import type { IDisposable } from '@xterm/xterm'
+import type { OrcaDisposable as IDisposable } from '../../../../shared/orca-terminal-surface'
 import { activePaneIsCoveredByNativeChat } from './native-chat-covered-pane'
 
 type UseTerminalWindowWakeRecoveryArgs = {

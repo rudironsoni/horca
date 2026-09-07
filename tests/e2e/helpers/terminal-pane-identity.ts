@@ -73,11 +73,11 @@ export async function getTerminalContent(page: Page, charLimit = 4000): Promise<
         if (panes.length === 0) {
           return ''
         }
-        const text = panes[0].serializeAddon?.serialize?.() ?? ''
+        const text = panes[0].serializeController?.serialize?.() ?? ''
         return text.slice(-charLimit)
       }
 
-      const text = activePane.serializeAddon?.serialize?.() ?? ''
+      const text = activePane.serializeController?.serialize?.() ?? ''
       return text.slice(-charLimit)
     },
     { tabId, charLimit }
