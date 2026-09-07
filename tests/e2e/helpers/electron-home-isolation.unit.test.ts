@@ -32,6 +32,7 @@ describe('createElectronHomeIsolation', () => {
         CODEX_HOME: '/real/codex',
         ORCA_CODEX_HOME: '/real/orca-codex',
         ZDOTDIR: '/real/zdotdir',
+        XDG_CONFIG_HOME: '/real/home/.config',
         PATH: '/bin'
       },
       launchEnv: { TEST_TOKEN: 'safe' },
@@ -55,6 +56,8 @@ describe('createElectronHomeIsolation', () => {
     expect(isolation.env.CODEX_HOME).toBeUndefined()
     expect(isolation.env.ORCA_CODEX_HOME).toBeUndefined()
     expect(isolation.env.ZDOTDIR).toBeUndefined()
+    expect(isolation.env.XDG_CONFIG_HOME).toBe(path.join(canonicalHome, '.config'))
+    expect(isolation.env.TEST_WORKER_INDEX).toBe('0')
     // Codex always routes to the resolved home, so the post-launch guard must
     // accept the boundary this env produces.
     expect(() =>
