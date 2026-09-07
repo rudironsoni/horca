@@ -1,4 +1,4 @@
-import type { IDisposable, IParser, Terminal } from '@xterm/xterm'
+import type { IDisposable, IParser, Terminal } from '../../../../shared/orca-terminal-surface'
 import {
   sendTerminalOscColorQueryReplies as sendTerminalOscColorQueryRepliesForColors,
   terminalOscColorQueryReplies,
@@ -28,7 +28,11 @@ function getTerminalScreenElement(
   if (typeof terminal.element?.querySelector !== 'function') {
     return null
   }
-  return terminal.element.querySelector('.xterm-screen') ?? null
+  return (
+    terminal.element.querySelector('.orca-terminal-canvas') ??
+    terminal.element.querySelector('.xterm-screen') ??
+    terminal.element
+  )
 }
 
 function measureCellPixels(
@@ -58,7 +62,7 @@ export function sendTerminalOscColorQueryReplies(
   terminal: Pick<Terminal, 'options'>,
   sendInput: (data: string) => boolean | void
 ): boolean {
-  return sendTerminalOscColorQueryRepliesForColors(data, terminal.options.theme ?? {}, sendInput)
+  return sendTerminalOscColorQueryRepliesForColors(data, terminal.options?.theme ?? {}, sendInput)
 }
 
 function sendTerminalOscColorQueryRepliesForSlots(
@@ -66,7 +70,7 @@ function sendTerminalOscColorQueryRepliesForSlots(
   terminal: Pick<Terminal, 'options'>,
   sendInput: (data: string) => boolean | void
 ): boolean {
-  const replies = terminalOscColorQueryReplies(terminal.options.theme ?? {}, slots)
+  const replies = terminalOscColorQueryReplies(terminal.options?.theme ?? {}, slots)
   if (!replies) {
     return false
   }

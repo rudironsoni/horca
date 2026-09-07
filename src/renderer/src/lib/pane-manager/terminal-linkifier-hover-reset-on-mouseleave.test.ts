@@ -1,4 +1,4 @@
-import type { Terminal } from '@xterm/xterm'
+import type { OrcaPaneTerminal as Terminal } from './orca-pane-terminal'
 import { describe, expect, it, vi } from 'vitest'
 import {
   installTerminalLinkifierHoverResetOnMouseLeave,

@@ -633,7 +633,7 @@ test.describe('Terminal Shortcuts', () => {
                 : null
           const manager = tabId ? window.__paneManagers?.get(tabId) : null
           const pane = manager?.getActivePane?.() ?? manager?.getPanes?.()[0] ?? null
-          return Boolean(pane?.webglAddon)
+          return Boolean(pane?.gpuRenderer)
         },
         null,
         { timeout: 5_000 }
@@ -669,7 +669,7 @@ test.describe('Terminal Shortcuts', () => {
               markerVisible:
                 visibleText.includes(expectedMarker) || terminalText === expectedMarker,
               hasComplexScriptOutput: pane?.hasComplexScriptOutput === true,
-              hasWebgl: Boolean(pane?.webglAddon)
+              hasWebgl: Boolean(pane?.gpuRenderer)
             }
           }, marker),
         {

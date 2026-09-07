@@ -116,12 +116,12 @@ export type GlobalSettings = {
   /** One-shot migration guard for moving inherited TUI wheel reports from 3 to 1. */
   terminalTuiScrollSensitivityDefaultedToOne?: boolean
   /** Terminal renderer policy.
-   *  - 'auto': try xterm WebGL and fall back to DOM when unsupported or risky.
-   *  - 'on': always try xterm WebGL.
-   *  - 'off': keep terminal rendering on xterm's DOM renderer. */
+   *  - 'auto': try GPU canvas and fall back to Canvas2D when unsupported.
+   *  - 'on': always try GPU canvas.
+   *  - 'off': keep Canvas2D. */
   terminalGpuAcceleration: 'auto' | 'on' | 'off'
-  /** Whether to enable programming-ligatures rendering via
-   *  `@xterm/addon-ligatures`.
+  /** Whether to enable programming-ligatures rendering.
+   *  Ligatures are a font feature, not a terminal-engine addon.
    *  - `'auto'` (default): enabled only when the configured font is known to
    *    ship ligatures (Fira Code, JetBrains Mono, Cascadia Code, etc.). This
    *    keeps the out-of-the-box experience right for users who install a
