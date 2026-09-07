@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { herdrServerEnvironment, parseHerdrSessionList } from './herdr-cli-session'
+import { herdrSessionSocketPath } from './herdr-session-socket-path'
 
 describe('stock Herdr session process', () => {
   it('does not inherit a caller pane or socket when starting a server', () => {
@@ -14,6 +15,20 @@ describe('stock Herdr session process', () => {
     expect(env.HERDR_ENV).toBeUndefined()
     expect(env.HERDR_SOCKET_PATH).toBeUndefined()
     expect(env.HERDR_PANE_ID).toBeUndefined()
+  })
+
+  it('relocates XDG_CONFIG_HOME when the default herdr socket would exceed sun_path', () => {
+    const env = herdrServerEnvironment(
+      {
+        PATH: '/bin',
+        HOME: '/private/var/folders/t6/jmkhfw452wx9x27cvtj03qmh0000gq/T/orca-e2e-userdata-abcdefgh/home'
+      },
+      'horca'
+    )
+    expect(env.XDG_CONFIG_HOME).toMatch(/^\/tmp\/\.horca-h-/)
+    expect(
+      Buffer.byteLength(herdrSessionSocketPath(env.XDG_CONFIG_HOME ?? '', 'horca'), 'utf8')
+    ).toBeLessThanOrEqual(103)
   })
 
   it('reads stock session-list JSON', () => {

@@ -90,7 +90,7 @@ export function createLocalHerdrPtyProvider(
           serverCommandFor: (name) => ({
             file: executable,
             args: ['--session', name, 'server'],
-            env: herdrServerEnvironment(undefined)
+            env: herdrServerEnvironment(undefined, name)
           })
         })
       }
