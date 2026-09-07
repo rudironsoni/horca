@@ -69,6 +69,10 @@ export function bindProviderListeners(session: PtyIpcSession): void {
 
   setLocalDataUnsub(
     localProvider.onData((payload) => {
+      if (payload.syntheticSideEffects) {
+        session.runtime?.ingestSyntheticTitleFrame(payload.id, payload.data)
+        return
+      }
       const rawLength = payload.sequenceChars ?? payload.data.length
       const outputSeq = isLocalProvider
         ? session.runtime?.getPtyOutputSequence(payload.id)
