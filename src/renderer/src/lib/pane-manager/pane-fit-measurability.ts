@@ -14,7 +14,7 @@ export function getProposedPaneDimensions(
   pane: ManagedPane
 ): { cols: number; rows: number } | null {
   try {
-    return pane.fitAddon.proposeDimensions() ?? null
+    return pane.fitController.proposeDimensions() ?? null
   } catch {
     return null
   }

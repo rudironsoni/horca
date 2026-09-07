@@ -223,7 +223,7 @@ export async function readDuplicateStatusRows(page: Page): Promise<string[]> {
           : null
     const manager = tabId ? window.__paneManagers?.get(tabId) : null
     const pane = manager?.getActivePane?.() ?? manager?.getPanes?.()[0] ?? null
-    const text = pane?.serializeAddon?.serialize?.() ?? ''
+    const text = pane?.serializeController?.serialize?.() ?? ''
     const counts = new Map<string, number>()
     const escapeSequencePattern = new RegExp(
       `${String.fromCharCode(27)}\\[[0-9;?]*[ -/]*[@-~]`,

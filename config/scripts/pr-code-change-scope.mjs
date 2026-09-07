@@ -20,7 +20,6 @@ export const PR_CHECK_JOBS = [
   'typecheck',
   'git_compatibility',
   'codex_index_heal_contract',
-  'xterm_patch_sync',
   'shell_contracts',
   'test',
   'orcad_browser',
@@ -64,13 +63,6 @@ const CODEX_INDEX_HEAL_CONTRACT_PREFIXES = [
   'src/main/win32-utils',
   'src/shared/node-cli-command-resolution',
   'src/shared/windows-batch-spawn'
-]
-
-const XTERM_PREFIXES = [
-  'config/patches/xterm-upstream.json',
-  'config/patches/@xterm',
-  'config/patches/xterm-src/',
-  'config/scripts/regenerate-xterm-patches'
 ]
 
 const SHELL_PREFIXES = [
@@ -310,8 +302,6 @@ function jobDetector(job) {
     case 'codex_index_heal_contract':
       return (files) =>
         files.some((file) => matchesPrefix(file, CODEX_INDEX_HEAL_CONTRACT_PREFIXES))
-    case 'xterm_patch_sync':
-      return (files) => files.some((file) => matchesPrefix(file, XTERM_PREFIXES))
     case 'shell_contracts':
       return (files) => files.some((file) => matchesPrefix(file, SHELL_PREFIXES))
     case 'orcad_browser':

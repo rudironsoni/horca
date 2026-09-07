@@ -11,7 +11,7 @@ import { getUtf8ByteLength, measureUtf8ByteLength } from '../../../../shared/utf
 
 const MAX_BUFFER_BYTES = TERMINAL_SCROLLBACK_SESSION_BUFFER_BYTE_LIMIT
 
-type ShutdownPane = Pick<ManagedPane, 'id' | 'leafId' | 'terminal' | 'serializeAddon'>
+type ShutdownPane = Pick<ManagedPane, 'id' | 'leafId' | 'terminal' | 'serializeController'>
 
 type ShutdownPaneManager = {
   getPanes(): ShutdownPane[]
@@ -74,7 +74,7 @@ function serializeWithinSessionScrollbackByteLimit(
     if (rows <= fitRows || rows >= overRows) {
       break
     }
-    const attempt = serializeWithAbsoluteCursor(pane.serializeAddon, pane.terminal, {
+    const attempt = serializeWithAbsoluteCursor(pane.serializeController, pane.terminal, {
       scrollback: rows
     })
     if (fitsSessionScrollbackByteLimit(attempt)) {
@@ -113,7 +113,7 @@ export function captureTerminalShutdownLayout({
         // Why serializeWithAbsoluteCursor: these buffers replay into fresh
         // xterms on session restore, and SerializeAddon's relative cursor
         // restore lands one column short after a wrap-pending final row.
-        let serialized = serializeWithAbsoluteCursor(pane.serializeAddon, pane.terminal, {
+        let serialized = serializeWithAbsoluteCursor(pane.serializeController, pane.terminal, {
           scrollback
         })
         // Why: SSH sleep keeps this string in session JSON; cap by UTF-8

@@ -1,14 +1,7 @@
-import type { IDisposable, IMarker, Terminal, ITerminalOptions } from '@xterm/xterm'
-import type { FitAddon } from '@xterm/addon-fit'
-import type { LigaturesAddon } from '@xterm/addon-ligatures'
-import type { SearchAddon } from '@xterm/addon-search'
-import type { Unicode11Addon } from '@xterm/addon-unicode11'
-import type { WebLinksAddon } from '@xterm/addon-web-links'
-import type { WebglAddon } from '@xterm/addon-webgl'
-import type { SerializeAddon } from '@xterm/addon-serialize'
 import type { GlobalSettings } from '../../../../shared/global-settings-types'
 import type { TerminalLeafId } from '../../../../shared/stable-pane-id'
 import type { TerminalWebglAutoDecision } from './terminal-webgl-auto-policy'
+import type { OrcaPaneAppearance, OrcaPaneTerminal } from './orca-pane-terminal'
 
 // ---------------------------------------------------------------------------
 // Public interfaces
@@ -62,7 +55,7 @@ export type PaneManagerOptions = {
   onPaneDragActiveChange?: (active: boolean) => void
   resolveExternalPaneDropTarget?: PaneExternalDropResolver
   onExternalPaneDrop?: PaneExternalDropHandler
-  terminalOptions?: (paneId: number) => Partial<ITerminalOptions>
+  terminalOptions?: (paneId: number) => Partial<OrcaPaneAppearance>
   terminalLigaturesEnabled?: () => boolean
   terminalTuiScrollSensitivity?: () => number | undefined
   onLinkClick?: (paneId: number, event: MouseEvent | undefined, url: string) => void
@@ -101,6 +94,24 @@ export type PaneStyleOptions = {
   paddingY?: number
 }
 
+export type PaneFitController = {
+  fit: () => void
+  proposeDimensions: () => { cols: number; rows: number } | null
+  dispose: () => void
+}
+
+export type PaneSearchController = {
+  findNext: (query: string, options?: { caseSensitive?: boolean; regex?: boolean }) => boolean
+  findPrevious: (query: string, options?: { caseSensitive?: boolean; regex?: boolean }) => boolean
+  clearDecorations: () => void
+  dispose: () => void
+}
+
+export type PaneSerializeController = {
+  serialize: (opts?: { scrollback?: number }) => string
+  dispose: () => void
+}
+
 export type ManagedPane = {
   id: number
   /** Durable terminal layout leaf UUID. Use this for paneKey/ORCA_PANE_KEY and
@@ -108,12 +119,12 @@ export type ManagedPane = {
   leafId: TerminalLeafId
   /** Compatibility alias while callers migrate from the older stablePaneId name. */
   stablePaneId: TerminalLeafId
-  terminal: Terminal
-  container: HTMLElement // the .pane element
+  terminal: OrcaPaneTerminal
+  container: HTMLElement
   linkTooltip: HTMLElement
-  fitAddon: FitAddon
-  searchAddon: SearchAddon
-  serializeAddon: SerializeAddon
+  fitController: PaneFitController
+  searchController: PaneSearchController
+  serializeController: PaneSerializeController
 }
 
 export type PaneRenderingDiagnostics = {
@@ -138,13 +149,11 @@ export type ScrollState = {
   wasAtBottom: boolean
   viewportY: number
   baseY: number
-  firstVisibleLineMarker?: IMarker
-  firstVisibleLogicalLineMarker?: IMarker
   firstVisibleLogicalCellOffset?: number
 }
 
 export type ManagedPaneInternal = {
-  xtermContainer: HTMLElement
+  terminalHost: HTMLElement
   linkTooltip: HTMLElement
   terminalTuiScrollSensitivity?: () => number | undefined
   terminalGpuAcceleration: GlobalSettings['terminalGpuAcceleration']
@@ -162,11 +171,8 @@ export type ManagedPaneInternal = {
   // Why: expose complex-output diagnostics without changing renderer choice;
   // auto renderer fallback is reserved for platform or WebGL failures.
   hasComplexScriptOutput: boolean
-  webglAddon: WebglAddon | null
-  // Why nullable: ligatures are opt-in per font and toggleable at runtime,
-  // so the addon instance only exists while the feature is active. A null
-  // value means "currently disabled".
-  ligaturesAddon: LigaturesAddon | null
+  gpuRenderer: { dispose?: () => void; clearTextureAtlas?: () => void } | null
+  ligaturesAddon: { dispose?: () => void } | null
   fitResizeObserver: ResizeObserver | null
   // Why: fit-element pixel size at the last successful fit; the reveal fit compares
   // against it to tell a real hidden-time resize from a transient cell-metric wobble.
@@ -176,9 +182,8 @@ export type ManagedPaneInternal = {
   // Stored so disposePane() can cancel the post-WebGL-teardown refresh frame.
   pendingWebglRefreshRafId?: number | null
   pendingObservedFitRafId: number | null
-  serializeAddon: SerializeAddon
-  unicode11Addon: Unicode11Addon
-  webLinksAddon: WebLinksAddon
+  unicode11Addon: null
+  webLinksAddon: null
   // Stored so disposePane() can remove pane-local DOM listeners explicitly.
   panePointerDownHandler?: ((event: PointerEvent) => void) | null
   paneMouseEnterHandler?: ((event: MouseEvent) => void) | null
@@ -188,15 +193,10 @@ export type ManagedPaneInternal = {
   // Stored so disposePane() can remove DOM-renderer focus synchronization.
   focusClassSyncCleanup?: (() => void) | null
   // Stored so disposePane() can remove user-scroll intent listeners.
-  terminalScrollIntentDisposable?: IDisposable | null
-  // Stored so disposePane() can detach the streamed-output hover-cache reset
-  // that keeps freshly printed links linkifiable without a scroll.
-  linkifierHoverResetDisposable?: IDisposable | null
-  // Stored because mouseleave does not bubble from xterm's screen.
-  linkifierMouseLeaveResetDisposable?: IDisposable | null
-  // Stored because a window blur may strand xterm's active link without a
-  // follow-up mouse event.
-  linkifierWindowBlurResetDisposable?: IDisposable | null
+  terminalScrollIntentDisposable?: { dispose: () => void } | null
+  linkifierHoverResetDisposable?: { dispose: () => void } | null
+  linkifierMouseLeaveResetDisposable?: { dispose: () => void } | null
+  linkifierWindowBlurResetDisposable?: { dispose: () => void } | null
   // Stored so disposePane() can deregister the joiner; terminal.dispose()
   // does not remove registered character joiners.
   arabicShapingJoinerCleanup?: (() => void) | null
@@ -209,7 +209,7 @@ export type ManagedPaneInternal = {
   pendingSplitScrollTimerId?: ReturnType<typeof setTimeout> | null
   // Stored so repeated split restores and disposePane() can remove the
   // deferred alt-screen buffer listener instead of stacking callbacks.
-  pendingSplitScrollBufferDisposable?: IDisposable | null
+  pendingSplitScrollBufferDisposable?: { dispose: () => void } | null
   debugLabel: string | null
 } & ManagedPane
 

@@ -139,7 +139,7 @@ export function prepareAgentSessionForkFromPane({
   // Why: v1 is a context fork, not a process clone. Capturing scrollback keeps
   // SSH and local panes on the same path because both expose xterm state here.
   const prompt = buildAgentSessionForkPrompt({
-    capturedText: pane.serializeAddon.serialize({ scrollback: 800 }),
+    capturedText: pane.serializeController.serialize({ scrollback: 800 }),
     sourceLabel: paneKey,
     agentLabel: agent
   })
@@ -174,7 +174,7 @@ export async function copyAgentSessionForkContext(
 // "this is a fork… acknowledge and wait" framing the dialog button uses.
 export async function copyAgentSessionContextFromPane(pane: ManagedPane): Promise<boolean> {
   const transcript = buildBoundedSessionTranscript(
-    pane.serializeAddon.serialize({ scrollback: 800 })
+    pane.serializeController.serialize({ scrollback: 800 })
   )
   if (!transcript) {
     toast.error(

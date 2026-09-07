@@ -164,7 +164,7 @@ describe('connectPanePty', () => {
 
     connectPanePty(pane as never, manager as never, deps as never)
 
-    // Why: deferred reattach uses connect({ sessionId }) not attach() so the daemon's createOrAttach runs at the pane's real fitAddon dimensions.
+    // Why: deferred reattach uses connect({ sessionId }) not attach() so the daemon's createOrAttach runs at the pane's real fitController dimensions.
     expect(transport.connect).toHaveBeenCalledWith(
       expect.objectContaining({ sessionId: 'leaf-pty-2' })
     )
@@ -308,11 +308,11 @@ describe('connectPanePty', () => {
     pane.terminal.rows = 63
     let proposedGrid = { cols: 133, rows: 63 }
     ;(
-      pane.fitAddon as unknown as {
+      pane.fitController as unknown as {
         proposeDimensions: () => { cols: number; rows: number }
       }
     ).proposeDimensions = vi.fn(() => proposedGrid)
-    pane.fitAddon.fit = vi.fn(() => {
+    pane.fitController.fit = vi.fn(() => {
       pane.terminal.cols = proposedGrid.cols
       pane.terminal.rows = proposedGrid.rows
     })

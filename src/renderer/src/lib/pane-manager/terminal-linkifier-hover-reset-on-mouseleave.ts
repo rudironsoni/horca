@@ -1,4 +1,5 @@
-import type { IDisposable, Terminal } from '@xterm/xterm'
+import type { OrcaDisposable as IDisposable } from '../../../../shared/orca-terminal-surface'
+import type { OrcaPaneTerminal as Terminal } from './orca-pane-terminal'
 import { resetTerminalLinkifierHoverState } from './terminal-linkifier-hover-reset'
 
 export function installTerminalLinkifierHoverResetOnMouseLeave(

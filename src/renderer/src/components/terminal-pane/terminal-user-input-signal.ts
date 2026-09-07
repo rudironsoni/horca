@@ -1,4 +1,4 @@
-import type { Terminal } from '@xterm/xterm'
+import type { OrcaPaneTerminal as Terminal } from '../../lib/pane-manager/orca-pane-terminal'
 
 // Why: xterm's public onData stream mixes real user input (keyboard, IME,
 // paste, mouse reports) with parser-generated auto-replies (focus in/out
