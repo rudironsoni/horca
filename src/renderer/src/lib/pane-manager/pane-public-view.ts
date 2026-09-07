@@ -8,9 +8,9 @@ export function toPublicPane(pane: ManagedPaneInternal): ManagedPane {
     terminal: pane.terminal,
     container: pane.container,
     linkTooltip: pane.linkTooltip,
-    fitAddon: pane.fitAddon,
-    searchAddon: pane.searchAddon,
-    serializeAddon: pane.serializeAddon
+    fitController: pane.fitController,
+    searchController: pane.searchController,
+    serializeController: pane.serializeController
   }
 }
 

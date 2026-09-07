@@ -166,7 +166,7 @@ async function readRevealFrameDiagnostics(
       // Same pane resolution as readActiveScreen, so both halves describe one pane.
       const manager = window.__paneManagers?.get(tabId)
       const pane = manager?.getActivePane?.() ?? manager?.getPanes?.()[0]
-      return pane?.serializeAddon?.serialize?.() ?? null
+      return pane?.serializeController?.serialize?.() ?? null
     }, tabId)) ?? ''
   const prefix = `${marker} frame `
   const markerOffsets: number[] = []

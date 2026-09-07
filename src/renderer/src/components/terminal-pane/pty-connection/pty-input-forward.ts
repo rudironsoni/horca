@@ -320,7 +320,7 @@ export function installPtyInputForward(session: ConnectPanePtySession): void {
   session.lastForegroundGridDriftCheckAt = Number.NEGATIVE_INFINITY
   session.readProposedTerminalGrid = (): { cols: number; rows: number } | null => {
     try {
-      const proposed = session.pane.fitAddon.proposeDimensions()
+      const proposed = session.pane.fitController.proposeDimensions()
       if (!proposed || proposed.cols <= 0 || proposed.rows <= 0) {
         return null
       }

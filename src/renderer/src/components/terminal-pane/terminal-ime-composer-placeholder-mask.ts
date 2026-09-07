@@ -1,4 +1,5 @@
-import type { IDisposable, Terminal } from '@xterm/xterm'
+import type { OrcaDisposable as IDisposable } from '../../../../shared/orca-terminal-surface'
+import type { OrcaPaneTerminal as Terminal } from '../../lib/pane-manager/orca-pane-terminal'
 import { hasTerminalComposerPlaceholder } from '../../../../shared/terminal-composer-draft'
 import { readTerminalCursorLineContext } from '../../../../shared/terminal-cursor-line-context'
 import {

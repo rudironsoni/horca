@@ -147,8 +147,8 @@ export function insertPaneNextTo(
 
   // Why: same pattern as splitPane — dispose WebGL before the DOM reparent
   // to free GPU context slots, then reattach after layout settles.
-  const sourceHadWebgl = !!source.webglAddon
-  const targetHadWebgl = !!target.webglAddon
+  const sourceHadWebgl = !!source.gpuRenderer
+  const targetHadWebgl = !!target.gpuRenderer
   disposeWebgl(source)
   disposeWebgl(target)
 
