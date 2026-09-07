@@ -84,4 +84,16 @@ describe('OrcaPaneTerminal CSI/OSC ingest', () => {
     expect(hits).toBe(0)
     terminal.dispose()
   })
+
+  it('notifies onTitleChange when Ghostty observes OSC 0', () => {
+    const terminal = new OrcaPaneTerminal(document.createElement('div'))
+    const titles: string[] = []
+    terminal.onTitleChange((title) => {
+      titles.push(title)
+    })
+    terminal.write('\x07\x1b]0;Hidden model side effects\x07marker\n')
+    expect(terminal.engine.title).toBe('Hidden model side effects')
+    expect(titles).toContain('Hidden model side effects')
+    terminal.dispose()
+  })
 })
