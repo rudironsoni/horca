@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// OBSOLETE: @xterm patches are removed. Desktop VT is libghostty-vt.
+// OBSOLETE: xterm.js patches are removed. Desktop VT is libghostty-vt.
 console.error(
   'xterm-patch-text.mjs is obsolete. Desktop and web terminals use src/ghostty-vt/ (libghostty-vt WASM).'
 )
