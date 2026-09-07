@@ -6,7 +6,7 @@ export type IBufferRange = {
   end: { x: number; y: number }
 }
 
-export type OrcaTerminalCell = {
+export type IBufferCell = {
   getChars: () => string
   getWidth: () => number
   isBold: () => boolean
@@ -14,24 +14,24 @@ export type OrcaTerminalCell = {
   isFgDefault: () => boolean
 }
 
-export type OrcaTerminalLine = {
+export type IBufferLine = {
   length: number
   isWrapped: boolean
   translateToString: (trimRight?: boolean, startCol?: number, endCol?: number) => string
-  getCell: (column: number) => OrcaTerminalCell | undefined
+  getCell: (column: number) => IBufferCell | undefined
 }
 
-export type OrcaTerminalGrid = {
+export type IBuffer = {
   cursorX: number
   cursorY: number
   baseY: number
   length?: number
   viewportY: number
   type?: 'normal' | 'alternate'
-  getLine: (y: number) => OrcaTerminalLine | undefined
+  getLine: (y: number) => IBufferLine | undefined
 }
 
-export type OrcaLink = {
+export type ILink = {
   range: IBufferRange
   text?: string
   activate?: (event: MouseEvent, text: string) => void
@@ -39,19 +39,13 @@ export type OrcaLink = {
   leave?: (event: MouseEvent, text: string) => void
 }
 
-export type OrcaLinkProvider = {
-  provideLinks: (bufferLineNumber: number, callback: (links?: OrcaLink[]) => void) => void
+export type ILinkProvider = {
+  provideLinks: (bufferLineNumber: number, callback: (links?: ILink[]) => void) => void
 }
-
-export type IBufferCell = OrcaTerminalCell
-export type IBufferLine = OrcaTerminalLine
-export type IBuffer = OrcaTerminalGrid
-export type ILink = OrcaLink
-export type ILinkProvider = OrcaLinkProvider
 
 export type IParser = {
   registerCsiHandler: (
-    id: { prefix?: string; final: string },
+    id: { final: string },
     handler: (params: (number | number[])[]) => boolean
   ) => OrcaDisposable
   registerOscHandler: (ident: number, handler: (data: string) => boolean) => OrcaDisposable
@@ -70,10 +64,9 @@ export type Terminal = {
     mouseEventsRequireAlt?: boolean
     ignoreBracketedPasteMode?: boolean
   }
-  buffer?: { active: OrcaTerminalGrid }
+  buffer?: { active: IBuffer }
   parser?: IParser
-  addLinkProvider?: (provider: OrcaLinkProvider) => OrcaDisposable
-  registerLinkProvider?: (provider: OrcaLinkProvider) => OrcaDisposable
+  registerLinkProvider?: (provider: ILinkProvider) => OrcaDisposable
   clearSelection?: () => void
   hasSelection?: () => boolean
 }

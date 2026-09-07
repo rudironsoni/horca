@@ -1,6 +1,4 @@
 import type { GhosttyVtHost } from './wasm-host'
-import type { ThemeRgb } from './ghostty-color-theme'
-import { rgbToCss } from './ghostty-color-theme'
 
 export type CellStyle = {
   bold: boolean
@@ -8,37 +6,52 @@ export type CellStyle = {
   underline: boolean
   strikethrough: boolean
   invisible: boolean
-  faint: boolean
-  inverse: boolean
 }
 
-export const NO_STYLE: CellStyle = {
+const NO_STYLE: CellStyle = {
   bold: false,
   italic: false,
   underline: false,
   strikethrough: false,
-  invisible: false,
-  faint: false,
-  inverse: false
+  invisible: false
 }
 
-export function readStyleFromPtr(host: GhosttyVtHost, ptr: number): CellStyle {
+export function readCellStyle(host: GhosttyVtHost, cells: number): CellStyle {
+  const flag = host.alloc(1)
+  const styled = host.exports.ghostty_render_state_row_cells_get(
+    cells,
+    host.enumValue('GhosttyRenderStateRowCellsData', 'HAS_STYLING'),
+    flag
+  )
+  const hasStyle = styled === host.success && host.bytes()[flag] !== 0
+  host.free(flag, 1)
+  if (!hasStyle) {
+    return NO_STYLE
+  }
+  const size = host.structSize('GhosttyStyle')
+  const ptr = host.alloc(size)
+  host.bytes().fill(0, ptr, ptr + size)
+  host.writeU32(ptr, size)
+  const result = host.exports.ghostty_render_state_row_cells_get(
+    cells,
+    host.enumValue('GhosttyRenderStateRowCellsData', 'STYLE'),
+    ptr
+  )
+  if (result !== host.success) {
+    host.free(ptr, size)
+    return NO_STYLE
+  }
   const bytes = host.bytes()
   const view = host.view()
-  return {
+  const style = {
     bold: bytes[ptr + host.field('GhosttyStyle', 'bold').offset] !== 0,
     italic: bytes[ptr + host.field('GhosttyStyle', 'italic').offset] !== 0,
-    faint: bytes[ptr + host.field('GhosttyStyle', 'faint').offset] !== 0,
-    inverse: bytes[ptr + host.field('GhosttyStyle', 'inverse').offset] !== 0,
     underline: view.getInt32(ptr + host.field('GhosttyStyle', 'underline').offset, true) !== 0,
     strikethrough: bytes[ptr + host.field('GhosttyStyle', 'strikethrough').offset] !== 0,
     invisible: bytes[ptr + host.field('GhosttyStyle', 'invisible').offset] !== 0
   }
-}
-
-export type RenderCursorColors = {
-  cursor: ThemeRgb
-  foreground: ThemeRgb
+  host.free(ptr, size)
+  return style
 }
 
 export function drawRenderStateCursor(
@@ -46,9 +59,7 @@ export function drawRenderStateCursor(
   ctx: CanvasRenderingContext2D,
   state: number,
   cellWidth: number,
-  cellHeight: number,
-  colors: RenderCursorColors,
-  blinkVisible: boolean
+  cellHeight: number
 ): void {
   const size = host.structSize('GhosttyRenderStateCursor')
   const ptr = host.alloc(size)
@@ -68,8 +79,7 @@ export function drawRenderStateCursor(
   const hasValue =
     bytes[ptr + host.field('GhosttyRenderStateCursor', 'viewport_has_value').offset] !== 0
   const visible = bytes[ptr + host.field('GhosttyRenderStateCursor', 'visible').offset] !== 0
-  const blinking = bytes[ptr + host.field('GhosttyRenderStateCursor', 'blinking').offset] !== 0
-  if (!hasValue || !visible || (blinking && !blinkVisible)) {
+  if (!hasValue || !visible) {
     host.free(ptr, size)
     return
   }
@@ -79,11 +89,10 @@ export function drawRenderStateCursor(
     ptr + host.field('GhosttyRenderStateCursor', 'visual_style').offset,
     true
   )
-  const css = rgbToCss(colors.cursor)
   const px = x * cellWidth
   const py = y * cellHeight
-  ctx.fillStyle = css
-  ctx.strokeStyle = css
+  ctx.fillStyle = '#dddddd'
+  ctx.strokeStyle = '#dddddd'
   const bar = host.enumValue('GhosttyRenderStateCursorVisualStyle', 'BAR')
   const underline = host.enumValue('GhosttyRenderStateCursorVisualStyle', 'UNDERLINE')
   const hollow = host.enumValue('GhosttyRenderStateCursorVisualStyle', 'BLOCK_HOLLOW')

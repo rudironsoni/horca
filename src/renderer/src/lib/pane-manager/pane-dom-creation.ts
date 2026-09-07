@@ -24,19 +24,16 @@ export function createPaneDOM(
   container.dataset.leafId = leafId
 
   const terminalHost = document.createElement('div')
-  terminalHost.className = 'orca-terminal-container'
-  terminalHost.style.width = '100%'
-  terminalHost.style.height = '100%'
+  terminalHost.className = 'xterm-container'
   container.appendChild(terminalHost)
 
   const userOpts = options.terminalOptions?.(id) ?? {}
   const terminal = new OrcaPaneTerminal(terminalHost, userOpts)
   terminalHost.appendChild(terminal.element)
-  terminalHost.appendChild(terminal.textarea)
 
   let linkTooltipHoverToken = 0
   const linkTooltip = document.createElement('div')
-  linkTooltip.className = 'pane-link-tooltip orca-terminal-hover'
+  linkTooltip.className = 'pane-link-tooltip xterm-hover'
   linkTooltip.style.display = 'none'
 
   const showLinkTooltip = (uri: string): void => {
@@ -129,12 +126,7 @@ export function createPaneDOM(
     },
     unicode11Addon: null,
     webLinksAddon: null,
-    gpuRenderer: {
-      dispose: () => terminal.loseGpuContext(),
-      loseContext: () => terminal.loseGpuContext(),
-      clearTextureAtlas: () => terminal.invalidateGpuAtlas(),
-      isContextLost: () => terminal.isGpuContextLost()
-    },
+    gpuRenderer: null,
     ligaturesAddon: null,
     panePointerDownHandler,
     paneMouseEnterHandler,

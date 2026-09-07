@@ -93,6 +93,18 @@ void primeGhosttyVtHost()
     throw error
   })
 
+void primeGhosttyVtHost()
+  .then(() => {
+    recordRendererCrashBreadcrumb('ghostty_vt_host_primed')
+    mountRenderer()
+  })
+  .catch((error: unknown) => {
+    recordRendererCrashBreadcrumb('ghostty_vt_host_prime_failed', {
+      message: error instanceof Error ? error.message : String(error)
+    })
+    throw error
+  })
+
 // Why here: the terminal WebGL addon is 243 KB, is only ever constructed once a
 // terminal attaches (many frames away), and is needed by nothing during boot.
 // Starting the load after the first render keeps it off the boot graph while

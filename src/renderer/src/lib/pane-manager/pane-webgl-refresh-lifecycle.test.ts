@@ -75,7 +75,7 @@ describe('pane WebGL refresh lifecycle', () => {
 
     disposeWebgl(pane, { refreshDimensions: true })
 
-    expect(pane.gpuRenderer).not.toBeNull()
+    expect(pane.gpuRenderer).toBeNull()
     expect(pane.pendingWebglRefreshRafId).toBe(29)
   })
 
@@ -113,18 +113,19 @@ describe('pane WebGL refresh lifecycle', () => {
 
     expect(loseContext).toHaveBeenCalledTimes(1)
     expect(dispose).toHaveBeenCalledTimes(1)
-    expect(pane.gpuRenderer).not.toBeNull()
+    expect(canvas).toEqual({ width: 0, height: 0 })
+    expect(pane.gpuRenderer).toBeNull()
   })
 
   it('disposes WebGL when rendering is suspended', () => {
     const dispose = vi.fn()
-    const pane = createPane({ gpuRenderer: { dispose } })
+    const pane = createPane({ gpuRenderer: { dispose } as never })
 
     suspendPaneRendering([pane])
 
     expect(pane.webglAttachmentDeferred).toBe(true)
     expect(dispose).toHaveBeenCalledTimes(1)
-    expect(pane.gpuRenderer).not.toBeNull()
+    expect(pane.gpuRenderer).toBeNull()
   })
 
   it('cancels a pending WebGL refresh when the pane is disposed', () => {

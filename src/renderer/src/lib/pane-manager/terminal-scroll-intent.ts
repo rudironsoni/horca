@@ -22,7 +22,7 @@ export type TerminalScrollIntentTarget = {
   isAlternateScreen?: boolean
   viewportY?: number
   baseY?: number
-  buffer?: { active?: { viewportY?: number; baseY?: number; type?: string } }
+  buffer?: { active?: { viewportY?: number; baseY?: number } }
   scrollToBottom?: () => void
   scrollToLine?: (line: number) => void
 }

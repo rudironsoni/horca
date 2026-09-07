@@ -56,8 +56,8 @@ function canUseSinglePaneStaleLeafFallback(tabId: string, leafId: string): boole
 
 function queryFocusSurface(scope: string): HTMLElement | null {
   return (
-    (document.querySelector(`${scope} .orca-terminal-helper-textarea`) as HTMLElement | null) ??
-    (document.querySelector(`${scope} canvas.orca-terminal-canvas`) as HTMLElement | null)
+    (document.querySelector(`${scope} .xterm-helper-textarea`) as HTMLElement | null) ??
+    (document.querySelector(`${scope} canvas.xterm`) as HTMLElement | null)
   )
 }
 
@@ -99,7 +99,7 @@ export function focusTerminalTabSurface(
         // Why: old single-pane remounts could remint the leaf id. Only recover
         // after the tab layout no longer expects the requested leaf.
         const tabScopedHelpers = document.querySelectorAll(
-          `${tabScope} ${UNCOVERED_TERMINAL_LEAF_SELECTOR} .orca-terminal-helper-textarea, ${tabScope} ${UNCOVERED_TERMINAL_LEAF_SELECTOR} canvas.orca-terminal-canvas`
+          `${tabScope} ${UNCOVERED_TERMINAL_LEAF_SELECTOR} .xterm-helper-textarea, ${tabScope} ${UNCOVERED_TERMINAL_LEAF_SELECTOR} canvas.xterm`
         )
         if (tabScopedHelpers.length === 1) {
           const fallback = tabScopedHelpers.item(0) as HTMLElement | null

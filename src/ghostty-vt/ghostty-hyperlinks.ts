@@ -46,29 +46,6 @@ export function collectHyperlinkRanges(
   return ranges
 }
 
-export function readHyperlinkAt(
-  host: GhosttyVtHost,
-  term: number,
-  col: number,
-  row: number
-): string {
-  const pointSize = host.structSize('GhosttyPoint')
-  const refSize = host.structSize('GhosttyGridRef')
-  const point = host.alloc(pointSize)
-  const ref = host.alloc(refSize)
-  const uriBuf = host.alloc(1024)
-  const outLen = host.alloc(4)
-  const screen = host.enumValue('GhosttyPointTag', 'SCREEN')
-  try {
-    return readUri(host, term, point, ref, uriBuf, outLen, screen, col, row)
-  } finally {
-    host.free(point, pointSize)
-    host.free(ref, refSize)
-    host.free(uriBuf, 1024)
-    host.free(outLen, 4)
-  }
-}
-
 function readUri(
   host: GhosttyVtHost,
   term: number,

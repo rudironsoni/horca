@@ -29,7 +29,7 @@ const built = spawnSync(
     join(sourceDir, 'zig-out'),
     '-Demit-lib-vt',
     '-Dtarget=wasm32-freestanding',
-    '-Doptimize=ReleaseFast'
+    '-Doptimize=ReleaseSmall'
   ],
   { stdio: 'inherit' }
 )

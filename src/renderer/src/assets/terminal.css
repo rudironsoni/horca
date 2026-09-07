@@ -25,12 +25,18 @@
   outline: none;
 }
 
+.pane-manager-root .xterm,
+.pane-manager-root .orca-terminal-canvas {
+  height: 100%;
+  width: 100%;
+}
+
 .orca-terminal-canvas {
   display: block;
 }
 
-.pane-manager-root .orca-terminal-viewport {
-  /* Why: terminal/VS Code keep the scrollbar gutter stable. `auto` lets Linux
+.pane-manager-root .xterm-viewport {
+  /* Why: xterm/VS Code keep the scrollbar gutter stable. `auto` lets Linux
      DOM scrollbars appear/disappear, which can feed resize/reflow jitter. */
   overflow-y: scroll;
 }

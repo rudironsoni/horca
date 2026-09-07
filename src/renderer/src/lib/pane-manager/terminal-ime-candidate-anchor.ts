@@ -1,3 +1,25 @@
+type ImeCandidateTerminal = {
+  element?: HTMLElement
+  textarea?: HTMLTextAreaElement
+  cols: number
+  rows: number
+  buffer?: {
+    active: {
+      cursorX: number
+      cursorY: number
+      baseY: number
+      getLine: (y: number) =>
+        | {
+            length: number
+            translateToString: (trimRight?: boolean, startCol?: number, endCol?: number) => string
+            getCell: (
+              column: number
+            ) => { getChars: () => string; getWidth: () => number } | undefined
+          }
+        | undefined
+    }
+  }
+}
 import { resolveCursorAgentImeAnchor, type TerminalImeAnchor } from './terminal-ime-anchor'
 import { queryOrcaTerminalCanvas } from './orca-terminal-canvas-element'
 
@@ -139,7 +161,7 @@ export function installTerminalImeCandidateAnchor(
         isCursorAgent: false
       }
     }
-    // Why: Cursor Agent draws its prompt UI while leaving terminal's public cursor
+    // Why: Cursor Agent draws its prompt UI while leaving xterm's public cursor
     // on a blank row, so the OS IME anchor needs the rendered prompt row instead.
     const cursorAgentAnchor = resolveCursorAgentImeAnchor({
       buffer: buf,

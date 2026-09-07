@@ -4,7 +4,7 @@ export type TerminalScrollBufferTarget = {
   isAlternateScreen?: boolean
   viewportY?: number
   baseY?: number
-  buffer?: { active?: { viewportY?: number; baseY?: number; type?: string } }
+  buffer?: { active?: { viewportY?: number; baseY?: number } }
 }
 
 export type TerminalScrollBufferSnapshot = {
@@ -22,10 +22,7 @@ export function readTerminalScrollBufferSnapshot(
     return null
   }
   return {
-    bufferType:
-      terminal.isAlternateScreen || terminal.buffer?.active?.type === 'alternate'
-        ? 'alternate'
-        : 'normal',
+    bufferType: terminal.isAlternateScreen ? 'alternate' : 'normal',
     viewportY,
     baseY
   }

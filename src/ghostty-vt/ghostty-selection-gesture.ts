@@ -1,5 +1,4 @@
 import type { GhosttyTerminal } from './ghostty-terminal'
-import { ghosttyVt } from './ghostty-vt-access'
 import type { GhosttyVtHost } from './wasm-host'
 
 const gestures = new WeakMap<GhosttyTerminal, number>()
@@ -18,7 +17,7 @@ export function resetSelectionGesture(engine: GhosttyTerminal): void {
   if (gesture === undefined) {
     return
   }
-  const { host, term } = ghosttyVt(engine)
+  const { host, term } = engine.hostHandle()
   host.exports.ghostty_selection_gesture_reset(gesture, term)
 }
 
@@ -27,7 +26,7 @@ export function disposeSelectionGesture(engine: GhosttyTerminal): void {
   if (gesture === undefined) {
     return
   }
-  const { host, term } = ghosttyVt(engine)
+  const { host, term } = engine.hostHandle()
   host.exports.ghostty_selection_gesture_free(gesture, term)
   gestures.delete(engine)
 }
@@ -44,7 +43,7 @@ export function applyPointerSelection(
   },
   surface: GestureSurface
 ): boolean {
-  const { host, term } = ghosttyVt(engine)
+  const { host, term } = engine.hostHandle()
   const kind = eventType(event)
   if (!kind) {
     return false

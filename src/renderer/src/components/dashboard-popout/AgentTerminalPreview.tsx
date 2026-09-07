@@ -105,7 +105,6 @@ export function AgentTerminalPreview({
     let imeBridge: PreviewImeBridge | null = null
     let disposeKeyHandler: (() => void) | null = null
     let disposeNativeCopyGutterTrim: (() => void) | null = null
-    let disposeTerminalCompatibility: (() => void) | null = null
     // Why: mirrors the pane's tracker — the policy needs the flags the TUI
     // negotiated, and this preview parses the same output stream the pane does.
     const kittyKeyboardModes = new TerminalKittyKeyboardModeTracker()
@@ -217,15 +216,6 @@ export function AgentTerminalPreview({
       disposeNativeCopyGutterTrim = installTerminalNativeCopyGutterTrim(terminal).dispose
     }
 
-    const installTerminalCompatibility = (): void => {
-      if (!terminal) {
-        return
-      }
-      disposeTerminalCompatibility = installPreviewTerminalCompatibility(terminal, {
-        getSettings: () => settingsRef.current
-      })
-    }
-
     const installInputRouting = (): void => {
       if (!terminal) {
         return
@@ -257,7 +247,6 @@ export function AgentTerminalPreview({
           clamp(snap.rows ?? FALLBACK_ROWS, 2, 200)
         )
         terminalRef.current = terminal
-        installTerminalCompatibility()
         installNativeCopyGutterTrim()
         installInputRouting()
         installImeNativeTextBridge()

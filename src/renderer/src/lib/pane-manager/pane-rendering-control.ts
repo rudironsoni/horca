@@ -42,7 +42,7 @@ export function setPaneGpuRenderingState(
     return
   }
   if (!pane.gpuRenderer) {
-    refreshPaneRenderer(pane)
+    attachWebgl(pane)
     safeFit(pane)
   }
 }

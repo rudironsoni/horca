@@ -1,6 +1,4 @@
 import type { GhosttyVtHost } from './wasm-host'
-import type { ThemeRgb } from './ghostty-color-theme'
-import { rgbToCss } from './ghostty-color-theme'
 
 export function preeditCellWidth(host: GhosttyVtHost, text: string): number {
   let cells = 0
@@ -11,15 +9,13 @@ export function preeditCellWidth(host: GhosttyVtHost, text: string): number {
 }
 
 export function drawPreeditOverlay(
-  ctx: CanvasRenderingContext2D,
   host: GhosttyVtHost,
+  ctx: CanvasRenderingContext2D,
   state: number,
   text: string,
   cellWidth: number,
   cellHeight: number,
-  font: string,
-  baseline: number,
-  colors: { background: ThemeRgb; foreground: ThemeRgb }
+  fontFamily: string
 ): void {
   if (!text) {
     return
@@ -42,8 +38,8 @@ export function drawPreeditOverlay(
   const y = view.getUint16(ptr + host.field('GhosttyRenderStateCursor', 'viewport_y').offset, true)
   host.free(ptr, size)
   let col = x
-  ctx.font = font
-  ctx.textBaseline = 'alphabetic'
+  ctx.font = `${cellHeight * 0.8}px ${fontFamily}`
+  ctx.textBaseline = 'top'
   for (const grapheme of text) {
     const cells = Math.max(
       1,
@@ -51,10 +47,10 @@ export function drawPreeditOverlay(
     )
     const px = col * cellWidth
     const py = y * cellHeight
-    ctx.fillStyle = rgbToCss(colors.foreground)
+    ctx.fillStyle = '#dddddd'
     ctx.fillRect(px, py, cells * cellWidth, cellHeight)
-    ctx.fillStyle = rgbToCss(colors.background)
-    ctx.fillText(grapheme, px, py + baseline)
+    ctx.fillStyle = '#000000'
+    ctx.fillText(grapheme, px, py)
     col += cells
   }
 }

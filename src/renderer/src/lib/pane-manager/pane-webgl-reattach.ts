@@ -18,8 +18,8 @@ export function clearPaneWebglContextLossForRetry(pane: ManagedPaneInternal): bo
 }
 
 export function reattachWebglIfNeeded(pane: ManagedPaneInternal): void {
-  if (pane.gpuRenderingEnabled && clearPaneWebglContextLossForRetry(pane)) {
-    refreshPaneRenderer(pane)
+  if (pane.gpuRenderingEnabled && !pane.gpuRenderer && clearPaneWebglContextLossForRetry(pane)) {
+    attachWebgl(pane)
   }
 }
 

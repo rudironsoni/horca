@@ -1,10 +1,8 @@
 import { formatTerminal } from './ghostty-format'
-import { collectHyperlinkRanges, readHyperlinkAt, type HyperlinkRange } from './ghostty-hyperlinks'
-import { releaseGhosttyInputEncoders } from './ghostty-input-encoders'
+import { collectHyperlinkRanges, type HyperlinkRange } from './ghostty-hyperlinks'
 import { encodePaste } from './ghostty-paste'
 import { readSelection, selectAllOnTerminal } from './ghostty-selection'
 import { decodeNativeSnapshot, encodeNativeSnapshot } from './ghostty-snapshot'
-import { bindGhosttyVt, rebindGhosttyVt, unbindGhosttyVt } from './ghostty-vt-access'
 import type { GhosttyVtHost, WritePtyCallback } from './wasm-host'
 
 export type TerminalGeometry = {
@@ -27,16 +25,6 @@ export type GhosttyTerminalOptions = {
 
 const DEFAULT_SCROLLBACK = 5000
 const CONTINUATION_MAX_BYTES = 4096
-const GHOSTTY_DEFAULT_SCROLLBACK_MAX_BYTES = 10_000
-const SCROLLBACK_BYTES_PER_CELL = 32
-
-function scrollbackMaxBytes(lines: number, cols: number): number {
-  // Why: libghostty defaults to 10KiB, which evicts rows long before MAX_LINES.
-  return Math.max(
-    GHOSTTY_DEFAULT_SCROLLBACK_MAX_BYTES,
-    lines * Math.max(cols, 1) * SCROLLBACK_BYTES_PER_CELL
-  )
-}
 
 export class GhosttyTerminal {
   private readonly host: GhosttyVtHost
@@ -53,7 +41,6 @@ export class GhosttyTerminal {
     )
     this.term = host.takeOpaque(slot)
     host.freeOpaque(slot)
-    bindGhosttyVt(this, host, this.term)
     this.userdata = host.registerWritePty(options.onWritePty)
     host.check(
       host.exports.ghostty_terminal_set(
@@ -75,7 +62,6 @@ export class GhosttyTerminal {
     }
     const scrollback = options.scrollbackLines ?? DEFAULT_SCROLLBACK
     this.setU32Option('SCROLLBACK_MAX_LINES', scrollback)
-    this.setU32Option('SCROLLBACK_MAX_BYTES', scrollbackMaxBytes(scrollback, options.cols))
     this.setU32Option('CONTINUATION_MAX_BYTES', CONTINUATION_MAX_BYTES)
   }
 
@@ -143,6 +129,11 @@ export class GhosttyTerminal {
     return this.getBool('MOUSE_TRACKING')
   }
 
+  hostHandle(): { host: GhosttyVtHost; term: number } {
+    this.assertOpen()
+    return { host: this.host, term: this.term }
+  }
+
   getMode(mode: number): boolean {
     const size = this.host.structSize('GhosttyTerminalModeConfig')
     const ptr = this.host.alloc(size)
@@ -179,11 +170,6 @@ export class GhosttyTerminal {
     return collectHyperlinkRanges(this.host, this.term, this.cols, this.totalRows)
   }
 
-  readHyperlinkAt(col: number, row: number): string {
-    this.assertOpen()
-    return readHyperlinkAt(this.host, this.term, col, row)
-  }
-
   encodePaste(text: string): string {
     this.assertOpen()
     return encodePaste(this.host, text, this.getMode(2004))
@@ -209,7 +195,6 @@ export class GhosttyTerminal {
     const restored = decodeNativeSnapshot(this.host, capture.nativeSnapshot)
     this.host.exports.ghostty_terminal_free(this.term)
     this.term = restored
-    rebindGhosttyVt(this, this.term)
     this.host.check(
       this.host.exports.ghostty_terminal_set(
         this.term,
@@ -220,19 +205,18 @@ export class GhosttyTerminal {
     )
   }
 
-  get isDisposed(): boolean {
-    return this.disposed
+  handle(): number {
+    this.assertOpen()
+    return this.term
   }
 
   dispose(): void {
     if (this.disposed) {
       return
     }
-    releaseGhosttyInputEncoders(this, this.host)
     this.disposed = true
     this.host.exports.ghostty_terminal_free(this.term)
     this.host.unregisterWritePty(this.userdata)
-    unbindGhosttyVt(this)
   }
 
   private setU32Option(name: string, value: number): void {

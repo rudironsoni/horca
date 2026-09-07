@@ -61,7 +61,7 @@ function refreshVisibleRows(
     const start = span ? Math.min(Math.max(span.start, 0), lastRow) : 0
     const end = span ? Math.min(Math.max(span.end, start), lastRow) : lastRow
     // Why: DOM-rendered Windows ConPTY rewrites need an immediate repair, while
-    // WebGL can merge this request into terminal's already-queued frame.
+    // WebGL can merge this request into xterm's already-queued frame.
     if (typeof terminal.refresh === 'function') {
       terminal.refresh(start, end)
     }

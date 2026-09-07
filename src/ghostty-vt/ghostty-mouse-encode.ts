@@ -1,4 +1,3 @@
-import { heldGhosttyInputEncoders } from './ghostty-input-encoders'
 import type { GhosttyVtHost } from './wasm-host'
 
 export type GhosttyMouseEncodeEvent = {
@@ -10,7 +9,6 @@ export type GhosttyMouseEncodeEvent = {
   ctrlKey: boolean
   altKey: boolean
   metaKey: boolean
-  deltaY?: number
 }
 
 export function encodeBrowserMouse(
@@ -24,12 +22,13 @@ export function encodeBrowserMouse(
     cellHeight: number
     cols: number
     rows: number
-  },
-  engine: object
+  }
 ): string {
-  const held = heldGhosttyInputEncoders(engine, host, term)
-  const encoder = held.mouseEncoder
-  const mouseEvent = held.mouseEvent
+  const encoderSlot = host.allocOpaque()
+  host.check(host.exports.ghostty_mouse_encoder_new(0, encoderSlot), 'mouse_encoder_new')
+  const encoder = host.takeOpaque(encoderSlot)
+  host.freeOpaque(encoderSlot)
+  host.exports.ghostty_mouse_encoder_setopt_from_terminal(encoder, term)
   const size = host.structSize('GhosttyMouseEncoderSize')
   const sizePtr = host.alloc(size)
   host.bytes().fill(0, sizePtr, sizePtr + size)
@@ -61,6 +60,10 @@ export function encodeBrowserMouse(
     sizePtr
   )
   host.free(sizePtr, size)
+  const eventSlot = host.allocOpaque()
+  host.check(host.exports.ghostty_mouse_event_new(0, eventSlot), 'mouse_event_new')
+  const mouseEvent = host.takeOpaque(eventSlot)
+  host.freeOpaque(eventSlot)
   const action =
     event.type === 'pointerup' || event.type === 'mouseup'
       ? 'RELEASE'
@@ -71,7 +74,7 @@ export function encodeBrowserMouse(
     mouseEvent,
     host.enumValue('GhosttyMouseAction', action)
   )
-  host.exports.ghostty_mouse_event_set_button(mouseEvent, mapButton(host, event))
+  host.exports.ghostty_mouse_event_set_button(mouseEvent, mapButton(host, event.button))
   let mods = 0
   if (event.shiftKey) {
     mods |= 1
@@ -99,29 +102,19 @@ export function encodeBrowserMouse(
     result === host.success && n > 0 ? host.bytes().slice(buf, buf + n) : new Uint8Array()
   host.free(outLen, 4)
   host.free(buf, 64)
+  host.exports.ghostty_mouse_event_free(mouseEvent)
+  host.exports.ghostty_mouse_encoder_free(encoder)
   return new TextDecoder().decode(bytes)
 }
 
-function mouseButtonValue(host: GhosttyVtHost, name: string): number | undefined {
-  return host.layout.types.GhosttyMouseButton?.values?.[name]
-}
-
-function mapButton(host: GhosttyVtHost, event: GhosttyMouseEncodeEvent): number {
-  if (event.type === 'wheel') {
-    const up = mouseButtonValue(host, 'FOUR') ?? mouseButtonValue(host, 'WHEEL_UP')
-    const down = mouseButtonValue(host, 'FIVE') ?? mouseButtonValue(host, 'WHEEL_DOWN')
-    const wheel = (event.deltaY ?? 0) < 0 ? up : down
-    if (wheel !== undefined) {
-      return wheel
-    }
-  }
-  if (event.button === 0) {
+function mapButton(host: GhosttyVtHost, button: number): number {
+  if (button === 0) {
     return host.enumValue('GhosttyMouseButton', 'LEFT')
   }
-  if (event.button === 1) {
+  if (button === 1) {
     return host.enumValue('GhosttyMouseButton', 'MIDDLE')
   }
-  if (event.button === 2) {
+  if (button === 2) {
     return host.enumValue('GhosttyMouseButton', 'RIGHT')
   }
   return host.enumValue('GhosttyMouseButton', 'UNKNOWN')

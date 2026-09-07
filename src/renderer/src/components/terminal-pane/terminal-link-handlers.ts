@@ -1,5 +1,10 @@
 import { createTerminalPathExistenceBatch } from './terminal-path-existence-batch'
-import type { IDisposable, ILinkProvider, Terminal } from '../../../../shared/orca-terminal-surface'
+import type {
+  IDisposable,
+  ILink,
+  ILinkProvider,
+  Terminal
+} from '../../../../shared/orca-terminal-surface'
 import {
   extractTerminalFileLinkCandidates,
   extractTerminalFileLinks,
@@ -65,6 +70,38 @@ export type LinkHandlerDeps = {
   wslDistro?: string | null
   getRuntimeEnvironmentIdForPane?: (paneId: number) => string | null
   getLinkActionContext?: (paneId: number) => TerminalLinkActionContext | null
+}
+
+type ProvidedFileLink = {
+  link: ILink
+  logicalLine: WrappedLogicalLine
+}
+
+function rangesOverlap(left: ILink['range'], right: ILink['range']): boolean {
+  const leftStartsAfterRightEnds =
+    left.start.y > right.end.y || (left.start.y === right.end.y && left.start.x > right.end.x)
+  const rightStartsAfterLeftEnds =
+    right.start.y > left.end.y || (right.start.y === left.end.y && right.start.x > left.end.x)
+  return !leftStartsAfterRightEnds && !rightStartsAfterLeftEnds
+}
+
+function preferLongestNonOverlappingLinks(links: ProvidedFileLink[]): ProvidedFileLink[] {
+  const selected: ProvidedFileLink[] = []
+  const byLengthDescending = [...links].sort(
+    (a, b) =>
+      (b.link.text?.length ?? 0) - (a.link.text?.length ?? 0) ||
+      a.link.range.start.y - b.link.range.start.y ||
+      a.link.range.start.x - b.link.range.start.x
+  )
+  for (const link of byLengthDescending) {
+    if (!selected.some((existing) => rangesOverlap(existing.link.range, link.link.range))) {
+      selected.push(link)
+    }
+  }
+  return selected.sort(
+    (a, b) =>
+      a.link.range.start.y - b.link.range.start.y || a.link.range.start.x - b.link.range.start.x
+  )
 }
 
 export function createFilePathLinkProvider(

@@ -69,7 +69,6 @@ export function openIosTerminal(
   const container = document.createElement('div')
   document.body.appendChild(container)
   const textarea = document.createElement('textarea')
-  textarea.className = 'orca-terminal-helper-textarea'
   const compositionView = document.createElement('div')
   compositionView.className = 'composition-view'
   const listeners = new Set<(data: string) => void>()

@@ -1,5 +1,3 @@
-import { queryOrcaTerminalCanvas } from './orca-terminal-canvas-element'
-
 type LinkifierHoverCache = {
   _lastBufferCell?: unknown
   _activeLine?: number
@@ -57,9 +55,9 @@ export function resetTerminalLinkifierHoverState(terminal: unknown): void {
     }
     // Why: keep the cursor recoverable if a future terminal build omits the
     // private cleanup method or has no last mouse event for it to use.
-    queryOrcaTerminalCanvas((terminal as { element?: HTMLElement }).element)?.classList.remove(
-      'orca-terminal-cursor-pointer'
-    )
+    ;(terminal as { element?: HTMLElement }).element
+      ?.querySelector<HTMLElement>('.xterm-screen')
+      ?.classList.remove('xterm-cursor-pointer')
   } catch {
     /* linkifier internals unavailable — link recovers on the next cell change */
   }

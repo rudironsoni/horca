@@ -7,8 +7,6 @@ import {
 import { clearPendingSplitScrollRestore } from './pane-split-scroll'
 import { cancelDeferredScrollRestore } from './pane-scroll'
 import { cancelPendingWebglRefresh, disposeWebgl } from './pane-webgl-renderer'
-import { attachTerminalMouseWheelMultiplier } from './pane-terminal-mouse-wheel'
-import { installTerminalImeCandidateAnchor } from './terminal-ime-candidate-anchor'
 
 // ---------------------------------------------------------------------------
 // Pane creation, terminal open/close, addon management
@@ -20,10 +18,6 @@ export { createPaneDOM } from './pane-dom-creation'
 export function openTerminal(pane: ManagedPaneInternal): void {
   pane.container.appendChild(pane.linkTooltip)
   attachPaneFitResizeObserver(pane)
-  pane.compositionHandler = installTerminalImeCandidateAnchor(pane.terminal)
-  attachTerminalMouseWheelMultiplier(pane.terminal, {
-    getTuiMouseWheelMultiplier: pane.terminalTuiScrollSensitivity
-  })
   if (pane.pendingInitialFitRafId != null) {
     cancelAnimationFrame(pane.pendingInitialFitRafId)
   }
@@ -97,8 +91,11 @@ export function disposePane(
     /* ignore */
   }
   pane.arabicShapingJoinerCleanup = null
-  pane.compositionHandler?.()
-  pane.compositionHandler = null
+  if (pane.compositionHandler) {
+    pane.terminal.element.removeEventListener('compositionstart', pane.compositionHandler)
+    pane.terminal.element.removeEventListener('compositionupdate', pane.compositionHandler)
+    pane.compositionHandler = null
+  }
   try {
     clearPendingSplitScrollRestore(pane)
   } catch {

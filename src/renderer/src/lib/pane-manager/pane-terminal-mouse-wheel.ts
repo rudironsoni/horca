@@ -24,7 +24,7 @@ const DOM_DELTA_LINE = 1
 type TerminalWheelTarget = {
   element: HTMLElement
   rows: number
-  modes: { mouseTrackingMode?: boolean | string }
+  modes: { mouseTrackingMode?: 'none' | 'vt200' | 'any' | boolean | string }
   attachCustomWheelEventHandler?: (handler: (event: WheelEvent) => boolean) => void
 }
 
