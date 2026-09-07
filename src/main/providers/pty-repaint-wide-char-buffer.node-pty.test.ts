@@ -25,7 +25,7 @@
  * src/main/daemon/headless-emulator-wide-char-repaint.test.ts.
  */
 import { describe, expect, it } from 'vitest'
-import type { Terminal } from '@xterm/headless'
+
 import { HeadlessEmulator } from '../daemon/headless-emulator'
 import { isWideGlyph, readWrappedLineGlyphs } from '../daemon/__fixtures__/terminal-wide-cell-grid'
 
@@ -109,8 +109,7 @@ function replayIntoEmulator(events: Event[]): string[] {
       emulator.writeSync(event.data)
     }
   }
-  const terminal = (emulator as unknown as { terminal: Terminal }).terminal
-  const lines = readWrappedLineGlyphs(terminal).filter((line) => line.length > 0)
+  const lines = readWrappedLineGlyphs(emulator).filter((line) => line.length > 0)
   emulator.dispose()
   return lines
 }

@@ -135,7 +135,7 @@ function createPane(paneId: number): Record<string, unknown> {
     leafId: LEAF_1,
     stablePaneId: LEAF_1,
     container,
-    fitAddon: { fit: vi.fn(), proposeDimensions: vi.fn(() => ({ cols: 120, rows: 30 })) },
+    fitController: { fit: vi.fn(), proposeDimensions: vi.fn(() => ({ cols: 120, rows: 30 })) },
     terminal: {
       cols: 120,
       rows: 30,

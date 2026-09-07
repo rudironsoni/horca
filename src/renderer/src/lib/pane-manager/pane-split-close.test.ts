@@ -79,7 +79,7 @@ function createScrollState(viewportY: number): ScrollState {
   }
 }
 
-function createPane(id: number, webglAddon: unknown): ManagedPaneInternal {
+function createPane(id: number, gpuRenderer: unknown): ManagedPaneInternal {
   const container = new MockElement(['pane'])
   container.dataset.paneId = String(id)
   container.dataset.leafId = TEST_LEAF_ID
@@ -91,20 +91,20 @@ function createPane(id: number, webglAddon: unknown): ManagedPaneInternal {
       focus: vi.fn()
     } as never,
     container: container as unknown as HTMLElement,
-    xtermContainer: {} as never,
+    terminalHost: {} as never,
     linkTooltip: {} as never,
     terminalGpuAcceleration: 'auto',
     gpuRenderingEnabled: true,
     webglAttachmentDeferred: false,
     webglDisabledAfterContextLoss: false,
     hasComplexScriptOutput: false,
-    webglAddon: webglAddon as never,
+    gpuRenderer: gpuRenderer as never,
     ligaturesAddon: null,
     fitResizeObserver: null,
     pendingObservedFitRafId: null,
-    fitAddon: {} as never,
-    searchAddon: {} as never,
-    serializeAddon: {} as never,
+    fitController: {} as never,
+    searchController: {} as never,
+    serializeController: {} as never,
     unicode11Addon: {} as never,
     webLinksAddon: {} as never,
     compositionHandler: null,

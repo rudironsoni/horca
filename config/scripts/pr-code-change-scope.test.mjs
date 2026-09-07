@@ -18,7 +18,6 @@ const expensiveJobs = [
   'typecheck',
   'git_compatibility',
   'codex_index_heal_contract',
-  'xterm_patch_sync',
   'shell_contracts',
   'test',
   'orcad_browser',
@@ -173,13 +172,11 @@ describe('per-job path classification', () => {
     })
   })
 
-  it('runs xterm patch sync only when xterm inputs change', () => {
-    expectClassification(['config/patches/xterm-upstream.json'], {
-      xterm_patch_sync: true
-    })
-    expectClassification(['config/patches/@xterm__xterm@6.1.0-beta.287.patch'], {
-      xterm_patch_sync: true
-    })
+  it('does not run a deleted xterm patch-sync job', () => {
+    expect(PR_CHECK_JOBS).not.toContain('xterm_patch_sync')
+    expect(classifyPrJobs(['src/renderer/src/components/tab-bar/TabBar.tsx'])).not.toHaveProperty(
+      'xterm_patch_sync'
+    )
   })
 
   it('runs native package jobs only for the platform that ships the changed native', () => {
@@ -344,12 +341,11 @@ describe('per-job path classification', () => {
     const result = spawnSync(process.execPath, ['config/scripts/pr-code-change-scope.mjs'], {
       cwd: projectDir,
       encoding: 'utf8',
-      input: 'config/patches/xterm-upstream.json\n'
+      input: 'src/shared/git-binary-compatibility.test.ts\n'
     })
     expect(result.status, result.stderr).toBe(0)
     expect(result.stdout).toContain('should_run=true\n')
-    expect(result.stdout).toContain('xterm_patch_sync=true\n')
-    expect(result.stdout).toContain('git_compatibility=false\n')
+    expect(result.stdout).toContain('git_compatibility=true\n')
     expect(result.stdout).toContain('package=false\n')
     expect(result.stdout).toContain('test=true\n')
   })

@@ -1,5 +1,5 @@
 import type { AgentAttentionUnreadReason } from '@/attention/agent-attention-contract'
-import type { IDisposable } from '@xterm/xterm'
+import type { OrcaDisposable as IDisposable } from '../../../../shared/orca-terminal-surface'
 import type { ParsedAgentStatusPayload } from '../../../../shared/agent-status-types'
 import type { TerminalKittyKeyboardModeTracker } from '../../../../shared/terminal-kitty-keyboard-mode-tracker'
 import type { GlobalSettings } from '../../../../shared/global-settings-types'

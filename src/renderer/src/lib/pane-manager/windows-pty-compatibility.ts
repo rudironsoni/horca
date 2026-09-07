@@ -1,4 +1,3 @@
-import type { ITerminalOptions } from '@xterm/xterm'
 import { isWslUncPath } from '../../../../shared/wsl-paths'
 import { LOCAL_EXECUTION_HOST_ID, type ExecutionHostId } from '../../../../shared/execution-host'
 
@@ -31,11 +30,10 @@ function parseWindowsBuildNumber(osRelease: string | null | undefined): number |
   return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined
 }
 
-function buildXtermWindowsPtyOptions(
-  buildNumber: number | undefined
-): NonNullable<ITerminalOptions['windowsPty']> {
-  // Why: old system ConPTY does not provide reliable wrap markers; passing the
-  // low build number makes xterm mark full-width status rows as wrapped.
+function buildXtermWindowsPtyOptions(buildNumber: number | undefined): {
+  backend: 'conpty'
+  buildNumber?: number
+} {
   if (buildNumber === undefined || buildNumber < 21376) {
     return { backend: 'conpty' }
   }
@@ -52,7 +50,7 @@ function buildXtermWindowsPtyOptions(
  */
 export function buildWindowsPtyCompatibilityOptions(
   context: WindowsPtyCompatibilityContext & { executionHostId: ExecutionHostId }
-): Partial<ITerminalOptions> {
+): { windowsPty?: { backend: 'conpty'; buildNumber?: number } } {
   if (!isLocalNativeWindowsConpty(context)) {
     return {}
   }
@@ -61,9 +59,9 @@ export function buildWindowsPtyCompatibilityOptions(
 
 /** ConPTY backend options for a pane already known to be local native Windows —
  *  the dashboard preview resolves that verdict upstream and reuses this. */
-export function buildLocalConptyTerminalOptions(
-  osRelease: string | null | undefined
-): Partial<ITerminalOptions> {
+export function buildLocalConptyTerminalOptions(osRelease: string | null | undefined): {
+  windowsPty: { backend: 'conpty'; buildNumber?: number }
+} {
   return { windowsPty: buildXtermWindowsPtyOptions(parseWindowsBuildNumber(osRelease)) }
 }
 
