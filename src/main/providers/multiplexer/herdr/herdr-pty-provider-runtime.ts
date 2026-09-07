@@ -5,6 +5,7 @@ import {
   HerdrRuntimeManager,
   type HerdrLivePaneListener,
   type HerdrPaneExitListener,
+  type HerdrPaneTerminalTitleListener,
   type HerdrSurfaceSync
 } from './herdr-runtime-manager'
 import type { HerdrHostTransport } from './herdr-runtime-contract'
@@ -12,6 +13,7 @@ import { closeHerdrPane, closeHerdrWorkspace } from './herdr-sdk-ops'
 export { awaitFirstFrame } from './herdr-pty-frames'
 import { bytesFromTerminalLogicalKey } from '../../../../shared/horca/terminal-logical-key'
 import { cancelHerdrPaneSizePulse, writeSharedHerdrInput } from './herdr-pty-attach'
+import { stopHerdrPaneTitleProbe } from './herdr-pty-title-forward'
 
 const transportIds = new WeakMap<HerdrHostTransport, number>()
 let nextTransportId = 1
@@ -43,6 +45,7 @@ function detachBinding(binding: HerdrPtyBinding, bindings: Map<string, HerdrPtyB
     return
   }
   binding.detached = true
+  stopHerdrPaneTitleProbe(binding)
   for (const unsubscribe of binding.unsubscribe.splice(0)) {
     unsubscribe()
   }
@@ -57,6 +60,7 @@ function disposeProvider(
 ): void {
   for (const binding of bindings.values()) {
     binding.detached = true
+    stopHerdrPaneTitleProbe(binding)
     for (const unsubscribe of binding.unsubscribe.splice(0)) {
       unsubscribe()
     }
@@ -77,7 +81,8 @@ export function getRuntime(
   sharedName: (() => string | undefined) | undefined,
   onLivePaneIds?: HerdrLivePaneListener,
   surfaceSync?: HerdrSurfaceSync,
-  onPaneExited?: HerdrPaneExitListener
+  onPaneExited?: HerdrPaneExitListener,
+  onPaneTerminalTitle?: HerdrPaneTerminalTitleListener
 ): {
   manager: HerdrRuntimeManager
   transport: HerdrHostTransport
@@ -91,7 +96,8 @@ export function getRuntime(
       sharedName,
       onLivePaneIds,
       surfaceSync,
-      onPaneExited
+      onPaneExited,
+      onPaneTerminalTitle
     )
     managers.set(key, manager)
   }
