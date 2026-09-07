@@ -95,6 +95,12 @@ export async function startDetachedHerdrCommand(
       }
       settled = true
       clearTimeout(started)
+      // Why: piped stdio on a live detached server keeps Electron's event loop
+      // open, so Playwright worker teardown waits out the 120s close budget.
+      child.stdout?.removeAllListeners()
+      child.stderr?.removeAllListeners()
+      child.stdout?.destroy()
+      child.stderr?.destroy()
       if (error) {
         reject(error)
       } else {
