@@ -1,19 +1,25 @@
 import { EventEmitter } from 'node:events'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { localHerdrCommand } from './herdr-cli-session'
+import {
+  HerdrCliSessionManager,
+  localHerdrCommand,
+  startDetachedHerdrCommand
+} from './herdr-cli-session'
 import { HerdrSdkHost } from './herdr-sdk-host'
 import type { HerdrSdkRuntime } from './herdr-sdk-runtime'
 
-const { spawnProcessMock } = vi.hoisted(() => ({
-  spawnProcessMock: vi.fn()
+const { spawnProcessMock, runProcessMock } = vi.hoisted(() => ({
+  spawnProcessMock: vi.fn(),
+  runProcessMock: vi.fn()
 }))
 vi.mock('../../../../shared/child-process/run-process', () => ({
-  runProcess: vi.fn(),
+  runProcess: runProcessMock,
   spawnProcess: spawnProcessMock
 }))
 
 beforeEach(() => {
   spawnProcessMock.mockReset()
+  runProcessMock.mockReset()
 })
 
 afterEach(() => {
@@ -25,6 +31,7 @@ type MockChild = EventEmitter & {
   stdout: EventEmitter & { setEncoding: ReturnType<typeof vi.fn> }
   stderr: EventEmitter & { setEncoding: ReturnType<typeof vi.fn> }
   kill: ReturnType<typeof vi.fn>
+  unref: ReturnType<typeof vi.fn>
 }
 
 function createChild(): MockChild {
@@ -38,7 +45,8 @@ function createChild(): MockChild {
       setEncoding: vi.fn()
     }),
     stderr: Object.assign(new EventEmitter(), { setEncoding: vi.fn() }),
-    kill: vi.fn()
+    kill: vi.fn(),
+    unref: vi.fn()
   })
   return child as unknown as MockChild
 }
@@ -101,6 +109,36 @@ describe('HerdrSdkHost terminal control', () => {
     expect(child.stdin.end).toHaveBeenCalled()
   })
 
+  it('starts a detached herdr server with ignored stdio', async () => {
+    const child = createChild()
+    spawnProcessMock.mockReturnValue(child)
+    const started = startDetachedHerdrCommand({
+      file: '/mock/herdr',
+      args: ['--session', 'horca', 'server']
+    })
+    expect(spawnProcessMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        program: '/mock/herdr',
+        args: ['--session', 'horca', 'server'],
+        detached: true,
+        stdio: ['ignore', 'pipe', 'pipe']
+      })
+    )
+    child.emit('close', 0)
+    await expect(started).resolves.toBeUndefined()
+  })
+
+  it('rejects when a detached herdr server exits non-zero before ready', async () => {
+    const child = createChild()
+    spawnProcessMock.mockReturnValue(child)
+    const started = startDetachedHerdrCommand({
+      file: '/mock/herdr',
+      args: ['--session', 'horca', 'server']
+    })
+    child.emit('close', 1)
+    await expect(started).rejects.toThrow('Herdr server exited during startup with code 1')
+  })
+
   it('emits closed when the child exits without releasing', async () => {
     const transport = loadTransport()
     const child = createChild()
@@ -111,5 +149,29 @@ describe('HerdrSdkHost terminal control', () => {
     controller.onClosed((event) => closed.push(event))
     child.emit('close', 1)
     expect(closed.length).toBe(1)
+  })
+})
+
+describe('HerdrCliSessionManager CLI env', () => {
+  it('lists sessions with the relocated herdr config home', async () => {
+    runProcessMock.mockResolvedValue({
+      code: 0,
+      stdout: JSON.stringify({ sessions: [] }),
+      stderr: '',
+      timedOut: false
+    })
+    const manager = new HerdrCliSessionManager({
+      commandFor: (args) => ({
+        file: '/mock/herdr',
+        args,
+        env: {
+          HOME: '/private/var/folders/t6/jmkhfw452wx9x27cvtj03qmh0000gq/T/orca-e2e-userdata-abcdefgh/home',
+          PATH: '/bin'
+        }
+      })
+    })
+    await manager.run(['session', 'list', '--json'])
+    const spec = runProcessMock.mock.calls[0]?.[0] as { env?: NodeJS.ProcessEnv }
+    expect(spec.env?.XDG_CONFIG_HOME).toMatch(/^\/tmp\/\.horca-h-/)
   })
 })
