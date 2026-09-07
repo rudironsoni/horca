@@ -1,4 +1,4 @@
-import type { Terminal } from '@xterm/xterm'
+import type { OrcaPaneTerminal as Terminal } from '../../lib/pane-manager/orca-pane-terminal'
 
 type TerminalSelectionCopyOptions = {
   terminal: Pick<Terminal, 'getSelection' | 'clearSelection'>

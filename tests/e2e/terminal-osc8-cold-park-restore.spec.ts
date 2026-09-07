@@ -96,7 +96,7 @@ async function readLinkState(
           : null
         return {
           bufferType: buffer.type,
-          serializedUri: uri ? pane.serializeAddon.serialize().includes(uri) : false,
+          serializedUri: uri ? pane.serializeController.serialize().includes(uri) : false,
           underlined: !!cell?.isUnderline(),
           uri
         }

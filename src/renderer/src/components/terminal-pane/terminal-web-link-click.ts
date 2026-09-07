@@ -1,4 +1,4 @@
-import type { Terminal } from '@xterm/xterm'
+import type { OrcaPaneTerminal as Terminal } from '../../lib/pane-manager/orca-pane-terminal'
 import type { LinkHandlerDeps } from './terminal-link-handlers'
 import { isTerminalOwnedLinkGesture } from './terminal-link-activation'
 import { handleOscLink } from './terminal-osc-link-routing'

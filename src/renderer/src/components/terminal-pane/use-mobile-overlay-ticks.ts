@@ -99,7 +99,7 @@ export function useMobileOverlayTicks({ managerRef, paneTransportsRef }: MobileO
         return
       }
       if (event.mode === 'desktop-fit') {
-        // Why: fitAddon.fit() measures the DOM, so run under rAF after layout settles; the timeout is a safety net if fit silently threw.
+        // Why: fitController.fit() measures the DOM, so run under rAF after layout settles; the timeout is a safety net if fit silently threw.
         const fitAffectedPanes = (): void => {
           for (const pane of getAffectedPanes()) {
             safeFit(pane)
