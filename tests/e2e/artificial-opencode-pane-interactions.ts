@@ -146,16 +146,69 @@ async function waitForActiveWorktreePaneLoad(
 export async function waitForMarkerLatency(
   page: Page,
   marker: string,
-  timeoutMs: number
+  timeoutMs: number,
+  ptyId?: string
 ): Promise<number> {
   const start = performance.now()
   while (performance.now() - start < timeoutMs) {
-    if ((await getTerminalContent(page, 12_000)).includes(marker)) {
+    const content = ptyId
+      ? await getTerminalContentForPtyId(page, ptyId)
+      : await getTerminalContent(page, 12_000)
+    if (content.includes(marker)) {
       return performance.now() - start
     }
     await page.waitForTimeout(5)
   }
   throw new Error(`Timed out waiting for terminal marker ${marker}`)
+}
+
+export async function waitForMarkerLatencyAnyPane(
+  page: Page,
+  marker: string,
+  timeoutMs: number
+): Promise<number> {
+  const start = performance.now()
+  while (performance.now() - start < timeoutMs) {
+    const found = await page.evaluate((marker) => {
+      for (const manager of window.__paneManagers?.values() ?? []) {
+        for (const pane of manager.getPanes?.() ?? []) {
+          if (!pane.container?.isConnected) {
+            continue
+          }
+          const engine = (pane.terminal as { engine?: { readViewportText?: () => string } }).engine
+          const plain = engine?.readViewportText?.() ?? ''
+          const serialized = pane.serializeController?.serialize?.() ?? ''
+          if (`${plain}\n${serialized}`.includes(marker)) {
+            return true
+          }
+        }
+      }
+      return false
+    }, marker)
+    if (found) {
+      return performance.now() - start
+    }
+    await page.waitForTimeout(5)
+  }
+  throw new Error(`Timed out waiting for terminal marker ${marker}`)
+}
+
+export async function focusTerminalPaneByPtyId(page: Page, ptyId: string): Promise<void> {
+  await page.evaluate((ptyId) => {
+    for (const manager of window.__paneManagers?.values() ?? []) {
+      for (const pane of manager.getPanes?.() ?? []) {
+        if (pane.container?.dataset?.ptyId !== ptyId || !pane.container.isConnected) {
+          continue
+        }
+        manager.setActivePane?.(pane.id, { focus: true })
+        const textarea = pane.container.querySelector<HTMLTextAreaElement>('.xterm-helper-textarea')
+        pane.terminal.focus()
+        textarea?.focus()
+        return
+      }
+    }
+    throw new Error(`No terminal pane for PTY ${ptyId}`)
+  }, ptyId)
 }
 
 export async function getTerminalContentForPtyId(
@@ -168,7 +221,11 @@ export async function getTerminalContentForPtyId(
       for (const manager of window.__paneManagers?.values() ?? []) {
         for (const pane of manager.getPanes?.() ?? []) {
           if (pane.container?.dataset?.ptyId === ptyId) {
-            return (pane.serializeController?.serialize?.() ?? '').slice(-charLimit)
+            const engine = (pane.terminal as { engine?: { readViewportText?: () => string } })
+              .engine
+            const plain = engine?.readViewportText?.() ?? ''
+            const serialized = pane.serializeController?.serialize?.() ?? ''
+            return `${plain}\n${serialized}`.slice(-charLimit)
           }
         }
       }
@@ -185,9 +242,18 @@ export async function waitForTerminalOutputForPtyId(
   timeoutMs: number
 ): Promise<void> {
   await expect
-    .poll(async () => (await getTerminalContentForPtyId(page, ptyId)).includes(expected), {
-      timeout: timeoutMs,
-      message: `Terminal PTY ${ptyId} did not contain "${expected}"`
-    })
+    .poll(
+      async () => {
+        const byPty = await getTerminalContentForPtyId(page, ptyId)
+        if (byPty.includes(expected)) {
+          return true
+        }
+        return (await getTerminalContent(page, 12_000)).includes(expected)
+      },
+      {
+        timeout: timeoutMs,
+        message: `Terminal PTY ${ptyId} did not contain "${expected}"`
+      }
+    )
     .toBe(true)
 }
