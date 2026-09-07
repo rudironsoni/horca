@@ -14,10 +14,12 @@ import {
   createOrcaPaneBuffer,
   createOrcaPaneParser,
   flushWaiters,
-  noopDisposable
+  noopDisposable,
+  trackListener
 } from './orca-pane-buffer'
 import { registerOrcaPaneLinkProvider } from './orca-pane-links'
 import { createOrcaPaneSurface } from './orca-pane-surface'
+import { createPaintScheduler } from './orca-pane-paint'
 import {
   bindOrcaPaneSession,
   clearSelectionOnGhostty,
@@ -49,6 +51,13 @@ export class OrcaPaneTerminal {
   cellWidth: number
   cellHeight: number
   private unbindInput = (): void => undefined
+  private readonly paintScheduler = createPaintScheduler(() => {
+    const dpr = typeof window === 'undefined' ? 1 : window.devicePixelRatio || 1
+    this.renderer.draw(this.engine, dpr)
+    for (const listener of this.renderListeners) {
+      listener()
+    }
+  })
   constructor(measureRoot: HTMLElement, appearance: Partial<OrcaPaneAppearance> = {}) {
     this.options = resolveOrcaPaneAppearance(appearance)
     this.measureRoot = measureRoot
@@ -74,28 +83,26 @@ export class OrcaPaneTerminal {
   get isAlternateScreen(): boolean {
     return this.engine.isAlternateScreen
   }
-
   get buffer(): { active: IBuffer } {
     return createOrcaPaneBuffer(this.engine, () => this.baseY)
   }
-  write(data: string | Uint8Array, onDone?: () => void): void {
-    const text = typeof data === 'string' ? data : new TextDecoder().decode(data)
-    this.engine.writePtyOutput(this.parser.consume(text))
-    this.refresh()
-    flushWaiters(this.isAlternateScreen, this.primaryScreenWaiters)
-    onDone?.()
-  }
-
   get cursor(): { x: number; y: number } {
     return this.engine.cursor
   }
   get viewportY(): number {
     return readScrollbar(...this.vt()).offset
   }
-
   get baseY(): number {
     const bar = readScrollbar(...this.vt())
     return Math.max(0, bar.total - bar.len)
+  }
+
+  write(data: string | Uint8Array, onDone?: () => void): void {
+    const text = typeof data === 'string' ? data : new TextDecoder().decode(data)
+    this.engine.writePtyOutput(this.parser.consume(text))
+    this.refresh()
+    flushWaiters(this.isAlternateScreen, this.primaryScreenWaiters)
+    onDone?.()
   }
 
   get modes(): {
@@ -128,25 +135,20 @@ export class OrcaPaneTerminal {
   }
 
   onData(listener: (data: string) => void): OrcaDisposable {
-    this.dataListeners.add(listener)
-    return { dispose: () => this.dataListeners.delete(listener) }
+    return trackListener(this.dataListeners, listener)
   }
-
   onResize(listener: (size: { cols: number; rows: number }) => void): OrcaDisposable {
-    this.resizeListeners.add(listener)
-    return { dispose: () => this.resizeListeners.delete(listener) }
+    return trackListener(this.resizeListeners, listener)
   }
   onRender(listener: () => void): OrcaDisposable {
-    this.renderListeners.add(listener)
-    return { dispose: () => this.renderListeners.delete(listener) }
+    return trackListener(this.renderListeners, listener)
   }
   onTitleChange(listener: (title: string) => void): OrcaDisposable {
     listener(this.engine.title)
     return noopDisposable()
   }
   onSelectionChange(listener: () => void): OrcaDisposable {
-    this.selectionListeners.add(listener)
-    return { dispose: () => this.selectionListeners.delete(listener) }
+    return trackListener(this.selectionListeners, listener)
   }
   onWriteParsed(listener: () => void): OrcaDisposable {
     return this.onData(() => listener())
@@ -161,7 +163,6 @@ export class OrcaPaneTerminal {
     return 0
   }
   deregisterCharacterJoiner(_id: number): void {}
-
   hasSelection(): boolean {
     return this.getSelection().length > 0
   }
@@ -170,7 +171,6 @@ export class OrcaPaneTerminal {
     | undefined {
     return undefined
   }
-
   resize(cols: number, rows: number): void {
     this.engine.resize({ cols, rows, cellWidthPx: this.cellWidth, cellHeightPx: this.cellHeight })
     this.refresh()
@@ -178,7 +178,6 @@ export class OrcaPaneTerminal {
       listener({ cols: this.cols, rows: this.rows })
     }
   }
-
   proposeDimensions(): { cols: number; rows: number } | null {
     const rect = this.measureRoot.getBoundingClientRect()
     if (rect.width < 8 || rect.height < 8) {
@@ -189,7 +188,6 @@ export class OrcaPaneTerminal {
       rows: Math.max(4, Math.floor(rect.height / this.cellHeight))
     }
   }
-
   fit(): void {
     const dims = this.proposeDimensions()
     if (!dims) {
@@ -201,15 +199,9 @@ export class OrcaPaneTerminal {
     }
     this.refresh()
   }
-
   refresh(_start?: number, _end?: number): void {
-    const dpr = typeof window === 'undefined' ? 1 : window.devicePixelRatio || 1
-    this.renderer.draw(this.engine, dpr)
-    for (const listener of this.renderListeners) {
-      listener()
-    }
+    this.paintScheduler.refresh()
   }
-
   focus(): void {
     this.element.focus()
   }
@@ -221,38 +213,34 @@ export class OrcaPaneTerminal {
     this.refresh()
     notifySelectionListeners(this.selectionListeners)
   }
-
   setPreedit(text: string): void {
     this.renderer.setPreedit(text)
-    this.refresh()
+    this.paintScheduler.flush()
   }
   selectAll(): void {
     selectAllOnGhostty(this.engine)
     this.refresh()
     notifySelectionListeners(this.selectionListeners)
   }
-
   paste(text: string): void {
     this.input(pasteIntoGhostty(this.engine, text))
   }
-
   getSelection(): string {
     return this.engine.readSelection()
   }
-
   scrollToTop(): void {
-    scrollViewport(...this.vt(), 'TOP')
-    this.refresh()
+    this.scrollViewport('TOP')
   }
   scrollToBottom(): void {
-    scrollViewport(...this.vt(), 'BOTTOM')
-    this.refresh()
+    this.scrollViewport('BOTTOM')
   }
   scrollToLine(line: number): void {
-    scrollViewport(...this.vt(), 'ROW', line)
+    this.scrollViewport('ROW', line)
+  }
+  private scrollViewport(tag: 'TOP' | 'BOTTOM' | 'ROW', value = 0): void {
+    scrollViewport(...this.vt(), tag, value)
     this.refresh()
   }
-
   encodeKey(event: KeyboardEvent): string {
     return encodeGhosttyKey(this.engine, event)
   }
@@ -267,27 +255,21 @@ export class OrcaPaneTerminal {
       rows: this.rows
     })
   }
-
   findNext(query: string, _options?: { caseSensitive?: boolean; regex?: boolean }): boolean {
-    const hit = findGhosttyNext(this.engine, query)
-    if (hit) {
-      this.refresh()
-    }
-    return hit
+    return this.findHit(findGhosttyNext(this.engine, query))
   }
-
   findPrevious(query: string, _options?: { caseSensitive?: boolean; regex?: boolean }): boolean {
-    const hit = findGhosttyPrevious(this.engine, query)
+    return this.findHit(findGhosttyPrevious(this.engine, query))
+  }
+  private findHit(hit: boolean): boolean {
     if (hit) {
       this.refresh()
     }
     return hit
   }
-
   serialize(_opts?: { scrollback?: number }): string {
     return this.engine.readVt()
   }
-
   whenPrimaryScreen(callback: () => void): OrcaDisposable {
     if (!this.isAlternateScreen) {
       callback()
@@ -296,7 +278,6 @@ export class OrcaPaneTerminal {
     this.primaryScreenWaiters.add(callback)
     return { dispose: () => this.primaryScreenWaiters.delete(callback) }
   }
-
   applyMetrics(): void {
     const cells = measureCellSize(this.options)
     this.cellWidth = cells.width
@@ -315,6 +296,7 @@ export class OrcaPaneTerminal {
   }
   dispose(): void {
     this.unbindInput()
+    this.paintScheduler.dispose()
     this.primaryScreenWaiters.clear()
     this.renderer.dispose()
     this.engine.dispose()

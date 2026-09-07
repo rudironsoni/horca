@@ -24,6 +24,8 @@ type BrowserTerminalPane = {
   terminal: {
     cols: number
     rows: number
+    cellWidth?: number
+    element?: HTMLElement
     buffer: {
       active: {
         baseY: number
@@ -39,10 +41,6 @@ type BrowserTerminalPane = {
     }
     focus: () => void
     scrollToBottom: () => void
-    _core?: {
-      coreService?: { isCursorHidden?: boolean }
-      _renderService?: { dimensions?: { css?: { cell?: { width?: number } } } }
-    }
   }
   container: HTMLElement
 }
@@ -171,10 +169,6 @@ await flushStdout()
 `
 }
 
-function rawEmojiFixtureCompletionMarker(runId: string): string {
-  return `RAW_EMOJI_FIXTURE_TABLE_RESTORE_${runId}`
-}
-
 function rawEmojiFixtureFrameTailMarker(runId: string): string {
   return `RAW_EMOJI_FIXTURE_TABLE_FRAME_TAIL_${runId}`
 }
@@ -274,41 +268,19 @@ async function readTerminalRightEdgeOverpaint(page: Page): Promise<{
     if (!pane) {
       throw new Error('Active terminal pane unavailable')
     }
-    const screen = pane.container.querySelector<HTMLElement>('.xterm-screen')
-    const rows = pane.container.querySelector<HTMLElement>('.xterm-rows')
-    if (!screen) {
-      throw new Error('Active terminal DOM unavailable')
+    const canvas =
+      pane.terminal.element ??
+      pane.container.querySelector<HTMLElement>('canvas.orca-terminal-canvas')
+    if (!canvas) {
+      throw new Error('Active terminal canvas unavailable')
     }
-
-    const screenRect = screen.getBoundingClientRect()
-    if (!rows) {
-      // Why: WebGL renders rows into a canvas, so DOM-span overpaint checks only
-      // apply when the DOM renderer is active. Buffer wrap checks still run below.
-      return {
-        screenRight: screenRect.right,
-        offenderCount: 0,
-        offenders: []
-      }
-    }
-
-    const cellWidth = pane.terminal._core?._renderService?.dimensions?.css?.cell?.width ?? 0
-    const maxRight = screenRect.right + Math.max(1, cellWidth * 0.5)
-    const offenders = Array.from(rows.querySelectorAll<HTMLElement>('span'))
-      .map((span) => {
-        const rect = span.getBoundingClientRect()
-        return {
-          text: span.textContent ?? '',
-          right: rect.right,
-          width: rect.width
-        }
-      })
-      .filter((span) => span.width > 0 && span.right > maxRight)
-      .slice(0, 12)
-
+    // Why: Ghostty paints glyphs onto one canvas. There are no DOM row spans to
+    // overflow the screen box, so this golden records the canvas right edge.
+    const screenRect = canvas.getBoundingClientRect()
     return {
       screenRight: screenRect.right,
-      offenderCount: offenders.length,
-      offenders
+      offenderCount: 0,
+      offenders: []
     }
   })
 }
@@ -324,12 +296,13 @@ async function readVisibleSingerRowGeometry(page: Page): Promise<{
     if (!pane) {
       throw new Error('Active terminal pane unavailable')
     }
-    const screen = pane.container.querySelector<HTMLElement>('.xterm-screen')
-    const rows = pane.container.querySelector<HTMLElement>('.xterm-rows')
-    if (!screen) {
-      throw new Error('Active terminal DOM unavailable')
+    const canvas =
+      pane.terminal.element ??
+      pane.container.querySelector<HTMLElement>('canvas.orca-terminal-canvas')
+    if (!canvas) {
+      throw new Error('Active terminal canvas unavailable')
     }
-    const screenRect = screen.getBoundingClientRect()
+    const screenRect = canvas.getBoundingClientRect()
     const buffer = pane.terminal.buffer.active
     const visibleLine = Array.from(
       { length: pane.terminal.rows },
@@ -344,30 +317,12 @@ async function readVisibleSingerRowGeometry(page: Page): Promise<{
     if (!scrollbackLine) {
       throw new Error('Singer row buffer line unavailable')
     }
-    const cellWidth = pane.terminal._core?._renderService?.dimensions?.css?.cell?.width ?? 0
-    const bufferGeometry = {
+    const cellWidth = pane.terminal.cellWidth ?? screenRect.width / Math.max(1, pane.terminal.cols)
+    return {
       cols: pane.terminal.cols,
       screenRight: screenRect.right,
       rowRight: screenRect.left + pane.terminal.cols * cellWidth,
       rowText: scrollbackLine
-    }
-    if (!rows) {
-      return bufferGeometry
-    }
-    const row = Array.from(rows.children).find((element) =>
-      (element.textContent ?? '').includes('Singer')
-    ) as HTMLElement | undefined
-    if (!row) {
-      // Why: xterm can repaint DOM rows between scroll and measurement; the
-      // terminal buffer still gives a stable right-edge bound for the golden.
-      return bufferGeometry
-    }
-    const rowRect = row.getBoundingClientRect()
-    return {
-      cols: pane.terminal.cols,
-      screenRight: screenRect.right,
-      rowRight: rowRect.right,
-      rowText: row.textContent ?? ''
     }
   })
 }
@@ -389,7 +344,6 @@ async function readTerminalRenderDiagnostics(page: Page): Promise<{
     if (!pane) {
       throw new Error('Active terminal pane unavailable')
     }
-    const terminalCore = pane.terminal._core
     const canvas = document.createElement('canvas')
     const store = window.__store
     const state = store?.getState()
@@ -404,10 +358,11 @@ async function readTerminalRenderDiagnostics(page: Page): Promise<{
     const renderingDiagnostics = manager
       ?.getRenderingDiagnostics()
       .find((diagnostic) => diagnostic.paneId === pane.id)
+    const showCursor = pane.terminal.modes?.showCursor
     return {
       hasWebgl: renderingDiagnostics?.hasWebgl ?? false,
       hasComplexScriptOutput: renderingDiagnostics?.hasComplexScriptOutput ?? false,
-      cursorHidden: terminalCore?.coreService?.isCursorHidden ?? null,
+      cursorHidden: showCursor === false,
       terminalGpuAcceleration: renderingDiagnostics?.terminalGpuAcceleration,
       gpuRenderingEnabled: renderingDiagnostics?.gpuRenderingEnabled,
       webglAttachmentDeferred: renderingDiagnostics?.webglAttachmentDeferred,
@@ -426,28 +381,6 @@ async function closeFeatureTips(page: Page): Promise<void> {
     if (store?.getState().activeModal === 'feature-tips') {
       store.getState().closeModal()
     }
-  })
-}
-
-async function expectAutoWebgl(page: Page): Promise<boolean> {
-  return page.evaluate(() => {
-    const canvas = document.createElement('canvas')
-    const gl = canvas.getContext('webgl2')
-    if (!gl) {
-      return false
-    }
-    if (!navigator.platform.includes('Linux') && !navigator.userAgent.includes('Linux')) {
-      return true
-    }
-    const debugInfo = gl.getExtension('WEBGL_debug_renderer_info')
-    if (!debugInfo) {
-      return false
-    }
-    const renderer = String(gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) ?? '')
-    const vendor = String(gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL) ?? '')
-    return !/\b(swiftshader|llvmpipe|softpipe|software rasterizer|software adapter|basic render|virgl|svga3d)\b/i.test(
-      `${vendor} ${renderer}`
-    )
   })
 }
 
@@ -474,9 +407,9 @@ test.describe('Terminal raw emoji table scroll restore repro', () => {
     })
   })
 
-  // Why: `auto` should start on the fast renderer for ordinary terminal output;
-  // the emoji table golden below proves complex output does not disable it.
-  test('uses WebGL by default for ordinary terminal output when available @terminal-rendering-golden', async ({
+  // Why: desktop Ghostty draws on Canvas2D. gpuRenderer stays null until a GPU
+  // renderer is attached, so this golden asserts the live Canvas2D path.
+  test('uses Canvas2D for ordinary terminal output @terminal-rendering-golden', async ({
     orcaPage
   }) => {
     await waitForSessionReady(orcaPage)
@@ -489,28 +422,21 @@ test.describe('Terminal raw emoji table scroll restore repro', () => {
     await sendToTerminal(orcaPage, ptyId, `printf ${JSON.stringify(`${marker}\\n`)}\r`)
     await waitForTerminalOutput(orcaPage, marker, 10_000)
 
-    const expectedWebgl = await expectAutoWebgl(orcaPage)
-    // Why: WebGL (re)attaches asynchronously via React visibility effects and a
-    // transient ESC[?25l during a redraw can momentarily set cursorHidden. Let
-    // those eventually-consistent fields settle before the single-shot golden
-    // asserts so runner timing can't flake-block the release. hasComplexScriptOutput
-    // stays single-shot: its not-ready default is also false, so timing can't
-    // turn it into a false failure.
     let diagnostics = await readTerminalRenderDiagnostics(orcaPage)
     await expect
       .poll(
         async () => {
           diagnostics = await readTerminalRenderDiagnostics(orcaPage)
-          return diagnostics.hasWebgl === expectedWebgl && diagnostics.cursorHidden === false
+          return diagnostics.hasWebgl === false && diagnostics.cursorHidden === false
         },
         {
           timeout: 15_000,
-          message: `terminal render diagnostics did not settle (expected hasWebgl=${expectedWebgl}, cursorHidden=false)`
+          message: 'terminal render diagnostics did not settle (expected Canvas2D, cursor visible)'
         }
       )
       .toBe(true)
     expect(diagnostics.hasComplexScriptOutput).toBe(false)
-    expect(diagnostics.hasWebgl).toBe(expectedWebgl)
+    expect(diagnostics.hasWebgl).toBe(false)
     expect(diagnostics.cursorHidden).toBe(false)
   })
 
@@ -541,21 +467,10 @@ test.describe('Terminal raw emoji table scroll restore repro', () => {
     writeFileSync(scriptPath, rawEmojiFixtureBoxTableScript(EMOJI_TABLE_FIXTURE, runId))
 
     try {
-      const completionMarker = rawEmojiFixtureCompletionMarker(runId)
-      const frameTailMarker = rawEmojiFixtureFrameTailMarker(runId)
-      // Why: the fixture marker is the shell-readiness signal here; an extra
-      // Ctrl+C/Ctrl+U preflight can race Windows ConPTY startup and eat input.
+      // Why: Ghostty Canvas2D exposes the visible grid as plain text. The old
+      // xterm SerializeAddon UUID markers sit past the viewport after 2J.
       await sendToTerminal(orcaPage, ptyId, `${nodeTerminalCommand([scriptPath])}\r`)
-      // Why: Windows ConPTY can return the PowerShell prompt while xterm is
-      // still flushing synchronized output if the pane is hidden immediately.
-      // This golden is about restored table geometry, not shell-flush timing.
-      await waitForTerminalOutput(orcaPage, completionMarker, 20_000, 30_000)
-      await expect
-        .poll(() => getTerminalContent(orcaPage, 30_000), {
-          timeout: 10_000,
-          message: 'raw emoji table synchronized frame tail was not rendered'
-        })
-        .toContain(frameTailMarker)
+      await waitForTerminalOutput(orcaPage, 'Singer', 30_000, 8_000)
       await switchToWorktree(orcaPage, secondWorktreeId)
       await waitForActiveTerminalManager(orcaPage, 30_000)
       await orcaPage.waitForTimeout(1_000)
@@ -570,31 +485,25 @@ test.describe('Terminal raw emoji table scroll restore repro', () => {
       await setWideRenderedTableViewport(orcaPage)
       await waitForActiveTerminalColumns(orcaPage, RAW_EMOJI_BOX_TABLE_WIDTH)
       await expect
-        .poll(() => getTerminalContent(orcaPage, 30_000), {
+        .poll(() => getTerminalContent(orcaPage, 8_000), {
           timeout: 30_000,
-          message: 'raw emoji table marker did not survive workspace switch'
+          message: 'raw emoji table did not survive workspace switch'
         })
-        .toContain(completionMarker)
+        .toContain('Singer')
 
       await scrollActiveTerminalToText(orcaPage, 'Singer')
       await closeFeatureTips(orcaPage)
-      const expectedWebgl = await expectAutoWebgl(orcaPage)
-      // Why: after the worktree switch, WebGL reattaches asynchronously (React
-      // visibility effect + attach backoff) and a transient ESC[?25l during the
-      // restore redraw can momentarily set cursorHidden. Let those settle before
-      // the single-shot golden asserts so runner timing can't flake-block the
-      // release; the geometry/wrap/overpaint checks below stay single-shot as the
-      // real regression signal.
       let diagnostics = await readTerminalRenderDiagnostics(orcaPage)
       await expect
         .poll(
           async () => {
             diagnostics = await readTerminalRenderDiagnostics(orcaPage)
-            return diagnostics.hasWebgl === expectedWebgl && diagnostics.cursorHidden === false
+            return diagnostics.hasWebgl === false && diagnostics.cursorHidden === false
           },
           {
             timeout: 15_000,
-            message: `terminal render diagnostics did not settle (expected hasWebgl=${expectedWebgl}, cursorHidden=false)`
+            message:
+              'terminal render diagnostics did not settle (expected Canvas2D, cursor visible)'
           }
         )
         .toBe(true)
@@ -623,7 +532,7 @@ test.describe('Terminal raw emoji table scroll restore repro', () => {
 
       expect(wrapDiagnostics.cols).toBeGreaterThanOrEqual(RAW_EMOJI_BOX_TABLE_WIDTH)
       expect(diagnostics.hasComplexScriptOutput).toBe(false)
-      expect(diagnostics.hasWebgl).toBe(expectedWebgl)
+      expect(diagnostics.hasWebgl).toBe(false)
       expect(diagnostics.cursorHidden).toBe(false)
       expect(overpaint.offenders).toEqual([])
       expect(wrapDiagnostics.wrappedBoxLines).toEqual([])
