@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import { mkdirSync, mkdtempSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, posix } from 'node:path'
@@ -28,7 +29,11 @@ export function herdrConfigHomeForSession(
   if (preferred.startsWith('/') && Buffer.byteLength(clientSock, 'utf8') <= HERDR_SUN_PATH_BYTES) {
     return preferred
   }
-  return `/tmp/.horca-h-${process.getuid?.() ?? 0}`
+  const uid = process.getuid?.() ?? 0
+  const tag = preferred.startsWith('/')
+    ? createHash('sha256').update(preferred).digest('hex').slice(0, 8)
+    : '0'
+  return `/tmp/.horca-h-${uid}-${tag}`
 }
 
 export function ensureHerdrConfigHome(configHome: string): string {
