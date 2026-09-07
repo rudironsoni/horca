@@ -1,6 +1,9 @@
-import { mkdtempSync } from 'node:fs'
+import { mkdirSync, mkdtempSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, posix } from 'node:path'
+
+// Darwin sun_path is 104 bytes including NUL.
+const HERDR_SUN_PATH_BYTES = 103
 
 export function herdrSessionSocketPath(configHome: string, sessionName: string): string {
   if (!configHome.startsWith('/') || /[\n\r]/.test(configHome)) {
@@ -10,6 +13,27 @@ export function herdrSessionSocketPath(configHome: string, sessionName: string):
     throw new Error(`Herdr session name is not a single path segment: ${sessionName}`)
   }
   return posix.join(configHome, 'herdr', 'sessions', sessionName, 'herdr.sock')
+}
+
+export function herdrConfigHomeForSession(
+  sessionName: string,
+  env: NodeJS.ProcessEnv = process.env
+): string {
+  const home = env.HOME || env.USERPROFILE || ''
+  const preferred =
+    env.XDG_CONFIG_HOME || (home ? posix.join(home.replace(/\\/g, '/'), '.config') : '')
+  const clientSock = preferred.startsWith('/')
+    ? posix.join(preferred, 'herdr', 'sessions', sessionName, 'herdr-client.sock')
+    : ''
+  if (preferred.startsWith('/') && Buffer.byteLength(clientSock, 'utf8') <= HERDR_SUN_PATH_BYTES) {
+    return preferred
+  }
+  return `/tmp/.horca-h-${process.getuid?.() ?? 0}`
+}
+
+export function ensureHerdrConfigHome(configHome: string): string {
+  mkdirSync(configHome, { recursive: true, mode: 0o700 })
+  return configHome
 }
 
 export function herdrLocalRelayEndpoint(
