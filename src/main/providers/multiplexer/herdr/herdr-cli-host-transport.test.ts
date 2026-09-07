@@ -159,6 +159,22 @@ describe('HerdrSdkHost terminal control', () => {
     )
     child.emit('close', 0)
     await expect(started).resolves.toBeUndefined()
+    expect(child.stdout.destroy).toHaveBeenCalled()
+    expect(child.stderr.destroy).toHaveBeenCalled()
+  })
+
+  it('drops herdr stdio when the detached server stays up', async () => {
+    vi.useFakeTimers()
+    const child = createChild()
+    spawnProcessMock.mockReturnValue(child)
+    const started = startDetachedHerdrCommand({
+      file: '/mock/herdr',
+      args: ['--session', 'horca', 'server']
+    })
+    await vi.advanceTimersByTimeAsync(100)
+    await expect(started).resolves.toBeUndefined()
+    expect(child.stdout.destroy).toHaveBeenCalled()
+    expect(child.stderr.destroy).toHaveBeenCalled()
   })
 
   it('lets a detached herdr server stay up without holding stdio', async () => {
