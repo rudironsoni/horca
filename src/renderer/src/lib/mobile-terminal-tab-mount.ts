@@ -14,7 +14,7 @@ type MobileTerminalTabMountOptions = {
   isTabMounted?: (tabId: string, worktreeId?: string) => boolean
 }
 
-/** Why: exact-tab planning prevents a stale ptyId from mounting every saved xterm (#8597). */
+/** Why: exact-tab planning prevents a stale ptyId from mounting every saved terminal (#8597). */
 export function planMobileTerminalTabMount(
   state: TerminalTabPtyOwnershipState,
   request: MobileTerminalTabMountRequest,

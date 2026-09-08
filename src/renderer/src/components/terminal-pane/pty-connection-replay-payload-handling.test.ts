@@ -329,7 +329,7 @@ describe('connectPanePty', () => {
     }
     await flushAsyncTicks()
 
-    // Why: replay completion must not overwrite scroll intent recorded while xterm was still parsing the restored snapshot.
+    // Why: replay completion must not overwrite scroll intent recorded while terminal was still parsing the restored snapshot.
     expect(pane.terminal.scrollToLine).not.toHaveBeenCalled()
     disposable.dispose()
   })

@@ -57,7 +57,7 @@ itOnPosix(
   async () => {
     const token = `ORCA_PTY_GROUP_TEST_${process.pid}_${Date.now()}`
     const proc = pty.spawn('/bin/sh', [], {
-      name: 'xterm-256color',
+      name: 'xterm-ghostty',
       cols: 80,
       rows: 24,
       cwd: process.cwd(),

@@ -69,7 +69,7 @@ export function startParkedPtyWatcher(args: {
       useAppStore.getState().markUnverifiedPtyLoss(tab.id)
     }
     // Why: detach drops the session-bound exit observer (it pinned the disposed
-    // pane's xterm buffers), so this sidecar is the sole owner of a parked PTY's
+    // pane's terminal buffers), so this sidecar is the sole owner of a parked PTY's
     // exit. A sleep/shutdown exit must keep the tab AND its layout — revival
     // belongs to the wake path — and must leave the buffered exit in place as
     // the tombstone that stops watcher syncs re-pinning the dead PTY.

@@ -2,8 +2,8 @@ import type { OrcaDisposable as IDisposable } from '../../../../shared/orca-term
 import type { OrcaPaneTerminal as Terminal } from '../../lib/pane-manager/orca-pane-terminal'
 import type { PtyTransport } from './pty-transport'
 
-export const XTERM_COMPOSITION_SESSION_START_EVENT = 'xterm-composition-session-start'
-export const XTERM_COMPOSITION_SESSION_END_EVENT = 'xterm-composition-session-end'
+export const XTERM_COMPOSITION_SESSION_START_EVENT = 'terminal-composition-session-start'
+export const XTERM_COMPOSITION_SESSION_END_EVENT = 'terminal-composition-session-end'
 
 export type TerminalImeCompositionSessionDetail = {
   id: number
@@ -136,10 +136,10 @@ export function installTerminalImeCompositionRoute(args: {
     const captured = sessions.get(detail.id)
     if (!captured) {
       // Not our session — the route was installed mid-composition, so no start was seen.
-      // Cancelling here would suppress xterm's own insertion with nothing to replace it.
+      // Cancelling here would suppress terminal's own insertion with nothing to replace it.
       return
     }
-    // Owned, so xterm stands down even on the drop paths below: that drop is this route's call.
+    // Owned, so terminal stands down even on the drop paths below: that drop is this route's call.
     event.preventDefault()
     sessions.delete(detail.id)
     removePendingCompositionSession(terminalElement, detail.id)

@@ -52,7 +52,7 @@ export function connectPanePty(
     !session.manager.hasWebglRenderer(session.pane.id)
   session.tabGeneration =
     findTerminalTabForPane(useAppStore.getState(), deps.worktreeId, deps.tabId)?.generation ?? 0
-  // Why: recovery ownership belongs to this xterm instance. A request that
+  // Why: recovery ownership belongs to this terminal instance. A request that
   // settles after remount must not remount its already-replaced successor.
   session.terminalRecoveryGeneration = captureTerminalPaneRecoveryGeneration(session.deps.tabId)
   session.terminalRecoveryInstance = registerTerminalPaneRecoveryInstance(session.deps.tabId)

@@ -3,7 +3,7 @@ import { shouldFocusMobileDriverAction } from './mobile-driver-overlay-focus'
 
 function focusLike(args: {
   tagName?: string
-  xterm?: boolean
+  terminal?: boolean
   contentEditable?: boolean
   editableAncestor?: boolean
   selfMatchesEditable?: boolean
@@ -18,7 +18,8 @@ function focusLike(args: {
     tagName: args.tagName,
     isContentEditable: args.contentEditable === true,
     classList: {
-      contains: (token: string) => args.xterm === true && token === 'xterm-helper-textarea'
+      contains: (token: string) =>
+        args.terminal === true && token === 'orca-terminal-helper-textarea'
     },
     closest: (selector: string) =>
       (args.editableAncestor === true || args.selfMatchesEditable === true) &&
@@ -59,17 +60,17 @@ describe('shouldFocusMobileDriverAction', () => {
     expect(shouldFocusMobileDriverAction(focusLike({ contentEditable: true }))).toBe(false)
   })
 
-  it('still focuses the recovery action for xterm helper textareas', () => {
-    const xterm = focusLike({ tagName: 'TEXTAREA', xterm: true })
+  it('still focuses the recovery action for terminal helper textareas', () => {
+    const terminal = focusLike({ tagName: 'TEXTAREA', terminal: true })
 
-    expect(shouldFocusMobileDriverAction(xterm, undefined, scopeContaining(xterm))).toBe(true)
+    expect(shouldFocusMobileDriverAction(terminal, undefined, scopeContaining(terminal))).toBe(true)
   })
 
-  it('preserves focus for xterm helper textareas outside the overlay pane', () => {
-    const xterm = focusLike({ tagName: 'TEXTAREA', xterm: true })
+  it('preserves focus for terminal helper textareas outside the overlay pane', () => {
+    const terminal = focusLike({ tagName: 'TEXTAREA', terminal: true })
 
-    expect(shouldFocusMobileDriverAction(xterm, undefined, scopeContaining({}))).toBe(false)
-    expect(shouldFocusMobileDriverAction(xterm)).toBe(false)
+    expect(shouldFocusMobileDriverAction(terminal, undefined, scopeContaining({}))).toBe(false)
+    expect(shouldFocusMobileDriverAction(terminal)).toBe(false)
   })
 
   it('preserves browser guest focus represented by Electron webviews', () => {

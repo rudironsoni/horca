@@ -43,7 +43,7 @@ function createHarness(bindings?: Map<number, ShortcutBinding>): {
   const terminalElement = document.createElement('div')
   const terminalInput = document.createElement('textarea')
   const editable = document.createElement('input')
-  terminalInput.className = 'xterm-helper-textarea'
+  terminalInput.className = 'orca-terminal-helper-textarea'
   terminalElement.append(terminalInput)
   scope.append(terminalElement, editable)
   document.body.append(scope)

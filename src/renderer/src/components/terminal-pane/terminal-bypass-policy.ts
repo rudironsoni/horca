@@ -6,19 +6,19 @@ import {
   isTerminalImeCandidateSelectionKeyEvent
 } from './terminal-ime-candidate-key-release-guard'
 
-// Why: when a CLI activates kitty progressive enhancement (CSI > N u), xterm's
+// Why: when a CLI activates kitty progressive enhancement (CSI > N u), terminal's
 // KittyKeyboard encoder turns every modifier chord — including plain Cmd+C —
 // into a CSI-u sequence with `cancel: true`, which calls preventDefault() on
 // the keydown. That preventDefault suppresses Chromium's native `copy` event,
-// so xterm's own `copy` listener on its container never fires and the
+// so terminal's own `copy` listener on its container never fires and the
 // selection is never written to the clipboard.
 //
 // Fix: intercept in `attachCustomKeyEventHandler` and return `false` for chords
 // that should bubble to the browser / host (clipboard, native menu). Returning
-// `false` makes xterm bail *before* the kitty encoder runs, so the browser's
+// `false` makes terminal bail *before* the kitty encoder runs, so the browser's
 // copy pipeline and the OS-level keybinding both fire normally.
 
-export type XtermBypassEvent = {
+export type TerminalBypassEvent = {
   type: string
   key: string
   code?: string
@@ -32,7 +32,7 @@ export type XtermBypassEvent = {
   shiftKey: boolean
 }
 
-export type XtermBypassOptions = {
+export type TerminalBypassOptions = {
   isMac: boolean
   kittyKeyboardFlags?: number
   /** True when the terminal has a current text selection — Ctrl+C on
@@ -102,20 +102,20 @@ function isXtermHandledKeyEvent(type: string): boolean {
 /**
  * Why: iOS/iPadOS composes CJK text by rewriting the field through
  * `beforeinput`/`input`, with no composition session, and that only runs when
- * the printable keydown reaches the default handler. xterm has to stay out of
+ * the printable keydown reaches the default handler. terminal has to stay out of
  * the way for those keys so `terminal-ios-hangul-preedit.ts` can read the
  * resulting edits. `keypress` is included because `_keyPress` would otherwise
  * send the glyph a second time alongside the preedit commit.
  */
 export function shouldBypassXtermForIosTextEdit(
-  event: XtermBypassEvent,
+  event: TerminalBypassEvent,
   isIosWeb: boolean
 ): boolean {
   if (!isIosWeb || event.ctrlKey || event.metaKey || event.altKey) {
     return false
   }
   if (event.isComposing === true) {
-    // Why: input sources that do run a composition session stay with xterm's
+    // Why: input sources that do run a composition session stay with terminal's
     // CompositionHelper, which already commits them correctly.
     return false
   }
@@ -124,14 +124,14 @@ export function shouldBypassXtermForIosTextEdit(
   }
   // Why jamo and not every non-ASCII key: nothing downstream re-sends a key
   // this claims. A Cyrillic or kana key would lose its keydown, its keypress,
-  // and then its `input` too — xterm drops a composed insert while a key is
+  // and then its `input` too — terminal drops a composed insert while a key is
   // down — and reach the PTY as nothing at all.
   return isHangulJamoKeyText(event.key)
 }
 
 /** Returns whether the Linux orphan-keyup window may claim this digit. */
 function claimsOrphanCandidateDigit(
-  event: XtermBypassEvent,
+  event: TerminalBypassEvent,
   options: XtermImeKeyboardOptions
 ): boolean {
   return (
@@ -143,9 +143,9 @@ function claimsOrphanCandidateDigit(
   )
 }
 
-/** Returns whether xterm must not process an IME-owned keyboard event. */
+/** Returns whether terminal must not process an IME-owned keyboard event. */
 export function shouldSuppressTerminalImeKeyboardEvent(
-  event: XtermBypassEvent,
+  event: TerminalBypassEvent,
   options: XtermImeKeyboardOptions
 ): boolean {
   const {
@@ -161,7 +161,7 @@ export function shouldSuppressTerminalImeKeyboardEvent(
       (candidateKeyGuardActive && isTerminalImeCandidateSelectionKeyEvent(event)) ||
       claimsOrphanCandidateDigit(event, options))
   if (event.type === 'keypress') {
-    // Why: a suppressed candidate keydown is not preventDefault-ed by xterm,
+    // Why: a suppressed candidate keydown is not preventDefault-ed by terminal,
     // so its native keypress still fires and _keyPress would forward the
     // literal Space/digit to the PTY.
     return suppressCandidateKey
@@ -169,9 +169,9 @@ export function shouldSuppressTerminalImeKeyboardEvent(
   if (!isXtermHandledKeyEvent(event.type)) {
     return false
   }
-  // Why: IMEs own Process-key / composing keystrokes — letting xterm translate
+  // Why: IMEs own Process-key / composing keystrokes — letting terminal translate
   // them corrupts committed CJK text. Bare macOS/Linux keydown 229 is exempt:
-  // it must reach xterm's CompositionHelper so it can schedule its textarea
+  // it must reach terminal's CompositionHelper so it can schedule its textarea
   // diff (macOS: first key after an input-source switch; Linux: Sogou/fcitx
   // candidate commits outside a composition session). Windows keeps full
   // suppression until verified against its preedit-diff race.
@@ -187,7 +187,7 @@ export function shouldSuppressTerminalImeKeyboardEvent(
 
 /** Returns whether a candidate keydown needs native default prevention. */
 export function shouldPreventDefaultTerminalImeCandidateKey(
-  event: XtermBypassEvent,
+  event: TerminalBypassEvent,
   options: XtermImeKeyboardOptions
 ): boolean {
   // Why: returning false from attachCustomKeyEventHandler does not
@@ -210,7 +210,7 @@ function isLatinLetterKey(normalizedKey: string): boolean {
   return normalizedKey.length === 1 && normalizedKey >= 'a' && normalizedKey <= 'z'
 }
 
-function isTerminalInterruptCKey(event: XtermBypassEvent): boolean {
+function isTerminalInterruptCKey(event: TerminalBypassEvent): boolean {
   const normalizedKey = event.key.toLowerCase()
   if (isLatinLetterKey(normalizedKey)) {
     return normalizedKey === 'c'
@@ -231,7 +231,7 @@ function isTerminalInterruptCKey(event: XtermBypassEvent): boolean {
   return event.code === 'KeyC' || event.keyCode === 67
 }
 
-function isPlainCtrlC(event: XtermBypassEvent): boolean {
+function isPlainCtrlC(event: TerminalBypassEvent): boolean {
   return (
     isTerminalInterruptCKey(event) &&
     event.ctrlKey &&
@@ -243,19 +243,19 @@ function isPlainCtrlC(event: XtermBypassEvent): boolean {
 
 function matchesClipboardBinding(
   binding: string,
-  event: XtermBypassEvent,
+  event: TerminalBypassEvent,
   platform: NodeJS.Platform
 ): boolean {
   return keybindingMatchesInput(binding, event, platform)
 }
 
 /**
- * Decide whether plain Ctrl+C should bypass xterm's kitty CSI-u encoder and
+ * Decide whether plain Ctrl+C should bypass terminal's kitty CSI-u encoder and
  * be sent as ETX through Terminal.input() instead.
  */
 export function shouldHandleTerminalInterruptKeyboardEvent(
-  event: XtermBypassEvent,
-  options: XtermBypassOptions
+  event: TerminalBypassEvent,
+  options: TerminalBypassOptions
 ): boolean {
   if (!isXtermHandledKeyEvent(event.type) || !isPlainCtrlC(event)) {
     return false
@@ -268,7 +268,7 @@ export function shouldHandleTerminalInterruptKeyboardEvent(
   return !options.hasSelection
 }
 
-export function shouldSuppressTerminalInterruptKeyup(event: XtermBypassEvent): boolean {
+export function shouldSuppressTerminalInterruptKeyup(event: TerminalBypassEvent): boolean {
   return (
     event.type === 'keyup' &&
     isTerminalInterruptCKey(event) &&
@@ -278,18 +278,18 @@ export function shouldSuppressTerminalInterruptKeyup(event: XtermBypassEvent): b
   )
 }
 
-export function shouldSuppressTerminalModifierKeyboardEvent(event: XtermBypassEvent): boolean {
+export function shouldSuppressTerminalModifierKeyboardEvent(event: TerminalBypassEvent): boolean {
   return isXtermHandledKeyEvent(event.type) && TERMINAL_MODIFIER_KEYS.has(event.key)
 }
 
 /**
- * Decide whether a chord should bypass xterm's key handlers so the native
+ * Decide whether a chord should bypass terminal's key handlers so the native
  * browser pipeline (Chromium `copy` event, Electron menu accelerators) or
  * layout-aware text event can handle it instead of the kitty CSI-u encoder.
  */
-export function shouldBypassXtermKeyboardEvent(
-  event: XtermBypassEvent,
-  options: XtermBypassOptions
+export function shouldBypassTerminalKeyboardEvent(
+  event: TerminalBypassEvent,
+  options: TerminalBypassOptions
 ): boolean {
   if (shouldBypassXtermForIosTextEdit(event, options.isIosWeb === true)) {
     return true
@@ -305,7 +305,7 @@ export function shouldBypassXtermKeyboardEvent(
 
   if (event.defaultPrevented && platformModifierHeld) {
     // Why: window-level Orca shortcuts may have already handled the chord but
-    // not stopped propagation. Do not let xterm also send that shortcut to
+    // not stopped propagation. Do not let terminal also send that shortcut to
     // the shell.
     return true
   }
@@ -317,16 +317,16 @@ export function shouldBypassXtermKeyboardEvent(
     !event.altKey &&
     isSingleNonAsciiPrintableText(event.key)
   ) {
-    // Why: xterm's kitty encoder derives shifted key codes from physical
+    // Why: terminal's kitty encoder derives shifted key codes from physical
     // `code` (KeyA -> Latin "a"). Bypass keydown so Chromium emits layout text
-    // via keypress, and bypass keyup so xterm doesn't leak the release CSI-u.
+    // via keypress, and bypass keyup so terminal doesn't leak the release CSI-u.
     return true
   }
 
   if (isMac) {
-    // Why: window-level handlers already consume other Cmd chords before xterm
+    // Why: window-level handlers already consume other Cmd chords before terminal
     // sees them in Electron. Web clients still need paste to bubble to
-    // Chromium's native paste event instead of xterm's Kitty encoder.
+    // Chromium's native paste event instead of terminal's Kitty encoder.
     return (
       matchesClipboardBinding('Mod+C', event, 'darwin') ||
       matchesClipboardBinding('Mod+V', event, 'darwin')

@@ -70,7 +70,7 @@ test.describe('five SSH panes under simultaneous output', () => {
     const identity = await readPaneIdentitySnapshot(orcaPage)
     expect(identity?.panes).toHaveLength(5)
     const tabId = identity!.tabId
-    const visibleTerminals = orcaPage.locator('.xterm:visible')
+    const visibleTerminals = orcaPage.locator('.orca-terminal-canvas:visible')
     await expect(visibleTerminals).toHaveCount(5)
 
     for (let round = 0; round < 2; round++) {

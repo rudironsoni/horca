@@ -23,7 +23,7 @@ const ROWS = 40
 
 // Why per-cell color: the restore seed must clear 16MiB to cover the pre-#10479 cap, and
 // SGR-per-cell is how real agent/build output inflates a snapshot well past its plain-text size.
-// It is also what keeps the fixture affordable — the xterm buffer costs rows x cols, so carrying
+// It is also what keeps the fixture affordable — the terminal buffer costs rows x cols, so carrying
 // the bytes in SGR runs instead of rows reaches 25MiB of seed from 5.5k rows rather than 26k,
 // cutting this file's peak RSS from ~1.2GiB to ~800MiB. Only 8 distinct rows exist under
 // (row + col) % 8, so build them once rather than per line.
@@ -41,7 +41,7 @@ function writeLargeScrollback(emulator: HeadlessEmulator, fillerLines: number): 
   for (let index = 0; index < MARKERS; index += 1) {
     written = emulator.writeSync(`MARKER-${index}\r\n`) && written
   }
-  // Why assert: writeSync returns false if xterm's private _core.writeSync ever goes away, which
+  // Why assert: writeSync returns false if terminal's private _core.writeSync ever goes away, which
   // would leave an empty snapshot. The size assertions below catch that, but the endedAt gate is
   // size-independent and would still pass — pinning the gate over no scrollback at all.
   expect(written).toBe(true)

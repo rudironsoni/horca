@@ -22,7 +22,7 @@
  * What it does NOT cover:
  *   - That the daemon's buildRehydrateSequences re-arms the mode on reattach —
  *     locked by repro-7329-remote-snapshot-corruption.test.ts against the real
- *     serializer + xterm. This suite proves the reset half end to end.
+ *     serializer + terminal. This suite proves the reset half end to end.
  *   - Live-agent panes keeping mouse via POST_REPLAY_LIVE_AGENT_REATTACH_RESET
  *     (unit-tested in pty-connection.test.ts).
  */
@@ -102,7 +102,7 @@ test.describe('reattach mouse-mode leak', () => {
       // return — the disable is never sent, so the daemon's tracker keeps the
       // mode and re-arms it on reattach. printf is a shell builtin (no external
       // binary), and its typed argument is literal backslashes, so only real
-      // execution emits the ESC bytes that arm xterm below.
+      // execution emits the ESC bytes that arm terminal below.
       await execInTerminal(firstLaunch.page, ptyId, `printf '\\033[?1003h\\033[?1006h'`)
 
       // Precondition: the printf armed real mouse reporting in the live
@@ -198,7 +198,7 @@ test.describe('reattach mouse-mode leak', () => {
         if (!pane?.terminal.element) {
           throw new Error('Active terminal pane unavailable')
         }
-        const screen = pane.terminal.element.querySelector<HTMLElement>('.xterm-screen')
+        const screen = pane.terminal.element.querySelector<HTMLElement>('.orca-terminal-canvas')
         if (!screen) {
           throw new Error('Active terminal screen unavailable')
         }
@@ -235,7 +235,7 @@ test.describe('reattach mouse-mode leak', () => {
           await new Promise<void>((resolve) =>
             pane.terminal.write('\x1b[?1003h\x1b[?1006h', () => resolve())
           )
-          // Why: xterm binds the enable-mouse-events class AND the motion
+          // Why: terminal binds the enable-mouse-events class AND the motion
           // listener together in one _handleProtocolChange pass, so poll a bounded
           // number of frames — dispatching motion each round — until arming takes
           // rather than reading a single frame that can precede the binding.

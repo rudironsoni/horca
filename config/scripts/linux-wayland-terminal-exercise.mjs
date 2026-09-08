@@ -115,7 +115,7 @@ async function focusActiveTerminal(page) {
           throw new Error('No active terminal pane to focus.')
         }
         pane.terminal.focus()
-        pane.container.querySelector('.xterm-helper-textarea')?.focus()
+        pane.container.querySelector('.orca-terminal-helper-textarea')?.focus()
       }),
     rendererActionTimeoutMs
   )
@@ -243,14 +243,14 @@ export async function assertScrollbackBufferWorks(page, ptyId, runId, logPhase) 
         return null
       }
       const target =
-        pane.container.querySelector('.xterm-screen') ??
-        pane.container.querySelector('.xterm-viewport') ??
+        pane.container.querySelector('.orca-terminal-canvas') ??
+        pane.container.querySelector('.orca-terminal-viewport') ??
         pane.terminal.element ??
         pane.container
       if (!(target instanceof HTMLElement)) {
         return null
       }
-      const viewport = pane.container.querySelector('.xterm-viewport')
+      const viewport = pane.container.querySelector('.orca-terminal-viewport')
       const rect = target.getBoundingClientRect()
       if (rect.width <= 0 || rect.height <= 0) {
         return null
@@ -266,7 +266,7 @@ export async function assertScrollbackBufferWorks(page, ptyId, runId, logPhase) 
   )
   logPhase('scroll.buffer-ready', `baseY=${before.baseY} viewportY=${before.viewportY}`)
   // Why: headless Wayland does not provide a reliable native wheel path in CI,
-  // so verify xterm's scrollback buffer can move without bypassing the renderer.
+  // so verify terminal's scrollback buffer can move without bypassing the renderer.
   await runWithTimeout(
     'terminal scrollback API scroll',
     () =>
@@ -307,7 +307,7 @@ export async function assertScrollbackBufferWorks(page, ptyId, runId, logPhase) 
         return null
       }
       const buffer = pane.terminal.buffer.active
-      const viewport = pane.container.querySelector('.xterm-viewport')
+      const viewport = pane.container.querySelector('.orca-terminal-viewport')
       return buffer.viewportY < previousViewportY
         ? {
             viewportY: buffer.viewportY,

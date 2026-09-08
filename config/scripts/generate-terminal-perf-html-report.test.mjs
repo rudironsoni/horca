@@ -141,7 +141,7 @@ describe('generate-terminal-perf-html-report', () => {
     expect(html).toContain('Parked hidden terminal memory — 8 panes')
     expect(html).toContain('Renderer JS heap (MB)')
     expect(html).toContain('142.5')
-    expect(html).toContain('Live xterm instances')
+    expect(html).toContain('Live terminal instances')
     expect(html).toContain('Live pane managers')
   })
 
