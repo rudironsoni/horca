@@ -207,8 +207,11 @@ describe('Herdr PTY target resolution', () => {
     )
 
     expect(target?.graph.layoutsByTabId['floating-tab'].root).toEqual({
-      type: 'leaf',
-      leafId: spawnLeaf
+      type: 'split',
+      direction: 'vertical',
+      ratio: 0.5,
+      first: { type: 'leaf', leafId },
+      second: { type: 'leaf', leafId: spawnLeaf }
     })
   })
 
