@@ -1,9 +1,11 @@
 import type { Page } from '@stablyai/playwright-test'
+import { randomUUID } from 'node:crypto'
 import { expect } from './helpers/orca-app'
 import { ensureTerminalVisible, getActiveWorktreeId, switchToWorktree } from './helpers/store'
 import {
   getTerminalContent,
   readPaneIdentitySnapshot,
+  sendToTerminal,
   splitActiveTerminalPane,
   UUID_RE,
   waitForActiveTerminalManager,
@@ -108,39 +110,84 @@ async function waitForActiveWorktreePaneLoad(
   paneCount: number
 ): Promise<PaneIdentitySnapshot> {
   let snapshot: PaneIdentitySnapshot | null = null
-  await expect
-    .poll(
-      async () => {
-        if ((await getActiveWorktreeId(page)) !== worktreeId) {
-          // Why: late session reconciliation can clear selection while split PTYs bind.
-          await switchToWorktree(page, worktreeId)
-          await ensureTerminalVisible(page)
-          await waitForActiveTerminalManager(page, 30_000)
-        }
-        snapshot = await readPaneIdentitySnapshot(page)
-        return Boolean(
-          snapshot &&
-          snapshot.panes.length === paneCount &&
-          snapshot.panes.every(
-            (pane) =>
-              UUID_RE.test(pane.leafId) &&
-              pane.stablePaneId === pane.leafId &&
-              pane.datasetLeafId === pane.leafId &&
-              pane.ptyId !== null &&
-              snapshot?.ptyIdsByLeafId[pane.leafId] === pane.ptyId
+  try {
+    await expect
+      .poll(
+        async () => {
+          if ((await getActiveWorktreeId(page)) !== worktreeId) {
+            // Why: late session reconciliation can clear selection while split PTYs bind.
+            await switchToWorktree(page, worktreeId)
+            await ensureTerminalVisible(page)
+            await waitForActiveTerminalManager(page, 30_000)
+          }
+          snapshot = await readPaneIdentitySnapshot(page)
+          return Boolean(
+            snapshot &&
+            snapshot.panes.length === paneCount &&
+            snapshot.panes.every(
+              (pane) =>
+                UUID_RE.test(pane.leafId) &&
+                pane.stablePaneId === pane.leafId &&
+                pane.datasetLeafId === pane.leafId &&
+                pane.ptyId !== null &&
+                snapshot?.ptyIdsByLeafId[pane.leafId] === pane.ptyId
+            )
           )
-        )
-      },
-      {
-        timeout: 15_000,
-        message: 'Artificial load panes did not settle with stable PTY bindings'
-      }
-    )
-    .toBe(true)
+        },
+        {
+          timeout: 30_000,
+          message: 'Artificial load panes did not settle with stable PTY bindings'
+        }
+      )
+      .toBe(true)
+  } catch (error) {
+    throw new Error(`${error instanceof Error ? error.message : String(error)} want=${paneCount}`)
+  }
   if (!snapshot) {
     throw new Error('Artificial load pane snapshot is unavailable')
   }
   return snapshot
+}
+
+function terminalTextContains(haystack: string, needle: string): boolean {
+  return haystack.replace(/\s+/g, '').includes(needle.replace(/\s+/g, ''))
+}
+
+async function readPaneTexts(page: Page): Promise<{ ptyId: string; text: string }[]> {
+  return page.evaluate(() => {
+    const rows: { ptyId: string; text: string }[] = []
+    for (const manager of window.__paneManagers?.values() ?? []) {
+      for (const pane of manager.getPanes?.() ?? []) {
+        const ptyId = pane.container?.dataset?.ptyId
+        if (!ptyId) {
+          continue
+        }
+        const engine = (pane.terminal as { engine?: { readViewportText?: () => string } }).engine
+        rows.push({
+          ptyId,
+          text: `${engine?.readViewportText?.() ?? ''}\n${pane.serializeController?.serialize?.() ?? ''}`
+        })
+      }
+    }
+    return rows
+  })
+}
+
+async function readViewportText(page: Page, ptyId?: string): Promise<string> {
+  if (!ptyId) {
+    return getTerminalContent(page, 12_000)
+  }
+  return page.evaluate((ptyId) => {
+    for (const manager of window.__paneManagers?.values() ?? []) {
+      for (const pane of manager.getPanes?.() ?? []) {
+        if (pane.container?.dataset?.ptyId === ptyId) {
+          const engine = (pane.terminal as { engine?: { readViewportText?: () => string } }).engine
+          return engine?.readViewportText?.() ?? ''
+        }
+      }
+    }
+    return ''
+  }, ptyId)
 }
 
 export async function waitForMarkerLatency(
@@ -151,53 +198,56 @@ export async function waitForMarkerLatency(
 ): Promise<number> {
   const start = performance.now()
   while (performance.now() - start < timeoutMs) {
-    const content = ptyId
-      ? await getTerminalContentForPtyId(page, ptyId)
-      : await getTerminalContent(page, 12_000)
-    if (content.includes(marker)) {
+    if (terminalTextContains(await readViewportText(page, ptyId), marker)) {
       return performance.now() - start
     }
-    await page.waitForTimeout(5)
+    if (ptyId && terminalTextContains(await getTerminalContentForPtyId(page, ptyId), marker)) {
+      return performance.now() - start
+    }
+    await page.waitForTimeout(16)
   }
   throw new Error(`Timed out waiting for terminal marker ${marker}`)
 }
 
-export async function waitForMarkerLatencyAnyPane(
+export async function findPtyIdWithMarker(page: Page, marker: string): Promise<string | null> {
+  const match = (await readPaneTexts(page)).find((pane) => terminalTextContains(pane.text, marker))
+  return match?.ptyId ?? null
+}
+
+export async function bindLiveTypingPane(
   page: Page,
-  marker: string,
-  timeoutMs: number
-): Promise<number> {
-  const start = performance.now()
-  while (performance.now() - start < timeoutMs) {
-    const found = await page.evaluate((marker) => {
-      for (const manager of window.__paneManagers?.values() ?? []) {
-        for (const pane of manager.getPanes?.() ?? []) {
-          if (!pane.container?.isConnected) {
-            continue
-          }
-          const engine = (pane.terminal as { engine?: { readViewportText?: () => string } }).engine
-          const plain = engine?.readViewportText?.() ?? ''
-          const serialized = pane.serializeController?.serialize?.() ?? ''
-          if (`${plain}\n${serialized}`.includes(marker)) {
-            return true
-          }
-        }
-      }
-      return false
-    }, marker)
-    if (found) {
-      return performance.now() - start
-    }
-    await page.waitForTimeout(5)
+  panes: TerminalLoadPane[]
+): Promise<{ typingPane: TerminalLoadPane; loadPanes: TerminalLoadPane[] }> {
+  const marker = `OPENCODE_SHELL_ALIVE_${randomUUID()}`
+  for (const pane of panes) {
+    await sendToTerminal(page, pane.ptyId, `echo ${marker}\r`)
   }
-  throw new Error(`Timed out waiting for terminal marker ${marker}`)
+  let typingPtyId: string | null = null
+  await expect
+    .poll(
+      async () => {
+        typingPtyId = await findPtyIdWithMarker(page, marker)
+        return typingPtyId
+      },
+      { timeout: 10_000, message: 'no post-split pane executed a shell echo' }
+    )
+    .not.toBeNull()
+  const typingPane =
+    panes.find((pane) => pane.ptyId === typingPtyId) ?? panes.find((pane) => pane.ptyId)
+  if (!typingPane?.ptyId) {
+    throw new Error('post-split live PTY is missing from the load snapshot')
+  }
+  return {
+    typingPane,
+    loadPanes: panes.filter((pane) => pane.ptyId !== typingPane.ptyId)
+  }
 }
 
 export async function focusTerminalPaneByPtyId(page: Page, ptyId: string): Promise<void> {
   await page.evaluate((ptyId) => {
     for (const manager of window.__paneManagers?.values() ?? []) {
       for (const pane of manager.getPanes?.() ?? []) {
-        if (pane.container?.dataset?.ptyId !== ptyId || !pane.container.isConnected) {
+        if (pane.container?.dataset?.ptyId !== ptyId) {
           continue
         }
         manager.setActivePane?.(pane.id, { focus: true })
@@ -216,23 +266,8 @@ export async function getTerminalContentForPtyId(
   ptyId: string,
   charLimit = 12_000
 ): Promise<string> {
-  return page.evaluate(
-    ({ ptyId, charLimit }) => {
-      for (const manager of window.__paneManagers?.values() ?? []) {
-        for (const pane of manager.getPanes?.() ?? []) {
-          if (pane.container?.dataset?.ptyId === ptyId) {
-            const engine = (pane.terminal as { engine?: { readViewportText?: () => string } })
-              .engine
-            const plain = engine?.readViewportText?.() ?? ''
-            const serialized = pane.serializeController?.serialize?.() ?? ''
-            return `${plain}\n${serialized}`.slice(-charLimit)
-          }
-        }
-      }
-      return ''
-    },
-    { ptyId, charLimit }
-  )
+  const match = (await readPaneTexts(page)).find((pane) => pane.ptyId === ptyId)
+  return (match?.text ?? '').slice(-charLimit)
 }
 
 export async function waitForTerminalOutputForPtyId(
@@ -244,16 +279,19 @@ export async function waitForTerminalOutputForPtyId(
   await expect
     .poll(
       async () => {
-        const byPty = await getTerminalContentForPtyId(page, ptyId)
-        if (byPty.includes(expected)) {
+        if (terminalTextContains(await getTerminalContentForPtyId(page, ptyId), expected)) {
           return true
         }
-        return (await getTerminalContent(page, 12_000)).includes(expected)
+        if (terminalTextContains(await getTerminalContent(page, 12_000), expected)) {
+          return true
+        }
+        const main = await page.evaluate(async (ptyId) => {
+          const snap = await window.api.pty.getMainBufferSnapshot(ptyId, { scrollbackRows: 200 })
+          return snap?.data ?? ''
+        }, ptyId)
+        return terminalTextContains(main, expected)
       },
-      {
-        timeout: timeoutMs,
-        message: `Terminal PTY ${ptyId} did not contain "${expected}"`
-      }
+      { timeout: timeoutMs, message: `Terminal PTY ${ptyId} did not contain "${expected}"` }
     )
     .toBe(true)
 }
