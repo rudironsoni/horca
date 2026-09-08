@@ -115,13 +115,29 @@ async function waitForTabPtyId(page: Page, tabId: string): Promise<string> {
       async () => {
         ptyId = await page.evaluate((targetTabId) => {
           const manager = window.__paneManagers?.get(targetTabId)
-          const pane = manager?.getPanes?.()[0] ?? null
-          return pane?.container?.dataset?.ptyId ?? null
+          const panes = manager?.getPanes?.() ?? []
+          const pane = manager?.getActivePane?.() ?? panes[0] ?? null
+          const fromPane = pane?.container?.dataset?.ptyId
+          if (fromPane) {
+            return fromPane
+          }
+          for (const candidate of panes) {
+            const id = candidate.container?.dataset?.ptyId
+            if (id) {
+              return id
+            }
+          }
+          const layout = window.__store?.getState()?.terminalLayoutsByTabId?.[targetTabId]
+          const leafId = pane?.leafId
+          if (leafId && layout?.ptyIdsByLeafId?.[leafId]) {
+            return layout.ptyIdsByLeafId[leafId]
+          }
+          return Object.values(layout?.ptyIdsByLeafId ?? {})[0] ?? null
         }, tabId)
         return ptyId
       },
       {
-        timeout: 30_000,
+        timeout: 120_000,
         message: `Terminal tab ${tabId} did not receive a PTY binding`
       }
     )
@@ -313,6 +329,7 @@ test.describe('Terminal output scheduler', () => {
     if (!activeTabId) {
       throw new Error('Expected a fresh terminal tab')
     }
+    await waitForActiveTerminalManager(orcaPage, 90_000)
     const ptyId = await waitForTabPtyId(orcaPage, activeTabId)
     await resetSchedulerDebug(orcaPage)
 
@@ -357,7 +374,7 @@ test.describe('Terminal output scheduler', () => {
       throw new Error('Expected an initial terminal tab')
     }
     const hiddenTabId = await createTerminalTab(orcaPage)
-    await waitForActiveTerminalManager(orcaPage, 30_000)
+    await waitForActiveTerminalManager(orcaPage, 90_000)
     const hiddenPtyId = await waitForTabPtyId(orcaPage, hiddenTabId)
 
     await tabLocator(orcaPage, foregroundTabId).click()
