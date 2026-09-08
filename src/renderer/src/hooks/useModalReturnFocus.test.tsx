@@ -94,7 +94,7 @@ describe('useModalReturnFocus', () => {
     installAnimationFrameStubs()
     useAppStore.setState({ activeWorktreeId: 'wt-1', activeTabType: 'editor' })
     const terminalTextarea = document.createElement('textarea')
-    terminalTextarea.className = 'xterm-helper-textarea'
+    terminalTextarea.className = 'orca-terminal-helper-textarea'
     document.body.append(terminalTextarea)
     const monaco = document.createElement('div')
     monaco.className = 'monaco-editor'

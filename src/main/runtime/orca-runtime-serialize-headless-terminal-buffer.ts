@@ -62,7 +62,7 @@ export class OrcaRuntimeWithSerializeHeadlessTerminalBuffer extends OrcaRuntimeW
             : {}),
           ...(terminalOwner ? { terminalOwner } : {}),
           // Why: lets the renderer skip the destructive scrollback clear when
-          // restoring an alt-screen snapshot — clearing wipes xterm's own
+          // restoring an alt-screen snapshot — clearing wipes terminal's own
           // history that the TUI relies on for scroll-up after a tab return.
           alternateScreen: snapshot.modes?.alternateScreen ?? state.emulator.isAlternateScreen,
           // Why NOT folded into data: the renderer writes its post-replay

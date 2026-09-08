@@ -217,7 +217,7 @@ export async function runTerminalSkewJourney(args: {
     )
     record.completed.push('live-output')
 
-    // Hide/reveal: the pane drops xterm and asks the host to re-publish the buffer.
+    // Hide/reveal: the pane drops terminal and asks the host to re-publish the buffer.
     const revealed = await terminal.serializeBuffer({ scrollbackRows: 200 })
     if (!revealed) {
       throw new Error('reveal-snapshot: host returned no buffer snapshot on reveal')

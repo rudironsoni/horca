@@ -73,7 +73,7 @@ describe('createFilePathLinkProvider range bounds', () => {
     await flushAsyncWork()
 
     expect(opened).toBe(true)
-    // Why: direct click fallback cannot wait for xterm's hover-time async
+    // Why: direct click fallback cannot wait for terminal's hover-time async
     // existence probe; openDetectedFilePath still stats before routing.
     expect(window.api.shell.pathExists).not.toHaveBeenCalled()
     expect(openFileMock).toHaveBeenCalledWith(
@@ -274,7 +274,7 @@ describe('createFilePathLinkProvider range bounds', () => {
     expect(openFileMock).not.toHaveBeenCalled()
   })
 
-  it('retries a wrapped file click even when xterm already marked the link active', async () => {
+  it('retries a wrapped file click even when terminal already marked the link active', async () => {
     setPlatform('Macintosh')
     const rows = [
       makeBufferLine('/private/tmp/orca-setup-e2e.hOW01f/workspaces/test-wt-5/mobile/'),
@@ -389,7 +389,7 @@ describe('createFilePathLinkProvider range bounds', () => {
     expect(element.removeEventListener).toHaveBeenCalledWith('mouseup', mouseUp)
   })
 
-  it('opens regular URLs from a direct modifier-click fallback when xterm did not handle them', async () => {
+  it('opens regular URLs from a direct modifier-click fallback when terminal did not handle them', async () => {
     setPlatform('Macintosh')
     storeState.settings = { openLinksInApp: false }
     const rows = [
@@ -501,7 +501,7 @@ describe('createFilePathLinkProvider range bounds', () => {
     disposable.dispose()
   })
 
-  it('does not double-open URLs when xterm already handled the mouseup', () => {
+  it('does not double-open URLs when terminal already handled the mouseup', () => {
     setPlatform('Macintosh')
     storeState.settings = { openLinksInApp: false }
     const rows = [makeBufferLine('Open https://github.com/stablyai/orca/pull/2914')]

@@ -1,6 +1,6 @@
 import type { OrcaPaneTerminal as Terminal } from '../../lib/pane-manager/orca-pane-terminal'
 
-// Why: xterm's public onData stream mixes real user input (keyboard, IME,
+// Why: terminal's public onData stream mixes real user input (keyboard, IME,
 // paste, mouse reports) with parser-generated auto-replies (focus in/out
 // reports, DA/DSR/CPR query responses). The core service already classifies
 // the two — its onUserInput event fires only for real input — but that
@@ -14,11 +14,11 @@ type TerminalWithCoreUserInput = {
 }
 
 /**
- * Subscribe to xterm's core user-input signal. Fires only for real user
+ * Subscribe to terminal's core user-input signal. Fires only for real user
  * input, never for the emulator's synthetic query replies that also flow
  * through onData.
  *
- * Returns null when the internal API is unavailable (e.g. after an xterm
+ * Returns null when the internal API is unavailable (e.g. after an terminal
  * upgrade) so callers can fall back to onData-based recording — degrading to
  * the historical behavior instead of losing input tracking.
  */
@@ -44,7 +44,7 @@ export function subscribeToTerminalUserInput(
   }
 }
 
-/** Preserve xterm's input provenance across deferred PTY forwarding. */
+/** Preserve terminal's input provenance across deferred PTY forwarding. */
 export function subscribeToTerminalInputData(
   terminal: Terminal,
   listener: (data: string, wasUserInput: boolean) => void

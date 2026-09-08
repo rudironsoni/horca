@@ -10,7 +10,7 @@ import { resolveLocalhostHttpLinkDisplayUrl } from '@/lib/http-link-routing'
 import { recordCreatedTerminalPaneSplit } from './terminal-pane-split-completion'
 import { PRIMARY_SELECTION_MAX_LENGTH } from '@/lib/primary-selection'
 
-/** Writes a transport-agnostic interrupt reset without running xterm work inline. */
+/** Writes a transport-agnostic interrupt reset without running terminal work inline. */
 export function resetTerminalKeyboardProtocolAfterInterrupt(terminal: Terminal): void {
   writeTerminalOutput(terminal, RESET_KITTY_KEYBOARD_PROTOCOL, {
     foreground: true,

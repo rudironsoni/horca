@@ -32,7 +32,7 @@ describe('installTerminalImeNativeTextForwarder', () => {
     document.body.replaceChildren()
     element = document.createElement('div')
     textarea = document.createElement('textarea')
-    textarea.className = 'xterm-helper-textarea'
+    textarea.className = 'orca-terminal-helper-textarea'
     element.appendChild(textarea)
     document.body.appendChild(element)
   })
@@ -273,9 +273,9 @@ describe('installTerminalImeNativeTextForwarder', () => {
     })
 
     // An app that negotiated kitty `report_event_types` expects a release for every press it
-    // received, but xterm's own kitty state is defensively reset while the application tracker
+    // received, but terminal's own kitty state is defensively reset while the application tracker
     // stays active — so the forwarder keeps the keyup and encodes the release from the flags it
-    // read at commit time rather than delegating either decision to xterm.
+    // read at commit time rather than delegating either decision to terminal.
     it('keeps the keyup inside the forwarder once the press has reached the pty', () => {
       const { forwarder, sendInput } = install()
       expect(forwarder.claimKeyEvent(keyEvent({ key: ',' }))).toBe(true)
@@ -307,13 +307,13 @@ describe('installTerminalImeNativeTextForwarder', () => {
       expect(sendInput).toHaveBeenCalledExactlyOnceWith('，')
     })
 
-    it('lets a chorded keyup reach xterm after a fresh chorded press of the same key', () => {
+    it('lets a chorded keyup reach terminal after a fresh chorded press of the same key', () => {
       const { forwarder, sendInput } = install()
       // A claimed press whose input never arrived and whose keyup was swallowed
       // elsewhere leaves a tombstone behind.
       expect(forwarder.claimKeyEvent(keyEvent({ key: 'n', code: 'KeyN' }))).toBe(true)
       expect(forwarder.claimKeyEvent(keyEvent({ key: 'x', code: 'KeyX' }))).toBe(true)
-      // Ctrl+N is xterm's press; its keyup must not be eaten by the stale tombstone.
+      // Ctrl+N is terminal's press; its keyup must not be eaten by the stale tombstone.
       expect(forwarder.claimKeyEvent(keyEvent({ key: 'n', code: 'KeyN', ctrlKey: true }))).toBe(
         false
       )

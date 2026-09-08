@@ -1,6 +1,6 @@
 // Filesystem-sentinel interactivity probes for a packaged terminal session.
 //
-// These prove a session is interactive without reading the (WebGL) xterm
+// These prove a session is interactive without reading the (WebGL) terminal
 // buffer: a typed command writes a marker FILE, and the harness checks the
 // file. That verifies keystrokes reached the shell AND the shell executed them.
 

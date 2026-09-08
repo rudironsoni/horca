@@ -93,7 +93,7 @@ void primeGhosttyVtHost()
     throw error
   })
 
-// Why here: the xterm WebGL addon is 243 KB, is only ever constructed once a
+// Why here: the terminal WebGL addon is 243 KB, is only ever constructed once a
 // terminal attaches (many frames away), and is needed by nothing during boot.
 // Starting the load after the first render keeps it off the boot graph while
 // leaving it resolved long before any pane can attach.

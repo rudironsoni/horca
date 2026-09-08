@@ -19,7 +19,7 @@ describe('copyTerminalSelection', () => {
     expect(terminal.clearSelection).not.toHaveBeenCalled()
   })
 
-  it('does not claim success for an empty xterm selection', async () => {
+  it('does not claim success for an empty terminal selection', async () => {
     const terminal = makeTerminal('')
     const writeClipboardText = vi.fn<(text: string) => Promise<void>>().mockResolvedValue()
 
@@ -29,7 +29,7 @@ describe('copyTerminalSelection', () => {
     expect(terminal.clearSelection).not.toHaveBeenCalled()
   })
 
-  it('clears xterm selection only after the clipboard write succeeds', async () => {
+  it('clears terminal selection only after the clipboard write succeeds', async () => {
     const terminal = makeTerminal('copilot answer')
     const writeClipboardText = vi
       .fn<(text: string) => Promise<void>>()
@@ -42,7 +42,7 @@ describe('copyTerminalSelection', () => {
     expect(terminal.clearSelection).not.toHaveBeenCalled()
   })
 
-  it('clears the xterm selection after a successful write when requested', async () => {
+  it('clears the terminal selection after a successful write when requested', async () => {
     const terminal = makeTerminal('copilot answer')
     const writeClipboardText = vi.fn<(text: string) => Promise<void>>().mockResolvedValue()
 

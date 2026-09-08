@@ -552,7 +552,7 @@ describe('createPtySubprocess', () => {
 
   it('uses the spawned Windows shell when node-pty reports only the terminal name', async () => {
     const proc = mockPtyProcess()
-    proc.process = 'xterm-256color'
+    proc.process = 'xterm-ghostty'
     spawnMock.mockReturnValue(proc)
     const platform = Object.getOwnPropertyDescriptor(process, 'platform')
     Object.defineProperty(process, 'platform', { value: 'win32' })
@@ -606,7 +606,7 @@ describe('createPtySubprocess', () => {
 
   it('treats node-pty terminal name as inconclusive foreground process', async () => {
     const proc = mockPtyProcess()
-    proc.process = 'xterm-256color'
+    proc.process = 'xterm-ghostty'
     spawnMock.mockReturnValue(proc)
     const platform = Object.getOwnPropertyDescriptor(process, 'platform')
     Object.defineProperty(process, 'platform', { value: 'linux' })

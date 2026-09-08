@@ -11,7 +11,7 @@
  *                        query, so this tracks the input/echo pipeline without
  *                        needing OS-level keystroke injection.
  *   2. throughput      — wall time to stream each fixture, ended by a DSR
- *                        fence. The fence matters: xterm.js-class terminals
+ *                        fence. The fence matters: Ghostty-class terminals
  *                        ingest at wire speed into an internal queue and parse
  *                        later, so socket drain alone would flatter them.
  *   3. dsr-under-load  — DSR latency sampled while a paced (default 1 MB/s)

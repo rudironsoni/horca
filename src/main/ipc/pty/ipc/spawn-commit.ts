@@ -32,7 +32,7 @@ export async function commitPtyIpcSpawn(ctx: PtyIpcSpawnState): Promise<PtySpawn
     await persistPtyIpcSpawnCommit(ctx)
 
   // Why: seed the headless emulator before registerPty so concurrent live PTY data lands on top of the seed, not replacing it (mobile keeps the daemon-restored scrollback).
-  // Skip when the renderer will be authoritative — its xterm buffer is richer than the daemon snapshot.
+  // Skip when the renderer will be authoritative — its terminal buffer is richer than the daemon snapshot.
   if (ctx.deps.runtime && !rendererPreSignaled && !rendererAlreadyRegistered) {
     const snapshotSeedSize =
       typeof ctx.result.snapshotCols === 'number' && typeof ctx.result.snapshotRows === 'number'

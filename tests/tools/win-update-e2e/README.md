@@ -211,7 +211,7 @@ powershell -File tests/tools/win-update-e2e/window-enum.ps1
 ## Known limitations
 
 - **Scrollback fidelity is best-effort.** A production build renders the
-  terminal with WebGL, so xterm text is not reliably in the DOM and the e2e
+  terminal with WebGL, so terminal text is not reliably in the DOM and the e2e
   `SerializeAddon` is not exposed. When text cannot be read the check reports
   `INFO` (unknown), never a false `FAIL`.
 - **Daemon file log** does not exist yet in packaged builds (the fork's stdio is

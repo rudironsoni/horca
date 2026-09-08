@@ -19,7 +19,7 @@ function event(overrides: Partial<TerminalShortcutEvent>): TerminalShortcutEvent
 
 describe('non-mac Ctrl+Left/Right word-nav', () => {
   // Linux and remote/WSL readline shells don't bind the \e[1;5D / \e[1;5C that
-  // xterm.js emits, so translate to \eb / \ef (same bytes as our Alt+Arrow rule).
+  // Ghostty emits, so translate to \eb / \ef (same bytes as our Alt+Arrow rule).
   it('translates Ctrl+←/→ on Linux to readline \\eb / \\ef', () => {
     expect(
       resolveTerminalShortcutAction(
@@ -37,7 +37,7 @@ describe('non-mac Ctrl+Left/Right word-nav', () => {
 
   // Local Windows ConPTY shells (PowerShell/cmd via PSReadLine) already bind
   // Ctrl+←/→ to word-nav and self-insert a stray "b"/"f" when fed \eb/\ef
-  // (Escape→RevertLine + self-insert), so the policy must defer to xterm's
+  // (Escape→RevertLine + self-insert), so the policy must defer to terminal's
   // native \e[1;5D / \e[1;5C there. Signalled via the isLocalWindowsConptyPane
   // getter (7th arg).
   it('does NOT translate Ctrl+←/→ for a local Windows ConPTY pane', () => {

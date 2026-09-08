@@ -144,7 +144,7 @@ export function scheduleSplitScrollRestore(
     // Why: the alt-screen buffer belongs to a full-screen TUI (Claude Code,
     // vim, less) that owns its cursor position. Re-running scroll restore
     // and a full refresh here clobbers an in-progress draw — refresh(0,
-    // rows-1) repaints rows from xterm's buffer, racing the TUI's next
+    // rows-1) repaints rows from terminal's buffer, racing the TUI's next
     // write and leaving its cursor one row off (#1298 regression).
     // WebGL reattach also refreshes, so defer it until the TUI exits the
     // alternate buffer. Alt-screen has no scrollback, so scroll restore has
