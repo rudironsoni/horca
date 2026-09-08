@@ -11,7 +11,7 @@ const WASM_NAME = 'ghostty-vt.wasm'
 const TRAMPOLINE_NAME = 'write-pty-trampoline.wasm'
 
 function resolveGhosttyVtWasmDir(): string {
-  const here = import.meta.dirname
+  const here = __dirname
   const candidates = [
     join(here, '../../ghostty-vt'),
     here,
