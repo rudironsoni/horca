@@ -32,7 +32,7 @@ function dispatchInsertText(target: HTMLElement, data: '`' | '₩' = '`'): void 
   target.dispatchEvent(new InputEvent('input', { data, inputType: 'insertText', bubbles: true }))
 }
 
-describe('xterm composition transaction ownership', () => {
+describe('terminal composition transaction ownership', () => {
   let element: HTMLDivElement
   let textarea: HTMLTextAreaElement
 

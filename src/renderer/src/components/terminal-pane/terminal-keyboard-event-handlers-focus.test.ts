@@ -8,7 +8,7 @@ describe('terminal keyboard pane ownership', () => {
     const firstElement = document.createElement('div')
     const focusedElement = document.createElement('div')
     const focusedInput = document.createElement('textarea')
-    focusedInput.className = 'xterm-helper-textarea'
+    focusedInput.className = 'orca-terminal-helper-textarea'
     focusedElement.appendChild(focusedInput)
     scope.append(firstElement, focusedElement)
     document.body.appendChild(scope)

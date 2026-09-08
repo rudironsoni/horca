@@ -26,7 +26,7 @@ const RUN_DOCKER_SSH = process.env.ORCA_E2E_SSH_DOCKER === '1'
  * asserted what a pane actually SHOWS after a reconnect:
  *
  * 1. Panes came back blank. The relay treated the reconnecting client as one that already held the
- *    stream and returned no scrollback, while the renderer had disposed the xterm with its buffer.
+ *    stream and returned no scrollback, while the renderer had disposed the terminal with its buffer.
  * 2. A tab created afterwards came up with no prompt and stayed generically titled, because the
  *    reconnect prepaint could still fire on a spent mount.
  *

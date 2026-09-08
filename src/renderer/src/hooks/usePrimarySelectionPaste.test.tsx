@@ -43,11 +43,11 @@ function appendTextarea(value = ''): HTMLTextAreaElement {
 }
 
 function appendXtermHelperTextarea(): HTMLTextAreaElement {
-  // Stand-in for xterm's hidden helper textarea inside its `.xterm` container.
+  // Stand-in for terminal's hidden helper textarea inside its `.orca-terminal-canvas` container.
   const terminal = document.createElement('div')
-  terminal.className = 'xterm'
+  terminal.className = 'orca-terminal-canvas'
   const textarea = document.createElement('textarea')
-  textarea.className = 'xterm-helper-textarea'
+  textarea.className = 'orca-terminal-helper-textarea'
   terminal.appendChild(textarea)
   document.body.appendChild(terminal)
   return textarea
@@ -213,7 +213,7 @@ describe('usePrimarySelectionPaste', () => {
     setUserAgent('Mozilla/5.0 (X11; Linux x86_64)')
     consumeNativePasteMock.mockReturnValue(true)
     await renderProbe()
-    // Stand-in for xterm's helper textarea, which owns its own middle-click
+    // Stand-in for terminal's helper textarea, which owns its own middle-click
     // paste and never registers a pending primary-selection DOM target.
     const terminalTextarea = appendXtermHelperTextarea()
     let nativeBeforeInput!: Event

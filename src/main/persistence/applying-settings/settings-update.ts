@@ -124,7 +124,7 @@ export function updateSettings(
       updates.terminalScrollbackRows
     )
   }
-  // Why here: every writer (desktop IPC, web RPC, CLI) crosses this boundary, so xterm can never be
+  // Why here: every writer (desktop IPC, web RPC, CLI) crosses this boundary, so terminal can never be
   // handed an out-of-range floor, and undefined stays undefined to mean "automatic" (#10754).
   if ('terminalMinimumContrastRatio' in updates) {
     sanitizedUpdates.terminalMinimumContrastRatio = normalizeTerminalMinimumContrastRatio(

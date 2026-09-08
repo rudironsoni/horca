@@ -64,7 +64,7 @@ describe('primary selection paste', () => {
     const disabled = appendTextarea()
     disabled.disabled = true
     const terminalRoot = document.createElement('div')
-    terminalRoot.className = 'xterm-helper-textarea'
+    terminalRoot.className = 'orca-terminal-helper-textarea'
     const terminalTextarea = document.createElement('textarea')
     terminalRoot.appendChild(terminalTextarea)
     document.body.appendChild(terminalRoot)

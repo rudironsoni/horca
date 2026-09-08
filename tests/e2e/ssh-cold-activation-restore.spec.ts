@@ -200,7 +200,7 @@ test.describe('SSH cold activation restore', () => {
       await orcaPage.keyboard.press('Enter')
       await expect(
         orcaPage.locator(
-          `[data-terminal-tab-id=${JSON.stringify(firstTabId)}] .xterm-accessibility-tree`
+          `[data-terminal-tab-id=${JSON.stringify(firstTabId)}] .orca-terminal-accessibility-tree`
         )
       ).toContainText(marker, { timeout: 30_000 })
       expect(execDockerSshRelayTargetCommand(target, `cat ${proofFile}`)).toBe(marker)
@@ -292,7 +292,7 @@ test.describe('SSH cold activation restore', () => {
       await secondLaunch.page.keyboard.press('Enter')
       await expect(
         secondLaunch.page.locator(
-          `[data-terminal-tab-id=${JSON.stringify(restoredTabId)}] .xterm-accessibility-tree`
+          `[data-terminal-tab-id=${JSON.stringify(restoredTabId)}] .orca-terminal-accessibility-tree`
         )
       ).toContainText(restoredMarker, { timeout: 30_000 })
       await expect.poll(() => readRemoteProof(target!, afterProofPath)).toBe(beforeProof)

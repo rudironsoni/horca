@@ -84,7 +84,7 @@ async function dispatchCtrlCToActiveTerminalTextarea(
     const manager = tabId ? window.__paneManagers?.get(tabId) : null
     const pane = manager?.getActivePane?.() ?? manager?.getPanes?.()[0] ?? null
     const textarea = pane?.container.querySelector(
-      '.xterm-helper-textarea'
+      '.orca-terminal-helper-textarea'
     ) as HTMLTextAreaElement | null
     if (!pane || !textarea) {
       throw new Error('No active terminal textarea for Ctrl+C dispatch')
@@ -106,8 +106,8 @@ async function dispatchCtrlCToActiveTerminalTextarea(
       return event
     }
 
-    // Why: Electron headless consumes real Ctrl+C before xterm in automation;
-    // synthetic DOM events still exercise Orca's installed xterm boundary.
+    // Why: Electron headless consumes real Ctrl+C before terminal in automation;
+    // synthetic DOM events still exercise Orca's installed terminal boundary.
     const keydown = createEvent('keydown', true)
     textarea.dispatchEvent(keydown)
     const keyup = createEvent('keyup', dispatchOptions.keyupCtrlKey !== false)
@@ -122,7 +122,7 @@ async function dispatchCtrlCToActiveTerminalTextarea(
 async function focusFloatingTerminal(page: Page): Promise<void> {
   await page
     .locator(
-      `[data-floating-terminal-panel][aria-hidden="false"] [data-terminal-tab-id] .xterm-helper-textarea`
+      `[data-floating-terminal-panel][aria-hidden="false"] [data-terminal-tab-id] .orca-terminal-helper-textarea`
     )
     .first()
     .focus()
@@ -294,10 +294,10 @@ async function pressShiftedRussianLayoutKey(page: Page): Promise<{
     const pane = manager?.getActivePane?.() ?? manager?.getPanes?.()[0] ?? null
     pane?.terminal.focus()
     const textarea = pane?.container.querySelector(
-      '.xterm-helper-textarea'
+      '.orca-terminal-helper-textarea'
     ) as HTMLTextAreaElement | null
     if (!textarea) {
-      throw new Error('No xterm helper textarea to receive keyboard input')
+      throw new Error('No terminal helper textarea to receive keyboard input')
     }
     textarea.focus()
 
@@ -343,7 +343,7 @@ async function pressShiftedRussianLayoutKey(page: Page): Promise<{
         composed: false
       })
       // Why: older Linux Chromium builds can ignore InputEventInit fields on
-      // synthetic events; xterm's input fallback reads these exact properties.
+      // synthetic events; terminal's input fallback reads these exact properties.
       Object.defineProperties(input, {
         data: { get: () => 'Ф' },
         inputType: { get: () => 'insertText' },
@@ -368,8 +368,8 @@ async function pressShiftedRussianLayoutKey(page: Page): Promise<{
     Object.defineProperty(keyup, 'which', { get: () => 65 })
     textarea.dispatchEvent(keyup)
 
-    // Why: real Chromium feeds xterm through trusted text-input events, but
-    // Linux CI drops the data path for untrusted synthetic InputEvents. xterm's
+    // Why: real Chromium feeds terminal through trusted text-input events, but
+    // Linux CI drops the data path for untrusted synthetic InputEvents. terminal's
     // public input API exercises the same PTY data path without that browser
     // trust boundary, while the keydown assertion below still catches kitty
     // encoded sequences leaking from shifted layout keys.
@@ -479,7 +479,7 @@ test.describe('Terminal Shortcuts', () => {
       return
     }
 
-    // Why: exercise the production PTY-output tracker, not xterm's renderer-
+    // Why: exercise the production PTY-output tracker, not terminal's renderer-
     // local flag state, so the test covers the bytes the shortcut policy sees.
     await execInTerminal(orcaPage, ptyId, "printf '\\033[>1u'")
     await expect.poll(() => getKittyKeyboardFlags(orcaPage)).toBe(1)
@@ -517,7 +517,7 @@ test.describe('Terminal Shortcuts', () => {
     orcaPage,
     electronApp
   }) => {
-    test.skip(process.platform !== 'win32', 'Windows xterm AltGr classification regression')
+    test.skip(process.platform !== 'win32', 'Windows terminal AltGr classification regression')
     await installMainProcessPtyWriteSpy(electronApp)
     await waitForActivePanePtyId(orcaPage)
 
@@ -842,7 +842,7 @@ test.describe('Terminal Shortcuts', () => {
     // Why: Escape is handled by TerminalSearch's React onKeyDown, which only
     // fires when focus is inside the overlay. The overlay auto-focuses its
     // input via a useEffect, but Playwright can press Escape before that
-    // effect runs and the keystroke goes to the xterm textarea instead.
+    // effect runs and the keystroke goes to the terminal textarea instead.
     // Wait for the input to actually be focused before pressing Escape.
     await expect(searchInput).toBeFocused({ timeout: 3_000 })
     await orcaPage.keyboard.press('Escape')
@@ -910,8 +910,8 @@ test.describe('Terminal Shortcuts', () => {
     electronApp
   }) => {
     await installMainProcessPtyWriteSpy(electronApp)
-    // Why: CI can mount the xterm surface before the pane transport has a
-    // live PTY. Probe first so xterm onData cannot race a disconnected
+    // Why: CI can mount the terminal surface before the pane transport has a
+    // live PTY. Probe first so terminal onData cannot race a disconnected
     // sendInput path, then clear the probe writes before the layout assertion.
     await waitForActivePanePtyId(orcaPage)
     await enableKittyKeyboardReporting(orcaPage, 31)

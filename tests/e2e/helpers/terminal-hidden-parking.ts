@@ -9,7 +9,7 @@ function resolveParkWaitTimeoutMs(parkDelayMs?: number): number {
 }
 
 // Why: TerminalPane unmount deletes its entry from window.__paneManagers, so a
-// missing manager is the observable signal that the tab's xterm was parked.
+// missing manager is the observable signal that the tab's terminal was parked.
 export async function waitForTabParked(
   page: Page,
   tabId: string,

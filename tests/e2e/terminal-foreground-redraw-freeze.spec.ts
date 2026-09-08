@@ -375,7 +375,7 @@ test.describe('Terminal foreground redraw freeze repro', () => {
           },
           {
             timeout: 5_000,
-            message: 'Codex-style terminal rewrites did not request an xterm refresh'
+            message: 'Codex-style terminal rewrites did not request an terminal refresh'
           }
         )
         .toBeGreaterThan(0)
@@ -387,7 +387,7 @@ test.describe('Terminal foreground redraw freeze repro', () => {
           refreshDelta.synchronousDom
         } debouncedWebgl=${refreshDelta.debouncedWebgl} debouncedDom=${refreshDelta.debouncedDom}`
       })
-      // Why: a synchronous full-grid WebGL refresh duplicates xterm's
+      // Why: a synchronous full-grid WebGL refresh duplicates terminal's
       // already-queued animation frame and was the #6655 CPU hotspot.
       expect(refreshDelta.synchronousWebgl).toBe(0)
       // Requiring an observed public WebGL refresh prevents a mid-run DOM

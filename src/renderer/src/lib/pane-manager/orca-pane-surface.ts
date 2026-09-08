@@ -13,10 +13,10 @@ export function createOrcaPaneSurface(appearance: OrcaPaneAppearance): {
 } {
   const cells = measureCellSize(appearance)
   const canvas = document.createElement('canvas')
-  canvas.className = 'xterm orca-terminal-canvas'
+  canvas.className = 'orca-terminal-canvas'
   canvas.tabIndex = 0
   const textarea = document.createElement('textarea')
-  textarea.className = 'xterm-helper-textarea'
+  textarea.className = 'orca-terminal-helper-textarea'
   textarea.tabIndex = 0
   textarea.setAttribute('aria-label', 'Terminal input')
   const host = getGhosttyVtHostOrThrow()

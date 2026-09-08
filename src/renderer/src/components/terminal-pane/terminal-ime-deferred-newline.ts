@@ -57,7 +57,7 @@ export function sendTerminalInputAfterComposition(
       return
     }
     stopWaiting()
-    // xterm flushes the committed glyph after compositionend.
+    // terminal flushes the committed glyph after compositionend.
     window.setTimeout(send, 0)
   }
 

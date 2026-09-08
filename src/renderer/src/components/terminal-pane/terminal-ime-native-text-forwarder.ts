@@ -11,7 +11,7 @@ import { getLayoutCharacterForCode } from '../../lib/keyboard-layout/layout-base
 // printable characters come only from the `input` event, which on macOS *is*
 // the text system's commit callback and carries whatever the input source
 // actually produced (`，` for `,`, `、` for `\`, `——` for a single press).
-// Xterm would otherwise send the raw layout character from the keydown and then
+// Terminal would otherwise send the raw layout character from the keydown and then
 // preventDefault, destroying the committed text before Chromium can deliver it.
 //
 // The claim is structural, so it holds for input sources that do not exist yet:
@@ -36,7 +36,7 @@ type PendingCommit = {
 /**
  * What a claimed physical key still owes once its commit settled. A non-null
  * `obligation` is an encoder-owned release report; a null one is a tombstone
- * that only keeps the matching keyup away from xterm for a press the app
+ * that only keeps the matching keyup away from terminal for a press the app
  * never received.
  */
 type ClaimedKeyRecord = {
@@ -71,13 +71,15 @@ export type ImeNativeTextKeyEvent = {
   getModifierState?: (key: string) => boolean
 }
 
-export const XTERM_COMPOSITION_TRANSACTION_ACCEPTED_EVENT = 'xterm-composition-transaction-accepted'
-export const XTERM_COMPOSITION_TRANSACTION_SETTLED_EVENT = 'xterm-composition-transaction-settled'
+export const XTERM_COMPOSITION_TRANSACTION_ACCEPTED_EVENT =
+  'terminal-composition-transaction-accepted'
+export const XTERM_COMPOSITION_TRANSACTION_SETTLED_EVENT =
+  'terminal-composition-transaction-settled'
 
 export type TerminalImeNativeTextForwarder = IDisposable & {
   /**
    * Returns true when this keyboard event belongs to a direct native text
-   * commit and should bypass xterm (the caller should return `false` from
+   * commit and should bypass terminal (the caller should return `false` from
    * `attachCustomKeyEventHandler`). The committed text is forwarded later from
    * the `input` event via the `sendInput` dependency.
    */
@@ -105,7 +107,7 @@ export type TerminalImeNativeTextForwarder = IDisposable & {
 function isNativeTextKeydown(event: ImeNativeTextKeyEvent, compositionActive: boolean): boolean {
   return (
     event.type === 'keydown' &&
-    // Control chords are the byte-producing case and belong to xterm's encoder.
+    // Control chords are the byte-producing case and belong to terminal's encoder.
     // Shift stays eligible: shifted punctuation still commits substituted text.
     !event.ctrlKey &&
     !event.altKey &&
@@ -117,7 +119,7 @@ function isNativeTextKeydown(event: ImeNativeTextKeyEvent, compositionActive: bo
     // back toward punctuation would return the bug. Pinned by
     // terminal-ime-forwarder-space-claim.test.ts.
     event.key.length === 1 &&
-    // Composing keystrokes already belong to xterm's composition helper.
+    // Composing keystrokes already belong to terminal's composition helper.
     event.isComposing !== true &&
     !compositionActive
   )
@@ -177,7 +179,7 @@ export function installTerminalImeNativeTextForwarder(args: {
     return null
   }
 
-  /** Emits at most one release for a claimed press; xterm emits none for it. */
+  /** Emits at most one release for a claimed press; terminal emits none for it. */
   const settleRelease = (recordId: string, release: ImeReleaseKeyEvent): void => {
     const record = claimedKeyRecords.get(recordId)
     claimedKeyRecords.delete(recordId)
@@ -237,7 +239,7 @@ export function installTerminalImeNativeTextForwarder(args: {
         // Why: retiring here is also what drops a stale claim whose input event
         // never arrived (the input source swallowed the key) — no timer needed.
         // It leaves a tombstone so the stale press's keyup still cannot reach
-        // xterm, which never saw its keydown. Bare modifier keydowns are
+        // terminal, which never saw its keydown. Bare modifier keydowns are
         // exempt: they precede a still-inbound commit during fast typing and
         // must not retire the claim it belongs to.
         settleCommit(pendingCommit, null)
@@ -295,7 +297,7 @@ export function installTerminalImeNativeTextForwarder(args: {
       if (recordId === null) {
         return false
       }
-      // Why the forwarder owns this instead of returning false: xterm's kitty
+      // Why the forwarder owns this instead of returning false: terminal's kitty
       // state is defensively reset while the application tracker stays active,
       // so delegating the release would either lose it or emit it under flags
       // the app never negotiated.
@@ -311,7 +313,7 @@ export function installTerminalImeNativeTextForwarder(args: {
       })
       return true
     }
-    // Keep the keydown's armed state but still bypass xterm so it does not
+    // Keep the keydown's armed state but still bypass terminal so it does not
     // double-send printable text before our input forward runs.
     return event.type === 'keypress' && pendingCommit !== null
   }

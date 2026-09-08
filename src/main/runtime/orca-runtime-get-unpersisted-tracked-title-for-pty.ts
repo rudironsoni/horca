@@ -21,7 +21,7 @@ export class OrcaRuntimeWithGetUnpersistedTrackedTitleForPty extends OrcaRuntime
   }
 
   /** Why: synthetic agent title frames no longer ride pty:data, so neither
-   *  renderer xterm nor the headless emulator observes them. Mobile-parity
+   *  renderer terminal nor the headless emulator observes them. Mobile-parity
    *  snapshot titles must prefer main's tracker over snapshot lastTitle, or
    *  hook-driven spinner/idle titles vanish from mobile tabs. */
   protected preferTrackedLastTitle<T extends { lastTitle?: string }>(
