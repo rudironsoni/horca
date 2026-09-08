@@ -48,7 +48,7 @@ function inferQuestionAnsweredFromEntry(
 }
 
 /** Completion signal for answer surfaces that write directly to the runtime
- *  instead of xterm (notably native chat). The same fresh-status baseline is
+ *  instead of terminal (notably native chat). The same fresh-status baseline is
  *  used, so a real hook that wins the race prevents the fallback IPC. */
 export function inferQuestionAnsweredFromCurrentStatus(
   deps: AgentQuestionAnsweredInferenceDeps

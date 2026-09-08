@@ -9,7 +9,7 @@ type ReplayedScrollbackReleaseArgs = {
   repos: readonly RepoConnection[]
 }
 
-/** Whether a replayed pane may drop its store-held scrollback copy now that xterm owns the bytes.
+/** Whether a replayed pane may drop its store-held scrollback copy now that terminal owns the bytes.
  *  Inverse of the force-park capture guard: keep the copy only where nothing can re-create it. */
 export function canReleaseReplayedScrollbackFromStore({
   hasScrollbackRefs,

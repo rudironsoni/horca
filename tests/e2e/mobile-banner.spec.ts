@@ -467,7 +467,7 @@ async function forcePaneToOneColumnAndSwitchWorktree(
           .find((candidate) => candidate.container.dataset.ptyId === targetPtyId)
         if (pane) {
           // Why: the repro needs the desktop surface to inherit a phone-sized
-          // xterm layout after the workspace is no longer visible.
+          // terminal layout after the workspace is no longer visible.
           pane.terminal.resize(1, Math.max(8, pane.terminal.rows))
           pane.terminal.refresh(0, pane.terminal.rows - 1)
           window.__store?.getState().setActiveWorktree(targetWorktreeId)

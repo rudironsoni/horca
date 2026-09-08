@@ -5,7 +5,7 @@ import {
   resetParsedDirtyRows,
   type ParsedDirtyRowSpan
 } from './terminal-parsed-dirty-rows'
-import { runGuardedWriteCompletionStep } from './xterm-write-callback-guard'
+import { runGuardedWriteCompletionStep } from './terminal-write-callback-guard'
 
 export type ForegroundTerminalOutputTarget = {
   isAlternateScreen?: boolean
@@ -49,19 +49,19 @@ function refreshVisibleRows(
   }
 
   try {
-    // Why: only reveal-owned replay may override xterm's paused observer state;
+    // Why: only reveal-owned replay may override terminal's paused observer state;
     // ordinary or newly-hidden output must leave background rendering paused.
     if (shouldReleaseRenderPause?.() === true && forceRepaintThroughRenderPause(terminal)) {
       return
     }
     const lastRow = Math.max(0, terminal.rows - 1)
-    // Why not always the whole grid: xterm's render debouncer unions ranges, so a
+    // Why not always the whole grid: terminal's render debouncer unions ranges, so a
     // 0..rows-1 repair request turns every frame into a full-viewport cell walk.
     // `span` is the parse's own dirty rows; `null` keeps the whole-grid repaint.
     const start = span ? Math.min(Math.max(span.start, 0), lastRow) : 0
     const end = span ? Math.min(Math.max(span.end, start), lastRow) : lastRow
     // Why: DOM-rendered Windows ConPTY rewrites need an immediate repair, while
-    // WebGL can merge this request into xterm's already-queued frame.
+    // WebGL can merge this request into terminal's already-queued frame.
     if (typeof terminal.refresh === 'function') {
       terminal.refresh(start, end)
     }
@@ -94,7 +94,7 @@ function viewportChangedDuringWrite(
  * The rows this write's repair must cover: the parse's own dirty span widened by
  * the cursor rows on both sides of the write.
  *
- * Why the cursor rows: xterm's WebGL model drops its cursor whenever an update
+ * Why the cursor rows: terminal's WebGL model drops its cursor whenever an update
  * pass excludes the cursor row, so a repair that skips it would blank the caret.
  * Returns `null` — repaint everything — whenever the span is unknown, the
  * viewport scrolled (dirty rows were recorded against the pre-scroll origin), or
@@ -173,7 +173,7 @@ function settleForegroundRender(
     repairRowSpan(terminal, beforeWriteViewport, afterWriteViewport)
   )
   // Why: when output advances the viewport, Chromium can paint the freshly
-  // scrolled top row one frame later than xterm finishes parsing. Repaint once
+  // scrolled top row one frame later than terminal finishes parsing. Repaint once
   // more after the scroll settles so the user doesn't need to jiggle the window.
   if (
     options.followupViewportRefresh ||
@@ -197,12 +197,12 @@ export function writeForegroundTerminalChunk(
     : null
   if (beforeWriteViewport) {
     // Why here and not in the callback: the span must cover only this write's
-    // parse, and xterm fires its dirty-row request between the two.
+    // parse, and terminal fires its dirty-row request between the two.
     resetParsedDirtyRows(terminal)
   }
-  // Why guarded steps: this callback runs inside xterm's WriteBuffer loop,
+  // Why guarded steps: this callback runs inside terminal's WriteBuffer loop,
   // where an escaping throw permanently wedges the terminal (see
-  // xterm-write-callback-guard.ts). Guard settle and onParsed separately so a
+  // terminal-write-callback-guard.ts). Guard settle and onParsed separately so a
   // renderer/WebGL failure during settle can't starve the replay-guard release.
   const runParsedSteps = (): void => {
     if (beforeWriteViewport) {

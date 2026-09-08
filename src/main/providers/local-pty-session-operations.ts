@@ -101,7 +101,7 @@ export async function getLocalPtyCwd(id: string): Promise<string> {
 }
 
 export async function clearLocalPtyBuffer(id: string): Promise<void> {
-  // Why: ConPTY keeps its own screen buffer, so xterm clear() alone leaves a stale-cursor gap on the next prompt; POSIX no-op.
+  // Why: ConPTY keeps its own screen buffer, so terminal clear() alone leaves a stale-cursor gap on the next prompt; POSIX no-op.
   // No PSReadLine form-feed nudge here (unlike the daemon): safe only at an empty prompt, which this provider can't detect.
   try {
     startupIngressByPty.get(id)?.snapshotBarrier()

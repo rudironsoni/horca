@@ -50,7 +50,7 @@ function buildReattachPayload(snapshot: ReturnType<HeadlessEmulator['getSnapshot
 }
 
 // Why: replays the reattach payload into a fresh headless emulator (simulating
-// what pty-connection.ts does when writing snapshot data to xterm.js) and then
+// what pty-connection.ts does when writing snapshot data to Ghostty) and then
 // feeds the SIGWINCH repaint output to verify the final state is clean.
 async function simulateReattachToFreshTerminal(
   reattachPayload: string,
@@ -60,7 +60,7 @@ async function simulateReattachToFreshTerminal(
 ): Promise<{ content: string; cols: number; rows: number }> {
   const fresh = new HeadlessEmulator({ cols, rows })
   try {
-    // Step 1: write reattach payload (what pty-connection writes to xterm.js)
+    // Step 1: write reattach payload (what pty-connection writes to Ghostty)
     await fresh.write(reattachPayload)
     // Step 2: write SIGWINCH repaint data (what the TUI sends after receiving SIGWINCH)
     await fresh.write(sigwinchRepaintData)
@@ -351,7 +351,7 @@ describe('reattach snapshot flow', () => {
     it('snapshot + Ink-style repaint overwrites correctly without clear', async () => {
       // Simulates the reattach flow for an Ink-based TUI (Codex).
       // Ink repaints by: cursor-up-N → erase-to-end → write new content.
-      // The snapshot positions xterm.js cursor where Ink expects it,
+      // The snapshot positions Ghostty cursor where Ink expects it,
       // so the repaint overwrites the snapshot correctly.
       const cols = 80
       const rows = 10

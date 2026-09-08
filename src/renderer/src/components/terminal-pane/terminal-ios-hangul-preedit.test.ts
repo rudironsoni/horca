@@ -9,11 +9,11 @@
  *   keydown 'ㄴ' → deleteContentBackward, insertText '한' value '한'
  *   keydown 'ㄱ' → insertText 'ㄱ'                       value '한ㄱ'
  *
- * Unpatched xterm sends the jamo from `_keyPress` and drops the composed
+ * Unpatched terminal sends the jamo from `_keyPress` and drops the composed
  * `insertText`, because `_inputEvent` admits a composed insert only when no key
  * is down — and one is down for every one of them. The PTY sees `ㅎㅏㄴㄱㅡㄹ`.
  *
- * These suites drive a real xterm `Terminal` through the same tracker, bypass
+ * These suites drive a real terminal `Terminal` through the same tracker, bypass
  * policy and preedit controller the pane lifecycle installs.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -261,7 +261,7 @@ describe('iPadOS Hangul typed as bare keydowns', () => {
   })
 
   it('clears the overlay when the pane disposes the controller', async () => {
-    // Why: the pane disposes the controller before xterm tears its DOM down, so
+    // Why: the pane disposes the controller before terminal tears its DOM down, so
     // a held syllable would otherwise stay painted over a dead pane.
     pretendIosWeb()
     const rig = openIosTerminal()
@@ -372,8 +372,8 @@ describe('iPadOS Hangul typed as bare keydowns', () => {
   it('sends a jamo composed inside a session once, not twice', async () => {
     // The iPad on-screen keyboard does run a composition for Hangul, unlike the
     // hardware one. A hold opened over that session would commit the raw jamo
-    // alongside xterm's own commit. `isComposing` is unreliable on a session's
-    // keydowns — the reason xterm has a 229 path at all — so the session state
+    // alongside terminal's own commit. `isComposing` is unreliable on a session's
+    // keydowns — the reason terminal has a 229 path at all — so the session state
     // is what has to gate the hold.
     pretendIosWeb()
     const rig = openIosTerminal()
@@ -395,9 +395,9 @@ describe('iPadOS Hangul typed as bare keydowns', () => {
   })
 
   it('claims the field write even once the key has been released', async () => {
-    // xterm drops a composed `insertText` only while a key is down. When the
+    // terminal drops a composed `insertText` only while a key is down. When the
     // device delivers the write after the keyup, nothing but the claim keeps
-    // xterm from sending the syllable a second time.
+    // terminal from sending the syllable a second time.
     pretendIosWeb()
     const rig = openIosTerminal()
     dispatchKey(rig, 'keydown', { key: 'ㅎ', keyCode: 'ㅎ'.charCodeAt(0) })

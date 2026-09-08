@@ -4,7 +4,7 @@
  *
  * Field evidence: pane shows content, shell is alive, daemon output.log does
  * not grow while typing — i.e. keystrokes silently vanish somewhere between
- * xterm and the PTY. This spec forces the suspected trigger — renderer
+ * terminal and the PTY. This spec forces the suspected trigger — renderer
  * process death followed by the automatic recovery reload
  * (createMainWindow.ts scheduleRendererRecovery) — then discriminates which
  * layer drops input via the probes in helpers/terminal-input-probes.ts.

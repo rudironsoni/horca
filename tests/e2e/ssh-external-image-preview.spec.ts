@@ -53,7 +53,7 @@ async function activateTerminalLink(page: Page, probe: LinkProbe, text: string):
         await page.evaluate(({ col, row, tabId }) => {
           const manager = window.__paneManagers?.get(tabId)
           const pane = manager?.getActivePane?.() ?? manager?.getPanes?.()[0] ?? null
-          const screen = pane?.terminal.element?.querySelector<HTMLElement>('.xterm-screen')
+          const screen = pane?.terminal.element?.querySelector<HTMLElement>('.orca-terminal-canvas')
           if (!pane || !screen) {
             throw new Error('Active terminal screen is unavailable')
           }
@@ -83,7 +83,7 @@ async function activateTerminalLink(page: Page, probe: LinkProbe, text: string):
   await page.evaluate(({ col, row, tabId }) => {
     const manager = window.__paneManagers?.get(tabId)
     const pane = manager?.getActivePane?.() ?? manager?.getPanes?.()[0] ?? null
-    const screen = pane?.terminal.element?.querySelector<HTMLElement>('.xterm-screen')
+    const screen = pane?.terminal.element?.querySelector<HTMLElement>('.orca-terminal-canvas')
     if (!pane || !screen) {
       throw new Error('Active terminal screen is unavailable')
     }

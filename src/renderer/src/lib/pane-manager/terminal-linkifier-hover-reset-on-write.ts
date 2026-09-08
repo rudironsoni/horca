@@ -15,9 +15,9 @@ type WriteParsedTerminal = {
 const HOVER_RESET_THROTTLE_MS = 150
 
 /**
- * Invalidate xterm's linkifier hover cache shortly after streamed output lands.
+ * Invalidate terminal's linkifier hover cache shortly after streamed output lands.
  *
- * Why: xterm re-runs link providers only on mousemove when the hovered buffer
+ * Why: terminal re-runs link providers only on mousemove when the hovered buffer
  * cell changes, and it caches provider replies per line with no content-change
  * invalidation ({@link resetWriteParsedTerminalLinkifierHoverState} documents the fields).
  * A URL an agent streams into a visible pane under a stationary pointer is
@@ -33,7 +33,7 @@ export function installWriteParsedTerminalLinkifierHoverResetOnWrite(
   terminal: WriteParsedTerminal
 ): IDisposable {
   // Why: never let this break pane creation if a WriteParsedTerminal stub or a future
-  // xterm build lacks onWriteParsed — links then recover on the next cell
+  // terminal build lacks onWriteParsed — links then recover on the next cell
   // change, as they did before this reset existed.
   if (typeof terminal.onWriteParsed !== 'function') {
     return { dispose: () => undefined }

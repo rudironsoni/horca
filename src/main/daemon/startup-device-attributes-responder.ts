@@ -21,7 +21,7 @@ type DeviceAttributesParser = {
 
 const PRIMARY_DEVICE_ATTRIBUTES_QUERIES = ['\x1b[c', '\x1b[0c'] as const
 
-/** Matches what the renderer answers for xterm-* TERMs, so consuming the
+/** Matches what the renderer answers for terminal-* TERMs, so consuming the
  *  query upstream cannot change the capabilities a TUI sees. */
 export const STARTUP_DA1_RESPONSE = '\x1b[?1;2c'
 

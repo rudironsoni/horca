@@ -1,8 +1,8 @@
 /**
  * View-attribute bridge (terminal-query-authority.md §View-attribute bridge):
- * the XParseColor mirrors must match the bundled xterm grammar exactly —
+ * the XParseColor mirrors must match the bundled terminal grammar exactly —
  * main's replies for hidden PTYs must be byte-identical to a visible
- * renderer xterm's.
+ * renderer terminal's.
  */
 import { describe, expect, it } from 'vitest'
 import {
@@ -28,13 +28,13 @@ describe('parseXColorSpec', () => {
     ['#aabbcc', [0xaa, 0xbb, 0xcc]],
     ['#aaabbbccc', [0xaa, 0xbb, 0xcc]],
     ['#aaaabbbbcccc', [0xaa, 0xbb, 0xcc]]
-  ])('parses %s like xterm', (spec, expected) => {
+  ])('parses %s like terminal', (spec, expected) => {
     expect(parseXColorSpec(spec)).toEqual(expected)
   })
 
   it.each([
     ['', 'empty'],
-    ['red', 'named colors (xterm rejects them too)'],
+    ['red', 'named colors (terminal rejects them too)'],
     ['rgb:ff/ff', 'missing channel'],
     ['rgb:ggg/000/000', 'non-hex'],
     ['#abcd', 'hash length 4 is not a valid xparsecolor width'],

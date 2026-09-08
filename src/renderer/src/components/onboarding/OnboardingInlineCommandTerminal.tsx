@@ -272,7 +272,7 @@ export function OnboardingInlineCommandTerminal({
       if (hasPty) {
         ptyFirstSeenAt ??= Date.now()
         // Why: GPU/canvas terminal renderers may not expose visible prompt text
-        // in .xterm-rows. Once the PTY has settled briefly, paste the draft
+        // in .orca-terminal-rows. Once the PTY has settled briefly, paste the draft
         // instead of waiting on a DOM signal that may never arrive.
         if (Date.now() - ptyFirstSeenAt >= PTY_TEXT_FALLBACK_MS) {
           scheduleInsert()
@@ -302,7 +302,7 @@ export function OnboardingInlineCommandTerminal({
   // Why: grid 0fr → 1fr animates to the child's natural height without a
   // hardcoded max-height, so we don't leave dead space if the terminal
   // section's intrinsic size shifts. The inner section is positioned via the
-  // grid row, so xterm.js measures its real container on mount.
+  // grid row, so Ghostty measures its real container on mount.
   return (
     <div
       aria-hidden={!entered}
@@ -377,9 +377,9 @@ function terminalReadyForCommand(element: HTMLElement | null): boolean {
   }
   // Why: pasting before the login shell renders a prompt can double-echo the
   // draft command. Visible terminal text is the least intrusive readiness signal.
-  const renderedText = element.querySelector('.xterm-rows')?.textContent?.trim() ?? ''
+  const renderedText = element.querySelector('.orca-terminal-rows')?.textContent?.trim() ?? ''
   if (renderedText.length > 0) {
     return true
   }
-  return Boolean(element.querySelector('canvas.xterm'))
+  return Boolean(element.querySelector('canvas.orca-terminal-canvas'))
 }

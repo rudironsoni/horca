@@ -1,7 +1,7 @@
 import type { TerminalModes } from './types'
 import { RESET_GRAPHIC_RENDITION } from '../../shared/terminal-mode-reset-profiles'
 
-// Why no kitty flags here: rehydrateSequences feeds renderer xterms, and
+// Why no kitty flags here: rehydrateSequences feeds renderer terminals, and
 // POST_REPLAY_REATTACH_RESET's deliberate kitty reset (stale CSI-u Ctrl+C
 // hazard) must stay authoritative. modes.kittyKeyboardFlags exists for
 // emulator re-seed parity only; a re-seeded emulator answers ?0u and
@@ -19,7 +19,7 @@ export function buildRehydrateSequences(modes: TerminalModes): string {
   if (modes.applicationCursor) {
     seqs.push('\x1b[?1h')
   }
-  // Why: mobile alt-screen scroll gestures need xterm's mouse mode restored
+  // Why: mobile alt-screen scroll gestures need terminal's mouse mode restored
   // from cold snapshots; OpenCode/OpenTUI enables scrollable panes this way.
   switch (modes.mouseTracking ? (modes.mouseTrackingMode ?? 'vt200') : 'none') {
     case 'x10':
@@ -37,7 +37,7 @@ export function buildRehydrateSequences(modes: TerminalModes): string {
     case 'none':
       break
   }
-  // Why: xterm tracks the mouse protocol and SGR encoding as independent
+  // Why: terminal tracks the mouse protocol and SGR encoding as independent
   // modes, so snapshots must preserve the encoding even when reporting is off.
   if (modes.sgrMousePixelsMode) {
     seqs.push('\x1b[?1016h')

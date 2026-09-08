@@ -101,7 +101,7 @@ export function ResourceUsageStatusSegment({
         {...STATUS_BAR_CONTEXT_MENU_EXEMPT_PROPS}
         className="w-[26rem] max-w-[calc(100vw-2rem)] p-0"
         onOpenAutoFocus={(event) => event.preventDefault()}
-        // Why: activating a tab focuses xterm's DOM node; Radix would read that as focus-outside and close. Outside-click and Escape still close.
+        // Why: activating a tab focuses terminal's DOM node; Radix would read that as focus-outside and close. Outside-click and Escape still close.
         onFocusOutside={(event) => event.preventDefault()}
       >
         {renderResourceUsagePopoverHeader({ daemonActions })}

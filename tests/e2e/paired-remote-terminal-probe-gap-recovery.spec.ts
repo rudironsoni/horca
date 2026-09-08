@@ -128,7 +128,7 @@ test('replaces a stale paired stream when the PTY snapshot advanced @headful', a
     await expect
       .poll(() => getTerminalContent(client.page), { timeout: 30_000 })
       .toContain('PROBE_GAP_READY')
-    const textarea = client.page.locator('.xterm-helper-textarea:visible').first()
+    const textarea = client.page.locator('.orca-terminal-helper-textarea:visible').first()
     await textarea.focus()
 
     expect(

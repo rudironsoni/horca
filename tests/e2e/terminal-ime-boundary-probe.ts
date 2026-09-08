@@ -39,7 +39,9 @@ export async function installTerminalImeBoundaryProbe(page: Page): Promise<void>
           : null
     const manager = tabId ? window.__paneManagers?.get(tabId) : null
     const pane = manager?.getActivePane?.() ?? manager?.getPanes?.()[0] ?? null
-    const textarea = pane?.container.querySelector<HTMLTextAreaElement>('.xterm-helper-textarea')
+    const textarea = pane?.container.querySelector<HTMLTextAreaElement>(
+      '.orca-terminal-helper-textarea'
+    )
     if (!pane || !textarea) {
       throw new Error('No active terminal textarea for IME boundary probe')
     }
