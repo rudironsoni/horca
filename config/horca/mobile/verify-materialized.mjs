@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { existsSync, readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { join, resolve } from 'node:path'
 
 const repoRoot = resolve(import.meta.dirname, '..', '..', '..')
 const mobileRoot = resolve(repoRoot, 'out', 'horca-mobile', 'mobile')
@@ -13,7 +13,10 @@ const required = [
 const forbidden = [
   'src/terminal/TerminalWebView.tsx',
   'src/terminal/terminal-webview-html.ts',
-  'patches/react-native@0.83.9.patch'
+  'src/terminal/terminal-webview-theme-injected.ts',
+  'patches/react-native@0.83.9.patch',
+  'patches/react-native@0.83.10.patch',
+  'patches/react-native-webview@13.16.2.patch'
 ]
 
 for (const path of required) {
@@ -23,6 +26,28 @@ for (const path of required) {
 }
 for (const path of forbidden) {
   if (existsSync(resolve(mobileRoot, path))) {
+    throw new Error(`Legacy Orca mobile file survived materialization: ${path}`)
+  }
+}
+
+function collectFiles(dir, prefix) {
+  if (!existsSync(dir)) {
+    return []
+  }
+  const files = []
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const rel = `${prefix}/${entry.name}`
+    if (entry.isDirectory()) {
+      files.push(...collectFiles(join(dir, entry.name), rel))
+    } else {
+      files.push(rel)
+    }
+  }
+  return files
+}
+
+for (const path of collectFiles(resolve(mobileRoot, 'src/terminal'), 'src/terminal')) {
+  if (/webview/i.test(path)) {
     throw new Error(`Legacy Orca mobile file survived materialization: ${path}`)
   }
 }
