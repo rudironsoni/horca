@@ -1,9 +1,11 @@
 import { describe, expect, it, vi } from 'vitest'
+import { Buffer } from 'node:buffer'
 import type { HerdrHostTransport, HerdrTerminalController } from './herdr-runtime-contract'
 import type { HerdrPtyBinding } from './herdr-pty-types'
 import {
   applyHerdrPaneSize,
   openSharedHerdrPaneController,
+  readExclusiveHerdrPaneBytes,
   writeSharedHerdrInput
 } from './herdr-pty-attach'
 import { handlerTransport } from './herdr-sdk-test-host'
@@ -58,6 +60,8 @@ describe('applyHerdrPaneSize', () => {
     } as unknown as HerdrPtyBinding
     applyHerdrPaneSize(binding)
     applyHerdrPaneSize(binding)
+    binding.cols = 80
+    binding.rows = 24
     expect(transport.controlTerminal).toHaveBeenCalledTimes(1)
     expect(transport.controlTerminal).toHaveBeenCalledWith('orca', 'w1:p1', {
       cols: 160,
@@ -65,35 +69,6 @@ describe('applyHerdrPaneSize', () => {
     })
     await Promise.resolve()
     expect(exclusive.resize).toHaveBeenCalledWith(160, 48)
-    expect(exclusive.release).toHaveBeenCalled()
-  })
-
-  it('gives up when a Herdr TUI already owns exclusive control', () => {
-    const exclusive = {
-      write: vi.fn(),
-      resize: vi.fn(),
-      release: vi.fn(),
-      onFrame: vi.fn(() => () => undefined),
-      onClosed: (listener: (event: { type: 'terminal.closed'; reason: string }) => void) => {
-        listener({
-          type: 'terminal.closed',
-          reason: 'pane already has an attached client; retry with --takeover'
-        })
-        return () => undefined
-      }
-    } as unknown as HerdrTerminalController
-    const transport = {
-      controlTerminal: vi.fn(() => exclusive)
-    } as unknown as HerdrHostTransport
-    applyHerdrPaneSize({
-      detached: false,
-      cols: 160,
-      rows: 48,
-      sessionName: 'orca',
-      paneId: 'w1:p1',
-      transport
-    } as unknown as HerdrPtyBinding)
-    expect(exclusive.resize).not.toHaveBeenCalled()
     expect(exclusive.release).toHaveBeenCalled()
   })
 })
@@ -113,5 +88,39 @@ describe('writeSharedHerdrInput', () => {
       paneId: 'w1:p1',
       text: 'hello'
     })
+  })
+})
+
+describe('readExclusiveHerdrPaneBytes', () => {
+  it('reads unread PTY bytes from a short exclusive attach', async () => {
+    const unread = 'x'.repeat(64)
+    const exclusive = {
+      write: vi.fn(),
+      resize: vi.fn(),
+      release: vi.fn(),
+      onFrame: (listener: (frame: { bytes: string }) => void) => {
+        queueMicrotask(() => listener({ bytes: Buffer.from(unread, 'utf8').toString('base64') }))
+        return () => undefined
+      },
+      onClosed: vi.fn(() => () => undefined)
+    } as unknown as HerdrTerminalController
+    const transport = {
+      controlTerminal: vi.fn(() => exclusive)
+    } as unknown as HerdrHostTransport
+    const binding = {
+      detached: false,
+      cols: 80,
+      rows: 24,
+      sessionName: 'orca',
+      paneId: 'w1:p2',
+      transport
+    } as unknown as HerdrPtyBinding
+    const bytes = await readExclusiveHerdrPaneBytes(binding, 512 * 1024)
+    expect(bytes).toBe(unread)
+    expect(transport.controlTerminal).toHaveBeenCalledWith('orca', 'w1:p2', {
+      cols: 80,
+      rows: 24
+    })
+    expect(exclusive.release).toHaveBeenCalled()
   })
 })

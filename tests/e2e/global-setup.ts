@@ -16,6 +16,7 @@ import { existsSync, mkdirSync, mkdtempSync, realpathSync, writeFileSync } from 
 import path from 'node:path'
 import os from 'node:os'
 import { prepareDockerSshRelayImage } from './helpers/docker-ssh-relay-image'
+import { downloadPinnedHerdrBinary, persistPinnedHerdrBinaryPath } from './helpers/e2e-herdr-pin'
 
 export const E2E_TEST_REPO_PATH_FILE_ENV = 'ORCA_E2E_TEST_REPO_PATH_FILE'
 /** Temp file where the test repo path is stored for the fixture to read. */
@@ -100,6 +101,10 @@ export default function globalSetup(): void {
     console.error('[e2e] Preparing Docker OpenSSH fixture image...')
     prepareDockerSshRelayImage(root)
   }
+
+  const herdrBinary = downloadPinnedHerdrBinary()
+  persistPinnedHerdrBinaryPath(herdrBinary)
+  console.error(`[e2e] Pinned Herdr at ${herdrBinary}`)
 
   // ── 2. Create a seeded test git repo ───────────────────────────────
   // Why: each test run gets its own git repo so the suite is fully
