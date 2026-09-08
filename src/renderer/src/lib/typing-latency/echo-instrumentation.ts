@@ -1,7 +1,7 @@
 /**
  * Per-pane output instrumentation for the devtools typing-latency probe.
  *
- * An input signal stamps t0, xterm's onData marks PTY dispatch,
+ * An input signal stamps t0, terminal's onData marks PTY dispatch,
  * onWriteParsed marks the first subsequent output parse, and onRender marks
  * paint. Overlapping inputs are one ambiguous burst because terminal output is
  * opaque; the probe never apportions one output batch across those inputs.

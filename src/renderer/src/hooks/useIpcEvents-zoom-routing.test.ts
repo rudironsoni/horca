@@ -9,7 +9,7 @@ function makeTarget(args: { hasXtermClass?: boolean; editorClosest?: boolean }):
   const { hasXtermClass = false, editorClosest = false } = args
   return {
     classList: {
-      contains: (token: string) => hasXtermClass && token === 'xterm-helper-textarea'
+      contains: (token: string) => hasXtermClass && token === 'orca-terminal-helper-textarea'
     },
     closest: () => (editorClosest ? ({} as Element) : null)
   }

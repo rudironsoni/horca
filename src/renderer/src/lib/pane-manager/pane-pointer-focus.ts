@@ -1,6 +1,6 @@
 const APP_CONTROL_SELECTOR = [
-  'input:not(.xterm-helper-textarea)',
-  'textarea:not(.xterm-helper-textarea)',
+  'input:not(.orca-terminal-helper-textarea)',
+  'textarea:not(.orca-terminal-helper-textarea)',
   'select',
   'button',
   '[role="textbox"]',
@@ -16,6 +16,6 @@ export function shouldFocusTerminalFromPanePointerDown(target: EventTarget | nul
   }
 
   // Why: pane-local app controls (for example the title editor) are portaled
-  // into the pane container; focusing xterm from their pointerdown blurs them.
+  // into the pane container; focusing terminal from their pointerdown blurs them.
   return target.closest(APP_CONTROL_SELECTOR) === null
 }

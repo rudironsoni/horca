@@ -131,7 +131,7 @@ describe('terminal scroll intent', () => {
     expect(getTerminalScrollIntentKind(terminal)).toBe('followOutput')
   })
 
-  it('preserves a pinned viewport after output moves xterm to bottom', () => {
+  it('preserves a pinned viewport after output moves terminal to bottom', () => {
     const terminal = createTerminal({ viewportY: 42, baseY: 100 })
     markTerminalPinnedViewport(terminal)
     const snapshot = captureTerminalStructuralScrollIntent(terminal)
@@ -194,11 +194,11 @@ describe('terminal scroll intent', () => {
     expect(getTerminalScrollIntentKind(terminal)).toBe('pinnedViewport')
   })
 
-  it('records xterm native scrollback-trim movement before structural enforcement', () => {
+  it('records terminal native scrollback-trim movement before structural enforcement', () => {
     const terminal = createTerminal({ viewportY: 10, baseY: 20 })
     markTerminalPinnedViewport(terminal)
 
-    // At scrollback capacity xterm keeps baseY fixed and walks viewportY up
+    // At scrollback capacity terminal keeps baseY fixed and walks viewportY up
     // as old rows trim, preserving the visible content without app help.
     terminal.buffer.active.viewportY = 5
     syncTerminalScrollIntentFromViewport(terminal)
@@ -255,7 +255,7 @@ describe('terminal scroll intent', () => {
     disposable.dispose()
   })
 
-  it('keeps sampling briefly after wheel so delayed xterm scroll updates win', async () => {
+  it('keeps sampling briefly after wheel so delayed terminal scroll updates win', async () => {
     const frameCallbacks: FrameRequestCallback[] = []
     vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
       frameCallbacks.push(callback)
@@ -442,7 +442,7 @@ describe('terminal scroll intent', () => {
     vi.stubGlobal('Element', TestElement)
     const terminal = createTerminal({ viewportY: 100, baseY: 100 })
     const hostElement = new TestElement()
-    const viewport = new TestElement('xterm-viewport')
+    const viewport = new TestElement('orca-terminal-viewport')
     hostElement.append(viewport)
     const host = hostElement as unknown as HTMLElement
     const disposable = attachTerminalScrollIntentTracking(terminal, host)
@@ -458,14 +458,14 @@ describe('terminal scroll intent', () => {
     disposable.dispose()
   })
 
-  it.each(['xterm-scrollbar', 'xterm-slider'])(
-    'tracks pointer-driven xterm %s scrolls as user intent',
+  it.each(['orca-terminal-scrollbar', 'orca-terminal-slider'])(
+    'tracks pointer-driven terminal %s scrolls as user intent',
     (scrollbarClassName) => {
       vi.stubGlobal('Element', TestElement)
       const terminal = createTerminal({ viewportY: 100, baseY: 100 })
       const hostElement = new TestElement()
       const scrollbarTarget = new TestElement(scrollbarClassName)
-      const scrollbarChild = new TestElement('xterm-scrollbar-child')
+      const scrollbarChild = new TestElement('orca-terminal-scrollbar-child')
       hostElement.append(scrollbarTarget)
       scrollbarTarget.append(scrollbarChild)
       const host = hostElement as unknown as HTMLElement
@@ -487,8 +487,8 @@ describe('terminal scroll intent', () => {
     vi.stubGlobal('Element', TestElement)
     const terminal = createTerminal({ viewportY: 0, baseY: 600 })
     const hostElement = new TestElement()
-    const scrollbar = new TestElement('xterm-scrollbar')
-    const slider = new TestElement('xterm-slider')
+    const scrollbar = new TestElement('orca-terminal-scrollbar')
+    const slider = new TestElement('orca-terminal-slider')
     hostElement.append(scrollbar)
     scrollbar.append(slider)
     const host = hostElement as unknown as HTMLElement
@@ -525,7 +525,7 @@ describe('terminal scroll intent', () => {
     disposable.dispose()
   })
 
-  it('updates a manually pinned intent after xterm-handled keyboard scrolling settles', async () => {
+  it('updates a manually pinned intent after terminal-handled keyboard scrolling settles', async () => {
     const frameCallbacks: FrameRequestCallback[] = []
     vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
       frameCallbacks.push(callback)
@@ -593,7 +593,7 @@ describe('terminal scroll intent', () => {
     const disposable = attachTerminalScrollIntentTracking(terminal, host)
 
     // A sub-row trackpad delta or a wheel consumed by a mouse-reporting TUI:
-    // the wheel event fires but xterm's viewport never moves.
+    // the wheel event fires but terminal's viewport never moves.
     const wheelUp = new Event('wheel') as WheelEvent
     Object.defineProperty(wheelUp, 'deltaY', { value: -2 })
     host.dispatchEvent(wheelUp)
@@ -647,7 +647,7 @@ describe('terminal scroll intent', () => {
 
     for (let batch = 1; batch <= 2; batch += 1) {
       const snapshot = captureTerminalStructuralScrollIntent(terminal)
-      // xterm follows output during the write because the viewport was at bottom.
+      // terminal follows output during the write because the viewport was at bottom.
       terminal.buffer.active.baseY += 25
       terminal.buffer.active.viewportY = terminal.buffer.active.baseY
       restoreTerminalStructuralScrollIntent(terminal, snapshot)
@@ -806,7 +806,7 @@ describe('terminal scroll intent', () => {
     disposable.dispose()
   })
 
-  it('keeps rebuild wheel intent when xterm classifies the same event as mouse input', async () => {
+  it('keeps rebuild wheel intent when terminal classifies the same event as mouse input', async () => {
     vi.stubGlobal('requestAnimationFrame', () => 0)
     vi.stubGlobal('Element', TestElement)
     const { terminal, capturedInput, capturedUserInput } = createTerminalWithInputCapture({

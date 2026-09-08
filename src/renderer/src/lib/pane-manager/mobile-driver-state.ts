@@ -3,8 +3,8 @@
 // listener (onTerminalDriverChanged) wired from main.
 //
 // While `getDriverForPty(ptyId).kind === 'mobile'` the renderer:
-//   - drops xterm.onData (input lock)
-//   - drops xterm.onResize (resize lock)
+//   - drops terminal.onData (input lock)
+//   - drops terminal.onResize (resize lock)
 //   - mounts the lock banner with the "Take back" affordance
 //
 // See docs/mobile-presence-lock.md.

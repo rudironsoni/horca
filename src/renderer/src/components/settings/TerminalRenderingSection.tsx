@@ -32,7 +32,7 @@ export function TerminalRenderingSection({
           title={translate('auto.components.settings.TerminalPane.c1fc9e9444', 'GPU Acceleration')}
           description={translate(
             'auto.components.settings.TerminalPane.f07dfb4466',
-            'Controls whether the terminal uses xterm.js WebGL rendering. Auto tries WebGL when the renderer is supported, with a conservative Linux fallback for software or unknown GPU renderers.'
+            'Controls whether the terminal uses Ghostty WebGL rendering. Auto tries WebGL when the renderer is supported, with a conservative Linux fallback for software or unknown GPU renderers.'
           )}
           keywords={[
             'terminal',

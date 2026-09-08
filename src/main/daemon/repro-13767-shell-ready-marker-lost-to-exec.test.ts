@@ -167,7 +167,7 @@ async function startFixture(
         HOME: tempHome,
         PATH: pathEnv,
         SHELL: fixture.shellPath,
-        TERM: 'xterm-256color'
+        TERM: 'xterm-ghostty'
       },
       envToDelete: ['ORCA_EXEC_REPRO_DONE', 'ORCA_ORIG_ZDOTDIR', 'ZDOTDIR']
     })

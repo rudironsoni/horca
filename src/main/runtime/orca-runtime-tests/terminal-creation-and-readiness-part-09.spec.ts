@@ -427,7 +427,7 @@ describe('OrcaRuntimeService', () => {
     const [terminal] = (await runtime.listTerminals()).terminals
     const lines = Array.from({ length: 120 }, (_, index) => `line-${index}-${'x'.repeat(400)}`)
     runtime.onPtyData('pty-1', `${lines.join('\n')}\n`, 100)
-    // Why: xterm-headless uses Array.shift while draining writes; this test guards read-preview trimming, not emulator parsing.
+    // Why: terminal-headless uses Array.shift while draining writes; this test guards read-preview trimming, not emulator parsing.
     await runtime.serializeMainTerminalBuffer('pty-1')
 
     const originalShift = Array.prototype.shift

@@ -30,7 +30,7 @@ function getTerminalScreenElement(
   }
   return (
     terminal.element.querySelector('.orca-terminal-canvas') ??
-    terminal.element.querySelector('.xterm-screen') ??
+    terminal.element.querySelector('.orca-terminal-canvas') ??
     terminal.element
   )
 }

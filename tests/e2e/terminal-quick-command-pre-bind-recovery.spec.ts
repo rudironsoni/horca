@@ -281,7 +281,7 @@ process.stdout.write(${JSON.stringify(`${marker}\n`)})
               const pane = window.__paneManagers?.get(tabId)?.getPanes()[0]
               return pane?.serializeController.serialize() ?? ''
             }, blocked.tabId),
-          { message: 'Quick Command marker never reached the visible xterm' }
+          { message: 'Quick Command marker never reached the visible terminal' }
         )
         .toContain(marker)
       const targetContent = await orcaPage.evaluate((tabId) => {

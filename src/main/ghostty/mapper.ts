@@ -172,7 +172,7 @@ export function mapGhosttyToOrca(
       return { key: 'terminalPaddingY', value: num }
     },
 
-    // Why: only percentages translate to xterm's line-height ratio; Ghostty's
+    // Why: only percentages translate to terminal's line-height ratio; Ghostty's
     // pixel form depends on the rendered cell height, which we can't know here.
     // The settings UI clamps terminalLineHeight to [1, 3], so reject outside it.
     'adjust-cell-height': (v) => {
@@ -271,7 +271,7 @@ export function mapGhosttyToOrca(
     const value = Array.isArray(rawValue) ? (rawValue.at(-1) ?? '') : rawValue
 
     // Why: Ghostty's selection-word-chars defines characters that ARE part of a
-    // word, while xterm.js wordSeparator defines characters that BREAK words.
+    // word, while Ghostty wordSeparator defines characters that BREAK words.
     // Passing the same string inverts the semantics, and correctly inverting a
     // character set is non-trivial. Treat as unsupported to avoid silent misbehavior.
     if (key === 'selection-word-chars') {
@@ -279,8 +279,8 @@ export function mapGhosttyToOrca(
       continue
     }
 
-    // Why: xterm.js ITheme has no bold color slot (xtermjs/xterm.js#6032), so importing
-    // bold-color would render as a no-op; report it as unsupported instead of silently dropping.
+    // Why: Ghostty has no bold color slot, so importing bold-color would
+    // render as a no-op; report it as unsupported instead of silently dropping.
     if (key === 'bold-color') {
       unsupportedKeys.push(key)
       continue

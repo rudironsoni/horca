@@ -1,8 +1,9 @@
 import { win32 as pathWin32 } from 'node:path'
+import { PTY_TERM_NAME } from '../../../shared/pty-term-name'
 
 function normalizeForegroundProcessName(processName: string | null | undefined): string | null {
   const trimmed = processName?.trim().replace(/^["']|["']$/g, '') ?? ''
-  if (!trimmed || trimmed === 'xterm-256color') {
+  if (!trimmed || trimmed === PTY_TERM_NAME) {
     return null
   }
   return trimmed.split(/[\\/]/).pop() || null

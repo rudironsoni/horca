@@ -258,7 +258,7 @@ describe('createOsc52OscHandler', () => {
     expect(writeClipboardText).toHaveBeenCalledExactlyOnceWith('after')
   })
 
-  // The coalesced write runs in a microtask, outside the parser handler xterm guards, so
+  // The coalesced write runs in a microtask, outside the parser handler terminal guards, so
   // a bridge failure there escapes the pane as an uncaught error instead of a failed copy.
   it.each([
     [

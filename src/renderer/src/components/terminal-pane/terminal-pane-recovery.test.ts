@@ -219,7 +219,7 @@ describe('requestTerminalPaneRecovery', () => {
     expect(mocks.remountTerminalTabForRecovery).toHaveBeenCalledTimes(3)
 
     // Cap-declined: without a retry this pane is a permanent zombie — its
-    // certified-dead xterm no longer produces write signals to re-request.
+    // certified-dead terminal no longer produces write signals to re-request.
     vi.setSystemTime(60_000)
     expect(
       await requestTerminalPaneRecovery({ tabId: 'tab-1', ptyId: 'pty-1', reason: 'write-stalled' })
@@ -254,7 +254,7 @@ describe('requestTerminalPaneRecovery', () => {
     expect(mocks.remountTerminalTabForRecovery).toHaveBeenCalledTimes(3)
   })
 
-  it('does not retry a cooldown decline from the xterm replaced by the remount', async () => {
+  it('does not retry a cooldown decline from the terminal replaced by the remount', async () => {
     vi.useFakeTimers()
     vi.setSystemTime(0)
     const replacedGeneration = captureTerminalPaneRecoveryGeneration('tab-1')
@@ -277,7 +277,7 @@ describe('requestTerminalPaneRecovery', () => {
     expect(mocks.remountTerminalTabForRecovery).toHaveBeenCalledTimes(1)
   })
 
-  it('retries a fresh replacement xterm that wedges during the cooldown', async () => {
+  it('retries a fresh replacement terminal that wedges during the cooldown', async () => {
     vi.useFakeTimers()
     vi.setSystemTime(0)
     await requestTerminalPaneRecovery({
@@ -342,7 +342,7 @@ describe('requestTerminalPaneRecovery', () => {
     expect(mocks.remountTerminalTabForRecovery).toHaveBeenCalledTimes(2)
   })
 
-  it('cancels a retry when a non-recovery lifecycle replaces its xterm', async () => {
+  it('cancels a retry when a non-recovery lifecycle replaces its terminal', async () => {
     vi.useFakeTimers()
     vi.setSystemTime(0)
     const originalInstance = registerTerminalPaneRecoveryInstance('tab-1')

@@ -60,7 +60,7 @@ test.describe('Terminal end-of-row Korean preedit cell span', () => {
     const arena = await openTerminalImePaneArena(orcaPage)
     let completed = false
     try {
-      // CHA clamps to the last column; xterm's wrap-pending cursor is the final-cell shape the
+      // CHA clamps to the last column; terminal's wrap-pending cursor is the final-cell shape the
       // composition helper itself clamps onto.
       await writeToActiveTerminal(orcaPage, '\x1b[2J\x1b[H\x1b[999Gx')
       await setImeComposition(arena.session, '가')

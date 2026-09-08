@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 // scheduler-imposed drain ceiling in isolation. A mock terminal parses
 // instantly, so the measured rate is pure scheduler drip (writes-per-tick x
 // chunk size / reschedule interval). Baseline-jul02 measured agent-tui at
-// 2.0 MB/s end-to-end while bare xterm parses the same bytes at ~103 MB/s;
+// 2.0 MB/s end-to-end while bare terminal parses the same bytes at ~103 MB/s;
 // this pins how much of that ceiling the drain loop itself imposes.
 // Run with:
 //   ORCA_TERMINAL_PERF_BENCH=1 pnpm vitest run \

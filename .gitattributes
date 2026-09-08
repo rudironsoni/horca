@@ -23,10 +23,6 @@
 # runs `git apply` on one must force `-c core.autocrlf=input` rather than trust
 # the host's setting. See config/scripts/windows-process-tree-gyp-rebuild.mjs.
 /config/patches/*.patch -text
-# The xterm bundle hunks also make a diff nobody can read; review the hand-written
-# source patch under xterm-src/ instead. The sibling patches stay diffable.
-/config/patches/@xterm__xterm@*.patch -diff
-/config/patches/xterm-src/*.patch text eol=lf
 # Generated wrapper fixtures: collapse them in the PR diff so they stop drowning
 # the reviewable change, and pin LF because they are compared byte-for-byte.
 # Not -diff: the shell diff is the review surface when a wrapper does change.
