@@ -4,7 +4,7 @@ import {
   type EventSubscriptionSpecEncoded,
   type HerdrEvent,
   type IHerdrSdk
-} from '@herdr/sdk'
+} from '@rudironsoni/herdr-ts-sdk'
 import { Duration, Effect, Fiber, Layer, Stream } from 'effect'
 import { toHerdrRuntimeError } from './herdr-sdk-errors'
 import { HerdrRuntimeError } from './herdr-runtime-contract'
