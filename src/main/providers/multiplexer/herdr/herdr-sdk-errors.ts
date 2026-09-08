@@ -5,7 +5,7 @@ import {
   HerdrServerError,
   HerdrTransportError,
   HerdrUnsupportedProtocol
-} from '@herdr/sdk'
+} from '@rudironsoni/herdr-ts-sdk'
 import { HerdrRuntimeError } from './herdr-runtime-contract'
 
 function taggedName(error: unknown): string | undefined {
@@ -35,7 +35,7 @@ export function toHerdrRuntimeError(error: unknown): HerdrRuntimeError {
   if (cause instanceof HerdrUnsupportedProtocol) {
     return new HerdrRuntimeError(
       'herdr_incompatible',
-      `Herdr protocol ${cause.actualProtocol} is incompatible with SDK protocols ${cause.supportedProtocols.join(', ')}`
+      `Herdr protocol ${cause.actualProtocol} is incompatible with SDK protocol ${cause.supportedProtocol}`
     )
   }
   if (cause instanceof HerdrTransportError) {
@@ -55,13 +55,10 @@ export function toHerdrRuntimeError(error: unknown): HerdrRuntimeError {
   }
   const tag = taggedName(cause)
   if (tag === 'HerdrUnsupportedProtocol' && typeof cause === 'object' && cause !== null) {
-    const body = cause as { actualProtocol?: unknown; supportedProtocols?: unknown }
-    const supported = Array.isArray(body.supportedProtocols)
-      ? body.supportedProtocols.join(', ')
-      : String(body.supportedProtocols)
+    const body = cause as { actualProtocol?: unknown; supportedProtocol?: unknown }
     return new HerdrRuntimeError(
       'herdr_incompatible',
-      `Herdr protocol ${String(body.actualProtocol)} is incompatible with SDK protocols ${supported}`
+      `Herdr protocol ${String(body.actualProtocol)} is incompatible with SDK protocol ${String(body.supportedProtocol)}`
     )
   }
   if (error instanceof Error) {
