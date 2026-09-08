@@ -1,18 +1,18 @@
 import { describe, expect, it } from 'vitest'
 import {
-  shouldBypassXtermKeyboardEvent,
+  shouldBypassTerminalKeyboardEvent,
   shouldPreventDefaultTerminalImeCandidateKey,
   shouldSuppressTerminalImeKeyboardEvent
-} from './xterm-bypass-policy'
-import { event } from './xterm-bypass-event-fixture'
+} from './terminal-bypass-policy'
+import { event } from './terminal-bypass-event-fixture'
 
-describe('shouldBypassXtermKeyboardEvent — Windows/Linux', () => {
+describe('shouldBypassTerminalKeyboardEvent — Windows/Linux', () => {
   const withSel = { isMac: false, hasSelection: true }
   const noSel = { isMac: false, hasSelection: false }
 
   it('bubbles Ctrl+Shift+C (standard terminal copy on Linux/Windows)', () => {
     expect(
-      shouldBypassXtermKeyboardEvent(
+      shouldBypassTerminalKeyboardEvent(
         event({ key: 'C', code: 'KeyC', ctrlKey: true, shiftKey: true }),
         noSel
       )
@@ -21,13 +21,13 @@ describe('shouldBypassXtermKeyboardEvent — Windows/Linux', () => {
 
   it('matches Ctrl+Shift+C by produced logical key rather than physical key', () => {
     expect(
-      shouldBypassXtermKeyboardEvent(
+      shouldBypassTerminalKeyboardEvent(
         event({ key: 'C', code: 'KeyJ', ctrlKey: true, shiftKey: true }),
         noSel
       )
     ).toBe(true)
     expect(
-      shouldBypassXtermKeyboardEvent(
+      shouldBypassTerminalKeyboardEvent(
         event({ key: 'J', code: 'KeyC', ctrlKey: true, shiftKey: true }),
         noSel
       )
@@ -38,31 +38,31 @@ describe('shouldBypassXtermKeyboardEvent — Windows/Linux', () => {
     // Why: bare Ctrl+C without a selection must reach the shell as SIGINT.
     // With a selection, terminals like Windows Terminal copy instead.
     expect(
-      shouldBypassXtermKeyboardEvent(event({ key: 'c', code: 'KeyC', ctrlKey: true }), withSel)
+      shouldBypassTerminalKeyboardEvent(event({ key: 'c', code: 'KeyC', ctrlKey: true }), withSel)
     ).toBe(true)
     expect(
-      shouldBypassXtermKeyboardEvent(event({ key: 'c', code: 'KeyC', ctrlKey: true }), noSel)
+      shouldBypassTerminalKeyboardEvent(event({ key: 'c', code: 'KeyC', ctrlKey: true }), noSel)
     ).toBe(false)
   })
 
   it('matches Ctrl+C with selection by produced logical key rather than physical key', () => {
     expect(
-      shouldBypassXtermKeyboardEvent(event({ key: 'c', code: 'KeyJ', ctrlKey: true }), withSel)
+      shouldBypassTerminalKeyboardEvent(event({ key: 'c', code: 'KeyJ', ctrlKey: true }), withSel)
     ).toBe(true)
     expect(
-      shouldBypassXtermKeyboardEvent(event({ key: 'j', code: 'KeyC', ctrlKey: true }), withSel)
+      shouldBypassTerminalKeyboardEvent(event({ key: 'j', code: 'KeyC', ctrlKey: true }), withSel)
     ).toBe(false)
     expect(
-      shouldBypassXtermKeyboardEvent(event({ key: 'c', code: 'KeyJ', ctrlKey: true }), noSel)
+      shouldBypassTerminalKeyboardEvent(event({ key: 'c', code: 'KeyJ', ctrlKey: true }), noSel)
     ).toBe(false)
   })
 
   it('bubbles Ctrl+V and Ctrl+Shift+V for paste', () => {
     expect(
-      shouldBypassXtermKeyboardEvent(event({ key: 'v', code: 'KeyV', ctrlKey: true }), noSel)
+      shouldBypassTerminalKeyboardEvent(event({ key: 'v', code: 'KeyV', ctrlKey: true }), noSel)
     ).toBe(true)
     expect(
-      shouldBypassXtermKeyboardEvent(
+      shouldBypassTerminalKeyboardEvent(
         event({ key: 'V', code: 'KeyV', ctrlKey: true, shiftKey: true }),
         noSel
       )
@@ -71,16 +71,16 @@ describe('shouldBypassXtermKeyboardEvent — Windows/Linux', () => {
 
   it('matches paste by produced logical key rather than physical key', () => {
     expect(
-      shouldBypassXtermKeyboardEvent(event({ key: 'v', code: 'KeyK', ctrlKey: true }), noSel)
+      shouldBypassTerminalKeyboardEvent(event({ key: 'v', code: 'KeyK', ctrlKey: true }), noSel)
     ).toBe(true)
     expect(
-      shouldBypassXtermKeyboardEvent(event({ key: 'k', code: 'KeyV', ctrlKey: true }), noSel)
+      shouldBypassTerminalKeyboardEvent(event({ key: 'k', code: 'KeyV', ctrlKey: true }), noSel)
     ).toBe(false)
   })
 
   it('bubbles Shift+Insert (X11/Linux paste convention)', () => {
     expect(
-      shouldBypassXtermKeyboardEvent(
+      shouldBypassTerminalKeyboardEvent(
         event({ key: 'Insert', code: 'Insert', shiftKey: true }),
         noSel
       )
@@ -91,7 +91,7 @@ describe('shouldBypassXtermKeyboardEvent — Windows/Linux', () => {
     // Ctrl+A, Ctrl+E, Ctrl+U, Ctrl+R, Ctrl+L — all readline-critical.
     for (const keyCode of ['a', 'e', 'u', 'r', 'l']) {
       expect(
-        shouldBypassXtermKeyboardEvent(
+        shouldBypassTerminalKeyboardEvent(
           event({ key: keyCode, code: `Key${keyCode.toUpperCase()}`, ctrlKey: true }),
           noSel
         )
@@ -101,13 +101,13 @@ describe('shouldBypassXtermKeyboardEvent — Windows/Linux', () => {
 
   it('bubbles already-handled Ctrl app shortcuts so kitty does not also write to shell', () => {
     expect(
-      shouldBypassXtermKeyboardEvent(
+      shouldBypassTerminalKeyboardEvent(
         event({ key: 'b', code: 'KeyB', defaultPrevented: true, ctrlKey: true }),
         noSel
       )
     ).toBe(true)
     expect(
-      shouldBypassXtermKeyboardEvent(
+      shouldBypassTerminalKeyboardEvent(
         event({
           key: 'ArrowLeft',
           code: 'ArrowLeft',
@@ -121,15 +121,15 @@ describe('shouldBypassXtermKeyboardEvent — Windows/Linux', () => {
   })
 
   it('does not bubble plain letters', () => {
-    expect(shouldBypassXtermKeyboardEvent(event({ key: 'c', code: 'KeyC' }), noSel)).toBe(false)
+    expect(shouldBypassTerminalKeyboardEvent(event({ key: 'c', code: 'KeyC' }), noSel)).toBe(false)
   })
 
   it('bubbles Shift+non-ASCII printable text so the active keyboard layout wins', () => {
     expect(
-      shouldBypassXtermKeyboardEvent(event({ key: 'Ф', code: 'KeyA', shiftKey: true }), noSel)
+      shouldBypassTerminalKeyboardEvent(event({ key: 'Ф', code: 'KeyA', shiftKey: true }), noSel)
     ).toBe(true)
     expect(
-      shouldBypassXtermKeyboardEvent(
+      shouldBypassTerminalKeyboardEvent(
         event({ type: 'keyup', key: 'Ф', code: 'KeyA', shiftKey: true }),
         noSel
       )
@@ -137,18 +137,18 @@ describe('shouldBypassXtermKeyboardEvent — Windows/Linux', () => {
   })
 
   it('does not bubble unshifted non-ASCII printable text', () => {
-    expect(shouldBypassXtermKeyboardEvent(event({ key: 'ф', code: 'KeyA' }), noSel)).toBe(false)
+    expect(shouldBypassTerminalKeyboardEvent(event({ key: 'ф', code: 'KeyA' }), noSel)).toBe(false)
   })
 
   it('does not bubble Cmd chords on non-Mac (Super+C has no clipboard meaning there)', () => {
     expect(
-      shouldBypassXtermKeyboardEvent(event({ key: 'c', code: 'KeyC', metaKey: true }), noSel)
+      shouldBypassTerminalKeyboardEvent(event({ key: 'c', code: 'KeyC', metaKey: true }), noSel)
     ).toBe(false)
   })
 
   it('leaves ordinary Shift+Space available to the terminal', () => {
     expect(
-      shouldBypassXtermKeyboardEvent(event({ key: ' ', code: 'Space', shiftKey: true }), noSel)
+      shouldBypassTerminalKeyboardEvent(event({ key: ' ', code: 'Space', shiftKey: true }), noSel)
     ).toBe(false)
   })
 })
@@ -195,7 +195,7 @@ describe('shouldSuppressTerminalImeKeyboardEvent — Windows/Linux', () => {
 
   it('suppresses Windows IME Process keys', () => {
     // Why: Windows preedit can hit the textarea before compositionstart;
-    // letting the 229 keydown through would flush it via xterm's textarea diff.
+    // letting the 229 keydown through would flush it via terminal's textarea diff.
     expect(
       shouldSuppressTerminalImeKeyboardEvent(
         event({ key: 'Process', code: 'KeyN', keyCode: 229 }),
@@ -204,9 +204,9 @@ describe('shouldSuppressTerminalImeKeyboardEvent — Windows/Linux', () => {
     ).toBe(true)
   })
 
-  it('lets standalone Linux 229 keydowns reach xterm so its CompositionHelper can diff text', () => {
+  it('lets standalone Linux 229 keydowns reach terminal so its CompositionHelper can diff text', () => {
     // Why: Sogou/fcitx candidate commits can ride a bare 229 keydown outside a
-    // composition session; xterm must see it to schedule its textarea diff.
+    // composition session; terminal must see it to schedule its textarea diff.
     expect(
       shouldSuppressTerminalImeKeyboardEvent(
         event({ key: 'Process', code: 'KeyN', keyCode: 229 }),

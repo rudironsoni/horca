@@ -8,7 +8,7 @@
  * artificial wedges, types at a fixed cadence WITHOUT waiting for each echo
  * (real users keep typing), and decomposes every key's latency into:
  *   input-half  = CDP keydown -> byte arrives at the pty (probe sidecar)
- *   echo-half   = pty echo    -> marker visible in the xterm buffer
+ *   echo-half   = pty echo    -> marker visible in the terminal buffer
  * All three clocks are epoch ms on one machine, so the halves add up.
  *
  * Scenarios are gated behind ORCA_TYPING_BENCH=1 (they are benchmarks that

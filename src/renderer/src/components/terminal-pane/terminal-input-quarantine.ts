@@ -8,7 +8,7 @@
 //
 // Quarantine drops the remainder of the interrupted line so a mangled command
 // can never be submitted. It must be keyed by tab, not by pane: recovery
-// destroys the xterm that was being typed into, and the successor pane is the
+// destroys the terminal that was being typed into, and the successor pane is the
 // one that receives the tail.
 
 /** Absolute cap from arming. A safety valve only — input must never wedge,

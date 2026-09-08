@@ -145,7 +145,7 @@ test('recovers an ACK-starved stream from an isolated headless Orca host @headfu
       }
       gate.hold([target])
     }, terminal)
-    const textarea = client.page.locator('.xterm-helper-textarea:visible').first()
+    const textarea = client.page.locator('.orca-terminal-helper-textarea:visible').first()
     await textarea.focus()
     await client.page.keyboard.type('GO')
     await client.page.keyboard.press('Enter')

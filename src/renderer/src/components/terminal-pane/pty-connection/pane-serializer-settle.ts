@@ -47,7 +47,7 @@ export function bindSettlePaneSerializer(session: ConnectPanePtySession): void {
       session.registerPaneSerializerFor(ptyId)
     }
     // Why: onSubscribed follows the snapshot callback, but replay drains
-    // asynchronously; join it and xterm's parser before reporting readiness.
+    // asynchronously; join it and terminal's parser before reporting readiness.
     void session.replayWriteQueue
       .then(() => waitForTerminalOutputParsed(session.pane.terminal))
       .then(() => {
@@ -120,12 +120,12 @@ export function bindSettlePaneSerializer(session: ConnectPanePtySession): void {
       useAppStore.getState(),
       session.deps.worktreeId
     )
-    // Why: xterm focus reports share this transport queue. Bypassing it can
+    // Why: terminal focus reports share this transport queue. Bypassing it can
     // race CSI I against the draft on ConPTY and expose a literal `[I` prefix.
     void sendAgentDraftPasteContent(settings, ptyId, session.startupDraftPrompt, async (data) => {
       const accepted = await writeTerminalPastePtyInput(session.transport, data)
       if (accepted && !startupDraftInputRecorded) {
-        // Why: this transport write bypasses xterm's user-input signal; keep
+        // Why: this transport write bypasses terminal's user-input signal; keep
         // the composed draft from being discarded by later hibernation.
         startupDraftInputRecorded = true
         session.recordTerminalInputForHibernation()

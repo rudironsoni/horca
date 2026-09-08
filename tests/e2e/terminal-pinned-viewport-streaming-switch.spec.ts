@@ -78,7 +78,8 @@ async function pinActiveTerminalNearBottom(page: Page): Promise<{
     if (!tabId || !pane) {
       throw new Error('Active terminal pane unavailable')
     }
-    const target = pane.container.querySelector<HTMLElement>('.xterm') ?? pane.container
+    const target =
+      pane.container.querySelector<HTMLElement>('.orca-terminal-canvas') ?? pane.container
     target.dispatchEvent(
       new WheelEvent('wheel', {
         bubbles: true,
@@ -91,7 +92,7 @@ async function pinActiveTerminalNearBottom(page: Page): Promise<{
     const targetViewportY = Math.max(0, buffer.baseY - 6)
     pane.terminal.scrollToLine(targetViewportY)
     pane.container
-      .querySelector<HTMLElement>('.xterm-viewport')
+      .querySelector<HTMLElement>('.orca-terminal-viewport')
       ?.dispatchEvent(new Event('scroll', { bubbles: true }))
     return { tabId, targetViewportY, baseY: buffer.baseY }
   })

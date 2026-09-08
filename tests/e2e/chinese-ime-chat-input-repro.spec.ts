@@ -199,7 +199,9 @@ async function installImeEventProbe(page: Page): Promise<void> {
           : null
     const manager = tabId ? window.__paneManagers?.get(tabId) : null
     const pane = manager?.getActivePane?.() ?? manager?.getPanes?.()[0] ?? null
-    const textarea = pane?.container.querySelector<HTMLTextAreaElement>('.xterm-helper-textarea')
+    const textarea = pane?.container.querySelector<HTMLTextAreaElement>(
+      '.orca-terminal-helper-textarea'
+    )
     if (!pane || !textarea) {
       throw new Error('No active terminal helper textarea')
     }
@@ -258,9 +260,11 @@ async function readActiveCompositionText(page: Page): Promise<string> {
   return page.evaluate(() => {
     const active = document.activeElement
     if (!(active instanceof HTMLTextAreaElement)) {
-      throw new Error('xterm helper textarea is not focused')
+      throw new Error('terminal helper textarea is not focused')
     }
-    const view = active.closest('.xterm')?.querySelector<HTMLElement>('.composition-view')
+    const view = active
+      .closest('.orca-terminal-canvas')
+      ?.querySelector<HTMLElement>('.composition-view')
     return view?.classList.contains('active')
       ? (view.textContent?.replaceAll('\u200e', '') ?? '')
       : ''
@@ -350,7 +354,7 @@ async function commitImeText(session: CDPSession, text: string): Promise<void> {
 
 async function dispatchImeProcessKey(session: CDPSession, code: string): Promise<void> {
   // Why: Windows IMEs report pre-edit keystrokes as VK_PROCESSKEY (229).
-  // This catches regressions where xterm treats the physical Pinyin key as a
+  // This catches regressions where terminal treats the physical Pinyin key as a
   // normal Latin character before Chromium delivers the composition update.
   await session.send('Input.dispatchKeyEvent', {
     type: 'rawKeyDown',
@@ -389,7 +393,7 @@ async function dispatchCandidateSelectionKey(
     text: candidate.key,
     unmodifiedText: candidate.key
   })
-  // Why: committing between keyDown and keyUp keeps xterm's _keyDownSeen set,
+  // Why: committing between keyDown and keyUp keeps terminal's _keyDownSeen set,
   // matching the trace shape where an insertText commit is actually at risk.
   await commitBetweenKeys?.()
   await session.send('Input.dispatchKeyEvent', {
@@ -419,7 +423,7 @@ async function dispatchSogouEmptyCompositionUpdate(page: Page): Promise<void> {
   await page.evaluate(() => {
     const active = document.activeElement
     if (!(active instanceof HTMLTextAreaElement)) {
-      throw new Error('xterm helper textarea is not focused')
+      throw new Error('terminal helper textarea is not focused')
     }
     active.dispatchEvent(new CompositionEvent('compositionupdate', { data: '', bubbles: true }))
   })
@@ -428,15 +432,15 @@ async function dispatchSogouEmptyCompositionUpdate(page: Page): Promise<void> {
 async function dispatchSogouPostCompositionEnd(page: Page, data: string): Promise<void> {
   // Why: some Sogou/fcitx traces deliver the plain selector key after
   // compositionend; target the terminal element so Orca's tracker sees the end
-  // without making xterm finalize a synthetic preedit string.
+  // without making terminal finalize a synthetic preedit string.
   await page.evaluate((data) => {
     const active = document.activeElement
     if (!(active instanceof HTMLTextAreaElement)) {
-      throw new Error('xterm helper textarea is not focused')
+      throw new Error('terminal helper textarea is not focused')
     }
-    const terminalElement = active.closest('.xterm')
+    const terminalElement = active.closest('.orca-terminal-canvas')
     if (!(terminalElement instanceof HTMLElement)) {
-      throw new Error('xterm terminal element was not found')
+      throw new Error('terminal terminal element was not found')
     }
     terminalElement.dispatchEvent(new CompositionEvent('compositionend', { data, bubbles: false }))
   }, data)
@@ -577,7 +581,7 @@ test.describe('Chinese IME terminal chat input repro', () => {
       const log = await readImeEventLog(orcaPage)
       expect(
         log.some((entry) => entry.type === 'compositionstart'),
-        'CDP IME path should exercise Chromium/xterm composition events'
+        'CDP IME path should exercise Chromium/terminal composition events'
       ).toBe(true)
       expect(
         log.some((entry) => entry.type === 'keydown' && entry.key === 'Process'),

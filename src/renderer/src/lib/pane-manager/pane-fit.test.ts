@@ -32,8 +32,8 @@ function createPane(options: {
   proposed?: () => { cols: number; rows: number } | undefined
 }): TestPane {
   let rect = options.rect
-  // Why: the reveal gate measures the inner xterm host, which can differ from the outer .pane.
-  let xtermRect: { width: number; height: number } | null = null
+  // Why: the reveal gate measures the inner terminal host, which can differ from the outer .pane.
+  let terminalRect: { width: number; height: number } | null = null
   let display = 'block'
   const leafId = '22222222-2222-4222-8222-222222222222'
   const pane = {
@@ -47,8 +47,8 @@ function createPane(options: {
     },
     terminalHost: {
       getBoundingClientRect: () => ({
-        width: (xtermRect ?? rect).width,
-        height: (xtermRect ?? rect).height
+        width: (terminalRect ?? rect).width,
+        height: (terminalRect ?? rect).height
       }),
       parentElement: null,
       ownerDocument: { defaultView: { getComputedStyle: () => ({ display }) } }
@@ -64,7 +64,7 @@ function createPane(options: {
       rect = next
     },
     setXtermRect: (next: { width: number; height: number }) => {
-      xtermRect = next
+      terminalRect = next
     },
     setDisplay: (next: string) => {
       display = next
@@ -453,7 +453,7 @@ describe('paneFitClientSizeChanged (reveal fit gate)', () => {
     expect(paneFitClientSizeChanged(pane)).toBe(true)
   })
 
-  it('reports changed when the inner xterm host shrank but the outer pane did not', () => {
+  it('reports changed when the inner terminal host shrank but the outer pane did not', () => {
     // A title bar / restored-session banner reduces the fittable area while the
     // outer .pane pixels stay constant; the reveal must fit, not skip.
     const pane = createPane({

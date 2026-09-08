@@ -65,7 +65,7 @@ function childScript(holdMs: number): string {
 async function recordConpty(options: RunOptions): Promise<Event[]> {
   const nodePty = await import('node-pty')
   const proc = nodePty.spawn(process.execPath, ['-e', childScript(options.holdMs)], {
-    name: 'xterm-256color',
+    name: 'xterm-ghostty',
     cols: COLS,
     rows: ROWS,
     cwd: process.cwd(),
@@ -177,7 +177,7 @@ describe('pty repaint fidelity in the terminal buffer (#15192)', () => {
 
   it('does not double a wide glyph when a resize lands mid-line', async () => {
     // Deliberately weaker than the cases above: a resize that interrupts a line
-    // lets ConPTY's reflow and xterm's disagree about where the tail belongs,
+    // lets ConPTY's reflow and terminal's disagree about where the tail belongs,
     // which would fail an exact comparison without proving duplication. What
     // must never happen either way is a glyph appearing twice.
     const events = await recordConpty({

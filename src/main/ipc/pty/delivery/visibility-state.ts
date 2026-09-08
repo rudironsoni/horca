@@ -1,7 +1,7 @@
 export const SYNTHETIC_KILL_EXIT_DUPLICATE_WINDOW_MS = 30_000
 // Why: kill switch — flip to disable producer flow control (pause/resume) without untangling the wiring.
 export const PRODUCER_FLOW_CONTROL_ENABLED = true
-// Why: mobile clients must mirror desktop PTY geometry even before the renderer can provide an xterm snapshot (e.g. right after tab creation).
+// Why: mobile clients must mirror desktop PTY geometry even before the renderer can provide an terminal snapshot (e.g. right after tab creation).
 export const ptySizes = new Map<string, { cols: number; rows: number }>()
 // Why: the "recent user input" signal is PTY-scoped and must be cleared by every teardown path, incl. SSH/daemon shutdowns that skip the local exit listener.
 export const lastInputAtByPty = new Map<string, number>()

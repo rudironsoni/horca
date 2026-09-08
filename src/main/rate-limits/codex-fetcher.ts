@@ -136,7 +136,7 @@ function resolvePtyCommand(options?: CodexRateLimitFetchOptions) {
     cwd: resolveHiddenRateLimitPtyCwd(),
     env: withCliRuntimeOnPath(codexCommand, {
       ...(wslCodex ? processEnvWithoutCodexHome() : process.env),
-      TERM: 'xterm-256color',
+      TERM: 'xterm-ghostty',
       ...(options?.codexHomePath && !wslCodex ? { CODEX_HOME: options.codexHomePath } : {})
     })
   }

@@ -1,5 +1,5 @@
 import { writeForegroundTerminalChunk } from './pane-terminal-foreground-render-settle'
-import { runGuardedWriteCompletionStep } from './xterm-write-callback-guard'
+import { runGuardedWriteCompletionStep } from './terminal-write-callback-guard'
 import { registerTerminalOutputAckCredits } from './pane-terminal-output-ack-credit'
 import {
   armTerminalWriteStallWatch,
@@ -27,14 +27,14 @@ import {
   hasHighPriorityBacklog
 } from './pane-terminal-output-queue-backlog'
 
-// Why no per-write scroll enforcement: xterm's BufferService.isUserScrolling owns live follow/pin; app-side enforcement is limited to structural ops xterm can't identify, like replay.
+// Why no per-write scroll enforcement: terminal's BufferService.isUserScrolling owns live follow/pin; app-side enforcement is limited to structural ops terminal can't identify, like replay.
 export function writeBackgroundTerminalChunk(
   terminal: TerminalOutputTarget,
   data: string,
   onParsed?: TerminalOutputParsedCallback,
   onWriteFailure?: () => void
 ): boolean {
-  // Why guarded: these callbacks run inside xterm's WriteBuffer loop, where an escaping throw permanently wedges the terminal (see xterm-write-callback-guard.ts).
+  // Why guarded: these callbacks run inside terminal's WriteBuffer loop, where an escaping throw permanently wedges the terminal (see terminal-write-callback-guard.ts).
   const runOnParsed = onParsed
     ? (): void => runGuardedWriteCompletionStep('background-on-parsed', onParsed)
     : undefined
@@ -55,7 +55,7 @@ export function writeBackgroundTerminalChunk(
   }
 }
 
-// Why: re-arm a zero-delay drain once xterm confirms the previous high-priority batch parsed; the fixed 4/16ms cadence otherwise drips far below xterm's ~100 MB/s parse. Only visible panes are pacer-clocked; background keeps the fixed cadence to protect the focused terminal.
+// Why: re-arm a zero-delay drain once terminal confirms the previous high-priority batch parsed; the fixed 4/16ms cadence otherwise drips far below terminal's ~100 MB/s parse. Only visible panes are pacer-clocked; background keeps the fixed cadence to protect the focused terminal.
 function makeParseClockPacer(): () => void {
   return () => {
     try {
@@ -63,7 +63,7 @@ function makeParseClockPacer(): () => void {
         scheduleDrain(0)
       }
     } catch {
-      // Why: runs inside xterm's write-callback chain; a throw here would wedge the terminal (see xterm-write-callback-guard.ts).
+      // Why: runs inside terminal's write-callback chain; a throw here would wedge the terminal (see terminal-write-callback-guard.ts).
     }
   }
 }
@@ -114,7 +114,7 @@ export function writeQueuedChunk(entry: QueueEntry): 'foreground' | 'background'
   }
   const pacer = entry.highPriority ? makeParseClockPacer() : undefined
   const ackCreditsParsed = registerTerminalOutputAckCredits(entry.terminal, queuedWrite.ackCredits)
-  // Why armed BEFORE the write: a wedged WriteBuffer (issue #2836) or disposed xterm (6.1.0-beta.287) never runs the parsed callback, so the watch must be live first to catch it.
+  // Why armed BEFORE the write: a wedged WriteBuffer (issue #2836) or disposed terminal (6.1.0-beta.287) never runs the parsed callback, so the watch must be live first to catch it.
   armTerminalWriteStallWatch(entry.terminal, {
     onCertifiedDead: () => discardTerminalOutput(entry.terminal)
   })
@@ -146,7 +146,7 @@ export function writeQueuedChunk(entry: QueueEntry): 'foreground' | 'background'
           composeWriteFailureCallback(entry.terminal, ackCreditsParsed)
         )
     if (!writeAccepted) {
-      // Why: the failure callback credited the submitted chunk; credit and abandon the detached tail so the drain can't retry a certified-dead xterm.
+      // Why: the failure callback credited the submitted chunk; credit and abandon the detached tail so the drain can't retry a certified-dead terminal.
       fireQueuedAckCredits(entry)
       entry.chunks.length = 0
       entry.chunkIndex = 0
@@ -156,7 +156,7 @@ export function writeQueuedChunk(entry: QueueEntry): 'foreground' | 'background'
       return null
     }
   } catch {
-    // Why: beforeWrite or write setup can fail before xterm owns the bytes; cancel the armed watch without claiming parser failure.
+    // Why: beforeWrite or write setup can fail before terminal owns the bytes; cancel the armed watch without claiming parser failure.
     cancelTerminalWriteStallWatch(entry.terminal)
     ackCreditsParsed?.()
     fireQueuedAckCredits(entry)
