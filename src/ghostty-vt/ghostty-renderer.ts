@@ -1,4 +1,5 @@
 import type { GhosttyTerminal } from './ghostty-terminal'
+import { ghosttyVt } from './ghostty-vt-access'
 import { drawPreeditOverlay } from './ghostty-preedit'
 import { drawRenderStateCursor, readCellStyle } from './ghostty-renderer-paint'
 import type { GhosttyVtHost } from './wasm-host'
@@ -55,7 +56,7 @@ export class GhosttyRenderer {
   draw(terminal: GhosttyTerminal, dpr = 1): void {
     this.host.exports.ghostty_render_state_begin_update(this.state)
     this.host.check(
-      this.host.exports.ghostty_render_state_update(this.state, terminal.handle()),
+      this.host.exports.ghostty_render_state_update(this.state, ghosttyVt(terminal).term),
       'render_state_update'
     )
     const cols = this.readStateU16('COLS')
@@ -85,7 +86,9 @@ export class GhosttyRenderer {
     this.host.free(iterSlot, 4)
     let y = 0
     while (this.host.exports.ghostty_render_state_row_iterator_next(this.rowIter)) {
-      this.drawRow(y)
+      if (this.rowIsDirty()) {
+        this.drawRow(y)
+      }
       y += 1
     }
     drawRenderStateCursor(this.host, this.ctx, this.state, this.cellWidth, this.cellHeight)
@@ -126,43 +129,89 @@ export class GhosttyRenderer {
     this.cells = this.host.readU32(cellsSlot)
     this.host.free(cellsSlot, 4)
     let x = 0
+    let runStart = 0
+    let runText = ''
+    let runFg = ''
+    let runBg: string | null = null
+    let runFont = ''
+    let runUnderline = false
+    let runStrike = false
+    const py = y * this.cellHeight
+    const flush = (): void => {
+      if (!runText) {
+        return
+      }
+      const px = runStart * this.cellWidth
+      const width = runText.length * this.cellWidth
+      if (runBg && runBg !== 'rgb(0 0 0)') {
+        this.ctx.fillStyle = runBg
+        this.ctx.fillRect(px, py, width, this.cellHeight)
+      }
+      this.ctx.font = runFont
+      this.ctx.fillStyle = runFg
+      this.ctx.fillText(runText, px, py)
+      this.ctx.strokeStyle = runFg
+      this.ctx.lineWidth = 1
+      if (runUnderline) {
+        this.ctx.beginPath()
+        this.ctx.moveTo(px, py + this.cellHeight - 1)
+        this.ctx.lineTo(px + width, py + this.cellHeight - 1)
+        this.ctx.stroke()
+      }
+      if (runStrike) {
+        this.ctx.beginPath()
+        this.ctx.moveTo(px, py + this.cellHeight / 2)
+        this.ctx.lineTo(px + width, py + this.cellHeight / 2)
+        this.ctx.stroke()
+      }
+      runText = ''
+    }
     while (this.host.exports.ghostty_render_state_row_cells_next(this.cells)) {
       const selected = this.readCellFlag('SELECTED')
       const bg = this.readCellRgb('BG_COLOR')
       const fg = this.readCellRgb('FG_COLOR')
-      const px = x * this.cellWidth
-      const py = y * this.cellHeight
       const bgCss = selected ? cssRgb(fg ?? [221, 221, 221]) : cssRgb(bg)
       const fgCss = selected ? cssRgb(bg ?? [0, 0, 0]) : cssRgb(fg ?? [221, 221, 221])
-      if (bgCss) {
-        this.ctx.fillStyle = bgCss
-        this.ctx.fillRect(px, py, this.cellWidth, this.cellHeight)
-      }
       const style = readCellStyle(this.host, this.cells)
-      const grapheme = style.invisible ? '' : this.readCellUtf8()
-      if (grapheme) {
-        const italic = style.italic ? 'italic ' : ''
-        const bold = style.bold ? 'bold ' : ''
-        this.ctx.font = `${italic}${bold}${this.cellHeight * 0.8}px ${this.fontFamily}`
-        this.ctx.fillStyle = fgCss
-        this.ctx.fillText(grapheme, px, py)
-        this.ctx.strokeStyle = fgCss
-        this.ctx.lineWidth = 1
-        if (style.underline) {
-          this.ctx.beginPath()
-          this.ctx.moveTo(px, py + this.cellHeight - 1)
-          this.ctx.lineTo(px + this.cellWidth, py + this.cellHeight - 1)
-          this.ctx.stroke()
-        }
-        if (style.strikethrough) {
-          this.ctx.beginPath()
-          this.ctx.moveTo(px, py + this.cellHeight / 2)
-          this.ctx.lineTo(px + this.cellWidth, py + this.cellHeight / 2)
-          this.ctx.stroke()
-        }
+      const grapheme = style.invisible ? ' ' : this.readCellUtf8() || ' '
+      const italic = style.italic ? 'italic ' : ''
+      const bold = style.bold ? 'bold ' : ''
+      const font = `${italic}${bold}${this.cellHeight * 0.8}px ${this.fontFamily}`
+      if (
+        runText &&
+        (fgCss !== runFg ||
+          bgCss !== runBg ||
+          font !== runFont ||
+          style.underline !== runUnderline ||
+          style.strikethrough !== runStrike)
+      ) {
+        flush()
+        runStart = x
       }
+      if (!runText) {
+        runStart = x
+        runFg = fgCss
+        runBg = bgCss
+        runFont = font
+        runUnderline = style.underline
+        runStrike = style.strikethrough
+      }
+      runText += grapheme
       x += 1
     }
+    flush()
+  }
+
+  private rowIsDirty(): boolean {
+    const ptr = this.host.alloc(1)
+    const result = this.host.exports.ghostty_render_state_row_get(
+      this.rowIter,
+      this.host.enumValue('GhosttyRenderStateRowData', 'DIRTY'),
+      ptr
+    )
+    const dirty = result !== this.host.success || this.host.bytes()[ptr] !== 0
+    this.host.free(ptr, 1)
+    return dirty
   }
 
   private readStateU16(name: string): number {

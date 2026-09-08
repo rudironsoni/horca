@@ -1,18 +1,21 @@
-import { readGridLine } from '../../../../ghostty-vt/ghostty-grid-introspection'
 import type { GhosttyTerminal } from '../../../../ghostty-vt/ghostty-terminal'
+import { readGridLine } from '../../../../ghostty-vt/ghostty-terminal-ops'
 import { HeadlessVtQueryParser } from '../../../../ghostty-vt/headless-vt-query-parser'
-import type { IBuffer, IBufferLine, OrcaDisposable } from '../../../../shared/orca-terminal-surface'
+import type {
+  OrcaDisposable,
+  OrcaTerminalGrid,
+  OrcaTerminalLine
+} from '../../../../shared/orca-terminal-surface'
 
 export function createOrcaPaneBuffer(
   engine: GhosttyTerminal,
   baseY: () => number
-): { active: IBuffer } {
+): { active: OrcaTerminalGrid } {
   return {
-    get active(): IBuffer {
+    get active(): OrcaTerminalGrid {
       const cursor = engine.cursor
       const origin = baseY()
       const cols = engine.cols
-      const { host, term } = engine.hostHandle()
       return {
         cursorX: cursor.x,
         cursorY: cursor.y,
@@ -20,8 +23,8 @@ export function createOrcaPaneBuffer(
         length: origin + engine.rows,
         viewportY: origin,
         type: engine.isAlternateScreen ? 'alternate' : 'normal',
-        getLine: (y: number): IBufferLine | undefined => {
-          const line = readGridLine(host, term, cols, y)
+        getLine: (y: number): OrcaTerminalLine | undefined => {
+          const line = readGridLine(engine, y)
           if (!line) {
             return undefined
           }
