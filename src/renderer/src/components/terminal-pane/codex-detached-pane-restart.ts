@@ -50,7 +50,7 @@ async function sweepUnclaimedCodexPaneRestart(ptyId: string): Promise<void> {
     }
     // Why: a live primary handler means a mounted pane owns this PTY, and its
     // restart effect re-runs on both the queue write and the transport bind —
-    // it is guaranteed to claim, and only it can reconnect the xterm in place.
+    // it is guaranteed to claim, and only it can reconnect the terminal in place.
     if (ptyDataHandlers.has(ptyId) || inFlightPtyIds.has(ptyId)) {
       return
     }

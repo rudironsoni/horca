@@ -230,7 +230,7 @@ describe('AgentTerminalPreview', () => {
     expect(input).toHaveBeenCalledOnce()
     expect(input).toHaveBeenCalledWith('pty-1', '。')
 
-    // A claimed native-text key bypasses xterm AND the clipboard chords.
+    // A claimed native-text key bypasses terminal AND the clipboard chords.
     imeHarness.claimResult = true
     terminal.selectionText = 'selected text'
     const claimed = new KeyboardEvent('keydown', {
@@ -316,7 +316,7 @@ describe('AgentTerminalPreview', () => {
     expect(imeHarness.trackers[0]!.dispose).toHaveBeenCalledOnce()
   })
 
-  it('copies the terminal selection on the copy chord and blocks xterm handling', async () => {
+  it('copies the terminal selection on the copy chord and blocks terminal handling', async () => {
     render(<AgentTerminalPreview ptyId="pty-1" />)
     await waitFor(() => expect(terminalHarness.instances).toHaveLength(1))
     const terminal = terminalHarness.instances[0]!
@@ -377,7 +377,7 @@ describe('AgentTerminalPreview', () => {
     expect(writeTerminalClipboardText).not.toHaveBeenCalled()
   })
 
-  it('selects all terminal text on Cmd+A and blocks xterm handling', async () => {
+  it('selects all terminal text on Cmd+A and blocks terminal handling', async () => {
     platformState.value = 'darwin'
     render(<AgentTerminalPreview ptyId="pty-1" />)
     await waitFor(() => expect(terminalHarness.instances).toHaveLength(1))
@@ -405,7 +405,7 @@ describe('AgentTerminalPreview', () => {
     expect(terminal.selectAll).toHaveBeenCalledOnce()
   })
 
-  it('sends the word-kill byte on Ctrl+Backspace and blocks xterm handling', async () => {
+  it('sends the word-kill byte on Ctrl+Backspace and blocks terminal handling', async () => {
     render(<AgentTerminalPreview ptyId="pty-1" />)
     await waitFor(() => expect(terminalHarness.instances).toHaveLength(1))
     const terminal = terminalHarness.instances[0]!
@@ -431,7 +431,7 @@ describe('AgentTerminalPreview', () => {
     const terminal = terminalHarness.instances[0]!
     await waitFor(() => expect(terminal.customKeyHandler).not.toBeNull())
 
-    // Ctrl+Shift+D splits a pane on Linux; xterm would otherwise send Ctrl+D.
+    // Ctrl+Shift+D splits a pane on Linux; terminal would otherwise send Ctrl+D.
     const keydown = new KeyboardEvent('keydown', {
       key: 'D',
       code: 'KeyD',
@@ -496,7 +496,7 @@ describe('AgentTerminalPreview', () => {
     view.unmount()
   })
 
-  it('defers Option chords to xterm once the TUI negotiates kitty keyboard mode', async () => {
+  it('defers Option chords to terminal once the TUI negotiates kitty keyboard mode', async () => {
     render(<AgentTerminalPreview ptyId="pty-1" />)
     await waitFor(() => expect(terminalHarness.instances).toHaveLength(1))
     const terminal = terminalHarness.instances[0]!
@@ -575,7 +575,7 @@ describe('AgentTerminalPreview', () => {
     expect(terminal.input).not.toHaveBeenCalled()
   })
 
-  it('leaves an unmodified Backspace to xterm', async () => {
+  it('leaves an unmodified Backspace to terminal', async () => {
     render(<AgentTerminalPreview ptyId="pty-1" />)
     await waitFor(() => expect(terminalHarness.instances).toHaveLength(1))
     const terminal = terminalHarness.instances[0]!

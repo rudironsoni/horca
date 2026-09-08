@@ -89,7 +89,7 @@ export function waitForTerminalOutputParsed(terminal: TerminalOutputTarget): Pro
       resolve()
     }
     const finishParsed = (): void => {
-      // Why: serializer/startup probes share xterm's FIFO with replay guards; their completion is real parser progress despite carrying no bytes.
+      // Why: serializer/startup probes share terminal's FIFO with replay guards; their completion is real parser progress despite carrying no bytes.
       recordTerminalParseProgress(terminal)
       finish()
     }
@@ -97,7 +97,7 @@ export function waitForTerminalOutputParsed(terminal: TerminalOutputTarget): Pro
     try {
       terminal.write('', finishParsed)
     } catch {
-      // Why: a synchronous rejection means this xterm can't accept even an empty FIFO probe; recovery must replace it before reuse.
+      // Why: a synchronous rejection means this terminal can't accept even an empty FIFO probe; recovery must replace it before reuse.
       failTerminalWriteStallWatch(terminal)
       finish()
     }

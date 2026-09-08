@@ -95,7 +95,7 @@ export async function runZshPty(options: ZshPtyOptions): Promise<ZshPtyRun> {
   const timeoutMs = options.timeoutMs ?? 20_000
 
   const proc = pty.spawn(ZSH_PATH, ['-l', '-i'], {
-    name: 'xterm-256color',
+    name: 'xterm-ghostty',
     cols: 200,
     rows: 40,
     cwd: options.cwd ?? workDir,

@@ -32,7 +32,7 @@ describe('createActivityPortalReadinessLatch', () => {
     }
   })
 
-  it('tolerates a few legitimate flips while xterm attaches', () => {
+  it('tolerates a few legitimate flips while terminal attaches', () => {
     const latch = createActivityPortalReadinessLatch()
     expect(latch.next('loading')).toBe('loading')
     expect(latch.next('unavailable')).toBe('unavailable')

@@ -7,7 +7,7 @@ async function dispatchObservedIbusHangulSequence(
   await page.evaluate((selectedVariant) => {
     const textarea = document.activeElement
     if (!(textarea instanceof HTMLTextAreaElement)) {
-      throw new Error('xterm helper textarea is not focused')
+      throw new Error('terminal helper textarea is not focused')
     }
     const composition = (type: string, data = ''): void => {
       textarea.dispatchEvent(new CompositionEvent(type, { bubbles: true, data }))

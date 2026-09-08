@@ -18,7 +18,7 @@ import {
 } from './terminal-input-quarantine'
 
 // Why this module exists: a terminal pane can die renderer-side while its PTY
-// stays alive — a wedged xterm WriteBuffer (issue #2836), a disposed xterm
+// stays alive — a wedged terminal WriteBuffer (issue #2836), a disposed terminal
 // still receiving writes, or a transport that lost its PTY binding across a
 // remount race. Every pre-existing recovery path (dead-session reconcile,
 // hibernation wake) gates on the PTY being dead, so these panes stayed
@@ -26,11 +26,11 @@ import {
 // user reloaded the window (issue #8104 class). Recovery here reuses the
 // proven remount seam — bumping the tab's generation unmounts TerminalPane,
 // detach() preserves the live PTY, and the remounted pane builds a fresh
-// xterm that reattaches and replays the daemon snapshot. No shell restart.
+// terminal that reattaches and replays the daemon snapshot. No shell restart.
 //
 // The budget and the epoch live on the tab row (terminal-tab-recovery-ledger),
-// not in maps keyed by tabId here. Only the mounted-xterm registry below is
-// still module-level: an xterm instance genuinely outlives no store row, so it
+// not in maps keyed by tabId here. Only the mounted-terminal registry below is
+// still module-level: a terminal instance genuinely outlives no store row, so it
 // has nothing to shadow.
 
 export type { TerminalPaneRecoveryReason }
@@ -42,7 +42,7 @@ type RecoveryRequest = {
   /** Identifies the tab recovery epoch making the request. A successful
    *  recovery must immediately invalidate every pre-remount request. */
   terminalRecoveryGeneration?: number
-  /** Identifies the concrete mounted xterm making the request. Disposal
+  /** Identifies the concrete mounted terminal making the request. Disposal
    *  invalidates delayed work even when the tab's recovery epoch is unchanged. */
   terminalRecoveryInstanceId?: number
   /** Defaults to 'automatic'. 'user' marks the explicit Retry in the error
@@ -149,7 +149,7 @@ function scheduleRecoveryRetry(request: RecoveryRequest, delayMs: number): void 
   const pendingRetry = pendingRetryByTabId.get(request.tabId)
   if (pendingRetry) {
     // Multiple split panes share a tab-wide remount. Keep one request per
-    // concrete xterm so disposing one pane cannot cancel a sibling's heal.
+    // concrete terminal so disposing one pane cannot cancel a sibling's heal.
     pendingRetry.requestsByInstanceId.set(request.terminalRecoveryInstanceId, request)
     return
   }
@@ -223,7 +223,7 @@ export async function requestTerminalPaneRecovery(request: RecoveryRequest): Pro
   const state = useAppStore.getState()
   const tab = locateTerminalTab(state.tabsByWorktree, request.tabId)?.tab
   // A terminal-backed tab is intentionally hidden while native chat owns the
-  // provider. Late xterm callbacks from that hidden surface must not remount
+  // provider. Late terminal callbacks from that hidden surface must not remount
   // the tab and race the handoff's owner transition.
   //
   // Both indices, deliberately. The row is now the durable record (viewMode
@@ -305,7 +305,7 @@ export async function requestTerminalPaneRecovery(request: RecoveryRequest): Pro
       ? false
       : handleDeclinedRecovery(request, result)
   }
-  // A remount replaces every pane xterm in the tab; a previously scheduled
+  // A remount replaces every pane terminal in the tab; a previously scheduled
   // retry would only re-remount the fresh, healthy panes.
   cancelPendingRecoveryRetry(request.tabId)
   if (request.endpointReplaced) {

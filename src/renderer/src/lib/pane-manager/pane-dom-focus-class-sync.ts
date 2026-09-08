@@ -6,13 +6,13 @@ export function attachDomRendererFocusClassSync(
   }
 
   const sync = (): void => {
-    const rows = terminalElement.querySelector<HTMLElement>('.xterm-rows')
+    const rows = terminalElement.querySelector<HTMLElement>('.orca-terminal-rows')
     if (!rows) {
       return
     }
-    // Why: xterm 6 can leave the root focused while the DOM renderer rows miss
-    // xterm-focus; its cursor blink CSS keys off the rows class.
-    rows.classList.toggle('xterm-focus', terminalElement.classList.contains('focus'))
+    // Why: terminal 6 can leave the root focused while the DOM renderer rows miss
+    // orca-terminal-focus; its cursor blink CSS keys off the rows class.
+    rows.classList.toggle('orca-terminal-focus', terminalElement.classList.contains('focus'))
   }
 
   const scheduleSync = (): void => {

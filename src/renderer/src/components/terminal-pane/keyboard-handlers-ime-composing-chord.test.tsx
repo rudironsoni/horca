@@ -66,7 +66,7 @@ function createHarness(): {
   const scope = document.createElement('div')
   const terminalElement = document.createElement('div')
   const terminalInput = document.createElement('textarea')
-  terminalInput.className = 'xterm-helper-textarea'
+  terminalInput.className = 'orca-terminal-helper-textarea'
   terminalElement.append(terminalInput)
   scope.append(terminalElement)
   document.body.append(scope)
@@ -187,7 +187,7 @@ describe('a cursor chord pressed during a composition', () => {
   }
 
   // The Korean 2-Set shape: the platform replays the chord unmarked after keyup, so `isComposing`
-  // is already false — but xterm has not yet emitted the session end that writes the syllable.
+  // is already false — but terminal has not yet emitted the session end that writes the syllable.
   it('sends the composed syllable before the chord, not after it', () => {
     const harness = createHarness()
     const hook = renderHook(() => useTerminalKeyboardShortcuts(harness.deps))

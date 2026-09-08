@@ -121,7 +121,7 @@ const MAIN_RENDERER_PRESSURE_TARGET_CHARS = 2 * 1024 * 1024
 // Why: these are regression budgets, not observed baselines. Repeated local
 // 100-pane OpenCode-scale runs are below 50ms worst-key latency; keep enough
 // CI headroom while still failing changes that make typing visibly sluggish.
-// Why: Canvas2D plus macOS IME `input` commit is slower than the old xterm
+// Why: Canvas2D plus macOS IME `input` commit is slower than the old terminal
 // WebGL path that this 75ms budget was written against.
 const MAX_MEDIAN_KEY_LATENCY_MS = 250
 const MAX_WORST_KEY_LATENCY_MS = 350
@@ -282,7 +282,7 @@ async function measureTypingDuringLoad(
     const marker = `OPENCODE_TYPING_KEY_${runId}_${index + 1}`
     await focusTerminalPaneByPtyId(page, ptyId)
     await page
-      .locator(`[data-pty-id=${JSON.stringify(ptyId)}] textarea.xterm-helper-textarea`)
+      .locator(`[data-pty-id=${JSON.stringify(ptyId)}] textarea.orca-terminal-helper-textarea`)
       .click({ force: true })
     const start = performance.now()
     await page.keyboard.type(char)

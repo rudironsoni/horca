@@ -21,7 +21,7 @@ export function captureInsertionTarget(): DictationInsertionTarget | null {
     return null
   }
 
-  if (activeElement.classList.contains('xterm-helper-textarea')) {
+  if (activeElement.classList.contains('orca-terminal-helper-textarea')) {
     const paneElement = activeElement.closest('.pane[data-pane-id]') as HTMLElement | null
     const tabElement = activeElement.closest('[data-terminal-tab-id]') as HTMLElement | null
     const paneId = Number(paneElement?.dataset.paneId)

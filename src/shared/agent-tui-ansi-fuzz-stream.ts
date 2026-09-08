@@ -33,7 +33,7 @@ export type AgentTuiStreamProfile = {
    *  rehydrate parity; the renderer-side fuzz cannot import that main-only
    *  module (tsconfig.tc.web.json excludes src/main/daemon), so it opts out. */
   includeMouseModes: boolean
-  /** OSC 8 hyperlinks mark their cells underlined in the xterm buffer, but
+  /** OSC 8 hyperlinks mark their cells underlined in the terminal buffer, but
    *  SerializeAddon never re-emits OSC 8 — production restores link ranges
    *  out-of-band via snapshot.oscLinks (collectHeadlessOscLinkRanges), so
    *  byte-replay fidelity legitimately drops that underline. The suites pin

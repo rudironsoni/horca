@@ -52,7 +52,7 @@ describe('resolveNonLatinControlChordInput', () => {
   })
 
   // An ASCII logical key is authoritative: a Dvorak remap really did move the letter.
-  it('leaves an ASCII logical key to xterm', () => {
+  it('leaves an ASCII logical key to terminal', () => {
     expect(resolveNonLatinControlChordInput(event({ key: 'a', code: 'KeyA' }))).toBeNull()
     expect(resolveNonLatinControlChordInput(event({ key: 'j', code: 'KeyC' }))).toBeNull()
   })
@@ -67,7 +67,7 @@ describe('resolveNonLatinControlChordInput', () => {
   })
 
   it('ignores physical keys that are not letters', () => {
-    // Digits and punctuation stay ASCII in `key` on these layouts, so xterm still sees them.
+    // Digits and punctuation stay ASCII in `key` on these layouts, so terminal still sees them.
     expect(resolveNonLatinControlChordInput(event({ key: '2', code: 'Digit2' }))).toBeNull()
     expect(resolveNonLatinControlChordInput(event({ code: 'BracketLeft' }))).toBeNull()
     expect(resolveNonLatinControlChordInput(event({ code: undefined }))).toBeNull()

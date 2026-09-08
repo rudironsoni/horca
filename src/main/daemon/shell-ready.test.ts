@@ -39,7 +39,7 @@ const itWithFish = FISH.available ? it : it.skip
 
 const SHELL_READY_MARKER_OUTPUT = '\x1b]777;orca-shell-ready\x07'
 
-/** Minimal xterm.js-shaped answers to the capability queries fish emits at startup
+/** Minimal Ghostty-shaped answers to the capability queries fish emits at startup
  *  and again around every prompt. */
 const TERMINAL_QUERY_REPLIES: readonly (readonly [string, string])[] = [
   ['\x1b[0c', '\x1b[?6c'], // primary device attributes
@@ -62,14 +62,14 @@ async function runInteractiveZshLogin(args: {
   const pty = await import('node-pty')
   // Why: -o noglobalrcs skips /etc/zsh/*, whose insecure fpath dirs make compinit block on a [y/n] prompt before the marker fires.
   const proc = pty.spawn('zsh', ['-o', 'noglobalrcs', '-l'], {
-    name: 'xterm-256color',
+    name: 'xterm-ghostty',
     cols: 80,
     rows: 24,
     cwd: args.tempHome,
     env: {
       PATH: process.env.PATH ?? '/usr/bin:/bin',
       HOME: args.tempHome,
-      TERM: 'xterm-256color',
+      TERM: 'xterm-ghostty',
       ZDOTDIR: args.wrapperZdotdir,
       ORCA_ORIG_ZDOTDIR: args.tempHome,
       ORCA_ZSHENV_SOURCE_DIR: args.tempHome,
@@ -102,14 +102,14 @@ async function runInteractiveZshRc(args: {
   const pty = await import('node-pty')
   // Why: -o noglobalrcs skips /etc/zsh/* so the CI runner's global compinit can't block on an insecure-directory [y/n] prompt.
   const proc = pty.spawn('zsh', ['-o', 'noglobalrcs', '-i'], {
-    name: 'xterm-256color',
+    name: 'xterm-ghostty',
     cols: 80,
     rows: 24,
     cwd: args.zdotdir,
     env: {
       PATH: process.env.PATH ?? '/usr/bin:/bin',
       HOME: args.zdotdir,
-      TERM: 'xterm-256color',
+      TERM: 'xterm-ghostty',
       ZDOTDIR: args.zdotdir,
       ORCA_SHELL_FEATURES: 'ready'
     }
@@ -250,14 +250,14 @@ describePosix('daemon shell-ready launch config', () => {
         )
         const pty = await import('node-pty')
         const proc = pty.spawn('fish', config.args ?? [], {
-          name: 'xterm-256color',
+          name: 'xterm-ghostty',
           cols: 80,
           rows: 24,
           cwd: tempHome,
           env: {
             PATH: process.env.PATH ?? '/usr/bin:/bin',
             HOME: tempHome,
-            TERM: 'xterm-256color',
+            TERM: 'xterm-ghostty',
             ...config.env
           }
         })

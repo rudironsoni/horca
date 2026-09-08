@@ -30,7 +30,7 @@ import { waitForTabParked } from './helpers/terminal-hidden-parking'
 //  1. viewport anchored at the buffer bottom (not stranded mid-scrollback),
 //  2. a recent CODEX_FRAME + the input-box row visible in the on-screen rows,
 //  3. still following (frame number advances on screen) after convergence,
-//  4. xterm grid == fit proposal == PTY-applied size (no stale 80x24 PTY).
+//  4. terminal grid == fit proposal == PTY-applied size (no stale 80x24 PTY).
 
 const PARKING_DELAY_MS = Number(process.env.ORCA_E2E_TERMINAL_PARKING_DELAY_MS) || 500
 
@@ -119,7 +119,7 @@ async function probeRevealedPane(page: Page, tabId: string): Promise<RevealProbe
 }
 
 // Painted-pixels check: buffer-level assertions cannot see paint-layer bugs
-// (atlas wipe races, paused-RenderService swallowed refreshes), where xterm's
+// (atlas wipe races, paused-RenderService swallowed refreshes), where terminal's
 // buffer is perfect but the canvas shows blank/stale cells until a resize.
 // Measure the "ink" (non-background pixel ratio) of a horizontal band of the
 // pane screenshot; the fixture's live block guarantees box-drawing + text ink
@@ -440,7 +440,7 @@ async function assertRevealConvergence(
     )
     .toBeGreaterThan(convergedFrame)
 
-  // Geometry: no stale-80x24 leg — xterm grid, fit proposal, and PTY-applied
+  // Geometry: no stale-80x24 leg — terminal grid, fit proposal, and PTY-applied
   // size must agree without any manual resize.
   const probe = await probeRevealedPane(page, tabId)
   expect(probe, `${label}: pane disappeared after convergence`).not.toBeNull()
@@ -701,7 +701,7 @@ test.describe('Inline TUI reveal convergence', () => {
       await waitForTabParked(orcaPage, setup.tabId, { parkDelayMs: PARKING_DELAY_MS })
 
       // Resize while parked: the remount measures a grid that matches neither
-      // the pre-park xterm nor the daemon snapshot — maximum dimension churn.
+      // the pre-park terminal nor the daemon snapshot — maximum dimension churn.
       await resizeAppWindow(electronApp, -180, -120)
       await streamWhileParked(setup, 100)
 

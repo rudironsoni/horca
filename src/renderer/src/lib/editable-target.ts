@@ -8,10 +8,10 @@ export function isEditableTarget(target: EventTarget | null): boolean {
     return false
   }
 
-  // xterm.js focuses a hidden <textarea class="xterm-helper-textarea"> for
+  // Ghostty focuses a hidden <textarea class="orca-terminal-helper-textarea"> for
   // keyboard input.  That element IS an editable target, but we must NOT
   // suppress global shortcuts when the terminal itself is focused.
-  if (target.classList.contains('xterm-helper-textarea')) {
+  if (target.classList.contains('orca-terminal-helper-textarea')) {
     return false
   }
 

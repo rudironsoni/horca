@@ -127,7 +127,7 @@ describe('createPtySubprocess', () => {
         cols: 80,
         rows: 24,
         cwd: '/home/user',
-        name: 'xterm-256color'
+        name: 'xterm-ghostty'
       })
     )
     expect(onMacosTccSpawnStrategy).toHaveBeenCalledWith('direct')

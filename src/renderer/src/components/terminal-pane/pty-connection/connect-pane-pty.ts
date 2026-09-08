@@ -53,7 +53,7 @@ export function connectPanePty(
   // scan of tabsByWorktree on the connect path.
   const terminalTab = findTerminalTabForPane(useAppStore.getState(), deps.worktreeId, deps.tabId)
   session.tabGeneration = terminalTab?.generation ?? 0
-  // Why: recovery ownership belongs to this xterm instance. A request that
+  // Why: recovery ownership belongs to this terminal instance. A request that
   // settles after remount must not remount its already-replaced successor.
   session.terminalRecoveryGeneration = captureTabRecoveryGeneration(terminalTab)
   session.terminalRecoveryInstance = registerTerminalPaneRecoveryInstance(session.deps.tabId)

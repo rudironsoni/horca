@@ -254,7 +254,7 @@ describe('CodexRestartChip pane focus', () => {
     await act(async () => {
       root.render(
         <div data-pane="stale">
-          <textarea className="xterm-helper-textarea" />
+          <textarea className="orca-terminal-helper-textarea" />
           <CodexRestartChip isVisible={isVisible} ptyId={PTY_ONE} shouldFocus={shouldFocus} />
         </div>
       )

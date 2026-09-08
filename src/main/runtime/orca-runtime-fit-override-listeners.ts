@@ -86,7 +86,7 @@ export class OrcaRuntimeWithFitOverrideListeners extends OrcaRuntimeWithStopRequ
 
   // Why: OSC 9999 status can span PTY chunks. Keeping parser state in the
   // runtime lets hidden/model-owned terminals observe agent state without a
-  // mounted xterm view.
+  // mounted terminal view.
   // Why a throttle: the blocked-reason check builds and scans two full wait
   // texts (<=256KB each, lowercased) — measured at ~85% of onPtyData's cost
   // under a TUI flood (findings log 2026-07-03). PTY chunk boundaries are
@@ -182,7 +182,7 @@ export class OrcaRuntimeWithFitOverrideListeners extends OrcaRuntimeWithStopRequ
   >()
 
   // Why: Phase-5 query-responder suppression — a terminal-RPC subscribe
-  // stream feeds a remote xterm view (mobile/web/remote desktop) that answers
+  // stream feeds a remote terminal view (mobile/web/remote desktop) that answers
   // queries with view authority, so main must yield while one is attached
   // (terminal-query-authority.md). Ref-counted per PTY because multiple
   // streams can attach concurrently; mobileSubscribers is consulted too so

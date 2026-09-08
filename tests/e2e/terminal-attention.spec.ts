@@ -132,9 +132,11 @@ async function focusActiveXterm(page: Page, tabId: string): Promise<void> {
   await page.evaluate((targetTabId) => {
     const manager = window.__paneManagers?.get(targetTabId)
     const pane = manager?.getActivePane?.()
-    const textarea = pane?.container.querySelector<HTMLTextAreaElement>('.xterm-helper-textarea')
+    const textarea = pane?.container.querySelector<HTMLTextAreaElement>(
+      '.orca-terminal-helper-textarea'
+    )
     if (!pane || !textarea) {
-      throw new Error(`No active xterm textarea for terminal tab ${targetTabId}`)
+      throw new Error(`No active terminal textarea for terminal tab ${targetTabId}`)
     }
     pane.terminal.focus()
     textarea.focus()
@@ -144,11 +146,11 @@ async function focusActiveXterm(page: Page, tabId: string): Promise<void> {
     .poll(
       () =>
         page.evaluate(
-          () => document.activeElement?.classList.contains('xterm-helper-textarea') ?? false
+          () => document.activeElement?.classList.contains('orca-terminal-helper-textarea') ?? false
         ),
       {
         timeout: 5_000,
-        message: 'xterm helper textarea did not receive keyboard focus'
+        message: 'terminal helper textarea did not receive keyboard focus'
       }
     )
     .toBe(true)
@@ -332,13 +334,13 @@ test.describe('Terminal attention', () => {
     await expect
       .poll(async () => (await getUnreadTerminalTabIds(orcaPage)).includes(activeTabId), {
         timeout: 5_000,
-        message: 'Unread tab state did not clear after pressing Escape in xterm'
+        message: 'Unread tab state did not clear after pressing Escape in terminal'
       })
       .toBe(false)
     await expect
       .poll(async () => (await getUnreadTerminalPaneKeys(orcaPage)).includes(activePaneKey), {
         timeout: 5_000,
-        message: 'Unread pane state did not clear after pressing Escape in xterm'
+        message: 'Unread pane state did not clear after pressing Escape in terminal'
       })
       .toBe(false)
     await expect(activeTabBell).toBeHidden()
@@ -347,9 +349,9 @@ test.describe('Terminal attention', () => {
   // Why (restart regression guard): the original user-reported bug was that
   // after restarting Orca with a Claude Code session open, clicking between
   // panes on the restored tab produced undismissable bell indicators. Root
-  // cause: xterm's SerializeAddon captures the TUI's mode-setting bytes
+  // cause: terminal's SerializeAddon captures the TUI's mode-setting bytes
   // (e.g. `\e[?1004h` for focus reporting) in the scrollback snapshot, and
-  // replaying that snapshot on restart re-enables focus reporting in xterm
+  // replaying that snapshot on restart re-enables focus reporting in terminal
   // even though the underlying shell is fresh. Pane clicks then emit
   // `\e[I` / `\e[O` into zsh, which rings the bell as unbound-key input.
   //
@@ -358,11 +360,11 @@ test.describe('Terminal attention', () => {
   // shell. This test pins that fix: after writing a DECSET 1004 byte into
   // the terminal, focus events should NOT be emitted back to the PTY.
   //
-  // We drive xterm directly with the focus-enable escape (simulating what
+  // We drive terminal directly with the focus-enable escape (simulating what
   // the replay would do) and then simulate focus changes — without the
-  // reset, xterm would dutifully emit focus escapes; with the reset, mode
+  // reset, terminal would dutifully emit focus escapes; with the reset, mode
   // 1004 is off and nothing leaks to the shell, so no BELs fire.
-  test('mode bits replayed into xterm do not leak focus escapes to the shell', async ({
+  test('mode bits replayed into terminal do not leak focus escapes to the shell', async ({
     orcaPage
   }) => {
     await waitForSessionReady(orcaPage)
@@ -379,20 +381,20 @@ test.describe('Terminal attention', () => {
     await waitForActiveTerminalManager(orcaPage, 30_000)
 
     // secondTabId is already active after createTerminalTab. Simulate what
-    // scrollback replay does: a DECSET 1004 byte landing in xterm. Then
-    // install an onData spy so we can observe everything xterm emits from
+    // scrollback replay does: a DECSET 1004 byte landing in terminal. Then
+    // install an onData spy so we can observe everything terminal emits from
     // this point on — crucially, the focus escapes `\e[I` / `\e[O` that
     // leak when mode 1004 is still enabled. The POST_REPLAY_MODE_RESET
     // bundle should turn mode 1004 OFF; if it does, no focus escape is
     // emitted on the next blur and the spy's buffer stays empty.
-    // Why: xterm's parser is async — bytes passed to `write()` are queued and
+    // Why: terminal's parser is async — bytes passed to `write()` are queued and
     // consumed on a later tick. During the brief window when mode 1004 is
-    // enabled, xterm emits a synchronous focus-IN (`\e[I`) because the
+    // enabled, terminal emits a synchronous focus-IN (`\e[I`) because the
     // terminal is focused; that emission MUST NOT land in the spy or the
     // assertion below will false-positive even when the post-replay reset
     // worked correctly.
     //
-    // We use xterm's `write(data, callback)` overload: the callback fires
+    // We use terminal's `write(data, callback)` overload: the callback fires
     // AFTER the parser has consumed that write. By installing the spy inside
     // the callback for the POST_REPLAY_MODE_RESET write, we guarantee any
     // transient focus escapes emitted while mode 1004 was briefly on have
@@ -431,11 +433,11 @@ test.describe('Terminal attention', () => {
     // Why (try/finally): the onData spy + disposer live on window globals on
     // the shared renderer. If any assertion below throws, we still MUST tear
     // down the spy so it doesn't leak into subsequent tests (which would see
-    // stale captured data and/or a dangling xterm onData subscription).
+    // stale captured data and/or a dangling terminal onData subscription).
     try {
       // Trigger focus change away from secondTabId. If mode 1004 is still
-      // enabled, xterm will emit `\e[O` via onData — captured by the spy above.
-      // Also explicitly blur the xterm instance so the DOM focus actually moves
+      // enabled, terminal will emit `\e[O` via onData — captured by the spy above.
+      // Also explicitly blur the terminal instance so the DOM focus actually moves
       // (setActiveTab alone doesn't blur focus).
       await activateTerminalTab(orcaPage, firstTabId)
       await orcaPage.evaluate((tabId) => {
@@ -448,7 +450,7 @@ test.describe('Terminal attention', () => {
         pane.terminal.blur()
       }, secondTabId)
 
-      // Why: xterm does not reliably answer DA1 writes in hidden Electron
+      // Why: terminal does not reliably answer DA1 writes in hidden Electron
       // windows, but focus-reporting leaks are emitted as part of the focus
       // task itself. Let that task settle, then inspect the captured bytes.
       await orcaPage.waitForTimeout(100)
@@ -464,7 +466,7 @@ test.describe('Terminal attention', () => {
             .__XTERM_ONDATA_SPY__ ?? []
       )
       // Join before matching: individual chunks could split an escape
-      // across onData calls (unlikely but possible — e.g. if xterm
+      // across onData calls (unlikely but possible — e.g. if terminal
       // flushes mid-escape).
       // eslint-disable-next-line no-control-regex -- intentional terminal escape sequence matching
       expect(emittedFromXterm.join('')).not.toMatch(/\x1b\[[IO]/)

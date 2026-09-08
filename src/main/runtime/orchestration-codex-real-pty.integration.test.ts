@@ -168,7 +168,7 @@ it.skipIf(!binary || process.platform === 'win32').each(trials)(
       binary!,
       ['--no-alt-screen', '--dangerously-bypass-hook-trust', 'Reply OK only'],
       {
-        name: 'xterm-256color',
+        name: 'xterm-ghostty',
         cols: 120,
         rows: 40,
         cwd: workspace,
@@ -176,7 +176,7 @@ it.skipIf(!binary || process.platform === 'win32').each(trials)(
           ...env,
           ...hooks.buildPtyEnv(),
           CODEX_HOME: directory,
-          TERM: 'xterm-256color',
+          TERM: 'xterm-ghostty',
           ORCA_BACKGROUND_LAUNCH: '1',
           ORCA_PANE_KEY: PANE_KEY,
           ORCA_TAB_ID: TAB_ID,

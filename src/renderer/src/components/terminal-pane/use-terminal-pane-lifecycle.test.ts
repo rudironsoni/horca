@@ -169,7 +169,7 @@ describe('applyTerminalPaneCloseRequest', () => {
 })
 
 describe('resetTerminalKeyboardProtocolAfterInterrupt', () => {
-  it('does not write to an xterm whose pipeline is certified dead', async () => {
+  it('does not write to an terminal whose pipeline is certified dead', async () => {
     const { _resetWritePipelineHealthForTests, notifyUndeliverableWrite } =
       await import('@/lib/pane-manager/terminal-write-pipeline-health')
     const terminal = { write: vi.fn() }
@@ -410,7 +410,7 @@ describe('replayLayoutWithOneShotParkIntent', () => {
 })
 
 describe('applyTerminalScrollbackRowsToMountedPanes', () => {
-  it('updates mounted pane xterm scrollback options only when needed', () => {
+  it('updates mounted pane terminal scrollback options only when needed', () => {
     const firstOptions = { scrollback: 1_000 }
     const secondOptions = { scrollback: 5_000 }
     const firstTerminal = { options: firstOptions }

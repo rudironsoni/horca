@@ -12,7 +12,7 @@ import type { RepoIcon } from '../../../../shared/repo-icon'
 import { i18n } from '@/i18n/i18n'
 import { AgentKanbanBoard } from './AgentKanbanBoard'
 
-// Stub the card and dialog so the board test stays free of xterm / Radix
+// Stub the card and dialog so the board test stays free of terminal / Radix
 // machinery while still exercising the board-owned dialog wiring.
 vi.mock('./AgentKanbanCard', () => ({
   AgentKanbanCard: ({

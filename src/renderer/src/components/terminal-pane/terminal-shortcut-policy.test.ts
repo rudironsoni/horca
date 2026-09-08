@@ -550,7 +550,7 @@ describe('resolveTerminalShortcutAction', () => {
     ).toEqual({ type: 'sendInput', data: '\x1bf' })
 
     // alt+shift+arrow is a different chord (select-word in some shells) — don't
-    // intercept, let xterm.js / the shell handle it.
+    // intercept, let Ghostty / the shell handle it.
     expect(
       resolveTerminalShortcutAction(
         event({ key: 'ArrowLeft', code: 'ArrowLeft', altKey: true, shiftKey: true }),
@@ -581,7 +581,7 @@ describe('resolveTerminalShortcutAction', () => {
   })
 
   it('translates macOS Option+B/F/D to readline escape sequences in compose mode', () => {
-    // With macOptionAsAlt='false' (compose), xterm.js doesn't translate these.
+    // With macOptionAsAlt='false' (compose), Ghostty doesn't translate these.
     // Matches on event.code because macOS composition replaces event.key.
     expect(
       resolveTerminalShortcutAction(event({ key: '∫', code: 'KeyB', altKey: true }), true, 'false')
@@ -842,7 +842,7 @@ describe('kitty keyboard protocol panes', () => {
     })
   })
 
-  it('yields Alt+Arrow and Alt+Backspace to xterm kitty encoding', () => {
+  it('yields Alt+Arrow and Alt+Backspace to terminal kitty encoding', () => {
     expect(resolveKitty(event({ key: 'ArrowLeft', code: 'ArrowLeft', altKey: true }))).toBeNull()
     expect(resolveKitty(event({ key: 'Backspace', code: 'Backspace', altKey: true }))).toBeNull()
     // Without kitty, the readline translations still apply.
