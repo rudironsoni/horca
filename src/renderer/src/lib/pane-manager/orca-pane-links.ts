@@ -1,8 +1,12 @@
-import type { ILink, ILinkProvider, OrcaDisposable } from '../../../../shared/orca-terminal-surface'
+import type {
+  ILink,
+  OrcaDisposable,
+  OrcaLinkProvider
+} from '../../../../shared/orca-terminal-surface'
 
 export function registerOrcaPaneLinkProvider(
-  providers: Set<ILinkProvider>,
-  provider: ILinkProvider
+  providers: Set<OrcaLinkProvider>,
+  provider: OrcaLinkProvider
 ): OrcaDisposable {
   providers.add(provider)
   return {
@@ -19,7 +23,7 @@ export function bindOrcaPaneLinkProviders(pane: {
   cols: number
   rows: number
   baseY: number
-  linkProviders: Set<ILinkProvider>
+  linkProviders: Set<OrcaLinkProvider>
 }): () => void {
   let hovered: ILink | null = null
   let request = 0
@@ -73,7 +77,7 @@ function queryProviders(
     cols: number
     rows: number
     baseY: number
-    linkProviders: Set<ILinkProvider>
+    linkProviders: Set<OrcaLinkProvider>
   },
   event: MouseEvent,
   id: number,
