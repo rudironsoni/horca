@@ -80,13 +80,13 @@ function hintedSplitIsLive(
   snapshot: HerdrSessionSnapshot,
   persistedPaneIds: Record<string, string>
 ): boolean {
-  return collectLeafIds(root).every((leafId) => {
-    const paneId = persistedPaneIds[leafId]
-    return Boolean(
-      paneId &&
-      snapshot.panes.some((pane) => pane.id === paneId && pane.workspaceId === workspaceId)
-    )
-  })
+  const paneIds = collectLeafIds(root).map((leafId) => persistedPaneIds[leafId])
+  if (paneIds.some((paneId) => !paneId) || new Set(paneIds).size !== paneIds.length) {
+    return false
+  }
+  return paneIds.every((paneId) =>
+    snapshot.panes.some((pane) => pane.id === paneId && pane.workspaceId === workspaceId)
+  )
 }
 
 // Ensure the tab layout exists in herdr, either via layout.apply or pane.split replay.
