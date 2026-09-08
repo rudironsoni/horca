@@ -138,7 +138,7 @@ export function useNativeChatInteractiveSend(
             onSettled
           )
         : sendNativeChatMessage(settings, targetPtyId, formatAskAnswer(prompt, selections))
-      // Why: native-chat answer writes bypass xterm.onData. Infer only after
+      // Why: native-chat answer writes bypass terminal.onData. Infer only after
       // every paced selector write has fired, so an early digit in a multi-step
       // answer cannot dismiss the wait or cancel the remaining writes.
       settledHandle = handle

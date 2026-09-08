@@ -100,7 +100,7 @@ export function installSessionReconcileDispose(session: ConnectPanePtySession): 
         session.pendingVisibleRemoteViewportClaim = false
       }
     },
-    // Why: visible-resume size readback repairs dropped hidden resizes without refitting against xterm's transient hidden DOM fallback.
+    // Why: visible-resume size readback repairs dropped hidden resizes without refitting against terminal's transient hidden DOM fallback.
     noteVisibilityResume() {
       session.armVisibleRemoteViewportClaim()
       session.claimPendingVisibleRemoteViewport()
@@ -190,7 +190,7 @@ export function installSessionReconcileDispose(session: ConnectPanePtySession): 
         clearTimeout(timer)
       }
       session.directSshPaneRetrySettlementTimers.clear()
-      // Why: a stalled xterm replay may never reach its finally; release live-frame credit when this renderer no longer owns the stream.
+      // Why: a stalled terminal replay may never reach its finally; release live-frame credit when this renderer no longer owns the stream.
       const queue = session.deferredReattachLiveData
       session.deferredReattachLiveData = null
       queue?.discard()
@@ -199,7 +199,7 @@ export function installSessionReconcileDispose(session: ConnectPanePtySession): 
       cancelPendingSafeFitContinuations(session.pane)
       session.pendingHiddenSnapshotFit = null
       session.pendingReattachFit = null
-      // Why: park/reconnect/remount doesn't advance the recovery epoch, so invalidate this xterm or its delayed retry could hit the next instance.
+      // Why: park/reconnect/remount doesn't advance the recovery epoch, so invalidate this terminal or its delayed retry could hit the next instance.
       session.terminalRecoveryInstance.unregister()
       session.unregisterUndeliverableWriteHandler()
       session.unsubscribeRemoteDesktopActivationClaim()

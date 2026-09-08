@@ -16,9 +16,9 @@ import {
 } from './terminal-scroll-intent-rebuild'
 
 const XTERM_SCROLL_INTENT_POINTER_TARGET_CLASSES = [
-  'xterm-viewport',
-  'xterm-scrollbar',
-  'xterm-slider'
+  'orca-terminal-viewport',
+  'orca-terminal-scrollbar',
+  'orca-terminal-slider'
 ] as const
 const XTERM_SCROLL_INTENT_POINTER_TARGET_SELECTOR = XTERM_SCROLL_INTENT_POINTER_TARGET_CLASSES.map(
   (className) => `.${className}`
@@ -28,7 +28,7 @@ function isTerminalScrollIntentPointerTarget(target: EventTarget | null): target
   if (typeof Element === 'undefined' || !(target instanceof Element)) {
     return false
   }
-  // xterm's custom scrollbar uses separate thumb/track nodes from the viewport.
+  // terminal's custom scrollbar uses separate thumb/track nodes from the viewport.
   return target.closest(XTERM_SCROLL_INTENT_POINTER_TARGET_SELECTOR) !== null
 }
 
@@ -53,12 +53,12 @@ function isMouseReportInput(data: string): boolean {
   )
 }
 
-// Why: typing/pasting scrolls the terminal to the bottom (xterm
+// Why: typing/pasting scrolls the terminal to the bottom (terminal
 // scrollOnUserInput) without going through any wheel/pointer path this module
 // tracks. Without a resync, a stored pin goes stale and a later
 // workspace-switch restore yanks the user back to the old reading position.
 // onData also carries parser auto-replies (DSR/CPR, focus reports), so pinned
-// xterm's core onUserInput signal identifies which emissions were truly user-driven.
+// terminal's core onUserInput signal identifies which emissions were truly user-driven.
 function subscribeScrollIntentUserInputResync(
   terminal: TerminalScrollIntentTarget,
   isActive: () => boolean,
@@ -77,7 +77,7 @@ function subscribeScrollIntentUserInputResync(
       if (isMouseReportInput(data)) {
         pendingUserInputRevision = null
         if (isActive() && getTerminalScrollIntentKind(terminal) === 'pinnedViewport') {
-          // Why: xterm treats mouse reports as user input and scrolls bottom
+          // Why: terminal treats mouse reports as user input and scrolls bottom
           // before onData. Restore the reading position before output follows.
           enforceTerminalCurrentScrollIntent(terminal)
         }
@@ -90,13 +90,13 @@ function subscribeScrollIntentUserInputResync(
           resyncUserInput(interactionRevision)
         }
       } else if (isActive()) {
-        // Compatibility fallback for test doubles or an unexpected xterm
-        // shape; pinned production xterm uses onUserInput below.
+        // Compatibility fallback for test doubles or an unexpected terminal
+        // shape; pinned production terminal uses onUserInput below.
         resyncUserInput(captureInteractionRevision())
       }
     })
     const userInputSubscription = onUserInput?.(() => {
-      // Why: xterm emits onUserInput immediately before its matching onData.
+      // Why: terminal emits onUserInput immediately before its matching onData.
       // Reserve order here, then let onData classify typing versus mouse.
       pendingUserInputRevision = captureInteractionRevision()
     })

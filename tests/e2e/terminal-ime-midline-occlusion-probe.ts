@@ -51,7 +51,7 @@ function readMidlinePreeditOcclusion(): MidlinePreeditOcclusionSample {
     throw new Error('No active terminal pane to sample')
   }
   const terminal = pane.terminal
-  const screen = pane.container.querySelector<HTMLElement>('.xterm-screen')
+  const screen = pane.container.querySelector<HTMLElement>('.orca-terminal-canvas')
   const view = pane.container.querySelector<HTMLElement>('.composition-view')
   const textarea = terminal.textarea
   if (!screen || !view || !textarea) {
@@ -66,9 +66,9 @@ function readMidlinePreeditOcclusion(): MidlinePreeditOcclusionSample {
   const screenRect = screen.getBoundingClientRect()
   const overlayRect = view.getBoundingClientRect()
   const cellWidth = terminal.cols > 0 ? screenRect.width / terminal.cols : 0
-  const caret = view.querySelector<HTMLElement>('.xterm-composition-caret')
-  const preedit = view.querySelector<HTMLElement>('.xterm-composition-preedit')
-  const remainder = view.querySelector<HTMLElement>('.xterm-composition-remainder')
+  const caret = view.querySelector<HTMLElement>('.orca-terminal-composition-caret')
+  const preedit = view.querySelector<HTMLElement>('.orca-terminal-composition-preedit')
+  const remainder = view.querySelector<HTMLElement>('.orca-terminal-composition-remainder')
   const caretBounds = caret?.getBoundingClientRect()
   const preeditBounds = preedit?.getBoundingClientRect()
   const textareaBounds = textarea.getBoundingClientRect()

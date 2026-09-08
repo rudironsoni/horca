@@ -283,14 +283,16 @@ test.describe('Tasks page', () => {
       .toBe(previousView)
     // Why: the load-bearing check is that the previous view's DOM actually
     // re-rendered — a store-only `activeView` assertion would pass even if the
-    // terminal/editor surface had silently stopped mounting. `.xterm` is the
-    // stable class xterm.js emits on every live terminal pane; if the
+    // terminal/editor surface had silently stopped mounting. `.orca-terminal-canvas` is the
+    // stable class Ghostty emits on every live terminal pane; if the
     // previous view was terminal (by far the common case in E2E setup), that
     // element must be visible. Tasks-close also hides the "Close tasks"
     // button regardless of previous view, so we assert that too.
     await expect(orcaPage.getByRole('button', { name: 'Close tasks' })).toHaveCount(0)
     if (previousView === 'terminal') {
-      await expect(orcaPage.locator('.xterm').first()).toBeVisible({ timeout: 5_000 })
+      await expect(orcaPage.locator('.orca-terminal-canvas').first()).toBeVisible({
+        timeout: 5_000
+      })
     }
   })
 

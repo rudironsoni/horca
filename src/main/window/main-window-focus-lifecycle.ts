@@ -61,7 +61,7 @@ export function installMainWindowFocusLifecycle(args: {
   }
   ipcMain.on(markdownFocusChannel, onMarkdownEditorFocused)
   const terminalInputFocusChannel = 'ui:setTerminalInputFocused'
-  // Why: before-input-event resolves shortcuts before renderer keydown; mirror xterm focus so Terminal-first lets shells own app chords.
+  // Why: before-input-event resolves shortcuts before renderer keydown; mirror terminal focus so Terminal-first lets shells own app chords.
   const onTerminalInputFocused = (event: Electron.IpcMainEvent, focused: unknown): void => {
     if (event.sender !== mainWindow.webContents) {
       return

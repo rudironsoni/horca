@@ -399,7 +399,7 @@ describe('HeadlessEmulator', () => {
 
     it('round-trips a pushed CSI > 1 u flag through the core-internals read path', async () => {
       // Why: getKittyKeyboardFlags reads _core.coreService.kittyKeyboard.flags,
-      // a private xterm surface. If an xterm upgrade breaks that path this
+      // a private terminal surface. If an terminal upgrade breaks that path this
       // must fail loudly instead of the responder silently answering ?0u.
       emulator = new HeadlessEmulator({ cols: 80, rows: 24 })
 

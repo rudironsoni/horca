@@ -181,7 +181,9 @@ for (const exitMode of ['normal', 'sigkill'] as const) {
       .poll(() => getTerminalContent(orcaPage, 6_000), { timeout: 8_000 })
       .toContain(shellInputMarker)
 
-    const terminalScreen = orcaPage.locator(`[data-pty-id="${revealedPtyId}"] .xterm-screen`)
+    const terminalScreen = orcaPage.locator(
+      `[data-pty-id="${revealedPtyId}"] .orca-terminal-canvas`
+    )
     await terminalScreen.hover({ position: { x: 20, y: 20 } })
     await orcaPage.mouse.wheel(0, 120)
     await orcaPage.evaluate(

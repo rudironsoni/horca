@@ -25,7 +25,7 @@ export function registerTerminalPaneMountReadiness(): void {
       'Electron automation in this environment never mounts the live TerminalPane manager, so pane split/resize assertions would only fail on harness setup.'
     )
     // Why: hidden Electron runs can report an active terminal tab before the
-    // PaneManager finishes mounting the first xterm/PTY pair. Wait for that
+    // PaneManager finishes mounting the first terminal/PTY pair. Wait for that
     // initial pane so split and content-retention assertions start from a real
     // terminal surface instead of racing the bootstrapped mount.
     await waitForPaneCount(orcaPage, 1, 30_000)

@@ -68,14 +68,14 @@ export function resumeTerminalVisibility({
   captureViewportPositions,
   withSuppressedScrollTracking
 }: ResumeTerminalVisibilityArgs): void {
-  // Why: hiding the surface fired mouseleave, which cleared xterm's current
+  // Why: hiding the surface fired mouseleave, which cleared terminal's current
   // link but left its hover cell cache; without this reset a link stays dead
   // until a scroll when the pointer returns to the same cell on reveal.
   for (const pane of manager.getPanes()) {
     resetTerminalLinkifierHoverState(pane.terminal)
   }
   syncTerminalViewportIntents(manager)
-  // Why: WebGL resume can disturb xterm's viewport bookkeeping before the
+  // Why: WebGL resume can disturb terminal's viewport bookkeeping before the
   // post-resume fit runs. Capture numeric viewport positions first; the
   // restore path avoids content matching so duplicate agent log lines do
   // not jump to the wrong history entry.
@@ -117,7 +117,7 @@ export function resumeTerminalVisibility({
     }
     if (shouldUseLightTabResume) {
       // Why: preserve the last coherent frame while a TUI holds DEC 2026. The
-      // settled refresh arms xterm's watchdog without clearing shared GPU data.
+      // settled refresh arms terminal's watchdog without clearing shared GPU data.
       manager.scheduleRevealPresent()
     } else if (repairedDpr) {
       // Why: the atlas still holds glyphs rasterized at the old backing-store
@@ -149,12 +149,12 @@ export function hideTerminalVisibility({
 }: HideTerminalVisibilityArgs): HideTerminalVisibilityResult {
   const surfaceBecameHidden = wasWorktreeActive && !isWorktreeActive
   if (wasVisible) {
-    // Why: hidden DOM/layout churn can mutate xterm's viewport before the
+    // Why: hidden DOM/layout churn can mutate terminal's viewport before the
     // pane becomes visible again. Preserve the last visible position.
     captureViewportPositions(false)
   }
   if (!isWorktreeActive && (wasVisible || surfaceBecameHidden)) {
-    // xterm.write() keeps updating the hidden buffer; suspension only changes renderer lifetime.
+    // terminal.write() keeps updating the hidden buffer; suspension only changes renderer lifetime.
     manager.suspendRendering()
     return { hiddenReason: 'surface', renderingSuspended: true }
   }
@@ -180,7 +180,7 @@ export function recoverVisibleTerminalWindowWake({
   isChatViewMode,
   clearGlyphAtlases
 }: RecoverVisibleTerminalWindowWakeArgs): void {
-  // Why: macOS screensaver/display wake can leave xterm visible but with a
+  // Why: macOS screensaver/display wake can leave terminal visible but with a
   // stale renderer/input surface; Orca's own hidden-state resume never runs.
   // Why: backlog writes can expose transient viewport geometry while parsing.
   syncTerminalViewportIntents(manager)
@@ -194,7 +194,7 @@ export function recoverVisibleTerminalWindowWake({
     }
     requestTerminalBacklogRecovery(pane.terminal)
     flushTerminalOutput(pane.terminal, { maxChars: WINDOW_WAKE_FLUSH_CHARS })
-    // Why: window blur fires mouseleave, clearing xterm's current link but not
+    // Why: window blur fires mouseleave, clearing terminal's current link but not
     // its hover cell cache; on refocus the stationary pointer sits on the same
     // cell, so the link stays dead until a scroll. Skip while a link is hovered
     // to avoid flickering its underline (same guard as the on-write reset).
@@ -211,8 +211,8 @@ export function recoverVisibleTerminalWindowWake({
   enforceTerminalViewportIntents(manager)
   if (clearGlyphAtlases) {
     // Why: only a genuine wake may wipe the shared glyph atlas. The wipe makes
-    // every same-config pane re-rasterize at once, and xterm's atlas page-merge
-    // clear-model flag is consumed by one renderer (xterm.js #4480), so panes
+    // every same-config pane re-rasterize at once, and terminal's atlas page-merge
+    // clear-model flag is consumed by one renderer (Ghostty #4480), so panes
     // that lose that race paint garbled glyphs mid-stream.
     resetAndRefreshAllTerminalWebglAtlases('system-resume')
     manager.scheduleRevealRepaint()

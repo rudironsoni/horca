@@ -37,7 +37,7 @@ async function launch(
       cwd: root,
       shellOverride: shell,
       command: COMMAND,
-      env: { HOME: root, SHELL: shell, TERM: 'xterm-256color' }
+      env: { HOME: root, SHELL: shell, TERM: 'xterm-ghostty' }
     })
     session = new Session({
       sessionId: 'startup-latency',

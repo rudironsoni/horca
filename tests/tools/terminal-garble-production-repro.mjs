@@ -101,7 +101,7 @@ async function runInActivePane(page, command) {
   const activePane = page.locator('.pane:has([data-active-pane]):visible').last()
   if (await activePane.isVisible().catch(() => false)) {
     await activePane.click({ position: { x: 20, y: 40 } })
-    await activePane.locator('.xterm-helper-textarea').last().focus()
+    await activePane.locator('.orca-terminal-helper-textarea').last().focus()
   } else {
     await focusActiveTerminal(page)
   }
@@ -145,7 +145,7 @@ async function paneGeometry(page) {
       const managed = []
       for (const manager of exposedManagers.values()) {
         for (const pane of manager.getPanes?.() ?? []) {
-          const screen = pane.container?.querySelector('.xterm-screen')
+          const screen = pane.container?.querySelector('.orca-terminal-canvas')
           const bounds = screen?.getBoundingClientRect()
           if (!bounds || bounds.width <= 0 || bounds.height <= 0) {
             continue
@@ -178,7 +178,7 @@ async function paneGeometry(page) {
       const managed = recovered
         .filter((terminal) => terminal.element?.offsetWidth && terminal.element?.offsetHeight)
         .map((terminal, index) => {
-          const screen = terminal.element?.querySelector('.xterm-screen')
+          const screen = terminal.element?.querySelector('.orca-terminal-canvas')
           const bounds = screen?.getBoundingClientRect()
           if (!bounds || bounds.width <= 0 || bounds.height <= 0) {
             return null
@@ -209,12 +209,12 @@ async function paneGeometry(page) {
       const rect = element.getBoundingClientRect()
       return rect.width > 0 && rect.height > 0
     }
-    return Array.from(document.querySelectorAll('.xterm-screen'))
+    return Array.from(document.querySelectorAll('.orca-terminal-canvas'))
       .filter(visible)
       .map((screen, index) => {
-        const xterm = screen.closest('.xterm')
+        const terminal = screen.closest('.orca-terminal-canvas')
         const screenRect = screen.getBoundingClientRect()
-        const fontSize = Number.parseFloat(getComputedStyle(xterm ?? screen).fontSize) || 13
+        const fontSize = Number.parseFloat(getComputedStyle(terminal ?? screen).fontSize) || 13
         return {
           index,
           bounds: {
@@ -399,7 +399,7 @@ async function clickUrlAndCapture(electronApp, page, geometry, viewport, attempt
         ({ x, y }) =>
           document
             .elementsFromPoint(x, y)
-            .some((element) => element.classList?.contains('xterm-cursor-pointer')),
+            .some((element) => element.classList?.contains('orca-terminal-cursor-pointer')),
         target,
         { timeout: 800 }
       )
@@ -412,7 +412,7 @@ async function clickUrlAndCapture(electronApp, page, geometry, viewport, attempt
       }))
       return {
         elements,
-        decorations: document.querySelectorAll('.xterm-decoration').length
+        decorations: document.querySelectorAll('.orca-terminal-decoration').length
       }
     }, target)
     await page.keyboard.down(MODIFIER)

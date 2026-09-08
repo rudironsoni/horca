@@ -6,12 +6,12 @@ import {
   type TerminalIosHangulPreedit
 } from './terminal-ios-hangul-preedit'
 import {
-  shouldBypassXtermKeyboardEvent,
+  shouldBypassTerminalKeyboardEvent,
   shouldSuppressTerminalImeKeyboardEvent
-} from './xterm-bypass-policy'
+} from './terminal-bypass-policy'
 
 /**
- * Shared rig for the iPadOS Hangul suites: a real xterm `Terminal` wired to the
+ * Shared rig for the iPadOS Hangul suites: a real terminal `Terminal` wired to the
  * same tracker, bypass policy and preedit controller the pane lifecycle
  * installs, so the tests exercise the whole path rather than a mock of it.
  */
@@ -69,7 +69,7 @@ export function openIosTerminal(
   const container = document.createElement('div')
   document.body.appendChild(container)
   const textarea = document.createElement('textarea')
-  textarea.className = 'xterm-helper-textarea'
+  textarea.className = 'orca-terminal-helper-textarea'
   const compositionView = document.createElement('div')
   compositionView.className = 'composition-view'
   const listeners = new Set<(data: string) => void>()
@@ -126,7 +126,7 @@ export function openIosTerminal(
     ) {
       return false
     }
-    return !shouldBypassXtermKeyboardEvent(event, {
+    return !shouldBypassTerminalKeyboardEvent(event, {
       isMac: true,
       isIosWeb,
       hasSelection: false
@@ -157,7 +157,7 @@ export function dispatchKey(
     bubbles: true,
     cancelable: true
   })
-  // happy-dom drops the legacy numeric fields from KeyboardEventInit; xterm's key paths read them.
+  // happy-dom drops the legacy numeric fields from KeyboardEventInit; terminal's key paths read them.
   Object.defineProperty(event, 'keyCode', { value: init.keyCode ?? init.key.charCodeAt(0) })
   Object.defineProperty(event, 'charCode', { value: init.charCode ?? 0 })
   Object.defineProperty(event, 'isComposing', { value: init.isComposing ?? false })
@@ -178,7 +178,7 @@ export function dispatchInput(
   Object.defineProperty(event, 'inputType', { value: inputType })
   Object.defineProperty(event, 'data', { value: data })
   Object.defineProperty(event, 'isComposing', { value: init.isComposing ?? false })
-  // Trusted user events are always composed; that is the flag that makes xterm drop the commit.
+  // Trusted user events are always composed; that is the flag that makes terminal drop the commit.
   Object.defineProperty(event, 'composed', { value: true })
   textarea.dispatchEvent(event)
 }
@@ -197,7 +197,7 @@ export function dispatchComposition(
 
 /**
  * One printable keystroke as a browser produces it: the key, then — only if
- * xterm did not consume the keydown — the keypress and the text the IME writes.
+ * terminal did not consume the keydown — the keypress and the text the IME writes.
  */
 export async function typePrintable(
   rig: IosHangulRig,

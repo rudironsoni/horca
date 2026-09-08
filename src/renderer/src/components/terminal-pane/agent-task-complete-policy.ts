@@ -4,7 +4,7 @@
  * Why extracted from pty-connection.ts: the parked byte watcher and the
  * pty:sideEffect facts handler apply the exact live-path semantics without a
  * pane, and policy must not drift between the three consumers. This module is
- * deliberately dependency-light — no pane/xterm imports — so pane-less
+ * deliberately dependency-light — no pane/terminal imports — so pane-less
  * consumers can use it.
  */
 import type { AgentStatusEntry } from '../../../../shared/agent-status-types'

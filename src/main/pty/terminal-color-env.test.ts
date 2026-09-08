@@ -7,12 +7,12 @@ describe('terminal color env', () => {
       NO_COLOR: '1',
       FORCE_COLOR: '0',
       CLICOLOR: '0',
-      TERM: 'xterm-256color'
+      TERM: 'xterm-ghostty'
     }
 
     removeInheritedNoColor(env)
 
-    expect(env).toEqual({ TERM: 'xterm-256color' })
+    expect(env).toEqual({ TERM: 'xterm-ghostty' })
   })
 
   it('preserves explicit color-enable variables', () => {

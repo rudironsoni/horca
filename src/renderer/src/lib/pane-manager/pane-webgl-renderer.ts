@@ -146,7 +146,7 @@ export function disposeWebgl(
 
 function releaseXtermWebglContext(gpuRenderer: ManagedPaneInternal['gpuRenderer']): void {
   try {
-    // Why: xterm removes the canvas on dispose, but Windows/ANGLE can keep the
+    // Why: terminal removes the canvas on dispose, but Windows/ANGLE can keep the
     // driver context alive long enough for rapid terminal activation to hit
     // Chromium's active WebGL context budget (#6874).
     const renderer = (gpuRenderer as unknown as XtermWebglAddonInternals | null)?._renderer
@@ -169,7 +169,7 @@ export function clearWebglTextureAtlas(pane: ManagedPaneInternal): void {
     return
   }
   try {
-    // Why: rapid TUI redraws can corrupt xterm's WebGL glyph atlas without a
+    // Why: rapid TUI redraws can corrupt terminal's WebGL glyph atlas without a
     // context-loss event. Clearing the atlas preserves GPU rendering and forces
     // a fresh paint when the pane becomes visible/focused again.
     pane.gpuRenderer?.clearTextureAtlas?.()
@@ -189,7 +189,7 @@ function refitAfterLateWebglAttach(pane: ManagedPaneInternal): void {
   // the addon was still loading — but WebGL floors the device cell width.
   // Keeping that grid leaves an unpainted right gutter and a PTY narrower than
   // the pane. Refit on the next frame (mirroring the dispose-side
-  // refreshDimensions) so xterm has re-measured against the new renderer, and
+  // refreshDimensions) so terminal has re-measured against the new renderer, and
   // so the running fit is never re-entered.
   if (typeof globalThis.requestAnimationFrame !== 'function') {
     return

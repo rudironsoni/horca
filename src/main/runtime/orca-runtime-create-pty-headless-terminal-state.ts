@@ -159,7 +159,7 @@ export class OrcaRuntimeWithCreatePtyHeadlessTerminalState extends OrcaRuntimeWi
       })
       .catch(() => {
         // Best-effort mirror tracking; live PTY streaming must continue even
-        // if xterm rejects a raced resize during teardown.
+        // if terminal rejects a raced resize during teardown.
       })
   }
 
@@ -181,7 +181,7 @@ export class OrcaRuntimeWithCreatePtyHeadlessTerminalState extends OrcaRuntimeWi
     if (!state) {
       return
     }
-    // Why: headless writes are queued to preserve xterm parser order. Clear
+    // Why: headless writes are queued to preserve terminal parser order. Clear
     // must join that same chain or an earlier PTY chunk can finish after the
     // clear request and repopulate mobile scrollback.
     state.writeChain = state.writeChain.then(() => state.emulator.clearScrollback())

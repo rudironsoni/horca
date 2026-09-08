@@ -70,7 +70,7 @@ test.describe('Dead Terminal Stress @headful', () => {
       await waitForPaneCount(orcaPage, 2, 15_000)
 
       const lostCount = await orcaPage.evaluate(() => {
-        const canvases = document.querySelectorAll('.pane canvas:not(.xterm-link-layer)')
+        const canvases = document.querySelectorAll('.pane canvas:not(.orca-terminal-link-layer)')
         let lost = 0
         for (const canvas of canvases) {
           const gl =

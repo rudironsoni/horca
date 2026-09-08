@@ -57,7 +57,9 @@ function commitNativeComposition(): void {
 
 async function readActiveComposition(page: Page): Promise<string | null> {
   return page.evaluate(() => {
-    const textarea = document.querySelector<HTMLTextAreaElement>('.xterm-helper-textarea:focus')
+    const textarea = document.querySelector<HTMLTextAreaElement>(
+      '.orca-terminal-helper-textarea:focus'
+    )
     const composition = textarea?.parentElement?.querySelector<HTMLElement>(
       '.composition-view.active'
     )

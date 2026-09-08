@@ -1,4 +1,4 @@
-import type { XtermBypassEvent } from './xterm-bypass-policy'
+import type { TerminalBypassEvent } from './terminal-bypass-policy'
 import { TERMINAL_IME_CANDIDATE_GUARD_POST_COMPOSITION_MS } from './terminal-ime-composition-tracker'
 
 // Why: candidate keys can overlap (a second selector keydown before the first
@@ -8,7 +8,7 @@ export type TerminalImePendingCandidateKeyReleases = Map<string, number>
 
 // Why: Sogou/fcitx can deliver candidate-selection keys as plain key events
 // (#7543: digit selection inserts only the digit). While the IME owns them,
-// they must not reach xterm's encoders or Chromium's default text insertion.
+// they must not reach terminal's encoders or Chromium's default text insertion.
 const TERMINAL_IME_CANDIDATE_SELECTION_KEYS = new Set([
   ' ',
   '0',
@@ -28,7 +28,7 @@ function isTerminalImeCandidateSelectionKey(key: string): boolean {
   return TERMINAL_IME_CANDIDATE_SELECTION_KEYS.has(key)
 }
 
-export function isTerminalImeCandidateSelectionKeyEvent(event: XtermBypassEvent): boolean {
+export function isTerminalImeCandidateSelectionKeyEvent(event: TerminalBypassEvent): boolean {
   // Modified chords are never candidate selectors: Ctrl/Meta/Alt are IME
   // toggles, and Shift+Space is fcitx's full-/half-width width toggle.
   if (event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) {
@@ -38,7 +38,7 @@ export function isTerminalImeCandidateSelectionKeyEvent(event: XtermBypassEvent)
 }
 
 /** Returns whether an event is an unmodified IME candidate digit selector. */
-export function isTerminalImeCandidateDigitKeyEvent(event: XtermBypassEvent): boolean {
+export function isTerminalImeCandidateDigitKeyEvent(event: TerminalBypassEvent): boolean {
   return (
     isTerminalImeCandidateSelectionKeyEvent(event) && TERMINAL_IME_CANDIDATE_DIGITS.has(event.key)
   )
@@ -50,7 +50,7 @@ export function createTerminalImePendingCandidateKeyReleases(): TerminalImePendi
 
 export function armTerminalImePendingCandidateKeyRelease(
   releases: TerminalImePendingCandidateKeyReleases,
-  event: XtermBypassEvent,
+  event: TerminalBypassEvent,
   now: number
 ): void {
   if (event.type !== 'keydown' || !isTerminalImeCandidateSelectionKeyEvent(event)) {
@@ -60,7 +60,7 @@ export function armTerminalImePendingCandidateKeyRelease(
 }
 
 export function shouldApplyTerminalImePendingCandidateKeyRelease(
-  event: XtermBypassEvent,
+  event: TerminalBypassEvent,
   releases: TerminalImePendingCandidateKeyReleases,
   now: number
 ): boolean {
@@ -91,7 +91,7 @@ export function shouldApplyTerminalImePendingCandidateKeyRelease(
 
 export function clearTerminalImePendingCandidateKeyRelease(
   releases: TerminalImePendingCandidateKeyReleases,
-  event: XtermBypassEvent
+  event: TerminalBypassEvent
 ): void {
   // Why: a non-repeat keydown is a new physical press, so any surviving entry
   // for that key lost its keyup (focus change mid-hold) and must not guard the

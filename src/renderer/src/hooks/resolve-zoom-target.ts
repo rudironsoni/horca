@@ -15,7 +15,7 @@ export function resolveZoomTarget(args: {
     typeof (activeElement as { classList?: { contains?: unknown } }).classList?.contains ===
       'function' &&
     (activeElement as { classList: { contains: (token: string) => boolean } }).classList.contains(
-      'xterm-helper-textarea'
+      'orca-terminal-helper-textarea'
     )
   const editorFocused =
     typeof activeElement === 'object' &&
@@ -48,7 +48,7 @@ export function resolveZoomTarget(args: {
   }
   // Why: terminal zoom is focus-owned. After the user clicks app chrome or
   // whitespace, the active terminal tab remains visible but app zoom should own
-  // Cmd/Ctrl +/- until xterm focus returns.
+  // Cmd/Ctrl +/- until terminal focus returns.
   if (terminalInputFocused) {
     return 'terminal'
   }

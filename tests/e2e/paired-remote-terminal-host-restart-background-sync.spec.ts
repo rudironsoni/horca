@@ -271,7 +271,9 @@ async function expectTerminalInteractive(
       throw new Error(`No pane mounted for ${id}`)
     }
     pane.terminal.focus()
-    const textarea = pane.container.querySelector('.xterm-helper-textarea') as HTMLTextAreaElement
+    const textarea = pane.container.querySelector(
+      '.orca-terminal-helper-textarea'
+    ) as HTMLTextAreaElement
     textarea.focus()
   }, target.webTabId)
   await client.page.keyboard.type(marker)

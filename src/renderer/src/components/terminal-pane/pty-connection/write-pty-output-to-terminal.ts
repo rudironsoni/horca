@@ -12,9 +12,9 @@ import { containsHiddenStartupRendererQuery } from './hidden-startup-renderer-qu
 
 import type { ConnectPanePtySession } from './connect-pane-pty-session'
 
-/** The xterm write path for PTY output, including the queued agent-idle mode reset. */
-export function bindWritePtyOutputToXterm(session: ConnectPanePtySession): void {
-  session.writePtyOutputToXterm = function (
+/** The terminal write path for PTY output, including the queued agent-idle mode reset. */
+export function bindWritePtyOutputToTerminal(session: ConnectPanePtySession): void {
+  session.writePtyOutputToTerminal = function (
     data: string,
     foreground: boolean,
     opts?: { hiddenStartupRendererQuery?: boolean }
@@ -45,7 +45,7 @@ export function bindWritePtyOutputToXterm(session: ConnectPanePtySession): void 
         synchronizedOutputStarted ||
         synchronizedOutputEnded)
     const nextSynchronizedForegroundOutputActive = synchronizedForegroundScan?.active === true
-    // Why: xterm's DOM renderer draws the cursor as row content, so Windows cursor-only restores need row invalidation even outside DEC 2026.
+    // Why: terminal's DOM renderer draws the cursor as row content, so Windows cursor-only restores need row invalidation even outside DEC 2026.
     const nativeWindowsCursorRestore =
       session.shouldProtectNativeWindowsSynchronizedOutput &&
       foreground &&
@@ -98,7 +98,7 @@ export function bindWritePtyOutputToXterm(session: ConnectPanePtySession): void 
           nativeWindowsCursorRestore ||
           foregroundRenderRefreshNeeded),
       followupForegroundRefresh: nativeWindowsCursorRestore || nativeWindowsInPlaceRewriteFollowup,
-      // Why: xterm already queued a WebGL frame parsing this chunk; merge the repair into it instead of rendering the grid twice.
+      // Why: terminal already queued a WebGL frame parsing this chunk; merge the repair into it instead of rendering the grid twice.
       shouldRefreshForegroundSynchronously: session.shouldRefreshForegroundSynchronously,
       stripTransientCursorShows: session.shouldProtectNativeWindowsSynchronizedOutput && foreground,
       coalesceForeground: synchronizedForegroundOutput && synchronizedOutputEnded,
@@ -110,7 +110,7 @@ export function bindWritePtyOutputToXterm(session: ConnectPanePtySession): void 
     if (session.disposed) {
       return
     }
-    session.writePtyOutputToXterm(
+    session.writePtyOutputToTerminal(
       session.idleAgentTerminalModeReset,
       shouldWritePtyOutputForeground(session.deps.isVisibleRef.current)
     )

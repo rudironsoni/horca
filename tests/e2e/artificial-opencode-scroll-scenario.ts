@@ -87,12 +87,12 @@ export async function measureActiveTerminalWheelScroll(page: Page): Promise<Scro
     })()
     pane.terminal.focus()
     pane.terminal.scrollToBottom()
-    // Why: Linux headless can miss wheel input over xterm's text layer while
+    // Why: Linux headless can miss wheel input over terminal's text layer while
     // output is flooding; the viewport is the scrollable surface users affect.
     const wheelTarget =
-      pane.container.querySelector<HTMLElement>('.xterm-viewport') ??
-      pane.container.querySelector<HTMLElement>('.xterm') ??
-      pane.container.querySelector<HTMLElement>('.xterm-screen')
+      pane.container.querySelector<HTMLElement>('.orca-terminal-viewport') ??
+      pane.container.querySelector<HTMLElement>('.orca-terminal-canvas') ??
+      pane.container.querySelector<HTMLElement>('.orca-terminal-canvas')
     if (!wheelTarget) {
       throw new Error('Active terminal wheel target is unavailable')
     }
@@ -173,7 +173,7 @@ export async function measureActiveTerminalWheelScroll(page: Page): Promise<Scro
       }
     }
     if (afterViewportY >= target.beforeViewportY) {
-      afterViewportY = await measureScrollAttempt(page, attempts, 'xtermApi', async () => {
+      afterViewportY = await measureScrollAttempt(page, attempts, 'terminalApi', async () => {
         await scrollActiveTerminalByApi(page)
       })
       if (afterViewportY < target.beforeViewportY) {
@@ -228,7 +228,7 @@ async function measureAdditionalScrollAttempts(
     await scrollActiveTerminalViewportElement(page)
   })
   await scrollActiveTerminalToBottom(page)
-  await measureScrollAttempt(page, attempts, 'xtermApiAfterSlowCdp', async () => {
+  await measureScrollAttempt(page, attempts, 'terminalApiAfterSlowCdp', async () => {
     await scrollActiveTerminalByApi(page)
   })
 }

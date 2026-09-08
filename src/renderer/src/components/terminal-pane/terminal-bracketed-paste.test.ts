@@ -89,7 +89,7 @@ describe('terminal bracketed paste policy', () => {
     expect(terminal.options.ignoreBracketedPasteMode).toBe(false)
   })
 
-  it('normalizes forced Windows multiline paste like xterm native paste', () => {
+  it('normalizes forced Windows multiline paste like terminal native paste', () => {
     const terminal = createTerminal(false)
 
     pasteTerminalText(terminal, 'one\r\ntwo\nthree', {

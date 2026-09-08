@@ -31,7 +31,7 @@ function hasDrainableBacklog(): boolean {
   return false
 }
 
-// Why no per-write scroll enforcement: xterm's BufferService.isUserScrolling owns live follow/pin; app-side enforcement is limited to structural ops xterm can't identify, like replay.
+// Why no per-write scroll enforcement: terminal's BufferService.isUserScrolling owns live follow/pin; app-side enforcement is limited to structural ops terminal can't identify, like replay.
 
 function takeNextDrainableEntry(): QueueEntry | null {
   let largeBacklogEntry: QueueEntry | null = null
@@ -62,7 +62,7 @@ function takeNextDrainableEntry(): QueueEntry | null {
   return null
 }
 
-// Why: re-arm a zero-delay drain once xterm confirms the previous high-priority batch parsed; the fixed 4/16ms cadence otherwise drips far below xterm's ~100 MB/s parse. Only visible panes are pacer-clocked; background keeps the fixed cadence to protect the focused terminal.
+// Why: re-arm a zero-delay drain once terminal confirms the previous high-priority batch parsed; the fixed 4/16ms cadence otherwise drips far below terminal's ~100 MB/s parse. Only visible panes are pacer-clocked; background keeps the fixed cadence to protect the focused terminal.
 
 function getDrainNow(): number {
   if (typeof performance !== 'undefined') {
@@ -101,7 +101,7 @@ export function drainQueuedOutputImpl(): void {
       entry.highPriority = false
       clearForegroundRelease(entry)
     }
-    // Why: xterm parsing and DOM work share the renderer thread with input; keep draining cooperative so WSL/agent output can't pin the UI.
+    // Why: terminal parsing and DOM work share the renderer thread with input; keep draining cooperative so WSL/agent output can't pin the UI.
     if (writes > 0 && getDrainNow() - startedAt >= DRAIN_TIME_BUDGET_MS) {
       break
     }

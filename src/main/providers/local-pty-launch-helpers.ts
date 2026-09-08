@@ -1,4 +1,5 @@
 import { basename, delimiter, win32 as pathWin32 } from 'node:path'
+import { PTY_TERM_NAME } from '../../shared/pty-term-name'
 import { splitWorktreeIdForFilesystem } from '../../shared/worktree/id'
 import { parseWslPath } from '../wsl'
 import { resolvePathEnvKey } from '../pty/windows-environment-path'
@@ -78,7 +79,7 @@ export function normalizeForegroundProcessName(
   processName: string | null | undefined
 ): string | null {
   const trimmed = processName?.trim().replace(/^["']|["']$/g, '') ?? ''
-  return !trimmed || trimmed === 'xterm-256color' ? null : trimmed.split(/[\\/]/).pop() || null
+  return !trimmed || trimmed === PTY_TERM_NAME ? null : trimmed.split(/[\\/]/).pop() || null
 }
 
 export function resolveForegroundFallbackProcess(

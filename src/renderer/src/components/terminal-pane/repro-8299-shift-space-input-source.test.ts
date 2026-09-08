@@ -18,7 +18,10 @@ import {
   resolveTerminalShortcutAction,
   type TerminalShortcutEvent
 } from './terminal-shortcut-policy'
-import { shouldBypassXtermKeyboardEvent, type XtermBypassEvent } from './xterm-bypass-policy'
+import {
+  shouldBypassTerminalKeyboardEvent,
+  type TerminalBypassEvent
+} from './terminal-bypass-policy'
 
 function shortcutEvent(
   partial: Partial<TerminalShortcutEvent> & Pick<TerminalShortcutEvent, 'key'>
@@ -33,8 +36,8 @@ function shortcutEvent(
 }
 
 function bypassEvent(
-  partial: Partial<XtermBypassEvent> & Pick<XtermBypassEvent, 'type' | 'key'>
-): XtermBypassEvent {
+  partial: Partial<TerminalBypassEvent> & Pick<TerminalBypassEvent, 'type' | 'key'>
+): TerminalBypassEvent {
   return {
     metaKey: false,
     ctrlKey: false,
@@ -45,11 +48,11 @@ function bypassEvent(
 }
 
 describe('issue #8299 Shift+Space input-source switch regression', () => {
-  it('does not globally steal Shift+Space via xterm bypass (opt-in only)', () => {
+  it('does not globally steal Shift+Space via terminal bypass (opt-in only)', () => {
     const opts = { isMac: true, hasSelection: false }
     for (const type of ['keydown', 'keyup'] as const) {
       expect(
-        shouldBypassXtermKeyboardEvent(
+        shouldBypassTerminalKeyboardEvent(
           bypassEvent({ type, key: ' ', code: 'Space', shiftKey: true }),
           opts
         )
