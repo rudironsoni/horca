@@ -53,12 +53,13 @@ export async function moveTerminalPaneByLeafId(
 }
 
 export async function sendToTerminal(page: Page, ptyId: string, text: string): Promise<void> {
-  await page.evaluate(
-    ({ ptyId, text }) => {
-      window.api.pty.write(ptyId, text)
-    },
+  const accepted = await page.evaluate(
+    async ({ ptyId, text }) => window.api.pty.writeAccepted(ptyId, text),
     { ptyId, text }
   )
+  if (!accepted) {
+    throw new Error(`pty write was refused for ${ptyId}`)
+  }
 }
 
 export async function execInTerminal(page: Page, ptyId: string, command: string): Promise<void> {
