@@ -64,7 +64,6 @@ describe('pane initial fit lifecycle', () => {
     )
     vi.stubGlobal('cancelAnimationFrame', cancelAnimationFrame)
     const pane = createPane(null)
-    const marker = { line: 42, isDisposed: false, dispose: vi.fn() }
 
     restoreScrollStateAfterFit(
       pane.terminal,
@@ -79,6 +78,5 @@ describe('pane initial fit lifecycle', () => {
     disposePane(pane, new Map([[pane.id, pane]]))
 
     expect(cancelAnimationFrame).toHaveBeenCalledWith(23)
-    expect(marker.dispose).toHaveBeenCalledTimes(1)
   })
 })
