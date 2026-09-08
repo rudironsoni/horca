@@ -5,7 +5,7 @@ import {
   HerdrServerError,
   HerdrTransportError,
   HerdrUnsupportedProtocol
-} from '@herdr/sdk'
+} from '@rudironsoni/herdr-ts-sdk'
 import { HerdrRuntimeError } from './herdr-runtime-contract'
 
 function taggedName(error: unknown): string | undefined {
