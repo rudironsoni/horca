@@ -5,7 +5,7 @@ import type {
   PaneStyleOptions
 } from './pane-manager-types'
 import { createDivider, disposeDivider } from './pane-divider'
-import { disposeWebgl, attachWebgl } from './pane-webgl-renderer'
+import { disposeWebgl, refreshPaneRenderer } from './pane-webgl-renderer'
 import { safeFit } from './pane-fit'
 
 export {
@@ -174,10 +174,10 @@ export function insertPaneNextTo(
       return
     }
     if (sourceHadWebgl && source.gpuRenderingEnabled && !source.webglDisabledAfterContextLoss) {
-      attachWebgl(source)
+      refreshPaneRenderer(source)
     }
     if (targetHadWebgl && target.gpuRenderingEnabled && !target.webglDisabledAfterContextLoss) {
-      attachWebgl(target)
+      refreshPaneRenderer(target)
     }
     callbacks.safeFit(source)
     callbacks.safeFit(target)

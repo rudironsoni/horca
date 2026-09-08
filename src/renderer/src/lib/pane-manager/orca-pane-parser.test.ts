@@ -63,7 +63,7 @@ describe('OrcaPaneTerminal CSI/OSC ingest', () => {
       `\x1b[?2026h\x1b[2J\x1b[H${top}\r\n${lines.join('\r\n')}\r\nTAIL\r\n\x1b[?2026l${marker}\r\n`
     )
     const serialized = terminal.serialize()
-    const plain = terminal.engine.readViewportText()
+    const plain = terminal.readViewportText()
     const combined = `${serialized}\n${plain}`
     expect(combined).toContain(marker)
     expect(combined).toContain(top)
@@ -92,7 +92,7 @@ describe('OrcaPaneTerminal CSI/OSC ingest', () => {
       titles.push(title)
     })
     terminal.write('\x07\x1b]0;Hidden model side effects\x07marker\n')
-    expect(terminal.engine.title).toBe('Hidden model side effects')
+    expect(terminal.title).toBe('Hidden model side effects')
     expect(titles).toContain('Hidden model side effects')
     terminal.dispose()
   })
