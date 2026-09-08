@@ -160,10 +160,13 @@ export function writeTerminalOutputImpl(
       let queued = entry
       if (!queued) {
         queued = createQueueEntry(terminal, options)
+        queued.highPriority = options.interactive !== false
         queuedByTerminal.set(terminal, queued)
       } else {
         queued.onBackgroundBacklogDropped = options.onBackgroundBacklogDropped
-        queued.highPriority = true
+        if (options.interactive !== false) {
+          queued.highPriority = true
+        }
       }
       enqueueChunk(queued, data, {
         foreground: true,

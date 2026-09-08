@@ -22,4 +22,17 @@ describe('createPaintScheduler', () => {
     expect(paint).toHaveBeenCalledTimes(1)
     scheduler.dispose()
   })
+
+  it('defers background refresh until the background paint timer', () => {
+    vi.useFakeTimers()
+    const paint = vi.fn()
+    const scheduler = createPaintScheduler(paint)
+    scheduler.refreshBackground()
+    scheduler.refreshBackground()
+    expect(paint).toHaveBeenCalledTimes(0)
+    vi.advanceTimersByTime(50)
+    expect(paint).toHaveBeenCalledTimes(1)
+    scheduler.dispose()
+    vi.useRealTimers()
+  })
 })
