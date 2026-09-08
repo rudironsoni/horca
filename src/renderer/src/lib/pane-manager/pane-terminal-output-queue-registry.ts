@@ -31,6 +31,8 @@ export type WriteTerminalOutputOptions = {
   ackCredit?: () => void
   onBackgroundBacklogDropped?: () => void
   latencySensitive?: boolean
+  /** False for inactive visible splits so their TUI flood cannot starve typing. */
+  interactive?: boolean
   forceForegroundRefresh?: boolean
   followupForegroundRefresh?: boolean
   shouldRefreshForegroundSynchronously?: ForegroundRefreshSyncResolver
