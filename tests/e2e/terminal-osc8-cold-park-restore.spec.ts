@@ -34,7 +34,7 @@ async function locateLink(page: Page, label: string): Promise<LinkProbe> {
     const tabId = state?.activeTabId ?? null
     const manager = tabId ? window.__paneManagers?.get(tabId) : null
     const pane = manager?.getActivePane?.() ?? manager?.getPanes?.()[0] ?? null
-    const screen = pane?.terminal.element?.querySelector<HTMLElement>('.xterm-screen')
+    const screen = pane?.terminal.element?.querySelector<HTMLElement>('.orca-terminal-canvas')
     if (!tabId || !pane || !screen) {
       throw new Error('active terminal pane unavailable')
     }

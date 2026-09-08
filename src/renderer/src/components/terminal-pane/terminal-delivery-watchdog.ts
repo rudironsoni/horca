@@ -5,7 +5,7 @@
  * events stop reaching the renderer (a 245-char shell prompt sat un-ACKed;
  * every terminal blank) while invoke IPC keeps working — the wedged window
  * answered `getRendererDeliveryDebugSnapshot` live. The prior recovery layers
- * cannot reach that state: the xterm write-pipeline guards and replay-guard
+ * cannot reach that state: the terminal write-pipeline guards and replay-guard
  * release (#7150) run only after bytes arrive, and the cumulative-ACK +
  * solicited-resync protocol heals lost ACKs but probes over the same push
  * channel that is dead (upstream precedent: electron#37067, one-directional

@@ -14,7 +14,7 @@ import { ensureTerminalVisible, waitForActiveWorktree, waitForSessionReady } fro
 // Reproduction harness for issue #5096: terminal output delay and input lag
 // reported to grow with session history and disappear after compacting/clearing
 // the agent session. Measures keypress→echo latency through the full pipeline
-// (renderer keyboard → PTY → echo → xterm paint-adjacent buffer read) at three
+// (renderer keyboard → PTY → echo → terminal paint-adjacent buffer read) at three
 // scrollback fills. The fill also keeps the session continuously dirty, so
 // daemon checkpoint serialization (every 5s) lands inside the sampling window
 // exactly as it does in real agent sessions.

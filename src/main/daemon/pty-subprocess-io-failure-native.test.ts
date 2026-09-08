@@ -26,7 +26,7 @@ describePosix('failed-I/O teardown with a real native PTY', () => {
             cwd: process.cwd(),
             cols: 80,
             rows: 24,
-            env: { TERM: 'xterm-256color', PATH: '/usr/bin:/bin' }
+            env: { TERM: 'xterm-ghostty', PATH: '/usr/bin:/bin' }
           }
         )
         const fd = (native as pty.IPty & { fd: number }).fd

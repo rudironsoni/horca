@@ -6,7 +6,7 @@ export function installTerminalLinkifierHoverResetOnMouseLeave(
   terminal: Terminal,
   linkTooltip?: HTMLElement
 ): IDisposable {
-  const screen = terminal.element?.querySelector<HTMLElement>('.xterm-screen')
+  const screen = terminal.element?.querySelector<HTMLElement>('.orca-terminal-canvas')
   if (!screen) {
     return { dispose: () => undefined }
   }
@@ -17,7 +17,7 @@ export function installTerminalLinkifierHoverResetOnMouseLeave(
     }
     resetTerminalLinkifierHoverState(terminal)
   }
-  // Why: xterm clears its active link but keeps the cell cache on mouseleave.
+  // Why: terminal clears its active link but keeps the cell cache on mouseleave.
   screen.addEventListener('mouseleave', resetHover)
   return {
     dispose: () => screen.removeEventListener('mouseleave', resetHover)

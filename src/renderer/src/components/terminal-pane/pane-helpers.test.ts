@@ -120,10 +120,10 @@ describe('fitAndFocusPanes', () => {
     expect(terminal.focus).not.toHaveBeenCalled()
   })
 
-  it('still focuses the active terminal pane when the current focus is xterm', () => {
+  it('still focuses the active terminal pane when the current focus is terminal', () => {
     const textarea = new FakeHTMLElement({
       tagName: 'TEXTAREA',
-      classNames: ['xterm-helper-textarea']
+      classNames: ['orca-terminal-helper-textarea']
     }) as unknown as Element
     stubDocument(textarea)
     const { manager, terminal } = makeManager()

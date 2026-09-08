@@ -45,7 +45,7 @@ export function resolveTerminalJisYenInput(
 
   if (event.type === 'keypress' || event.type === 'keyup') {
     // Why: suppress companion events so the translated keydown cannot be
-    // followed by a browser text event or xterm key-release sequence for ¥.
+    // followed by a browser text event or terminal key-release sequence for ¥.
     return { type: 'suppress' }
   }
 

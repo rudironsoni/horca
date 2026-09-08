@@ -6,7 +6,7 @@ import type { Page } from '@stablyai/playwright-test'
  * Every platform-dependent IME decision in the terminal reads `navigator.userAgent` and nothing
  * else — the forwarder that owns printable keydowns installs only when the UA reports macOS, the
  * candidate-key guards only when it reports desktop Linux, and the standalone `keyCode 229`
- * keydown reaches xterm on macOS and Linux but not on Windows. Overriding the UA is therefore the
+ * keydown reaches terminal on macOS and Linux but not on Windows. Overriding the UA is therefore the
  * whole platform decision, which is what lets the Windows and Linux shapes run headless on the
  * Linux CI shards instead of needing three runners.
  *

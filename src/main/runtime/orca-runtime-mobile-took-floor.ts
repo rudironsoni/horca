@@ -50,7 +50,7 @@ export class OrcaRuntimeWithMobileTookFloor extends OrcaRuntimeWithMarkPtyLivene
   // used when the mobile keyboard opens/closes and shrinks/grows the
   // visible terminal area. We refresh the subscriber's viewport, re-fit
   // the PTY to the new dims, and emit a 'resized' event so the mobile
-  // xterm reinits inline at the new dims without re-subscribing. This
+  // terminal reinits inline at the new dims without re-subscribing. This
   // avoids the unsubscribe → resubscribe cycle which would (a) flash the
   // desktop lock banner during the brief idle gap and (b) cause the new
   // subscribe to capture the already-phone-fitted PTY size as its

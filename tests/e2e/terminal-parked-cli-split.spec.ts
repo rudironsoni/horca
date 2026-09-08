@@ -102,7 +102,8 @@ async function readActiveUiContext(page: Page): Promise<ActiveUiContext> {
           .querySelector('[data-testid="sortable-tab"][data-active="true"]')
           ?.getAttribute('data-tab-id') ?? null,
       focusedTerminalTabId:
-        focused instanceof HTMLElement && focused.classList.contains('xterm-helper-textarea')
+        focused instanceof HTMLElement &&
+        focused.classList.contains('orca-terminal-helper-textarea')
           ? (focused.closest('[data-terminal-tab-id]')?.getAttribute('data-terminal-tab-id') ??
             null)
           : null
@@ -188,10 +189,10 @@ async function expectPaneKeyboardRoundTrip(
   const pane = page.locator(
     `[data-terminal-tab-id=${JSON.stringify(tabId)}][data-terminal-layout-leaf-ids] .pane[data-leaf-id=${JSON.stringify(leafId)}]`
   )
-  await pane.locator('.xterm').click({ force: true })
+  await pane.locator('.orca-terminal-canvas').click({ force: true })
   await page.keyboard.type(command)
   await page.keyboard.press('Enter')
-  await expect(pane.locator('.xterm-accessibility-tree')).toContainText(marker, {
+  await expect(pane.locator('.orca-terminal-accessibility-tree')).toContainText(marker, {
     timeout: 30_000
   })
 }
@@ -227,7 +228,7 @@ test('CLI splits an exact cold-parked tab without stealing the active tab or foc
     throw new Error('Parking did not leave a distinct decoy tab active')
   }
   await orcaPage
-    .locator(`[data-terminal-tab-id=${JSON.stringify(decoyTabId)}] .xterm:visible`)
+    .locator(`[data-terminal-tab-id=${JSON.stringify(decoyTabId)}] .orca-terminal-canvas:visible`)
     .click({ force: true })
   const contextBefore = await readActiveUiContext(orcaPage)
   expect(contextBefore).toMatchObject({
@@ -317,7 +318,7 @@ test('CLI splits an exact cold-parked tab without stealing the active tab or foc
   )
   await expect(targetSurface).toBeVisible()
   await expect(targetSurface.locator('.pane[data-leaf-id]')).toHaveCount(2)
-  await expect(targetSurface.locator('.xterm:visible')).toHaveCount(2)
+  await expect(targetSurface.locator('.orca-terminal-canvas:visible')).toHaveCount(2)
   await expect(
     targetSurface.locator(`.pane[data-leaf-id=${JSON.stringify(sourcePane.leafId)}]`)
   ).toBeVisible()
@@ -326,7 +327,7 @@ test('CLI splits an exact cold-parked tab without stealing the active tab or foc
   ).toBeVisible()
 
   await enablePaneAccessibility(orcaPage, targetTabId)
-  await expect(targetSurface.locator('.xterm-accessibility-tree')).toHaveCount(2)
+  await expect(targetSurface.locator('.orca-terminal-accessibility-tree')).toHaveCount(2)
   await expectPaneKeyboardRoundTrip(orcaPage, targetTabId, sourcePane.leafId, 'SOURCE')
   await expectPaneKeyboardRoundTrip(orcaPage, targetTabId, createdPane.leafId, 'CREATED')
 

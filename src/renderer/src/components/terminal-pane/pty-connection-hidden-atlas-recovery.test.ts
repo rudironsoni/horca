@@ -718,11 +718,11 @@ describe('connectPanePty', () => {
       capturedDataCallback.current?.('\x1b[?2031h')
       vi.advanceTimersByTime(50)
 
-      // Why the scanner and not xterm's CSI handler: xterm batches PTY chunks into one
+      // Why the scanner and not terminal's CSI handler: terminal batches PTY chunks into one
       // parse, so only this layer knows the chunk ended still subscribed (#9993).
       expect(transport.sendInput).not.toHaveBeenCalledWith(expect.stringMatching(/\?997/))
       expect(transport.sendInputImmediate).not.toHaveBeenCalledWith(expect.stringMatching(/\?997/))
-      // The bytes still reach xterm so the emulator tracks the mode itself.
+      // The bytes still reach terminal so the emulator tracks the mode itself.
       expect(pane.terminal.write).toHaveBeenCalledWith('\x1b[?2031h')
     } finally {
       vi.useRealTimers()
@@ -734,6 +734,6 @@ describe('connectPanePty', () => {
   // Why: fish 4.7.1 enables and disables 2031 around *every* prompt with no opt-out, so
   // back-to-back chunks each carrying a toggle are the normal case. Subscribing is never
   // answered (#9993) — these pin that silence plus the per-chunk subscription bookkeeping
-  // that theme-flip pushes depend on. xterm cannot do that bookkeeping: it parses several
+  // that theme-flip pushes depend on. terminal cannot do that bookkeeping: it parses several
   // chunks in one synchronous batch and only sees the net result.
 })

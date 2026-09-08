@@ -39,7 +39,7 @@ export function activateLegacyBinarySubscription(
           return
         }
         runtime.replaceHeadlessTerminalFromRendererSnapshotForRecovery(ptyId, recovery)
-        // Why: shipped mobile clients apply resized snapshots in place, so a blank xterm recovers without resubscribe.
+        // Why: shipped mobile clients apply resized snapshots in place, so a blank terminal recovers without resubscribe.
         const recoveryStats = sendSnapshotFrames(state.sendFrame, {
           kind: 'resized',
           cols: recovery.cols,
@@ -87,7 +87,7 @@ export function activateLegacyBinarySubscription(
     state.outputBatcher?.flush()
     const eventGeneration = state.resizeGeneration + 1
     state.resizeGeneration = eventGeneration
-    // Why: xterm only re-wraps soft-wrapped lines, so a width change needs a full re-serialize+replay to rewrap restored hard-wrapped scrollback.
+    // Why: terminal only re-wraps soft-wrapped lines, so a width change needs a full re-serialize+replay to rewrap restored hard-wrapped scrollback.
     const widthChanged = isMobile && event.cols !== state.lastResizeCols
     if (widthChanged) {
       state.lastResizeCols = event.cols

@@ -145,16 +145,18 @@ export async function composeHangulSyllable(
  * SYNTHESISED, not replayed, and the reason is worth stating: the recorded Windows/WSL Hangul
  * capture in `fixtures/windows-wsl-2set-hangul-dom-trace.json` does **not** contain this ordering
  * — every one of its 37 composition updates sits inside an open start/end pair. The shape is
- * nevertheless reachable by construction, because xterm adds `.active` to the overlay only in its
+ * nevertheless reachable by construction, because terminal adds `.active` to the overlay only in its
  * `compositionstart` handler and its `compositionupdate` handler writes `textContent` without
  * ever re-adding it. CDP cannot produce the ordering either: `Input.imeSetComposition` always
  * opens a session first. So this is dispatched directly.
  */
 export async function dispatchResumedCompositionUpdate(page: Page, data: string): Promise<void> {
   await page.evaluate((preedit: string) => {
-    const textarea = document.querySelector<HTMLTextAreaElement>('.xterm-helper-textarea:focus')
+    const textarea = document.querySelector<HTMLTextAreaElement>(
+      '.orca-terminal-helper-textarea:focus'
+    )
     if (!textarea) {
-      throw new Error('xterm helper textarea is not focused')
+      throw new Error('terminal helper textarea is not focused')
     }
     textarea.dispatchEvent(
       new CompositionEvent('compositionupdate', {

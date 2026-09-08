@@ -180,20 +180,20 @@ describe('isFloatingWorkspacePanelFocused', () => {
 })
 
 describe('isFloatingWorkspaceTerminalInputTarget', () => {
-  it('detects the xterm helper textarea inside the floating panel', () => {
+  it('detects the terminal helper textarea inside the floating panel', () => {
     installFakeHTMLElement()
     const target = makeElement({
-      classNames: ['xterm-helper-textarea'],
+      classNames: ['orca-terminal-helper-textarea'],
       closestSelectors: ['[data-floating-terminal-panel]']
     })
 
     expect(isFloatingWorkspaceTerminalInputTarget(target)).toBe(true)
   })
 
-  it('detects targets inside xterm DOM inside the floating panel', () => {
+  it('detects targets inside terminal DOM inside the floating panel', () => {
     installFakeHTMLElement()
     const target = makeElement({
-      closestSelectors: ['[data-floating-terminal-panel]', '.xterm']
+      closestSelectors: ['[data-floating-terminal-panel]', '.orca-terminal-canvas']
     })
 
     expect(isFloatingWorkspaceTerminalInputTarget(target)).toBe(true)
@@ -202,7 +202,7 @@ describe('isFloatingWorkspaceTerminalInputTarget', () => {
   it('ignores terminal input outside the floating panel', () => {
     installFakeHTMLElement()
     const target = makeElement({
-      classNames: ['xterm-helper-textarea']
+      classNames: ['orca-terminal-helper-textarea']
     })
 
     expect(isFloatingWorkspaceTerminalInputTarget(target)).toBe(false)

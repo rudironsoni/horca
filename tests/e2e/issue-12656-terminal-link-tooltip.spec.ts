@@ -64,9 +64,9 @@ async function moveToLink(page: Page, probe: LinkProbe): Promise<void> {
   const point = await page.evaluate(({ col, row, tabId }) => {
     const manager = window.__paneManagers?.get(tabId)
     const pane = manager?.getActivePane?.() ?? manager?.getPanes?.()[0] ?? null
-    const screen = pane?.terminal.element?.querySelector<HTMLElement>('.xterm-screen')
+    const screen = pane?.terminal.element?.querySelector<HTMLElement>('.orca-terminal-canvas')
     if (!pane || !screen) {
-      throw new Error('xterm-screen element unavailable')
+      throw new Error('orca-terminal-canvas element unavailable')
     }
     const cell = pane.terminal.dimensions?.css.cell
     if (!cell?.width || !cell.height) {
@@ -85,7 +85,7 @@ async function readTooltipState(page: Page, tabId: string): Promise<TooltipState
   return page.evaluate((tabId) => {
     const manager = window.__paneManagers?.get(tabId)
     const pane = manager?.getActivePane?.() ?? manager?.getPanes?.()[0] ?? null
-    const screen = pane?.terminal.element?.querySelector<HTMLElement>('.xterm-screen')
+    const screen = pane?.terminal.element?.querySelector<HTMLElement>('.orca-terminal-canvas')
     if (!pane || !screen) {
       throw new Error('terminal pane unavailable')
     }
