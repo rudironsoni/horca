@@ -19,7 +19,7 @@ export type RemoteGridState = Grid & {
 
 export type RendererGridState = {
   applied: Grid | null
-  xterm: Grid | null
+  terminal: Grid | null
 }
 
 export type ReproSample = {
@@ -83,17 +83,17 @@ export function readRemoteGrid(target: DockerSshRelayTarget): RemoteGridState {
 
 export async function readRendererGrid(page: Page, ptyId: string): Promise<RendererGridState> {
   return page.evaluate(async (id) => {
-    let xterm: Grid | null = null
+    let terminal: Grid | null = null
     for (const manager of window.__paneManagers?.values() ?? []) {
       for (const pane of manager.getPanes?.() ?? []) {
         if (pane.container?.dataset?.ptyId === id) {
-          xterm = { cols: pane.terminal.cols, rows: pane.terminal.rows }
+          terminal = { cols: pane.terminal.cols, rows: pane.terminal.rows }
         }
       }
     }
     return {
       applied: (await window.api.pty.getSize(id)) ?? null,
-      xterm
+      terminal
     }
   }, ptyId)
 }
@@ -103,11 +103,11 @@ export function actualGridMatchesXterm(
   renderer: RendererGridState
 ): boolean {
   return (
-    renderer.xterm !== null &&
-    renderer.xterm.cols > 0 &&
-    renderer.xterm.rows > 0 &&
-    remote.cols === renderer.xterm.cols &&
-    remote.rows === renderer.xterm.rows
+    renderer.terminal !== null &&
+    renderer.terminal.cols > 0 &&
+    renderer.terminal.rows > 0 &&
+    remote.cols === renderer.terminal.cols &&
+    remote.rows === renderer.terminal.rows
   )
 }
 

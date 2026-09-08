@@ -3,9 +3,9 @@ import type { Page } from '@stablyai/playwright-test'
 export type CodexEchoLatencySample = {
   index: number
   char: string
-  /** keydown -> xterm finished parsing the echoed glyph (real echo latency). */
+  /** keydown -> terminal finished parsing the echoed glyph (real echo latency). */
   keyToParseMs: number
-  /** keydown -> xterm renderer painted the row carrying that glyph. */
+  /** keydown -> terminal renderer painted the row carrying that glyph. */
   keyToRenderMs: number | null
 }
 
@@ -61,7 +61,7 @@ export async function installCodexEchoLatencyProbe(page: Page, target: string): 
     }
     const terminal = pane.terminal
     if (typeof terminal.onWriteParsed !== 'function') {
-      throw new Error('Codex echo probe: xterm build has no onWriteParsed')
+      throw new Error('Codex echo probe: terminal build has no onWriteParsed')
     }
 
     const samples: CodexEchoLatencySample[] = []
@@ -118,7 +118,7 @@ export async function installCodexEchoLatencyProbe(page: Page, target: string): 
     }
 
     // Why window capture: a listener on an ancestor in the capture phase is
-    // guaranteed to run before xterm's own keydown handler forwards to the PTY,
+    // guaranteed to run before terminal's own keydown handler forwards to the PTY,
     // so t0 is stamped before any of the work being measured starts.
     const onKeyDown = (event: KeyboardEvent): void => {
       if (event.key.length !== 1 || keysObserved >= target.length) {

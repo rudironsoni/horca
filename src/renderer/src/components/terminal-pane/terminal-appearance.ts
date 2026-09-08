@@ -60,8 +60,8 @@ export function composeActiveTerminalTheme(
   if (!baseTheme) {
     return null
   }
-  // Why transparent ruler border: scrollbar.width enables xterm's overview ruler, whose border would paint a bright line.
-  // Why raised slider alpha: xterm's default (~0.2) is nearly invisible on dark bg. Before the spread so explicit theme wins.
+  // Why transparent ruler border: scrollbar.width enables terminal's overview ruler, whose border would paint a bright line.
+  // Why raised slider alpha: terminal's default (~0.2) is nearly invisible on dark bg. Before the spread so explicit theme wins.
   let theme: ITheme = {
     overviewRulerBorder: 'transparent',
     scrollbarSliderBackground: 'rgba(180, 180, 185, 0.4)',
@@ -73,7 +73,7 @@ export function composeActiveTerminalTheme(
   if (settings.terminalColorOverrides) {
     theme = { ...theme, ...settings.terminalColorOverrides }
   }
-  // Why: convert the hex background to rgba so xterm honors the opacity when allowTransparency is set.
+  // Why: convert the hex background to rgba so terminal honors the opacity when allowTransparency is set.
   if (settings.terminalBackgroundOpacity !== undefined && theme.background) {
     theme = {
       ...theme,
@@ -167,7 +167,7 @@ export function applyTerminalAppearance(
     }
     // Gate off the configured theme background; the live OSC-11 background is deliberately preserved by the
     // theme write above, so a TUI that repaints its background at runtime won't re-gate (known limitation).
-    // Why value-gated: writing minimumContrastRatio clears xterm's contrast cache, so skip on no-op re-applies.
+    // Why value-gated: writing minimumContrastRatio clears terminal's contrast cache, so skip on no-op re-applies.
     const minimumContrastRatio = resolveTerminalMinimumContrastRatio(
       theme?.background,
       appearance.mode,
@@ -196,7 +196,7 @@ export function applyTerminalAppearance(
     // Why value-gated: any settings write re-runs this over every mounted pane, and
     // canApplyPaneMetricOptions forces style+layout; an unchanged no-op deferral
     // would also arm a pointless refit on the next reveal.
-    // Why deferred: a metric write makes xterm clear/resize/full-refresh, which is
+    // Why deferred: a metric write makes terminal clear/resize/full-refresh, which is
     // wasted on a pane with no usable box and whose follow-up cols/rows fit can't run.
     if (!paneMetricOptionsAlreadySettled(pane, metricOptions)) {
       applyOrDeferPaneMetricOptions(pane, metricOptions, canApplyPaneMetricOptions(pane))
@@ -207,7 +207,7 @@ export function applyTerminalAppearance(
     pane.terminal.options.fastScrollSensitivity = normalizeTerminalFastScrollSensitivity(
       settings.terminalFastScrollSensitivity
     )
-    // Why only 'true': 'left'/'right' are handled in the keydown policy, which needs Option composable at the xterm level.
+    // Why only 'true': 'left'/'right' are handled in the keydown policy, which needs Option composable at the terminal level.
     pane.terminal.options.macOptionIsMeta = effectiveMacOptionAsAlt === 'true'
     // Why unconditional: the helper no-ops when addon state already matches, so this keeps new panes and live toggles in sync.
     manager.setPaneLigaturesEnabled(pane.id, ligaturesEnabled)

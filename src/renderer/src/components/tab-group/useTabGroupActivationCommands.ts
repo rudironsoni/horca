@@ -54,7 +54,7 @@ export function useTabGroupActivationCommands({
       setActiveTab(terminalId)
       setActiveTabType('terminal')
       const activeLeafId = worktreeState.terminalLayoutsByTabId[terminalId]?.activeLeafId ?? null
-      // Why: restore xterm focus to the store-active leaf so keyboard input can't drift to a sibling pane.
+      // Why: restore terminal focus to the store-active leaf so keyboard input can't drift to a sibling pane.
       focusTerminalTabSurface(terminalId, activeLeafId)
     },
     [

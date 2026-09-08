@@ -149,7 +149,7 @@ test.describe('terminal image paste WebGL recovery @headful', () => {
       test.skip(!webglActive, 'WebGL was not active in this headful environment')
       expect(await patchAtlasCounter(orcaPage)).toBe(true)
 
-      await orcaPage.locator('.xterm-helper-textarea').first().focus()
+      await orcaPage.locator('.orca-terminal-helper-textarea').first().focus()
       await orcaPage.evaluate(
         (dataUrl) => window.api.ui.writeClipboardImage(dataUrl),
         CLIPBOARD_IMAGE_DATA_URL

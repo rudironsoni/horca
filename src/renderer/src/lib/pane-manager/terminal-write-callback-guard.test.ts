@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   _resetWriteCompletionReportsForTests,
   runGuardedWriteCompletionStep
-} from './xterm-write-callback-guard'
+} from './terminal-write-callback-guard'
 import { writeForegroundTerminalChunk } from './pane-terminal-foreground-render-settle'
 
 const mocks = vi.hoisted(() => ({
@@ -116,7 +116,7 @@ describe('writeForegroundTerminalChunk completion guarding', () => {
         onParsed
       })
       viewportAccessPoisoned = true
-      // Simulate xterm completing the parse: the completion callback must not
+      // Simulate terminal completing the parse: the completion callback must not
       // let the settle throw escape into the WriteBuffer, and onParsed (the
       // replay-guard release) must still run.
       expect(() => pendingCallbacks.forEach((cb) => cb())).not.toThrow()

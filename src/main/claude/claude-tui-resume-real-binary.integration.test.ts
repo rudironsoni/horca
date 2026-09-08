@@ -113,11 +113,11 @@ function spawnResumeTui(args: string[], env: Record<string, string>): RunningTui
     direct ? command : process.env.SHELL || '/bin/zsh',
     direct ? args : ['-l'],
     {
-      name: 'xterm-256color',
+      name: 'xterm-ghostty',
       cols: 100,
       rows: 30,
       cwd: process.cwd(),
-      env: { ...env, TERM: 'xterm-256color' }
+      env: { ...env, TERM: 'xterm-ghostty' }
     }
   )
   if (!direct) {

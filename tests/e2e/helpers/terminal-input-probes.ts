@@ -46,17 +46,17 @@ export async function probeDirectWrite(
   }
 }
 
-/** Probe the full chain: focus the visible xterm and type through the keyboard. */
+/** Probe the full chain: focus the visible terminal and type through the keyboard. */
 export async function probeKeyboardType(
   page: Page,
   marker: string,
   timeoutMs = 10_000
 ): Promise<boolean> {
-  await page.locator('.xterm:visible').first().click()
+  await page.locator('.orca-terminal-canvas:visible').first().click()
   await page.keyboard.type(`echo ${marker}`, { delay: 20 })
   await page.keyboard.press('Enter')
   try {
-    // Any appearance of the marker proves the roundtrip: xterm does not local-
+    // Any appearance of the marker proves the roundtrip: terminal does not local-
     // echo, so typed characters only render after the PTY echoes them back.
     await waitForTerminalOutput(page, marker, timeoutMs)
     return true
@@ -198,7 +198,7 @@ async function mainWaitForMarker(
 }
 
 /**
- * Full-chain probe without CDP: xterm's input() feeds terminal.onData →
+ * Full-chain probe without CDP: terminal's input() feeds terminal.onData →
  * transport.sendInput → pty:write, the identical path keystrokes take past
  * the DOM keyboard layer (which the pre-crash Playwright baseline covers).
  * Why input() and not paste(): bracketed paste mode would wrap the payload

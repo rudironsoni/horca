@@ -5,7 +5,7 @@ import type { PaneForegroundAgentEntry } from '../../store/slices/pane-foregroun
 import type { TerminalPasteTextOptions } from './terminal-paste-model'
 
 /**
- * Why: xterm brackets a paste only after seeing DECSET 2004, which can be lost by
+ * Why: terminal brackets a paste only after seeing DECSET 2004, which can be lost by
  * remote replay or ConPTY. Unprotected CR submits an agent's parked draft.
  *
  * Why keyed on the pane's agent and not on the mode bit itself: "we never observed

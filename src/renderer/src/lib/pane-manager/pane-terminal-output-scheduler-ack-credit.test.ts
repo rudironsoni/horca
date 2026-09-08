@@ -152,7 +152,7 @@ describe('pane terminal output scheduler', () => {
       expect(credit.count()).toBe(0)
       discardTerminalOutput(terminal)
       expect(credit.count()).toBe(1)
-      // Discard settles delivery ownership, not xterm parsing; replay wedge
+      // Discard settles delivery ownership, not terminal parsing; replay wedge
       // deadlines must not treat cleanup as evidence that the parser is alive.
       expect(hasTerminalParseProgressSince(terminal, parseGeneration)).toBe(false)
     })

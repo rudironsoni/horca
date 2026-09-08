@@ -36,12 +36,12 @@ async function renderProbe(): Promise<void> {
   })
 }
 
-// Stand-in for xterm's hidden helper textarea inside its `.xterm` container.
+// Stand-in for terminal's hidden helper textarea inside its `.orca-terminal-canvas` container.
 function appendXtermHelperTextarea(): HTMLTextAreaElement {
   const terminal = document.createElement('div')
-  terminal.className = 'xterm'
+  terminal.className = 'orca-terminal-canvas'
   const textarea = document.createElement('textarea')
-  textarea.className = 'xterm-helper-textarea'
+  textarea.className = 'orca-terminal-helper-textarea'
   terminal.appendChild(textarea)
   document.body.appendChild(terminal)
   return textarea
@@ -58,7 +58,7 @@ function dispatchPasteBeforeInput(target: HTMLElement): Event {
   return event
 }
 
-// Why: `paste` is the event that actually reaches the PTY — xterm forwards from
+// Why: `paste` is the event that actually reaches the PTY — terminal forwards from
 // a `paste` listener and never listens to `beforeinput`.
 function dispatchClipboardPaste(target: HTMLElement): Event {
   const event = new Event('paste', { bubbles: true, cancelable: true })
@@ -102,7 +102,7 @@ describe('terminal-armed native paste suppression', () => {
     expect(keyboardPaste.defaultPrevented).toBe(false)
   })
 
-  it('swallows one clipboard paste per arm, the event xterm forwards to the PTY', async () => {
+  it('swallows one clipboard paste per arm, the event terminal forwards to the PTY', async () => {
     await renderProbe()
     const terminalTextarea = appendXtermHelperTextarea()
     armPrimarySelectionNativePasteSuppression()

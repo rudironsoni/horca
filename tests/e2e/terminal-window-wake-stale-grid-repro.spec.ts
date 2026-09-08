@@ -5,19 +5,19 @@ import { waitForActivePanePtyId, waitForActiveTerminalManager } from './helpers/
 import { waitForPtyShellEcho } from './terminal-pty-readiness'
 
 type Grid = { cols: number; rows: number }
-type GridSnapshot = { applied: Grid | null; xterm: Grid | null }
+type GridSnapshot = { applied: Grid | null; terminal: Grid | null }
 
 async function readGridSnapshot(page: Page, ptyId: string): Promise<GridSnapshot> {
   return page.evaluate(async (id) => {
-    let xterm: Grid | null = null
+    let terminal: Grid | null = null
     for (const manager of window.__paneManagers?.values() ?? []) {
       for (const pane of manager.getPanes?.() ?? []) {
         if (pane.container?.dataset?.ptyId === id) {
-          xterm = { cols: pane.terminal.cols, rows: pane.terminal.rows }
+          terminal = { cols: pane.terminal.cols, rows: pane.terminal.rows }
         }
       }
     }
-    return { applied: (await window.api.pty.getSize(id)) ?? null, xterm }
+    return { applied: (await window.api.pty.getSize(id)) ?? null, terminal }
   }, ptyId)
 }
 
@@ -29,7 +29,7 @@ function chooseStaleGrid(current: Grid): Grid {
 }
 
 test.describe('terminal window-wake stale grid repro', () => {
-  test('window focus heals a local PTY whose applied grid drifted from xterm', async ({
+  test('window focus heals a local PTY whose applied grid drifted from terminal', async ({
     orcaPage
   }) => {
     test.setTimeout(120_000)
@@ -41,11 +41,11 @@ test.describe('terminal window-wake stale grid repro', () => {
     await waitForPtyShellEcho(orcaPage, ptyId, 15_000)
 
     const baseline = await readGridSnapshot(orcaPage, ptyId)
-    expect(baseline.xterm).not.toBeNull()
-    expect(baseline.applied).toEqual(baseline.xterm)
-    const staleGrid = chooseStaleGrid(baseline.xterm!)
+    expect(baseline.terminal).not.toBeNull()
+    expect(baseline.applied).toEqual(baseline.terminal)
+    const staleGrid = chooseStaleGrid(baseline.terminal!)
 
-    // Why: model the field state directly—xterm is fitted, but the idle PTY
+    // Why: model the field state directly—terminal is fitted, but the idle PTY
     // still has an older grid and produces no output that could self-heal it.
     await orcaPage.evaluate(({ id, grid }) => window.api.pty.resize(id, grid.cols, grid.rows), {
       id: ptyId,
@@ -54,7 +54,7 @@ test.describe('terminal window-wake stale grid repro', () => {
     await expect
       .poll(async () => (await readGridSnapshot(orcaPage, ptyId)).applied, { timeout: 10_000 })
       .toEqual(staleGrid)
-    expect((await readGridSnapshot(orcaPage, ptyId)).xterm).toEqual(baseline.xterm)
+    expect((await readGridSnapshot(orcaPage, ptyId)).terminal).toEqual(baseline.terminal)
 
     await orcaPage.evaluate(() => window.dispatchEvent(new Event('focus')))
 
@@ -62,10 +62,10 @@ test.describe('terminal window-wake stale grid repro', () => {
       .poll(
         async () => {
           const snapshot = await readGridSnapshot(orcaPage, ptyId)
-          return snapshot.applied && snapshot.xterm ? snapshot : null
+          return snapshot.applied && snapshot.terminal ? snapshot : null
         },
-        { timeout: 10_000, message: 'Window focus should converge the local PTY to xterm' }
+        { timeout: 10_000, message: 'Window focus should converge the local PTY to terminal' }
       )
-      .toEqual({ applied: baseline.xterm, xterm: baseline.xterm })
+      .toEqual({ applied: baseline.terminal, terminal: baseline.terminal })
   })
 })

@@ -4,7 +4,7 @@
  * This is a scaled-down version of the user report: several terminal tabs are
  * mounted, inactive tabs emit large output bursts, and the focused tab must
  * still render a foreground marker while the background output drains through
- * the shared scheduler instead of direct xterm writes.
+ * the shared scheduler instead of direct terminal writes.
  */
 
 import type { Page } from '@stablyai/playwright-test'
@@ -77,7 +77,7 @@ async function createTerminalTab(page: Page): Promise<string> {
       throw new Error('createTerminalTab: active worktree id was unavailable')
     }
     // Why: this scheduler spec cares about mounted PTYs, not the tab menu.
-    // Store creation avoids hiding xterm regressions behind menu hit-testing flakes.
+    // Store creation avoids hiding terminal regressions behind menu hit-testing flakes.
     return state.createTab(worktreeId).id
   })
 
@@ -317,7 +317,7 @@ test.describe('Terminal output scheduler', () => {
       .toBe(true)
   })
 
-  test('visible bulk output uses the high-priority drain instead of synchronous xterm writes', async ({
+  test('visible bulk output uses the high-priority drain instead of synchronous terminal writes', async ({
     orcaPage
   }, testInfo) => {
     await waitForSessionReady(orcaPage)

@@ -102,7 +102,7 @@ export function disposePane(
     /* ignore */
   }
   try {
-    // Why: fit retries own xterm markers and frame callbacks independently of
+    // Why: fit retries own terminal markers and frame callbacks independently of
     // split restoration; both must be released before terminal disposal.
     cancelDeferredScrollRestore(pane.terminal)
   } catch {

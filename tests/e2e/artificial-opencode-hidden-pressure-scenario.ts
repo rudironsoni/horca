@@ -216,7 +216,7 @@ export async function runHiddenRealPtyPressureScenario<
     // queue) and must never drop a backlog — strict, per the gate contract.
     expect(scheduler?.peakQueuedChars ?? 0).toBeLessThan(pressureOutputChars)
     expect(scheduler?.droppedBacklogCount ?? Number.POSITIVE_INFINITY).toBe(0)
-    // Why: Canvas2D plus macOS IME `input` commit is slower than the old xterm
+    // Why: Canvas2D plus macOS IME `input` commit is slower than the old terminal
     // WebGL path that the 75ms hidden budget was written against.
     expect(measurement.medianLatencyMs).toBeLessThan(250)
     // Why: worst *single-key echo* under 8MB synthetic backpressure lands behind

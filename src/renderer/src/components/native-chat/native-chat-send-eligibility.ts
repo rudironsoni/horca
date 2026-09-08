@@ -3,7 +3,7 @@ import type { DriverState } from '@/lib/pane-manager/mobile-driver-state'
 /**
  * Pure derivation of the composer's `canSend` (R8). A pty held by a mobile
  * client (`driver.kind === 'mobile'`) means the mobile presence-lock is active:
- * the renderer already drops xterm input for that pty, so native-chat sends must
+ * the renderer already drops terminal input for that pty, so native-chat sends must
  * be guarded identically rather than silently racing the mobile driver. Desktop
  * and idle drivers leave the pty writable. A null driver (pty not yet resolved)
  * is treated as unlocked so the composer stays usable while the lock state loads;

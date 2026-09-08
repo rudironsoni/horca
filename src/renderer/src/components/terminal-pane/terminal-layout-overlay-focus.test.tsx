@@ -5,7 +5,7 @@ import { fitAndFocusPanes } from './pane-helpers'
 
 function createLayoutFixture() {
   const textarea = document.createElement('textarea')
-  textarea.className = 'xterm-helper-textarea'
+  textarea.className = 'orca-terminal-helper-textarea'
   document.body.append(textarea)
   textarea.focus()
   const terminal = { focus: vi.fn(() => textarea.focus()) }

@@ -109,7 +109,7 @@ export function bindHiddenStartupRendererQueryWrite(session: ConnectPanePtySessi
     recordHiddenRendererSkip(data.length)
   }
 
-  // Why: discarding flood bytes must not swallow terminal queries (a lost DSR/CPR hangs the program); the snapshot repaint owns the content, so synthesize replies via the immediate input path, not xterm replay.
+  // Why: discarding flood bytes must not swallow terminal queries (a lost DSR/CPR hangs the program); the snapshot repaint owns the content, so synthesize replies via the immediate input path, not terminal replay.
   session.salvageRendererQueriesFromDiscardedRestoreData = function (data: string): void {
     if (!data || !data.includes('\x1b')) {
       return
@@ -139,8 +139,10 @@ export function bindHiddenStartupRendererQueryWrite(session: ConnectPanePtySessi
       }
     }
     if (unansweredQueryData) {
-      // Best-effort for rarer queries (DECRQM, DA2, XTVERSION): replay into xterm so its handlers answer when no replay is active.
-      session.writePtyOutputToXterm(unansweredQueryData, true, { hiddenStartupRendererQuery: true })
+      // Best-effort for rarer queries (DECRQM, DA2, XTVERSION): replay into terminal so its handlers answer when no replay is active.
+      session.writePtyOutputToTerminal(unansweredQueryData, true, {
+        hiddenStartupRendererQuery: true
+      })
     }
   }
 
