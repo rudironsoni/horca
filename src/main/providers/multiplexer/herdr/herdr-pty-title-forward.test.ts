@@ -30,7 +30,7 @@ describe('herdr pane OSC title forward', () => {
         type: 'pane_updated',
         pane_id: 'w1:p1',
         terminal_title: 'Hidden model side effects'
-      } as HerdrEvent)
+      } as unknown as HerdrEvent)
     ).toEqual({
       paneId: 'w1:p1',
       title: 'Hidden model side effects'
