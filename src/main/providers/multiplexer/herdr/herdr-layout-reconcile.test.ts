@@ -17,6 +17,34 @@ function makeSnapshot() {
   return testSnapshot()
 }
 
+function orcaTab() {
+  return {
+    title: 'T',
+    customTitle: null as string | null,
+    startupCwd: '/x',
+    id: 'orca-tab',
+    ptyId: null as string | null,
+    worktreeId: 'wt',
+    color: null,
+    sortOrder: 0,
+    createdAt: 1
+  }
+}
+
+function appliedSplit(first: string, second: string, tabId = 't1') {
+  return {
+    layout: {
+      tab_id: tabId,
+      root: {
+        type: 'split' as const,
+        direction: 'right' as const,
+        first: { type: 'pane' as const, pane_id: first },
+        second: { type: 'pane' as const, pane_id: second }
+      }
+    }
+  }
+}
+
 describe('terminalLayoutToHerdrLayout', () => {
   it('converts a leaf to a bare pane', () => {
     expect(terminalLayoutToHerdrLayout({ type: 'leaf', leafId: 'l1' })).toEqual({ type: 'pane' })
@@ -62,19 +90,7 @@ describe('applyTabLayout', () => {
 
   it('applies the layout, binds leaves in order, and updates the snapshot', async () => {
     const { transport, calls } = makeTransport({
-      'layout.apply': () => ({
-        layout: {
-          tab_id: 't9',
-          workspace_id: WORKSPACE,
-          root: {
-            type: 'split',
-            direction: 'right',
-            ratio: 0.5,
-            first: { type: 'pane', pane_id: 'w1:p1' },
-            second: { type: 'pane', pane_id: 'w1:p2' }
-          }
-        }
-      }),
+      'layout.apply': () => appliedSplit('w1:p1', 'w1:p2', 't9'),
       'pane.report_metadata': () => ({ ok: true })
     })
     const snapshot = makeSnapshot()
@@ -203,17 +219,7 @@ describe('applyTabLayout', () => {
 
   it('clears replaced server bindings and persists applied pane ids', async () => {
     const { transport, calls } = makeTransport({
-      'layout.apply': () => ({
-        layout: {
-          tab_id: 't2',
-          root: {
-            type: 'split',
-            direction: 'right',
-            first: { type: 'pane', pane_id: 'w1:p3' },
-            second: { type: 'pane', pane_id: 'w1:p4' }
-          }
-        }
-      }),
+      'layout.apply': () => appliedSplit('w1:p3', 'w1:p4', 't2'),
       'pane.report_metadata': () => ({ ok: true })
     })
     const persisted: Record<string, string> = {}
@@ -239,15 +245,7 @@ describe('applyTabLayout', () => {
       SESSION,
       PROJECT,
       WORKSPACE,
-      {
-        ...tab,
-        id: 'orca-tab',
-        ptyId: null,
-        worktreeId: 'wt',
-        color: null,
-        sortOrder: 0,
-        createdAt: 1
-      },
+      orcaTab(),
       root,
       snapshot,
       persisted
@@ -267,5 +265,20 @@ describe('applyTabLayout', () => {
         tokens: { [ORCA_BINDING_TOKEN]: null }
       }
     ])
+  })
+
+  it('applies layout when persisted pane ids collide across leaves', async () => {
+    const { transport, calls } = makeTransport({
+      'layout.apply': () => appliedSplit('w1:p1', 'w1:p2', 't1'),
+      'pane.report_metadata': () => ({ ok: true })
+    })
+    const snapshot = makeSnapshot()
+    snapshot.tabs = [testTab({ id: 't1', workspaceId: WORKSPACE, label: 'T' })]
+    snapshot.panes = [testPane({ id: 'w1:p1', tabId: 't1', workspaceId: WORKSPACE })]
+    await ensureTabLayout(transport, SESSION, PROJECT, WORKSPACE, orcaTab(), root, snapshot, {
+      l1: 'w1:p1',
+      l2: 'w1:p1'
+    })
+    expect(calls.some((call) => call.method === 'layout.apply')).toBe(true)
   })
 })

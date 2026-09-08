@@ -6,13 +6,16 @@ import type { HerdrPtyBinding } from './herdr-pty-types'
 import { handlerTransport } from './herdr-sdk-test-host'
 import { testPane } from './herdr-sdk-test-snapshot'
 
-function frame(bytes: string, opts: { full?: boolean; seq?: number } = {}): HerdrTerminalFrame {
+function frame(
+  bytes: string,
+  opts: { full?: boolean; seq?: number; width?: number; height?: number } = {}
+): HerdrTerminalFrame {
   return {
     type: 'terminal.frame',
     seq: opts.seq ?? 1,
     encoding: 'ansi',
-    width: 80,
-    height: 24,
+    width: opts.width ?? 80,
+    height: opts.height ?? 24,
     full: opts.full ?? true,
     bytes: Buffer.from(bytes, 'utf8').toString('base64')
   }
@@ -82,9 +85,11 @@ describe('waitForFirstHerdrFrame', () => {
       detach: vi.fn()
     })
 
-    push(frame('line1\n'))
+    push(frame('line1\n', { width: 200, height: 80 }))
     const first = await pending
     expect(first?.data).toBe('line1\n')
+    expect(binding.cols).toBe(80)
+    expect(binding.rows).toBe(24)
     expect(emitData).not.toHaveBeenCalled()
 
     push(frame('line1\nline2\n'))

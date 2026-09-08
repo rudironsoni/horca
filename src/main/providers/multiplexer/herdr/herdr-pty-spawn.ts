@@ -17,6 +17,10 @@ import {
   openSharedHerdrPaneController,
   writeSharedHerdrInput
 } from './herdr-pty-attach'
+import {
+  pauseHerdrPaneScrollbackDrain,
+  resumeHerdrPaneScrollbackDrain
+} from './herdr-pty-scrollback-drain'
 import type { HerdrRuntimeManager } from './herdr-runtime-manager'
 
 export async function spawnHerdrPtyPane(args: {
@@ -47,21 +51,26 @@ export async function spawnHerdrPtyPane(args: {
   if (paneId && !livePaneIds.has(paneId)) {
     paneId = null
   }
-  if (!paneId) {
-    const worktree =
-      target.graph.worktrees.find((candidate) => candidate.id === target.identity.worktreeId) ??
-      target.graph.worktrees[0]
-    if (worktree) {
-      paneId = await runtime.manager.materializeLeafPane(
-        target.project,
-        target.identity.leafId,
-        opts.cwd ?? '',
-        worktree
-      )
+  pauseHerdrPaneScrollbackDrain()
+  try {
+    if (!paneId) {
+      const worktree =
+        target.graph.worktrees.find((candidate) => candidate.id === target.identity.worktreeId) ??
+        target.graph.worktrees[0]
+      if (worktree) {
+        paneId = await runtime.manager.materializeLeafPane(
+          target.project,
+          target.identity.leafId,
+          opts.cwd ?? '',
+          worktree
+        )
+      }
     }
-  }
-  if (!paneId) {
-    paneId = await runtime.manager.bindSpawnLeafPane(target.graph, target.identity)
+    if (!paneId) {
+      paneId = await runtime.manager.bindSpawnLeafPane(target.graph, target.identity)
+    }
+  } finally {
+    resumeHerdrPaneScrollbackDrain()
   }
   await target.activateHerdr?.()
   const attachPaneId = paneId
