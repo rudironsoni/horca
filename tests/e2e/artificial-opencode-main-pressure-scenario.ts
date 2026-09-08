@@ -4,6 +4,10 @@ import { randomUUID } from 'node:crypto'
 import { rmSync } from 'node:fs'
 import path from 'node:path'
 import { sendToTerminal } from './helpers/terminal'
+import {
+  bindLiveTypingPane,
+  waitForTerminalOutputForPtyId
+} from './artificial-opencode-pane-interactions'
 import { writePressureOutputScript } from './artificial-opencode-hidden-pressure-script'
 import {
   annotateScrollMeasurement,
@@ -116,7 +120,7 @@ export async function runMainPressureScenario<
   await deps.waitForSessionReady(orcaPage)
   await deps.waitForActiveWorktree(orcaPage)
   const panes = await deps.ensureActiveWorktreePaneLoad(orcaPage, backgroundPaneCount + 1)
-  const [typingPane, ...loadPanes] = panes
+  const { typingPane, loadPanes } = await bindLiveTypingPane(orcaPage, panes)
   await deps.focusPane(orcaPage, typingPane.paneKey)
 
   const runId = randomUUID()
@@ -125,8 +129,15 @@ export async function runMainPressureScenario<
   const pressureScriptPath = path.join(testRepoPath, `.orca-opencode-pressure-load-${runId}.mjs`)
   await seedActiveTerminalScrollback(orcaPage, typingPane.ptyId, scrollRunId)
   deps.writeInteractivePromptScript(typingScriptPath, runId)
-  writePressureOutputScript(pressureScriptPath, runId, 'tui')
+  writePressureOutputScript(pressureScriptPath, runId, 'plain')
   await deps.resetTerminalPtyOutputDebug(orcaPage)
+  await sendToTerminal(orcaPage, typingPane.ptyId, `node ${JSON.stringify(typingScriptPath)}\r`)
+  await waitForTerminalOutputForPtyId(
+    orcaPage,
+    typingPane.ptyId,
+    `OPENCODE_TYPING_READY_${runId}`,
+    10_000
+  )
   await deps.holdTerminalAckGate(
     orcaPage,
     loadPanes.map((pane) => pane.ptyId)

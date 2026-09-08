@@ -41,6 +41,21 @@ export function resolveHerdrSpawnLayout(
     )
   }
 
+  const host = [rendererLayout, persistedLayout].find((candidate) => candidate?.root)
+  if (host?.root) {
+    return {
+      root: {
+        type: 'split',
+        direction: 'vertical',
+        ratio: 0.5,
+        first: host.root,
+        second: { type: 'leaf', leafId }
+      },
+      activeLeafId: leafId,
+      expandedLeafId: null
+    }
+  }
+
   return {
     root: { type: 'leaf', leafId },
     activeLeafId: leafId,
