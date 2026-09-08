@@ -71,12 +71,12 @@ describe('pane terminal output scheduler', () => {
 
     expect(writes).toEqual(['hidden redraw'])
     expect(onParsed).not.toHaveBeenCalled()
-    expect(terminal._core.refresh).not.toHaveBeenCalled()
+    expect(terminal.refresh).not.toHaveBeenCalled()
 
     parseCallbacks[0]?.()
 
     expect(onParsed).toHaveBeenCalledTimes(1)
-    expect(terminal._core.refresh).not.toHaveBeenCalled()
+    expect(terminal.refresh).not.toHaveBeenCalled()
   })
 
   it('runs parsed callbacks after the final background slice', async () => {

@@ -88,19 +88,21 @@ describe('writeForegroundTerminalChunk completion guarding', () => {
     try {
       const pendingCallbacks: (() => void)[] = []
       // Why a getter that throws only after the write is dispatched: it
-      // models renderer/buffer state failing between parse start and the
-      // post-parse viewport settle (refreshVisibleRowsNow self-catches, so
-      // the viewport comparison is the escaping surface).
-      let bufferAccessPoisoned = false
-      const realBuffer = { active: { cursorY: 0, baseY: 0, viewportY: 0 } }
+      // models viewport state failing between parse start and the post-parse
+      // settle (refreshVisibleRows self-catches, so the snapshot is the
+      // escaping surface).
+      let viewportAccessPoisoned = false
       const terminal = {
         rows: 24,
-        get buffer() {
-          if (bufferAccessPoisoned) {
-            throw new Error('synthetic buffer access failure')
+        cursor: { x: 0, y: 0 },
+        get baseY() {
+          if (viewportAccessPoisoned) {
+            throw new Error('synthetic viewport access failure')
           }
-          return realBuffer
+          return 0
         },
+        viewportY: 0,
+        refresh: vi.fn(),
         write: (_data: string, cb?: () => void) => {
           if (cb) {
             pendingCallbacks.push(cb)
@@ -113,7 +115,7 @@ describe('writeForegroundTerminalChunk completion guarding', () => {
         forceViewportRefresh: true,
         onParsed
       })
-      bufferAccessPoisoned = true
+      viewportAccessPoisoned = true
       // Simulate xterm completing the parse: the completion callback must not
       // let the settle throw escape into the WriteBuffer, and onParsed (the
       // replay-guard release) must still run.

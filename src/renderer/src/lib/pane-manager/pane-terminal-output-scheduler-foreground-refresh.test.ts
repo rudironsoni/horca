@@ -83,11 +83,11 @@ describe('pane terminal output scheduler', () => {
     expect(onParsed).toHaveBeenCalledTimes(1)
   })
 
-  it('synchronously refreshes visible rows after foreground output parses', async () => {
+  it('refreshes visible rows after foreground output parses', async () => {
     const { writeTerminalOutput } = await loadScheduler()
     const terminal = createForegroundTerminal()
     terminal.write.mockImplementation((_data: string, callback?: () => void) => {
-      terminal.buffer.active.cursorY = 3
+      terminal.cursor.y = 3
       callback?.()
     })
 
@@ -96,11 +96,10 @@ describe('pane terminal output scheduler', () => {
       forceForegroundRefresh: true
     })
 
-    expect(terminal._core.refresh).toHaveBeenCalledWith(0, 23, true)
-    expect(terminal.refresh).not.toHaveBeenCalled()
+    expect(terminal.refresh).toHaveBeenCalledWith(0, 23)
   })
 
-  it('coalesces a WebGL foreground refresh through xterm public refresh', async () => {
+  it('coalesces a Canvas2D foreground refresh through public refresh', async () => {
     const { writeTerminalOutput } = await loadScheduler()
     const terminal = createForegroundTerminal()
 
@@ -111,31 +110,27 @@ describe('pane terminal output scheduler', () => {
     })
 
     expect(terminal.refresh).toHaveBeenCalledWith(0, 23)
-    expect(terminal._core.refresh).not.toHaveBeenCalled()
   })
 
-  it('resolves the live renderer after xterm finishes parsing', async () => {
+  it('resolves the live renderer after parse completes', async () => {
     const { writeTerminalOutput } = await loadScheduler()
     const terminal = createForegroundTerminal()
     let parseCallback: (() => void) | undefined
-    let webglLive = false
     terminal.write.mockImplementation((_data: string, callback?: () => void) => {
       parseCallback = callback
     })
 
     writeTerminalOutput(terminal, 'queued renderer transition\r\n', {
       foreground: true,
-      forceForegroundRefresh: true,
-      shouldRefreshForegroundSynchronously: () => !webglLive
+      forceForegroundRefresh: true
     })
-    webglLive = true
+    expect(terminal.refresh).not.toHaveBeenCalled()
     parseCallback?.()
 
     expect(terminal.refresh).toHaveBeenCalledWith(0, 23)
-    expect(terminal._core.refresh).not.toHaveBeenCalled()
   })
 
-  it('keeps the WebGL follow-up repair on the debounced path', async () => {
+  it('keeps the follow-up repair on the next animation frame', async () => {
     const scheduledFrames: FrameRequestCallback[] = []
     vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
       scheduledFrames.push(callback)
@@ -146,11 +141,10 @@ describe('pane terminal output scheduler', () => {
     const { writeTerminalOutput } = await loadScheduler()
     const terminal = createForegroundTerminal()
 
-    writeTerminalOutput(terminal, 'WebGL cursor restore', {
+    writeTerminalOutput(terminal, 'cursor restore', {
       foreground: true,
       forceForegroundRefresh: true,
-      followupForegroundRefresh: true,
-      shouldRefreshForegroundSynchronously: () => false
+      followupForegroundRefresh: true
     })
 
     expect(terminal.refresh).toHaveBeenCalledTimes(1)
@@ -158,33 +152,7 @@ describe('pane terminal output scheduler', () => {
     scheduledFrames[0]?.(16)
 
     expect(terminal.refresh).toHaveBeenCalledTimes(2)
-    expect(terminal._core.refresh).not.toHaveBeenCalled()
-  })
-
-  it('resolves WebGL loss again before the follow-up repair', async () => {
-    const scheduledFrames: FrameRequestCallback[] = []
-    vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
-      scheduledFrames.push(callback)
-      return scheduledFrames.length
-    })
-    vi.stubGlobal('cancelAnimationFrame', vi.fn())
-
-    const { writeTerminalOutput } = await loadScheduler()
-    const terminal = createForegroundTerminal()
-    let webglLive = true
-
-    writeTerminalOutput(terminal, 'renderer transition', {
-      foreground: true,
-      forceForegroundRefresh: true,
-      followupForegroundRefresh: true,
-      shouldRefreshForegroundSynchronously: () => !webglLive
-    })
-
-    expect(terminal.refresh).toHaveBeenCalledTimes(1)
-    webglLive = false
-    scheduledFrames[0]?.(16)
-
-    expect(terminal._core.refresh).toHaveBeenCalledWith(0, 23, true)
+    expect(terminal.refresh).toHaveBeenLastCalledWith(0, 23)
   })
 
   it('repaints the viewport again on the next frame when foreground output scrolls', async () => {
@@ -197,11 +165,11 @@ describe('pane terminal output scheduler', () => {
 
     const { writeTerminalOutput } = await loadScheduler()
     const terminal = createForegroundTerminal()
-    terminal.buffer.active.baseY = 10
-    terminal.buffer.active.viewportY = 10
+    terminal.baseY = 10
+    terminal.viewportY = 10
     terminal.write.mockImplementation((_data: string, callback?: () => void) => {
-      terminal.buffer.active.baseY = 11
-      terminal.buffer.active.viewportY = 11
+      terminal.baseY = 11
+      terminal.viewportY = 11
       callback?.()
     })
 
@@ -210,13 +178,13 @@ describe('pane terminal output scheduler', () => {
       forceForegroundRefresh: true
     })
 
-    expect(terminal._core.refresh).toHaveBeenCalledTimes(1)
+    expect(terminal.refresh).toHaveBeenCalledTimes(1)
     expect(scheduledFrames).toHaveLength(1)
 
     scheduledFrames[0]?.(16)
 
-    expect(terminal._core.refresh).toHaveBeenCalledTimes(2)
-    expect(terminal._core.refresh).toHaveBeenLastCalledWith(0, 23, true)
+    expect(terminal.refresh).toHaveBeenCalledTimes(2)
+    expect(terminal.refresh).toHaveBeenLastCalledWith(0, 23)
   })
 
   it('can force a follow-up repaint after cursor-only foreground restores', async () => {
@@ -236,13 +204,13 @@ describe('pane terminal output scheduler', () => {
       followupForegroundRefresh: true
     })
 
-    expect(terminal._core.refresh).toHaveBeenCalledTimes(1)
+    expect(terminal.refresh).toHaveBeenCalledTimes(1)
     expect(scheduledFrames).toHaveLength(1)
 
     scheduledFrames[0]?.(16)
 
-    expect(terminal._core.refresh).toHaveBeenCalledTimes(2)
-    expect(terminal._core.refresh).toHaveBeenLastCalledWith(0, 23, true)
+    expect(terminal.refresh).toHaveBeenCalledTimes(2)
+    expect(terminal.refresh).toHaveBeenLastCalledWith(0, 23)
   })
 
   it('schedules a follow-up repaint for a Claude-style in-place CR redraw without scroll', async () => {
@@ -268,13 +236,13 @@ describe('pane terminal output scheduler', () => {
       followupForegroundRefresh: true
     })
 
-    expect(terminal._core.refresh).toHaveBeenCalledTimes(1)
+    expect(terminal.refresh).toHaveBeenCalledTimes(1)
     expect(scheduledFrames).toHaveLength(1)
 
     scheduledFrames[0]?.(16)
 
-    expect(terminal._core.refresh).toHaveBeenCalledTimes(2)
-    expect(terminal._core.refresh).toHaveBeenLastCalledWith(0, 23, true)
+    expect(terminal.refresh).toHaveBeenCalledTimes(2)
+    expect(terminal.refresh).toHaveBeenLastCalledWith(0, 23)
   })
 
   it('skips forced viewport refresh for ordinary foreground output', async () => {
@@ -283,7 +251,6 @@ describe('pane terminal output scheduler', () => {
 
     writeTerminalOutput(terminal, 'plain foreground output\r\n', { foreground: true })
 
-    expect(terminal._core.refresh).not.toHaveBeenCalled()
     expect(terminal.refresh).not.toHaveBeenCalled()
   })
 
@@ -295,8 +262,7 @@ describe('pane terminal output scheduler', () => {
     writeTerminalOutput(terminal, 'forced', {
       foreground: true,
       latencySensitive: false,
-      forceForegroundRefresh: true,
-      shouldRefreshForegroundSynchronously: () => false
+      forceForegroundRefresh: true
     })
     writeTerminalOutput(terminal, ' ordinary', {
       foreground: true,
@@ -305,6 +271,5 @@ describe('pane terminal output scheduler', () => {
     vi.advanceTimersByTime(0)
 
     expect(terminal.refresh).toHaveBeenCalledWith(0, 23)
-    expect(terminal._core.refresh).not.toHaveBeenCalled()
   })
 })
