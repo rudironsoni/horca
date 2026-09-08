@@ -66,9 +66,19 @@
   left: 0;
 }
 
-.pane-manager-root .xterm .xterm-helper-textarea {
-  /* Why: Chromium can still paint the native caret for xterm's hidden helper
-     textarea on Windows, which shows up as a stale cursor during redraws. */
+.xterm-container > .xterm-helper-textarea {
+  position: absolute;
+  opacity: 0;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  z-index: -5;
+  overflow: hidden;
+  resize: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
   caret-color: transparent;
 }
 
