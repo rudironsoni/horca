@@ -51,7 +51,7 @@ export function bindFreshSpawnFollowReset(session: ConnectPanePtySession): void 
     }
     tryResetNativeFollow()
     if (!nativeFollowResetComplete) {
-      // Why: xterm's browser viewport can reject scrolling while its renderer
+      // Why: terminal's browser viewport can reject scrolling while its renderer
       // is detached; the first render/resize is the earliest safe native retry.
       session.freshSpawnFollowResetDisposables = [
         session.pane.terminal.onRender(tryResetNativeFollow),
@@ -97,10 +97,10 @@ export function bindFreshSpawnFollowReset(session: ConnectPanePtySession): void 
     return prefersRefresh
   }
 
-  // The replay path uses the guard so xterm auto-replies to embedded query
-  // sequences don't leak into the shell. xterm.write() buffers internally
+  // The replay path uses the guard so terminal auto-replies to embedded query
+  // sequences don't leak into the shell. terminal.write() buffers internally
   // regardless of DOM visibility and the guard stays engaged via the
-  // write-completion callback until xterm finishes parsing.
+  // write-completion callback until terminal finishes parsing.
   session.writeReplayData = (data: string): void => {
     // Why: drain any queued background bytes BEFORE the replay paint, so the
     // scheduler's deferred drain cannot land older bytes on top of the replay.
@@ -117,7 +117,7 @@ export function bindFreshSpawnFollowReset(session: ConnectPanePtySession): void 
   }
 
   session.writeReplayDataAsync = (data: string): Promise<void> => {
-    // Why: WebGL must be rebuilt after xterm has parsed replay bytes, not
+    // Why: WebGL must be rebuilt after terminal has parsed replay bytes, not
     // merely after the write was queued.
     flushTerminalOutput(session.pane.terminal)
     return replayIntoTerminalAsync(session.pane, session.deps.replayingPanesRef, data, {

@@ -69,7 +69,7 @@ export function installTerminalKeydownFit(session: ConnectPanePtySession): void 
     session.deps.clearTerminalPaneUnread(session.cacheKey)
     session.deps.clearWorktreeUnread(session.deps.worktreeId)
   }
-  // Why: infer only from focused xterm key events. Raw PTY bytes cannot
+  // Why: infer only from focused terminal key events. Raw PTY bytes cannot
   // distinguish plain Escape from Alt/meta sequences, and programmatic writes
   // should not clear agent status.
   session.terminalKeyTarget = session.pane.terminal.element ?? session.pane.container
@@ -97,7 +97,7 @@ export function installTerminalKeydownFit(session: ConnectPanePtySession): void 
       session.pendingVisibleRemoteViewportClaim = true
     }
     // Why: override hydration can arrive before this pane knows its PTY. Once
-    // data-pty-id is bound, safeFit can park xterm at the authoritative grid.
+    // data-pty-id is bound, safeFit can park terminal at the authoritative grid.
     if (getFitOverrideForPty(ptyId)) {
       safeFit(session.pane)
     }

@@ -65,7 +65,7 @@ export function removeTransientCursorShowSequences(data: string): string {
         showIndex = data.indexOf(CURSOR_SHOW_SEQUENCE, offset)
         continue
       }
-      // Why: Codex can show the cursor before its final synchronized-frame placement. Place first so xterm cannot rasterize the stale cell.
+      // Why: Codex can show the cursor before its final synchronized-frame placement. Place first so terminal cannot rasterize the stale cell.
       result += data.slice(offset, showIndex)
       result += data.slice(showIndex + CURSOR_SHOW_SEQUENCE.length, nextPositionEnd)
       result += CURSOR_SHOW_SEQUENCE

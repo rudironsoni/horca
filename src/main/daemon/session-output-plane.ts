@@ -51,7 +51,7 @@ export class SessionOutputPlane {
       rows: size.rows,
       scrollback: opts.scrollback,
       wslDistro: opts.wslDistro
-      // No onData: the daemon emulator must never reply to query sequences — the renderer's xterm is
+      // No onData: the daemon emulator must never reply to query sequences — the renderer's terminal is
       // the authoritative responder and a daemon reply would race ahead and clobber it. See HeadlessEmulator.
       // The one exception is DA1 while the shell-ready barrier holds (below): the renderer's reply
       // would be queued behind the marker it is needed to produce, so it cannot be authoritative there.

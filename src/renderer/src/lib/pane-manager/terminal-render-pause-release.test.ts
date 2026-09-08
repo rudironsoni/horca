@@ -98,7 +98,7 @@ describe('forceRepaintThroughRenderPause', () => {
 })
 
 describe('forceFullViewportPresent', () => {
-  it('fails closed when xterm internals are unavailable', () => {
+  it('fails closed when terminal internals are unavailable', () => {
     expect(forceFullViewportPresent(null)).toBe(false)
   })
 
@@ -177,7 +177,7 @@ describe('forceFullViewportPresent', () => {
 })
 
 describe('requestFullViewportPresent', () => {
-  it('fails closed when xterm internals are unavailable', () => {
+  it('fails closed when terminal internals are unavailable', () => {
     expect(requestFullViewportPresent(null)).toBe(false)
   })
 

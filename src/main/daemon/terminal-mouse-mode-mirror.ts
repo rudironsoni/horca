@@ -8,7 +8,7 @@ const PRIVATE_MODE_SCAN_TAIL_LIMIT = 4096
 
 /**
  * Mirrors DECSET mouse-protocol/encoding state from the raw byte stream.
- * xterm's public modes API does not expose which mouse protocol is active,
+ * terminal's public modes API does not expose which mouse protocol is active,
  * so snapshots track it independently of the headless terminal; callers
  * must feed `scan()` the same bytes the terminal parsed, in order.
  */

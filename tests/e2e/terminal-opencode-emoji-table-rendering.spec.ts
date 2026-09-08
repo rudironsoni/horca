@@ -27,7 +27,7 @@ type TerminalRenderState = {
   cursorAnimationName: string
   cursorAnimationDuration: string
   rowContainerClassName: string
-  xtermClassName: string
+  terminalClassName: string
   hasWebglCanvas: boolean
   hasComplexScriptOutput: boolean
   renderer: 'dom' | 'webgl'
@@ -99,7 +99,9 @@ async function readActiveTerminalRenderState(page: Page): Promise<TerminalRender
       .find((diagnostic) => diagnostic.paneId === pane.id)
 
     const cursorElements = Array.from(
-      pane.container.querySelectorAll<HTMLElement>('.xterm-cursor, .xterm-cursor-layer *')
+      pane.container.querySelectorAll<HTMLElement>(
+        '.orca-terminal-cursor, .orca-terminal-cursor-layer *'
+      )
     )
     const cursorVisibleElementCount = cursorElements.filter((element) => {
       const style = window.getComputedStyle(element)
@@ -113,20 +115,20 @@ async function readActiveTerminalRenderState(page: Page): Promise<TerminalRender
       )
     }).length
 
-    const terminal = pane.terminal as {
+    const engine = pane.terminal as {
       _core?: {
         coreService?: { isCursorHidden?: boolean }
       }
     }
-    const cursorElement = pane.container.querySelector<HTMLElement>('.xterm-cursor')
+    const cursorElement = pane.container.querySelector<HTMLElement>('.orca-terminal-cursor')
     const cursorStyle = cursorElement ? window.getComputedStyle(cursorElement) : null
-    const rowContainer = pane.container.querySelector<HTMLElement>('.xterm-rows')
-    const xterm = pane.container.querySelector<HTMLElement>('.xterm')
+    const rowContainer = pane.container.querySelector<HTMLElement>('.orca-terminal-rows')
+    const canvas = pane.container.querySelector<HTMLElement>('.orca-terminal-canvas')
 
     return {
       coreCursorHidden:
-        typeof terminal._core?.coreService?.isCursorHidden === 'boolean'
-          ? terminal._core.coreService.isCursorHidden
+        typeof engine._core?.coreService?.isCursorHidden === 'boolean'
+          ? engine._core.coreService.isCursorHidden
           : null,
       cursorElementCount: cursorElements.length,
       cursorVisibleElementCount,
@@ -142,7 +144,7 @@ async function readActiveTerminalRenderState(page: Page): Promise<TerminalRender
       cursorAnimationName: cursorStyle?.animationName ?? '',
       cursorAnimationDuration: cursorStyle?.animationDuration ?? '',
       rowContainerClassName: rowContainer?.className ?? '',
-      xtermClassName: xterm?.className ?? '',
+      terminalClassName: canvas?.className ?? '',
       hasWebglCanvas: renderingDiagnostics?.hasWebgl ?? false,
       hasComplexScriptOutput: renderingDiagnostics?.hasComplexScriptOutput ?? false,
       renderer: renderingDiagnostics?.hasWebgl ? 'webgl' : 'dom'
@@ -192,10 +194,10 @@ async function readActiveTerminalRasterTarget(page: Page): Promise<TerminalRaste
     if (!pane) {
       throw new Error('No active terminal pane')
     }
-    const screen = pane.container.querySelector<HTMLElement>('.xterm-screen')
+    const screen = pane.container.querySelector<HTMLElement>('.orca-terminal-canvas')
     const dimensions = pane.terminal._core?._renderService?.dimensions?.css?.cell
     if (!screen || !dimensions) {
-      throw new Error('Active terminal has no measurable xterm screen')
+      throw new Error('Active terminal has no measurable terminal screen')
     }
     const rect = screen.getBoundingClientRect()
     return {

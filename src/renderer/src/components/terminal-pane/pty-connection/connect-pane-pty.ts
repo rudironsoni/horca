@@ -87,7 +87,7 @@ export function connectPanePty(
       ?.find((candidate) => candidate.id === terminalTabId)
   const tab = terminalTab ?? (unifiedTab && 'generation' in unifiedTab ? unifiedTab : null)
   session.tabGeneration = tab?.generation ?? 0
-  // Why: recovery ownership belongs to this xterm instance. A request that
+  // Why: recovery ownership belongs to this terminal instance. A request that
   // settles after remount must not remount its already-replaced successor.
   session.terminalRecoveryGeneration = captureTerminalPaneRecoveryGeneration(session.deps.tabId)
   session.terminalRecoveryInstance = registerTerminalPaneRecoveryInstance(session.deps.tabId)

@@ -146,7 +146,7 @@ describe('connectPanePty', () => {
     await restoreTerminalTestGlobals()
   })
 
-  it('queues visible bulk output off the synchronous xterm write path', async () => {
+  it('queues visible bulk output off the synchronous terminal write path', async () => {
     const { connectPanePty } = await import('./pty-connection')
     const pane = createPane(1)
     const transport = createMockTransport('pty-1')
@@ -169,7 +169,7 @@ describe('connectPanePty', () => {
     expect(pane.terminal.write).toHaveBeenCalledWith('x'.repeat(16 * 1024), expect.any(Function))
   })
 
-  it('keeps ANSI redraws after terminal input on the immediate xterm write path', async () => {
+  it('keeps ANSI redraws after terminal input on the immediate terminal write path', async () => {
     const { connectPanePty } = await import('./pty-connection')
     const pane = createPane(1)
     const transport = createMockTransport('pty-1')
@@ -195,7 +195,7 @@ describe('connectPanePty', () => {
     expect(pane.terminal.write).toHaveBeenCalledWith(redraw, expect.any(Function))
   })
 
-  it('keeps large ANSI redraws after terminal input on the immediate xterm write path', async () => {
+  it('keeps large ANSI redraws after terminal input on the immediate terminal write path', async () => {
     const { connectPanePty } = await import('./pty-connection')
     const pane = createPane(1)
     const transport = createMockTransport('pty-1')

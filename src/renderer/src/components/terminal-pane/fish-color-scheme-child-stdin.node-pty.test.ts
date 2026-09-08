@@ -14,7 +14,7 @@
  * Real production code under test: connectPanePty's live mode-2031 chunk observer. The
  * mock transport writes whatever the renderer sends straight into the real fish PTY, so a
  * reply-on-subscribe reaches the child exactly as it does in the app. DA1/CPR/OSC-10/11
- * probes are answered by the harness because no real xterm is attached here — without
+ * probes are answered by the harness because no real terminal is attached here — without
  * them fish stalls ~10s on its DA1 wait and every timing claim becomes meaningless.
  */
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
@@ -502,14 +502,14 @@ describe('fish never receives a color-scheme report it did not query (#9993)', (
       )
 
       const term = nodePty.spawn(FISH_BIN as string, ['-l', '-i'], {
-        name: 'xterm-256color',
+        name: 'xterm-ghostty',
         cols: 120,
         rows: 30,
         cwd: configHome,
         env: {
           PATH: process.env.PATH ?? '/usr/bin:/bin',
           HOME: configHome,
-          TERM: 'xterm-256color',
+          TERM: 'xterm-ghostty',
           COLORTERM: 'truecolor',
           LANG: 'en_US.UTF-8',
           XDG_CONFIG_HOME: configHome,
@@ -524,7 +524,7 @@ describe('fish never receives a color-scheme report it did not query (#9993)', (
       const answerTerminalQueries = createTerminalQueryResponder((reply) => term.write(reply))
       transportFactoryQueue.push(transport)
 
-      // Why answered here: no real xterm is attached, and fish blocks its first prompt ~10s
+      // Why answered here: no real terminal is attached, and fish blocks its first prompt ~10s
       // on DA1 and re-probes every prompt. These are harness bytes, never renderer output.
       term.onData((chunk) => {
         rendered += chunk

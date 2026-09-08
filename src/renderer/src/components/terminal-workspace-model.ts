@@ -100,7 +100,7 @@ export function isPinnedEditorFileTab(
 }
 
 export function getKeybindingContext(target: EventTarget | null): KeybindingContext {
-  return target instanceof HTMLElement && target.classList.contains('xterm-helper-textarea')
+  return target instanceof HTMLElement && target.classList.contains('orca-terminal-helper-textarea')
     ? 'terminal'
     : 'app'
 }

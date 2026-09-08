@@ -712,7 +712,7 @@ describe('NativeChatComposer', () => {
     expect(mocks.getMainBufferSnapshot).toHaveBeenCalledWith('pty-1', { scrollbackRows: 0 })
   })
 
-  it('reads Claude state from mounted xterm while its alternate screen is active', async () => {
+  it('reads Claude state from mounted terminal while its alternate screen is active', async () => {
     mocks.getMainBufferSnapshot.mockResolvedValue({
       data: 'Claude Code v2.1.211\r\nOpus 4.8 with high effort · stale main buffer',
       cols: 120,

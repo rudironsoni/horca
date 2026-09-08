@@ -76,7 +76,10 @@ async function getDomActiveTabId(page: Page): Promise<string | null> {
 async function getFocusedTerminalTabId(page: Page): Promise<string | null> {
   return page.evaluate(() => {
     const active = document.activeElement
-    if (!(active instanceof HTMLElement) || !active.classList.contains('xterm-helper-textarea')) {
+    if (
+      !(active instanceof HTMLElement) ||
+      !active.classList.contains('orca-terminal-helper-textarea')
+    ) {
       return null
     }
     return active.closest('[data-terminal-tab-id]')?.getAttribute('data-terminal-tab-id') ?? null

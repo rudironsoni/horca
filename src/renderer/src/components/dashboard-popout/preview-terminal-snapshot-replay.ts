@@ -14,7 +14,7 @@ export function replayPreviewConnectionSnapshot(args: {
   snapshot: TerminalPreviewSnapshot
   replay: TerminalPreviewReplayChunk[]
   kittyKeyboardModes: TerminalKittyKeyboardModeTracker
-  /** Scans the chunk into the mirror and queues it for xterm. */
+  /** Scans the chunk into the mirror and queues it for terminal. */
   write: (chunk: string, live: boolean) => void
 }): void {
   const { snapshot, kittyKeyboardModes } = args

@@ -598,7 +598,7 @@ describe('PtyHandler', () => {
       name: string
       env: Record<string, string>
     }
-    expect(spawnEnv.name).toBe('xterm-256color')
+    expect(spawnEnv.name).toBe('xterm-ghostty')
     expect(spawnEnv.env.SEEN_OPENCODE_CONFIG_DIR).toBe('/remote/renderer-opencode')
     expect(spawnEnv.env.SEEN_PI_CODING_AGENT_DIR).toBe('/remote/pi')
   })
@@ -648,8 +648,8 @@ describe('PtyHandler', () => {
       name: string
       env: Record<string, string>
     }
-    expect(spawnEnv.name).toBe('xterm-256color')
-    expect(spawnEnv.env.TERM).toBe('xterm-256color')
+    expect(spawnEnv.name).toBe('xterm-ghostty')
+    expect(spawnEnv.env.TERM).toBe('xterm-ghostty')
     expect(spawnEnv.env.TERM_PROGRAM).toBe('Orca')
   })
 
@@ -683,8 +683,8 @@ describe('PtyHandler', () => {
       name: string
       env: Record<string, string>
     }
-    expect(spawnEnv.name).toBe('xterm-256color')
-    expect(spawnEnv.env.TERM).toBe('xterm-256color')
+    expect(spawnEnv.name).toBe('xterm-ghostty')
+    expect(spawnEnv.env.TERM).toBe('xterm-ghostty')
   })
 
   it('lets relay env augmenters resolve the original sequenced startup command hint', async () => {

@@ -384,7 +384,7 @@ describe('connectPanePty', () => {
       await flushAsyncTicks(6)
 
       capturedDataCallback.current?.('\x1b[?1049h\x1b[2J\x1b[HVim package.json')
-      // Why: xterm switches to the alternate buffer while parsing; the write callback observes the post-parse state.
+      // Why: terminal switches to the alternate buffer while parsing; the write callback observes the post-parse state.
       ;(pane.terminal.buffer.active as { type: 'normal' | 'alternate' }).type = 'alternate'
       parseCallback?.()
       expect(refresh).toHaveBeenCalledWith(0, 39, true)

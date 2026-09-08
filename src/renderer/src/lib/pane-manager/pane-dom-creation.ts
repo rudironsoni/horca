@@ -24,7 +24,7 @@ export function createPaneDOM(
   container.dataset.leafId = leafId
 
   const terminalHost = document.createElement('div')
-  terminalHost.className = 'xterm-container'
+  terminalHost.className = 'orca-terminal-container'
   container.appendChild(terminalHost)
 
   const userOpts = options.terminalOptions?.(id) ?? {}
@@ -34,7 +34,7 @@ export function createPaneDOM(
 
   let linkTooltipHoverToken = 0
   const linkTooltip = document.createElement('div')
-  linkTooltip.className = 'pane-link-tooltip xterm-hover'
+  linkTooltip.className = 'pane-link-tooltip orca-terminal-hover'
   linkTooltip.style.display = 'none'
 
   const showLinkTooltip = (uri: string): void => {

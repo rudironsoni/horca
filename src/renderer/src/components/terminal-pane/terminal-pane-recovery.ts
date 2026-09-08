@@ -6,7 +6,7 @@ import {
 } from './terminal-input-quarantine'
 
 // Why this module exists: a terminal pane can die renderer-side while its PTY
-// stays alive — a wedged xterm WriteBuffer (issue #2836), a disposed xterm
+// stays alive — a wedged terminal WriteBuffer (issue #2836), a disposed terminal
 // still receiving writes, or a transport that lost its PTY binding across a
 // remount race. Every pre-existing recovery path (dead-session reconcile,
 // hibernation wake) gates on the PTY being dead, so these panes stayed
@@ -14,7 +14,7 @@ import {
 // user reloaded the window (issue #8104 class). Recovery here reuses the
 // proven remount seam — bumping the tab's generation unmounts TerminalPane,
 // detach() preserves the live PTY, and the remounted pane builds a fresh
-// xterm that reattaches and replays the daemon snapshot. No shell restart.
+// terminal that reattaches and replays the daemon snapshot. No shell restart.
 
 export type TerminalPaneRecoveryReason =
   | 'write-stalled'
@@ -42,7 +42,7 @@ type RecoveryRequest = {
   /** Identifies the tab recovery epoch making the request. A successful
    *  recovery must immediately invalidate every pre-remount request. */
   terminalRecoveryGeneration?: number
-  /** Identifies the concrete mounted xterm making the request. Disposal
+  /** Identifies the concrete mounted terminal making the request. Disposal
    *  invalidates delayed work even when the tab's recovery epoch is unchanged. */
   terminalRecoveryInstanceId?: number
   /** Remote panes (runtime mirrors, app-SSH) must prove the PTY alive before
@@ -167,7 +167,7 @@ function scheduleRecoveryRetry(request: RecoveryRequest, delayMs: number): void 
   const pendingRetry = pendingRetryByTabId.get(request.tabId)
   if (pendingRetry) {
     // Multiple split panes share a tab-wide remount. Keep one request per
-    // concrete xterm so disposing one pane cannot cancel a sibling's heal.
+    // concrete terminal so disposing one pane cannot cancel a sibling's heal.
     pendingRetry.requestsByInstanceId.set(request.terminalRecoveryInstanceId, request)
     return
   }
@@ -221,7 +221,7 @@ export async function requestTerminalPaneRecovery(request: RecoveryRequest): Pro
     return false
   }
   // A terminal-backed tab is intentionally hidden while native chat owns the
-  // provider. Late xterm callbacks from that hidden surface must not remount
+  // provider. Late terminal callbacks from that hidden surface must not remount
   // the tab and race the handoff's owner transition.
   if (useAppStore.getState().getTab?.(request.tabId)?.viewMode === 'chat') {
     return false
@@ -301,7 +301,7 @@ export async function requestTerminalPaneRecovery(request: RecoveryRequest): Pro
     request.tabId,
     captureTerminalPaneRecoveryGeneration(request.tabId) + 1
   )
-  // A remount replaces every pane xterm in the tab; a previously scheduled
+  // A remount replaces every pane terminal in the tab; a previously scheduled
   // retry would only re-remount the fresh, healthy panes.
   cancelPendingRecoveryRetry(request.tabId)
   if (request.endpointReplaced) {

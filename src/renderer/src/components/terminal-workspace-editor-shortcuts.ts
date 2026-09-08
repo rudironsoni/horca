@@ -27,7 +27,7 @@ export function handleTerminalWorkspaceEditorShortcut({
     const target = event.target as HTMLElement | null
     const inEditor =
       target?.closest('.monaco-editor, [contenteditable]') !== null ||
-      target?.closest('textarea:not(.xterm-helper-textarea), input') !== null
+      target?.closest('textarea:not(.orca-terminal-helper-textarea), input') !== null
     if (!inEditor) {
       const state = useAppStore.getState()
       const floatingPanelOwnsEvent =

@@ -45,7 +45,7 @@ describe('text control paste ownership', () => {
     const textarea = appendTextarea()
     const other = appendTextarea()
     const terminalRoot = document.createElement('div')
-    terminalRoot.className = 'xterm-helper-textarea'
+    terminalRoot.className = 'orca-terminal-helper-textarea'
     const terminalTextarea = document.createElement('textarea')
     terminalRoot.appendChild(terminalTextarea)
     document.body.appendChild(terminalRoot)

@@ -184,7 +184,7 @@ export function installAgentTaskCompleteNotify(session: ConnectPanePtySession): 
     if (session.syncAgentTaskCompleteTrackingEnabled()) {
       session.agentCompletionCoordinator.observeClassifiedTitleCompletion(title)
     }
-    // Why: some agent TUIs leave xterm renderer modes active after a turn.
+    // Why: some agent TUIs leave terminal renderer modes active after a turn.
     // Reset cursor everywhere, and Kitty keyboard state on native Windows.
     session.queueAgentIdleTerminalModeReset()
   }
