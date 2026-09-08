@@ -1,4 +1,4 @@
-import type { HerdrEvent, IHerdrSdk } from '@herdr/sdk'
+import type { HerdrEvent, IHerdrSdk } from '@rudironsoni/herdr-ts-sdk'
 import { Effect } from 'effect'
 import { vi } from 'vitest'
 import type { HerdrHostTransport, HerdrSdkClient } from './herdr-runtime-contract'
@@ -231,6 +231,11 @@ function fakeHerdr(
     session: { snapshot: () => call('session.snapshot').pipe(Effect.map((body) => body.snapshot)) },
     workspaces: {
       create: (input: unknown) => call('workspace.create', input),
+      createInDirectory: (cwd: string, input: unknown) =>
+        call('workspace.create', {
+          cwd,
+          ...(typeof input === 'object' && input !== null ? (input as object) : {})
+        }),
       get: (workspaceId: string) => call('workspace.get', { workspaceId }),
       reportMetadata: (workspaceId: string, input: object) =>
         call('workspace.report_metadata', { workspaceId, ...input }),
