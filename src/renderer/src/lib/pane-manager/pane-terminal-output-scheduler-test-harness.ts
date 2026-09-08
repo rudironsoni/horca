@@ -16,10 +16,11 @@ export type SchedulerTestTerminal = {
 }
 
 export type ForegroundSchedulerTestTerminal = {
-  buffer: { active: { cursorY: number; baseY: number; viewportY: number } }
+  cursor: { x: number; y: number }
+  baseY: number
+  viewportY: number
   rows: number
   refresh: Mock<(start: number, end: number) => void>
-  _core: { refresh: Mock<(start: number, end: number, sync?: boolean) => void> }
   write: TerminalWriteMock
 }
 
@@ -45,18 +46,11 @@ export function createTerminal(): SchedulerTestTerminal {
 
 export function createForegroundTerminal(): ForegroundSchedulerTestTerminal {
   return {
-    buffer: {
-      active: {
-        cursorY: 7,
-        baseY: 0,
-        viewportY: 0
-      }
-    },
+    cursor: { x: 0, y: 7 },
+    baseY: 0,
+    viewportY: 0,
     rows: 24,
     refresh: vi.fn(),
-    _core: {
-      refresh: vi.fn()
-    },
     write: vi.fn((_data: string, callback?: () => void) => callback?.())
   }
 }
