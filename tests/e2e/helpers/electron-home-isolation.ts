@@ -1,6 +1,7 @@
 import { mkdirSync, realpathSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
+import { applyPinnedHerdrToElectronHome } from './e2e-herdr-pin'
 
 const RESTRICTED_ENV_KEYS = new Set([
   'HOME',
@@ -82,20 +83,23 @@ export function createElectronHomeIsolation({
     throw new Error('Refusing to launch E2E with the developer home as its isolated HOME')
   }
 
+  const env: NodeJS.ProcessEnv = {
+    ...stripAmbientHomeAndCodexEnv(inheritedEnv),
+    ...launchEnv,
+    ...extraEnv,
+    HOME: isolatedHome,
+    USERPROFILE: isolatedHome,
+    XDG_CONFIG_HOME: path.join(isolatedHome, '.config'),
+    ORCA_E2E_USER_DATA_DIR: userDataDir,
+    ORCA_E2E_HOME_DIR: isolatedHome,
+    TEST_WORKER_INDEX: inheritedEnv.TEST_WORKER_INDEX ?? '0'
+  }
+  applyPinnedHerdrToElectronHome(isolatedHome, env)
+
   return {
     isolatedHome,
     realHome,
-    env: {
-      ...stripAmbientHomeAndCodexEnv(inheritedEnv),
-      ...launchEnv,
-      ...extraEnv,
-      HOME: isolatedHome,
-      USERPROFILE: isolatedHome,
-      XDG_CONFIG_HOME: path.join(isolatedHome, '.config'),
-      ORCA_E2E_USER_DATA_DIR: userDataDir,
-      ORCA_E2E_HOME_DIR: isolatedHome,
-      TEST_WORKER_INDEX: inheritedEnv.TEST_WORKER_INDEX ?? '0'
-    }
+    env
   }
 }
 

@@ -1,4 +1,4 @@
-import { mkdtempSync, realpathSync, rmSync } from 'node:fs'
+import { mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
@@ -89,5 +89,28 @@ describe('createElectronHomeIsolation', () => {
 
   it('compares Windows home paths case-insensitively', () => {
     expect(areSameHomePath('C:\\Users\\Alice', 'c:\\users\\alice', 'win32')).toBe(true)
+  })
+
+  it('seeds isolated Horca settings with the pinned Herdr executable', () => {
+    const userDataDir = createUserDataDir()
+    const pinDir = mkdtempSync(path.join(os.tmpdir(), 'orca-herdr-pin-'))
+    tempDirs.push(pinDir)
+    const pin = path.join(pinDir, 'herdr-macos-aarch64')
+    writeFileSync(pin, '')
+    const isolation = createElectronHomeIsolation({
+      inheritedEnv: { PATH: '/bin' },
+      launchEnv: { ORCA_HERDR_BUNDLED_BINARY: pin },
+      extraEnv: {},
+      userDataDir,
+      realHome: '/real/home'
+    })
+    expect(isolation.env.ORCA_HERDR_BUNDLED_BINARY).toBe(pin)
+    expect(
+      JSON.parse(
+        readFileSync(path.join(isolation.isolatedHome, '.horca', 'terminal-backends.json'), 'utf8')
+      )
+    ).toMatchObject({
+      herdr: { binarySource: { kind: 'custom', path: pin } }
+    })
   })
 })

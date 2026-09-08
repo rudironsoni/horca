@@ -8,6 +8,7 @@
 import { execFileSync } from 'node:child_process'
 import { readFileSync, existsSync, realpathSync, rmSync } from 'node:fs'
 import { TEST_REPO_PATH_FILE } from './global-setup'
+import { E2E_HERDR_BINARY_PATH_FILE } from './helpers/e2e-herdr-pin'
 
 export function linkedWorktreePaths(testRepoDir: string): string[] {
   const root = realpathSync.native(testRepoDir)
@@ -59,4 +60,5 @@ export default function globalTeardown(): void {
   }
 
   rmSync(TEST_REPO_PATH_FILE, { force: true })
+  rmSync(E2E_HERDR_BINARY_PATH_FILE, { force: true })
 }
