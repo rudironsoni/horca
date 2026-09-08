@@ -156,7 +156,7 @@ describe('reconcilePtySizeAcrossFrames', () => {
   })
 
   it('forwards no resize when the settled size never changes from spawn dims', () => {
-    // If xterm already matches the spawn width the whole time, no SIGWINCH at all.
+    // If terminal already matches the spawn width the whole time, no SIGWINCH at all.
     const pane = createTimelinePane(() => ({ cols: 203, rows: 50 }))
     const { resize } = runReconcile({ measure: pane.measure })
     expect(resize).not.toHaveBeenCalled()
@@ -293,7 +293,7 @@ describe('reconcilePtySizeAcrossFrames', () => {
     it('keeps converging when the PTY drops the resize (applied stays wide)', async () => {
       const scheduler = createFrameScheduler()
       const resize = vi.fn()
-      // xterm settles narrow, but the PTY never applies it — every applied-size read reports the stale wide spawn width.
+      // terminal settles narrow, but the PTY never applies it — every applied-size read reports the stale wide spawn width.
       const pane = createTimelinePane(() => ({ cols: 79, rows: 50 }))
       reconcilePtySizeAcrossFrames({
         spawnCols: 203,

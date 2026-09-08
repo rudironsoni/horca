@@ -18,7 +18,7 @@ export type TerminalWithInspectableBuffer = {
 }
 
 // Why: replay bytes can carry a dead run's screen in scrollback — or still
-// painted in the viewport with a shell prompt below it — so once xterm has
+// painted in the viewport with a shell prompt below it — so once terminal has
 // parsed the replay the confirmation needs both the cursor-agent screen shape
 // AND the parked cursor. A dead screen leaves the shell cursor after its
 // prompt; a live agent that needs the focus-in is by definition parked, and a

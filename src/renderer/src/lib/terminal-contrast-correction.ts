@@ -7,7 +7,7 @@ export {
   normalizeTerminalMinimumContrastRatio
 } from '../../../shared/terminal-minimum-contrast-settings'
 
-// xterm minimumContrastRatio tuning (#7934, #9599, #10104). Light backgrounds keep WCAG-AA correction so
+// terminal minimumContrastRatio tuning (#7934, #9599, #10104). Light backgrounds keep WCAG-AA correction so
 // invisible white/bright-white ANSI body text stays readable. Dark backgrounds use a mild floor of 3
 // (WCAG-AA large-text): high enough to rescue near-background body text — e.g. Antigravity's #262b30
 // on #1e242a (~1.1:1) — while staying far milder than the light-background 4.5 that badly
@@ -21,7 +21,7 @@ export const DARK_BG_MIN_CONTRAST = 3
 // Why gate by background luminance, not app mode (#7934): either theme slot can hold either kind of
 // theme (match-dark-mode, or a light theme in the dark slot), so follow the composed background.
 // `override` is the user's terminalMinimumContrastRatio; clamped here too so a hand-edited settings
-// file can't hand xterm an out-of-range or non-finite floor.
+// file can't hand terminal an out-of-range or non-finite floor.
 export function resolveTerminalMinimumContrastRatio(
   background: string | undefined,
   appSurface: 'dark' | 'light',

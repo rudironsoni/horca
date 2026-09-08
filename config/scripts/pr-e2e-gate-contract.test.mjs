@@ -594,7 +594,7 @@ describe('PR E2E gate contract', () => {
       'src/renderer/src/components/terminal-pane/terminal-ime-composition-route.ts',
       'src/renderer/src/components/terminal-pane/terminal-ime-native-text-forwarder.ts',
       'src/renderer/src/components/terminal-pane/terminal-ios-hangul-preedit.ts',
-      'src/renderer/src/components/terminal-pane/xterm-bypass-policy.ts',
+      'src/renderer/src/components/terminal-pane/terminal-bypass-policy.ts',
       'src/renderer/src/lib/pane-manager/terminal-ime-anchor.ts',
       'src/shared/terminal-unicode-provider.ts',
       // Ghostty Canvas2D owns the focused surface the IME attaches to; no file here says "ime".

@@ -115,7 +115,7 @@ export function useMobileSessionTerminalSubscription(
             markNativeChatInputLeaseReady(handle)
             return
           }
-          // Why: keep the subscription as the input-floor lease but don't mutate covered xterm state; return-to-terminal resubscribes.
+          // Why: keep the subscription as the input-floor lease but don't mutate covered terminal state; return-to-terminal resubscribes.
           if (
             nativeChatTerminalStream.isTerminalCoveredByNativeChat(
               showNativeChatRef.current,
@@ -182,7 +182,7 @@ export function useMobileSessionTerminalSubscription(
             }
             // Why: cold-start refit — init()'s fit can run against a transient scrollWidth, so re-fire against a settled DOM.
             scheduleDelayedAction(() => getTerminalRef(handle)?.resetZoom(), 200)
-            // Why: first subscribe has no viewport (xterm not loaded yet), so measure after init
+            // Why: first subscribe has no viewport (terminal not loaded yet), so measure after init
             // and resubscribe so the server can phone-fit — bounded per handle so a
             // non-converging host degrades visibly instead of hot-looping (STA-3337).
             runTerminalViewportFitPass({
@@ -227,7 +227,7 @@ export function useMobileSessionTerminalSubscription(
             dataRef.write(data.chunk as string)
           } else if (data.type === 'resized') {
             updateTerminalCwdFromStreamEvent(handle, data, terminalCwdRef.current)
-            // Server resize: reinit xterm on a full-buffer snapshot (width reflow rewraps scrollback), else just resize geometry.
+            // Server resize: reinit terminal on a full-buffer snapshot (width reflow rewraps scrollback), else just resize geometry.
             const viewport = viewportMeasuredRef.current ? viewportRef.current : null
             const [cols, rows] = viewportResubscribeBudgetRef.current.observeResize(
               handle,

@@ -2,6 +2,7 @@ import { basename, isAbsolute, join } from 'node:path'
 import { existsSync, accessSync, statSync, chmodSync, constants as fsConstants } from 'node:fs'
 import type * as pty from 'node-pty'
 import { usesNodePtySpawnHelper } from '../../shared/node-pty-spawn-helper'
+import { PTY_TERM_NAME } from '../../shared/pty-term-name'
 import {
   hostReportsChildExitStatus,
   wrapShellSpawnForMacosTccAttribution
@@ -168,7 +169,7 @@ export type ShellSpawnResult = {
  * next safe shell instead of leaving the user with no terminal.
  */
 // Why: match the daemon spawn path (pty-subprocess.ts) — the bundled ConPTY
-// has the modern wrap-marker behavior xterm expects; legacy system ConPTY can
+// has the modern wrap-marker behavior terminal expects; legacy system ConPTY can
 // corrupt full-width TUI rows in scrollback. Without this, degraded-mode and
 // fresh-local spawns silently behave differently from daemon terminals.
 function windowsConptyDllOptions(): { useConptyDll: true } | Record<string, never> {
@@ -179,7 +180,7 @@ function spawnWindowsFallbackChain(
   params: ShellSpawnParams,
   primaryError: string
 ): ShellSpawnResult | null {
-  const { termName = 'xterm-256color', cols, rows, env, ptySpawn } = params
+  const { termName = PTY_TERM_NAME, cols, rows, env, ptySpawn } = params
   const attempts = params.windowsFallbackAttempts ?? []
   // Skip the first entry: it is the primary that already failed above.
   for (const attempt of attempts.slice(1)) {
@@ -215,7 +216,7 @@ export function spawnShellWithFallback(params: ShellSpawnParams): ShellSpawnResu
   const {
     shellPath,
     shellArgs,
-    termName = 'xterm-256color',
+    termName = PTY_TERM_NAME,
     cols,
     rows,
     cwd,

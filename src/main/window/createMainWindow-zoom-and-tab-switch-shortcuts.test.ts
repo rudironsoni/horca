@@ -349,7 +349,7 @@ describe('createMainWindow', () => {
   })
 
   // Held-key repeats are contained in main whether or not the floating panel has focus: every
-  // renderer index path skips e.repeat, so yielding one would leak a raw digit to xterm.
+  // renderer index path skips e.repeat, so yielding one would leak a raw digit to terminal.
   it('contains indexed-switch repeats without dispatching them', () => {
     const windowHandlers: Record<string, (...args: any[]) => void> = {}
     const webContents = {

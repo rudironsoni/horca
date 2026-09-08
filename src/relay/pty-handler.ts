@@ -36,6 +36,7 @@ import {
 } from './pty-spawn-cwd'
 import { PhysicalExitTracker } from '../shared/physical-exit-tracker'
 import { PTY_ATTACH_PROVEN_EXITED_MARKER } from '../shared/pty-attach-absence-evidence'
+import { PTY_TERM_NAME } from '../shared/pty-term-name'
 import { SHELL_READY_MARKER_PREFIX } from '../main/shell-ready-marker-scanner'
 import {
   createShellStartupOutputScanState,
@@ -801,7 +802,7 @@ export class PtyHandler {
     const baseEnv = mergeGitConfigEnvProtocol(
       {
         ...stripInheritedBuildModeEnv(process.env),
-        TERM: 'xterm-256color',
+        TERM: PTY_TERM_NAME,
         COLORTERM: 'truecolor',
         TERM_PROGRAM: 'Orca',
         TERM_PROGRAM_VERSION:
@@ -849,7 +850,7 @@ export class PtyHandler {
     }
     // Why: node-pty defaults missing/empty TERM per-platform; normalize so POSIX and Windows children agree.
     if (!result.TERM) {
-      result.TERM = 'xterm-256color'
+      result.TERM = PTY_TERM_NAME
     }
     // Why last, not beside the scrubbers above: the relay runs those BEFORE envToDelete,
     // so an envToDelete of CONDA_PREFIX would otherwise re-create the broken pair.
@@ -1940,7 +1941,7 @@ export class PtyHandler {
     try {
       term = pty.spawn(shell, shellLaunch.args, {
         // Why: node-pty overwrites env.TERM with `name`; pass caller-selected TERM so it isn't lost.
-        name: spawnEnv.TERM ?? 'xterm-256color',
+        name: spawnEnv.TERM ?? PTY_TERM_NAME,
         cols,
         rows,
         cwd,
@@ -2128,7 +2129,7 @@ export class PtyHandler {
     // for the case this skipped: an SSH reconnect. The client keeps its id there (the dispatcher
     // refuses to detach the primary, and setWrite revives that same id), so the delivery outlives
     // the dead transport, while the renderer has thrown its terminal away — a reconnect bumps
-    // tab.generation, which is the React key, so the pane remounts with a brand-new empty xterm and
+    // tab.generation, which is the React key, so the pane remounts with a brand-new empty terminal and
     // nothing captures the old buffer. Answering "you already have it" leaves the pane blank
     // forever, until new output happens to arrive.
     //
@@ -3007,7 +3008,7 @@ export class PtyHandler {
     let term: IPty
     try {
       term = ptyMod.spawn(shell, shellLaunch.args, {
-        name: spawnEnv.TERM ?? 'xterm-256color',
+        name: spawnEnv.TERM ?? PTY_TERM_NAME,
         cols: entry.cols,
         rows: entry.rows,
         cwd: entry.cwd,

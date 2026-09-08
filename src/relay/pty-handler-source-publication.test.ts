@@ -782,7 +782,7 @@ describe('PtyHandler negotiated source publication', () => {
   // replay. Live, every pane on reconnect logged path=existing-delivery and painted nothing.
   //
   // A reattach always lands in a NEW terminal — a reconnect bumps tab.generation, which is the
-  // pane's React key, so TerminalPane remounts and the old xterm is disposed with its buffer.
+  // pane's React key, so TerminalPane remounts and the old terminal is disposed with its buffer.
   describe('a second attach for the same client', () => {
     async function attach(id: number, params: Record<string, unknown>) {
       writes = []

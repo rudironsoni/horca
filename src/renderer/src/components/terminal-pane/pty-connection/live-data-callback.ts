@@ -75,7 +75,7 @@ export function bindLiveDataCallback(session: ConnectPanePtySession): void {
     if (!foreground) {
       session.syncHiddenRendererPtyDelivery()
     }
-    // Post-restore reconciliation: drop chunks the snapshot covers, force a fresh restore for unmappable seq gaps; runs after byte observers, before any xterm write.
+    // Post-restore reconciliation: drop chunks the snapshot covers, force a fresh restore for unmappable seq gaps; runs after byte observers, before any terminal write.
     const reconciliation = session.reconcileChunkAgainstRestoredSnapshot(data, meta)
     if (reconciliation.action === 'drop-duplicate') {
       return
@@ -99,7 +99,7 @@ export function bindLiveDataCallback(session: ConnectPanePtySession): void {
       data = reconciliation.data
       meta = reconciliation.meta
     }
-    // Why: a hidden Codex query can split just before visibility flips; hand xterm the completed query while other bytes still follow restore.
+    // Why: a hidden Codex query can split just before visibility flips; hand terminal the completed query while other bytes still follow restore.
     const pendingForegroundQuery = foreground
       ? session.takeHiddenStartupRendererQueryPendingForForeground(data)
       : null
@@ -123,7 +123,7 @@ export function bindLiveDataCallback(session: ConnectPanePtySession): void {
       session.schedulePendingStartupCommandDelivery()
       return
     }
-    // Keep source order aligned with sibling producers; xterm's async write buffer made the old inversion latent.
+    // Keep source order aligned with sibling producers; terminal's async write buffer made the old inversion latent.
     if (pendingForegroundQuery?.oscColorQueryData) {
       sendTerminalOscColorQueryReplies(
         pendingForegroundQuery.oscColorQueryData,
@@ -133,7 +133,7 @@ export function bindLiveDataCallback(session: ConnectPanePtySession): void {
       )
     }
     if (pendingForegroundQuery?.statelessQueryData) {
-      session.writePtyOutputToXterm(pendingForegroundQuery.statelessQueryData, true, {
+      session.writePtyOutputToTerminal(pendingForegroundQuery.statelessQueryData, true, {
         hiddenStartupRendererQuery: true
       })
     }
@@ -167,11 +167,11 @@ export function bindLiveDataCallback(session: ConnectPanePtySession): void {
     } else {
       // Why: hidden panes normally get no bytes (main drops post-ingestion); stragglers ride the bounded background queue, overflow latches restore.
       if (pendingForegroundQuery?.statefulQueryData) {
-        session.writePtyOutputToXterm(pendingForegroundQuery.statefulQueryData, true, {
+        session.writePtyOutputToTerminal(pendingForegroundQuery.statefulQueryData, true, {
           hiddenStartupRendererQuery: true
         })
       }
-      session.writePtyOutputToXterm(orderedRendererData, foreground)
+      session.writePtyOutputToTerminal(orderedRendererData, foreground)
       if (foreground) {
         session.recordRendererOrderedSeq(rendererMeta)
       }

@@ -393,7 +393,7 @@ describe('renderer crash diagnostics', () => {
 
     it('reports the private footprint and what it holds outside the heap counters', async () => {
       // Why these numbers: Windows crash 36048e26 — a 618MB private renderer
-      // whose V8 heap was 150MB. 438MB of it is xterm scrollback and glyph
+      // whose V8 heap was 150MB. 438MB of it is terminal scrollback and glyph
       // atlases, which no V8 or Blink counter reports.
       stubFootprint(618)
       diagnostics.installRendererCrashDiagnostics()

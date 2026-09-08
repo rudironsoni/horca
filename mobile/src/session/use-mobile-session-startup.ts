@@ -101,7 +101,7 @@ export function useMobileSessionStartup(scope: MobileSessionKeyboardStateModel) 
     if (connState !== 'connected') {
       return
     }
-    // Why: keep the current xterm visible while the reconnect snapshot hydrates, not a blank "Loading terminals" surface.
+    // Why: keep the current terminal visible while the reconnect snapshot hydrates, not a blank "Loading terminals" surface.
     if (initializedHandlesRef.current.size === 0) {
       setTerminalsLoaded(false)
     }

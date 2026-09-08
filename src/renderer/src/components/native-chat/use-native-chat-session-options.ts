@@ -132,7 +132,7 @@ export function useNativeChatSessionOptions(args: {
             scrollbackRows: 0
           })
           // Why: the API snapshots the main buffer, which is stale while a TUI
-          // owns the alternate screen. The mounted xterm is authoritative then.
+          // owns the alternate screen. The mounted terminal is authoritative then.
           authoritativeScreen = snapshot?.alternateScreen ? null : (snapshot?.data ?? null)
         } catch {
           // The mounted renderer buffer remains a transport-neutral fallback.

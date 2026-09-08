@@ -419,7 +419,7 @@ describe('connectPanePty', () => {
     binding.dispose()
   })
 
-  it('keeps later hidden Codex stateless terminal queries on the live xterm path', async () => {
+  it('keeps later hidden Codex stateless terminal queries on the live terminal path', async () => {
     const { connectPanePty } = await import('./pty-connection')
     const transport = createMockTransport('pty-id')
     const capturedDataCallback: { current: ((data: string) => void) | null } = { current: null }
@@ -455,7 +455,7 @@ describe('connectPanePty', () => {
     binding.dispose()
   })
 
-  it('keeps clean hidden Codex stateful cursor-position queries on the live xterm path', async () => {
+  it('keeps clean hidden Codex stateful cursor-position queries on the live terminal path', async () => {
     const { connectPanePty } = await import('./pty-connection')
     const transport = createMockTransport('pty-id')
     const capturedDataCallback: { current: ((data: string) => void) | null } = { current: null }
@@ -485,7 +485,7 @@ describe('connectPanePty', () => {
     binding.dispose()
   })
 
-  it('does not answer dirty hidden Codex stateful queries from stale xterm state', async () => {
+  it('does not answer dirty hidden Codex stateful queries from stale terminal state', async () => {
     const { connectPanePty } = await import('./pty-connection')
     const transport = createMockTransport('pty-id')
     const capturedDataCallback: { current: ((data: string) => void) | null } = { current: null }

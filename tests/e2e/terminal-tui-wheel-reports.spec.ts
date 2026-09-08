@@ -53,7 +53,7 @@ async function probeSmallMouseWheelReports(
           throw new Error('Mouse reporting mode did not activate')
         }
 
-        const screen = pane.terminal.element.querySelector<HTMLElement>('.xterm-screen')
+        const screen = pane.terminal.element.querySelector<HTMLElement>('.orca-terminal-canvas')
         if (!screen) {
           throw new Error('Active terminal screen unavailable')
         }
@@ -64,7 +64,7 @@ async function probeSmallMouseWheelReports(
           rect.height / pane.terminal.rows
         const scrollSensitivity = Number(pane.terminal.options.scrollSensitivity ?? 1)
         // Why: this is a notched mouse wheel event that Chromium can surface as a
-        // small pixel delta; xterm's <50px damping accumulates it for four ticks.
+        // small pixel delta; terminal's <50px damping accumulates it for four ticks.
         const deltaY = (cellHeight * 0.28) / (scrollSensitivity * 0.3)
         const samples: WheelReportSample[] = []
 
@@ -145,7 +145,7 @@ async function probeTimedSmallMouseWheelReports(
           throw new Error('Mouse reporting mode did not activate')
         }
 
-        const screen = pane.terminal.element.querySelector<HTMLElement>('.xterm-screen')
+        const screen = pane.terminal.element.querySelector<HTMLElement>('.orca-terminal-canvas')
         if (!screen) {
           throw new Error('Active terminal screen unavailable')
         }
@@ -156,7 +156,7 @@ async function probeTimedSmallMouseWheelReports(
           rect.height / pane.terminal.rows
         const scrollSensitivity = Number(pane.terminal.options.scrollSensitivity ?? 1)
         // Why: this is a notched mouse wheel event that Chromium can surface as a
-        // small pixel delta; xterm's <50px damping accumulates it for four ticks.
+        // small pixel delta; terminal's <50px damping accumulates it for four ticks.
         const deltaY = (cellHeight * 0.28) / (scrollSensitivity * 0.3)
         const samples: TimedWheelReportSample[] = []
         const startedAt = performance.now()
@@ -257,7 +257,7 @@ async function dispatchTuiWheel(
       throw new Error('Active terminal pane unavailable')
     }
 
-    const screen = pane.terminal.element.querySelector<HTMLElement>('.xterm-screen')
+    const screen = pane.terminal.element.querySelector<HTMLElement>('.orca-terminal-canvas')
     if (!screen) {
       throw new Error('Active terminal screen unavailable')
     }
@@ -370,7 +370,7 @@ test.describe('terminal TUI wheel reports', () => {
             : null
       const manager = tabId ? window.__paneManagers?.get(tabId) : null
       const pane = manager?.getActivePane?.() ?? manager?.getPanes?.()[0] ?? null
-      const screen = pane?.terminal.element?.querySelector<HTMLElement>('.xterm-screen')
+      const screen = pane?.terminal.element?.querySelector<HTMLElement>('.orca-terminal-canvas')
       if (!pane?.terminal || !screen) {
         throw new Error('Active terminal screen unavailable')
       }

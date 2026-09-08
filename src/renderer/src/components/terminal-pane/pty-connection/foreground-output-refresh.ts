@@ -75,7 +75,7 @@ export function bindForegroundOutputRefresh(session: ConnectPanePtySession): voi
     // exactly the case that guard exists to damp. The flood path repaints via
     // session.buildMainModelSnapshotReplayWrites, which grounds the pen itself, so
     // nothing is lost by skipping it here.
-    session.writePtyOutputToXterm(RESET_AFTER_BYTE_GAP, true)
+    session.writePtyOutputToTerminal(RESET_AFTER_BYTE_GAP, true)
     // Why: a marker during an in-flight restore means that snapshot may predate the drop, so a fresh one must follow; capture BEFORE the mark, which starts a restore synchronously on a visible pane.
     const restoreWasInFlight = session.hiddenOutputRestoreInFlight !== null
     session.markHiddenOutputRestoreNeeded()
@@ -190,7 +190,7 @@ export function bindForegroundOutputRefresh(session: ConnectPanePtySession): voi
   }
 
   session.beforeTerminalOutputWrite = function (data: string): void {
-    // Why: shaping must register before xterm parses the RTL bytes that need it.
+    // Why: shaping must register before terminal parses the RTL bytes that need it.
     ensureArabicShapingJoinerForText(session.pane.terminal, data)
     recordTerminalOutput(session.pane.terminal)
   }
@@ -215,7 +215,7 @@ export function bindForegroundOutputRefresh(session: ConnectPanePtySession): voi
     const typedJustNow =
       performance.now() - session.lastTerminalInputAt <= FOREGROUND_INTERACTIVE_REDRAW_WINDOW_MS
     if (!session.isActiveSplitPane() && !typedJustNow) {
-      // Why: many visible split panes each emit tiny TUI frames; a shared budget keeps them live without letting aggregate xterm work starve typing in the active pane.
+      // Why: many visible split panes each emit tiny TUI frames; a shared budget keeps them live without letting aggregate terminal work starve typing in the active pane.
       if (data.includes('\x1b[')) {
         return false
       }
@@ -276,7 +276,7 @@ export function bindForegroundOutputRefresh(session: ConnectPanePtySession): voi
       }
     }
     if (rewriteOutputPrefersRenderRefresh) {
-      // Why: xterm's buffer is right but in-place redraw cells stay stale in the renderer until a repaint (resize fixes it).
+      // Why: terminal's buffer is right but in-place redraw cells stay stale in the renderer until a repaint (resize fixes it).
       return { refresh: true, inPlaceRewrite: true }
     }
     if (

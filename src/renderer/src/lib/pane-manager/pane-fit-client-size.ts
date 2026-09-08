@@ -1,6 +1,6 @@
 import type { ManagedPane, ManagedPaneInternal } from './pane-manager-types'
 
-// Why: measure the element FitAddon fits (the xterm host), not the outer .pane —
+// Why: measure the element FitAddon fits (the terminal host), not the outer .pane —
 // a title/banner can shrink the inner fittable area while the outer stays put.
 // Round to whole pixels so sub-pixel jitter never reads as a resize.
 export function readFitClientSize(pane: ManagedPane): { width: number; height: number } | null {

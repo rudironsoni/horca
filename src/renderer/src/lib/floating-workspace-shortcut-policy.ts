@@ -45,7 +45,7 @@ export function isFloatingWorkspacePanelShortcutTarget(
 }
 
 // Which tab-creation/close action the panel claims, without the target gate — the panel's own
-// window-capture dispatch owns chords from anywhere inside the panel (xterm, browser slot, editor),
+// window-capture dispatch owns chords from anywhere inside the panel (terminal, browser slot, editor),
 // not just its shortcut surface. Returning the identity lets one pass serve both the claim check and
 // the dispatch branch.
 export function matchFloatingWorkspacePanelOwnedAction(
@@ -83,7 +83,7 @@ export type FloatingWorkspacePanelShortcutMatch =
 // Single source of truth for the panel's non-creation shortcut claims (title rename, indexed switch,
 // window max/min) so the dispatch, its keydown preflight, and App.tsx's yield gate can't drift and
 // silently reintroduce the routing bug. Index precedence is workspace-then-tab, mirroring the
-// main-window resolver. Chrome actions take their own options (under terminal-first a focused xterm
+// main-window resolver. Chrome actions take their own options (under terminal-first a focused terminal
 // resolves them in app context); the index match uses `options`.
 export function matchFloatingWorkspacePanelShortcut(
   event: FloatingWorkspaceShortcutEvent,

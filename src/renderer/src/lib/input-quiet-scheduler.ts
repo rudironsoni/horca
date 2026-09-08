@@ -132,7 +132,7 @@ export function scheduleAfterInputQuiet(
     idleId = scheduleIdleCallback(targetWindow, run, idleTimeoutMs)
   }
 
-  // Why: terminal wake remounts xterm panes. Wait for both the initial delay
+  // Why: terminal wake remounts terminal panes. Wait for both the initial delay
   // and a quiet input window so a follow-up click/keystroke cannot collide
   // with the heavy remount.
   delayTimer = targetWindow.setTimeout(() => {

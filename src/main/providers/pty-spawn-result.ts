@@ -32,9 +32,9 @@ export type PtySpawnResult = {
   /** Local WSL context: null is native; undefined is unavailable/legacy. */
   wslDistro?: string | null
   /** ANSI snapshot of the terminal screen, present when reattaching to an
-   *  existing daemon session. Write this to xterm.js to restore visual state. */
+   *  existing daemon session. Write this to Ghostty to restore visual state. */
   snapshot?: string
-  /** Dimensions the snapshot was captured at. Resize xterm.js to these before
+  /** Dimensions the snapshot was captured at. Resize Ghostty to these before
    *  writing the snapshot so ANSI cursor positions land correctly. */
   snapshotCols?: number
   snapshotRows?: number
@@ -53,7 +53,7 @@ export type PtySpawnResult = {
   /** Kitty keyboard flags persisted in the daemon snapshot, threaded so the
    *  re-seeded runtime emulator answers hidden `CSI ? u` with the real flags
    *  (terminal-query-authority.md §kitty). Never replayed into a renderer
-   *  xterm — POST_REPLAY_REATTACH_RESET's kitty reset stays authoritative. */
+   *  terminal — POST_REPLAY_REATTACH_RESET's kitty reset stays authoritative. */
   snapshotKittyKeyboardFlags?: number
   /** Renderer-domain sequence main reconciled for the attach boundary those
    *  flags describe. Set by main, not the provider. */
@@ -82,7 +82,7 @@ export type PtySpawnResult = {
   sessionExpired?: boolean
   /** Present when cold-restoring from disk history after a daemon crash.
    *  Contains the saved scrollback and CWD. The new shell spawns in the
-   *  saved CWD; the scrollback is written to xterm.js as read-only history. */
+   *  saved CWD; the scrollback is written to Ghostty as read-only history. */
   coldRestore?: {
     scrollback: string
     cwd: string

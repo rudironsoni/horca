@@ -106,11 +106,11 @@ test.describe('Terminal 2-Set Korean preedit visibility', () => {
   test('keeps a preedit the IME resumes without a compositionstart visible', async ({
     orcaPage
   }, testInfo) => {
-    // Red on `main`, by design. xterm adds `.active` to the overlay only in its `compositionstart`
+    // Red on `main`, by design. terminal adds `.active` to the overlay only in its `compositionstart`
     // handler, so a preedit resumed by a bare `compositionupdate` is written into a hidden element
     // and the user composes blind while the committed bytes still land correctly — which is why no
     // byte-level assertion ever saw it. Pre-existing and broken in every shipped build; closed by
-    // the visibility fix in xterm's own composition helper one layer below this one.
+    // the visibility fix in terminal's own composition helper one layer below this one.
     const arena = await openTerminalImePaneArena(orcaPage)
     let completed = false
     try {

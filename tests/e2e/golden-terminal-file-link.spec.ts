@@ -39,7 +39,7 @@ async function locateLink(page: Page, needle: string): Promise<LinkProbe | null>
       return null
     }
     const buffer = pane.terminal.buffer.active
-    // Preserve fixed-width cells so paths split across xterm rows stay searchable.
+    // Preserve fixed-width cells so paths split across terminal rows stay searchable.
     const visibleCells = Array.from({ length: pane.terminal.rows }, (_, row) =>
       (buffer.getLine(buffer.viewportY + row)?.translateToString(false) ?? '').padEnd(
         pane.terminal.cols
@@ -62,7 +62,7 @@ async function linkClientPoint(page: Page, probe: LinkProbe): Promise<LinkClient
   return page.evaluate(({ col, row, tabId }) => {
     const manager = window.__paneManagers?.get(tabId)
     const pane = manager?.getActivePane?.() ?? manager?.getPanes?.()[0] ?? null
-    const screen = pane?.terminal.element?.querySelector<HTMLElement>('.xterm-screen')
+    const screen = pane?.terminal.element?.querySelector<HTMLElement>('.orca-terminal-canvas')
     if (!pane || !screen) {
       throw new Error('terminal link surface unavailable')
     }
@@ -80,7 +80,7 @@ async function hoverLink(page: Page, probe: LinkProbe): Promise<string | null> {
     ({ tabId, x, y }) => {
       const manager = window.__paneManagers?.get(tabId)
       const pane = manager?.getActivePane?.() ?? manager?.getPanes?.()[0] ?? null
-      const screen = pane?.terminal.element?.querySelector<HTMLElement>('.xterm-screen')
+      const screen = pane?.terminal.element?.querySelector<HTMLElement>('.orca-terminal-canvas')
       if (!pane || !screen) {
         throw new Error('terminal link surface unavailable')
       }
@@ -122,7 +122,7 @@ test('opens a terminal file link and observes an external edit @golden', async (
   const original = readFileSync(filePath, 'utf8')
   const resolvedDestination =
     process.platform === 'win32' ? filePath.replaceAll('\\', '/') : filePath
-  // Why: Mac/Windows tmp paths soft-wrap across xterm rows; locateLink only
+  // Why: Mac/Windows tmp paths soft-wrap across terminal rows; locateLink only
   // indexOf's each physical row, so print a cwd-relative path that stays on one.
   const printedPath = './package.json'
   const changedMarker = `golden-external-edit-${Date.now()}`

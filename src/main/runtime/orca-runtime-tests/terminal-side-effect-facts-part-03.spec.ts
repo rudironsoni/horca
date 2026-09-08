@@ -102,7 +102,7 @@ describe('terminal side-effect fact channel', () => {
       data: 'renderer scrollback\n',
       cols: 80,
       rows: 24,
-      // Renderer xterm never saw the synthetic hook frame (no longer rides pty:data), so its serializer reports the pre-agent title.
+      // Renderer terminal never saw the synthetic hook frame (no longer rides pty:data), so its serializer reports the pre-agent title.
       lastTitle: 'stale shell title'
     })
     runtime.setPtyController({

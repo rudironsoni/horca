@@ -255,7 +255,7 @@ async function exercise(resourcesDir, fixtureExecutable) {
   await waitForBarrier(fixtures.listening, 'fixture server listen')
   stage('fixture-listen:done')
   const options = {
-    name: 'xterm-256color',
+    name: 'xterm-ghostty',
     cols: 80,
     rows: 30,
     cwd: process.cwd(),

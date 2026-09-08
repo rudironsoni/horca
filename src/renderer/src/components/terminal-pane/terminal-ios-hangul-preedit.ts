@@ -4,7 +4,7 @@ import { isHangulJamoKeyText } from './hangul-jamo-key'
 // Why: iPadOS composes Hangul from a hardware keyboard with no composition
 // events at all (#13345). Each jamo arrives as a plain keydown while the IME
 // rewrites the syllable in place in the helper textarea —
-// `deleteContentBackward` then a replacing `insertText`. xterm consumes the
+// `deleteContentBackward` then a replacing `insertText`. terminal consumes the
 // keydown, so the raw compatibility jamo reaches the PTY and the composed
 // syllable is dropped: `한글` arrives as `ㅎㅏㄴㄱㅡㄹ`.
 //
@@ -39,7 +39,7 @@ export type TerminalIosHangulPreedit = IDisposable & {
 export type TerminalIosHangulPreeditOptions = {
   terminalElement: HTMLElement | null | undefined
   /** Whether a composition session is under way, which bars a hold from opening
-   *  over it — Chinese pinyin on the same device does run one, and xterm's
+   *  over it — Chinese pinyin on the same device does run one, and terminal's
    *  CompositionHelper already commits it. Must be derived and expiring, not
    *  latched: a session that never ends would otherwise disable the pane. */
   isCompositionActive: () => boolean
@@ -60,7 +60,7 @@ function asHelperTextarea(target: EventTarget | null): HTMLTextAreaElement | nul
   if (!(target instanceof HTMLTextAreaElement)) {
     return null
   }
-  return target.classList.contains('xterm-helper-textarea') ? target : null
+  return target.classList.contains('orca-terminal-helper-textarea') ? target : null
 }
 
 function isUnmodified(event: KeyboardEvent): boolean {
@@ -218,7 +218,7 @@ export function installTerminalIosHangulPreedit(
     if (!(event instanceof KeyboardEvent)) {
       return
     }
-    const textarea = root.querySelector<HTMLTextAreaElement>('.xterm-helper-textarea')
+    const textarea = root.querySelector<HTMLTextAreaElement>('.orca-terminal-helper-textarea')
     if (!textarea) {
       return
     }
@@ -226,7 +226,7 @@ export function installTerminalIosHangulPreedit(
       preedit.editKind = 'compose'
       if (event.key === 'Escape' && isUnmodified(event)) {
         // Escape cancels the syllable the way it cancels a composition. Stopped
-        // here so xterm cannot also send it; the default action still lets the
+        // here so terminal cannot also send it; the default action still lets the
         // IME clear its own state.
         event.stopImmediatePropagation()
         discard(textarea)
@@ -234,7 +234,7 @@ export function installTerminalIosHangulPreedit(
       }
       if (event.key === 'Backspace' && isUnmodified(event)) {
         if (!preedit.heldText) {
-          // Nothing left to decompose: this erase is the PTY's, and xterm sends it.
+          // Nothing left to decompose: this erase is the PTY's, and terminal sends it.
           close()
           return
         }
@@ -247,7 +247,7 @@ export function installTerminalIosHangulPreedit(
       if (isJamoKey(event)) {
         return
       }
-      // Anything else ends the syllable, and runs before xterm sends the key.
+      // Anything else ends the syllable, and runs before terminal sends the key.
       commit()
       return
     }
@@ -282,7 +282,7 @@ export function installTerminalIosHangulPreedit(
       commit()
       return
     }
-    // Why: the field keeps the syllable so the IME can rewrite it, and xterm
+    // Why: the field keeps the syllable so the IME can rewrite it, and terminal
     // must not read that as fresh input.
     event.stopImmediatePropagation()
     preedit.imeWrote = true

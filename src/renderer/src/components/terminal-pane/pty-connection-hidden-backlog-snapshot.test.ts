@@ -321,7 +321,7 @@ describe('connectPanePty', () => {
 
       expect(getMainBufferSnapshot).not.toHaveBeenCalled()
 
-      // Why: inactive split restore is frame-spaced, so wait past one scheduler tick without fake timers for xterm callbacks.
+      // Why: inactive split restore is frame-spaced, so wait past one scheduler tick without fake timers for terminal callbacks.
       await new Promise((resolve) => setTimeout(resolve, 30))
       await flushAsyncTicks(20)
 

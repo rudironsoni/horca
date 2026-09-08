@@ -1,7 +1,7 @@
 // Why: the deferred-rAF fit can spawn the PTY at a stale (wide) width when the pane's layout hasn't settled by the first
-// frame (e.g. a tab mounting with a split already present) and the corrective xterm onResize is dropped during the hidden
+// frame (e.g. a tab mounting with a split already present) and the corrective terminal onResize is dropped during the hidden
 // mount window (visibility gate not yet authoritative), so TUIs render garbled until a manual resize. This post-spawn
-// reconcile bridges that gap: it polls across frames, forwarding xterm's measured grid (authoritative, bypasses the gate)
+// reconcile bridges that gap: it polls across frames, forwarding terminal's measured grid (authoritative, bypasses the gate)
 // until the pane is authoritative and stable, then hands off to the live onResize path. It tracks what it last SENT, not
 // what the PTY applied; the visibility-resume re-assert in pty-connection.ts is the backstop that heals drift on hide/show.
 
