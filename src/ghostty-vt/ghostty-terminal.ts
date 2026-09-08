@@ -3,6 +3,7 @@ import { collectHyperlinkRanges, type HyperlinkRange } from './ghostty-hyperlink
 import { encodePaste } from './ghostty-paste'
 import { readSelection, selectAllOnTerminal } from './ghostty-selection'
 import { decodeNativeSnapshot, encodeNativeSnapshot } from './ghostty-snapshot'
+import { bindGhosttyVt, rebindGhosttyVt, unbindGhosttyVt } from './ghostty-vt-access'
 import type { GhosttyVtHost, WritePtyCallback } from './wasm-host'
 
 export type TerminalGeometry = {
@@ -25,7 +26,6 @@ export type GhosttyTerminalOptions = {
 
 const DEFAULT_SCROLLBACK = 5000
 const CONTINUATION_MAX_BYTES = 4096
-
 export class GhosttyTerminal {
   private readonly host: GhosttyVtHost
   private term: number
@@ -41,6 +41,7 @@ export class GhosttyTerminal {
     )
     this.term = host.takeOpaque(slot)
     host.freeOpaque(slot)
+    bindGhosttyVt(this, host, this.term)
     this.userdata = host.registerWritePty(options.onWritePty)
     host.check(
       host.exports.ghostty_terminal_set(
@@ -129,11 +130,6 @@ export class GhosttyTerminal {
     return this.getBool('MOUSE_TRACKING')
   }
 
-  hostHandle(): { host: GhosttyVtHost; term: number } {
-    this.assertOpen()
-    return { host: this.host, term: this.term }
-  }
-
   getMode(mode: number): boolean {
     const size = this.host.structSize('GhosttyTerminalModeConfig')
     const ptr = this.host.alloc(size)
@@ -195,6 +191,7 @@ export class GhosttyTerminal {
     const restored = decodeNativeSnapshot(this.host, capture.nativeSnapshot)
     this.host.exports.ghostty_terminal_free(this.term)
     this.term = restored
+    rebindGhosttyVt(this, this.term)
     this.host.check(
       this.host.exports.ghostty_terminal_set(
         this.term,
@@ -205,11 +202,6 @@ export class GhosttyTerminal {
     )
   }
 
-  handle(): number {
-    this.assertOpen()
-    return this.term
-  }
-
   dispose(): void {
     if (this.disposed) {
       return
@@ -217,6 +209,7 @@ export class GhosttyTerminal {
     this.disposed = true
     this.host.exports.ghostty_terminal_free(this.term)
     this.host.unregisterWritePty(this.userdata)
+    unbindGhosttyVt(this)
   }
 
   private setU32Option(name: string, value: number): void {
