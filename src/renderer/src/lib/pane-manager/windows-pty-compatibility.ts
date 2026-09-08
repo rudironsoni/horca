@@ -41,7 +41,7 @@ function buildXtermWindowsPtyOptions(buildNumber: number | undefined): {
 }
 
 /**
- * xterm options that select the native-Windows ConPTY backend, returned only for
+ * terminal options that select the native-Windows ConPTY backend, returned only for
  * a genuine local Windows pane and `{}` otherwise.
  *
  * Why it requires `executionHostId`: a serve/remote-runtime pane on a Windows

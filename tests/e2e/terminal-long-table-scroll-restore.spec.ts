@@ -94,8 +94,8 @@ async function scrollActiveTerminalLikeUser(page: Page): Promise<void> {
     pane.terminal.focus()
     pane.terminal.scrollToBottom()
     const viewport =
-      pane.container.querySelector<HTMLElement>('.xterm-viewport') ??
-      pane.container.querySelector<HTMLElement>('.xterm')
+      pane.container.querySelector<HTMLElement>('.orca-terminal-viewport') ??
+      pane.container.querySelector<HTMLElement>('.orca-terminal-canvas')
     if (!viewport) {
       throw new Error('Active terminal viewport unavailable')
     }
@@ -178,8 +178,8 @@ async function readTerminalRightEdgeOverpaint(page: Page): Promise<{
           : null
     const manager = tabId ? window.__paneManagers?.get(tabId) : null
     const pane = manager?.getActivePane?.() ?? manager?.getPanes?.()[0] ?? null
-    const screen = pane?.container.querySelector<HTMLElement>('.xterm-screen')
-    const rows = pane?.container.querySelector<HTMLElement>('.xterm-rows')
+    const screen = pane?.container.querySelector<HTMLElement>('.orca-terminal-canvas')
+    const rows = pane?.container.querySelector<HTMLElement>('.orca-terminal-rows')
     if (!pane || !screen) {
       throw new Error('Active terminal DOM unavailable')
     }
@@ -534,7 +534,7 @@ test.describe('Terminal long table scroll restore repro', () => {
       const generatedTableWidth = Number(generatedWidthMatch?.[1] ?? 0)
 
       // Why: rows near the top of this heavily wrapped table can fall out of
-      // xterm scrollback on CI, and narrow columns split names like "Peacock"
+      // terminal scrollback on CI, and narrow columns split names like "Peacock"
       // across terminal lines. A lower cell fragment still exercises the
       // restored markdown-table viewport without depending on early output.
       const retainedEmojiCell = 'Peac'

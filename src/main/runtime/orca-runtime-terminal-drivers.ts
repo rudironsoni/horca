@@ -19,7 +19,7 @@ import { RuntimeWorktreeRemovalInFlight } from './runtime-worktree-removal-in-fl
 export class OrcaRuntimeWithTerminalDrivers extends OrcaRuntimeWithFitOverrideListeners {
   // Why: per-PTY driver state. The "driver" is whoever currently owns the
   // input/resize floor. While `kind === 'mobile'` the desktop renderer drops
-  // xterm.onData/onResize and shows the lock banner; `terminal.send` /
+  // terminal.onData/onResize and shows the lock banner; `terminal.send` /
   // `pty:write` and `pty:resize` IPC handlers also drop desktop-side calls
   // server-side as defense-in-depth. The `clientId` carried on the mobile
   // variant is the most recent mobile actor — used by

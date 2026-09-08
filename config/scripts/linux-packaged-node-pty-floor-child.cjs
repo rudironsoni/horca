@@ -10,7 +10,7 @@ const expected = 'orca-node-pty-floor-ok'
 let output = ''
 let settled = false
 const child = pty.spawn('/bin/sh', ['-c', `printf ${expected}; sleep 0.1`], {
-  name: 'xterm-color',
+  name: 'terminal-color',
   cols: 80,
   rows: 24,
   cwd: '/tmp',

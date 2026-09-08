@@ -3,7 +3,7 @@
 //
 //     \x1b]7;file://<host>/<percent-encoded-path>\x07   (or ST terminator)
 //
-// on every prompt so terminal emulators can track the live cwd. xterm's
+// on every prompt so terminal emulators can track the live cwd. terminal's
 // parser strips the leading `\x1b]7;` and trailing BEL/ST before handing us
 // the payload, so `data` here is just the `file://...` URI.
 

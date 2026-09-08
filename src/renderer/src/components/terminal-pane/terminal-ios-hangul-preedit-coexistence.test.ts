@@ -137,7 +137,7 @@ describe('the iPadOS Hangul path alongside everything else', () => {
 
   it('leaves a Hanja lookup to the session that owns its preedit', async () => {
     // Why: ibus-hangul indexes its Hanja table by digit, but only over a live
-    // composition — which xterm's CompositionHelper already commits.
+    // composition — which terminal's CompositionHelper already commits.
     pretendIosWeb()
     const rig = openIosTerminal()
     await typePinyin(rig, 'han', '韓')
@@ -204,7 +204,7 @@ describe('the iPadOS Hangul path alongside everything else', () => {
   })
 
   it('composes Hangul after a paste written straight to the transport', async () => {
-    // Why: `writeTerminalPastePtyInput` bypasses xterm entirely, so it fires no
+    // Why: `writeTerminalPastePtyInput` bypasses terminal entirely, so it fires no
     // `onData` a mirror could resync on. A hold reads the field only when it
     // opens, so there is no state for the paste to make stale.
     pretendIosWeb()

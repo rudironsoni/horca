@@ -69,7 +69,7 @@ export function sanitizeTerminalPasteText(text: string): string {
 }
 
 export function normalizeTerminalPasteLineEndings(text: string): string {
-  // Why: xterm's native paste path converts every clipboard newline to CR.
+  // Why: terminal's native paste path converts every clipboard newline to CR.
   // Direct frames must match it or ConPTY TUIs can treat raw LF as submit.
   return text.replace(/\r?\n/g, '\r')
 }
@@ -103,7 +103,7 @@ export function encodeWindowsInputRecordPasteText(
 
 function forceBracketedPaste(terminal: PasteTerminal, text: string): void {
   // Why: forced callers already built the exact paste protocol bytes. Send
-  // them as PTY input so xterm's DOM/native paste machinery cannot defer them.
+  // them as PTY input so terminal's DOM/native paste machinery cannot defer them.
   terminal.input?.(wrapTerminalBracketedPasteText(text))
 }
 
@@ -162,7 +162,7 @@ export function pasteTerminalText(
   }
 
   const previousIgnoreBracketedPasteMode = terminal.options?.ignoreBracketedPasteMode
-  // Why: Ctrl+C can leave xterm's bracketed-paste bit stale after the foreground
+  // Why: Ctrl+C can leave terminal's bracketed-paste bit stale after the foreground
   // process dies. Single-line paste does not need wrappers, so avoid leaking them.
   if (terminal.options) {
     terminal.options.ignoreBracketedPasteMode = true

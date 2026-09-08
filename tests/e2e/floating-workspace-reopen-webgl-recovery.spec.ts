@@ -175,7 +175,7 @@ async function writeStaticContent(page: Page, marker: string): Promise<void> {
       ).join('')}`
     }
   )
-  // Why: let xterm's renderer paint the new content before baseline capture.
+  // Why: let terminal's renderer paint the new content before baseline capture.
   await page.evaluate(
     () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))
   )
@@ -185,7 +185,7 @@ async function writeStaticContent(page: Page, marker: string): Promise<void> {
  * Corrupts the live glyph-atlas textures of the floating terminal's WebGL
  * context by overwriting texels in every bound TEXTURE_2D, without raising a
  * context-loss event. This simulates the in-the-wild Chromium failure that
- * #5042 documents ("rapid TUI redraws can corrupt xterm's WebGL glyph atlas
+ * #5042 documents ("rapid TUI redraws can corrupt terminal's WebGL glyph atlas
  * without a context-loss event") so recovery triggers can be tested
  * deterministically.
  */
@@ -290,7 +290,7 @@ async function readRecoveryCounters(
 }
 
 async function screenshotFloatingTerminal(page: Page): Promise<Buffer> {
-  const screen = page.locator(`${PANEL_SELECTOR} .xterm-screen`).first()
+  const screen = page.locator(`${PANEL_SELECTOR} .orca-terminal-canvas`).first()
   await expect(screen).toBeVisible()
   return screen.screenshot({ animations: 'disabled' })
 }
@@ -349,7 +349,7 @@ async function setUpCorruptedFloatingTerminal(
   if (corruptedTiles === 0) {
     return null
   }
-  // Why: xterm paints on the next animation frame after refresh(); poll until
+  // Why: terminal paints on the next animation frame after refresh(); poll until
   // the injected noise is actually visible so later "still corrupted" and
   // "healed" comparisons are meaningful. Skip if the noise landed outside the
   // atlas region glyphs are drawn from.

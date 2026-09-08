@@ -88,7 +88,7 @@ test.describe('terminal push-delivery loss recovery', () => {
     // (write-off + snapshot-restore request) without push or reload. We assert
     // the heal, not 'wedged-123' in the pane: in headless e2e a desktop-only
     // local pty has no main headless emulator, so getMainBufferSnapshot (the
-    // repaint source) falls back to the blackholed renderer xterm and cannot
+    // repaint source) falls back to the blackholed renderer terminal and cannot
     // carry the wedged bytes (serializeHiddenOutputRecoveryBuffer fallback).
     await expect
       .poll(

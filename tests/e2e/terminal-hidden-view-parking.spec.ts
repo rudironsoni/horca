@@ -305,7 +305,7 @@ test.describe('Terminal hidden view parking', () => {
 
       // Why: parking must be scoped to the parked tab — tab B (hidden more
       // recently, so #8262 keeps it warm) still holds a live pane manager and
-      // xterm while tab A tore down.
+      // terminal while tab A tore down.
       const tabBState = await readTerminalTabViewState(orcaPage, tabBId)
       expect(tabBState.hasManager).toBe(true)
       expect(tabBState.paneCount).toBeGreaterThan(0)

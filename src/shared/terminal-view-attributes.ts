@@ -1,11 +1,11 @@
 /**
  * Phase 5 slice 2 (View-attribute bridge): payload contract for the
  * renderer→main `pty:terminalViewAttributes`
- * push, plus main/renderer mirrors of xterm's XParseColor color-spec grammar
- * so main's responder replies byte-identically to a visible renderer xterm.
+ * push, plus main/renderer mirrors of terminal's XParseColor color-spec grammar
+ * so main's responder replies byte-identically to a visible renderer terminal.
  */
 
-/** 8-bit-per-channel RGB triple — the same resolution xterm's theme service
+/** 8-bit-per-channel RGB triple — the same resolution terminal's theme service
  *  stores internally (`color.toColorRGB`). */
 export type TerminalViewRgb = [number, number, number]
 
@@ -19,7 +19,7 @@ export type TerminalViewCursorStyle = 'bar' | 'block' | 'underline'
 export type TerminalViewAttributes = {
   foreground: TerminalViewRgb
   background: TerminalViewRgb
-  /** Already blended over the background (xterm ThemeService blends the
+  /** Already blended over the background (terminal ThemeService blends the
    *  cursor color's alpha at theme-set time, e.g. terminalCursorOpacity). */
   cursor: TerminalViewRgb
   /** Full 256-entry palette: theme's 16 named colors + extendedAnsi/default
@@ -27,7 +27,7 @@ export type TerminalViewAttributes = {
   ansi: TerminalViewRgb[]
   /** Resolved APP color-scheme mode (the 2031/997 flip source). NOT the DSR
    *  ?996n answer: that is computed from background/foreground relative
-   *  luminance like a visible xterm (_reportColorScheme), and the two can
+   *  luminance like a visible terminal (_reportColorScheme), and the two can
    *  disagree (e.g. dark terminal theme in light app mode). */
   colorSchemeMode: 'dark' | 'light'
   cursorStyle: TerminalViewCursorStyle
@@ -39,7 +39,7 @@ const X_RGB_SPEC_RE =
   /^([\da-f])\/([\da-f])\/([\da-f])$|^([\da-f]{2})\/([\da-f]{2})\/([\da-f]{2})$|^([\da-f]{3})\/([\da-f]{3})\/([\da-f]{3})$|^([\da-f]{4})\/([\da-f]{4})\/([\da-f]{4})$/
 const X_HASH_SPEC_RE = /^[\da-f]+$/
 
-/** Mirror of xterm's XParseColor `parseColor` (the grammar the renderer
+/** Mirror of terminal's XParseColor `parseColor` (the grammar the renderer
  *  accepts for OSC 4/10/11/12 SET payloads): `rgb:h/h/h`..`rgb:hhhh/hhhh/hhhh`
  *  and `#RGB|#RRGGBB|#RRRGGGBBB|#RRRRGGGGBBBB`. Anything else (named colors,
  *  rgbi:) is rejected exactly like the renderer rejects it. */
@@ -79,13 +79,13 @@ export function parseXColorSpec(spec: string): TerminalViewRgb | null {
 function padChannelTo16Bit(value: number): string {
   const hex = value.toString(16)
   const byte = hex.length < 2 ? `0${hex}` : hex
-  // Why doubled: xterm reports 16-bit channels by repeating the 8-bit byte
+  // Why doubled: terminal reports 16-bit channels by repeating the 8-bit byte
   // (XParseColor.toRgbString with bits=16) — pinned reply-format parity.
   return byte + byte
 }
 
-/** Mirror of xterm's `toRgbString(color, 16)` — the exact channel format a
- *  visible renderer xterm uses in OSC 4/10/11/12 query replies. */
+/** Mirror of terminal's `toRgbString(color, 16)` — the exact channel format a
+ *  visible renderer terminal uses in OSC 4/10/11/12 query replies. */
 export function formatXColorRgbSpec(rgb: TerminalViewRgb): string {
   return `rgb:${padChannelTo16Bit(rgb[0])}/${padChannelTo16Bit(rgb[1])}/${padChannelTo16Bit(rgb[2])}`
 }

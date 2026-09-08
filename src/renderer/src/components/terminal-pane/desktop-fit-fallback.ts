@@ -29,7 +29,7 @@ export function applyDesktopFitFallbackAfterReplay(
     }
   }
   // Why: the server dimensions are only a fallback; source-dimension replay
-  // must parse and restore its viewport before this can reflow xterm.
+  // must parse and restore its viewport before this can reflow terminal.
   if (
     !deferTerminalGeometryMutationDuringRebuild(
       pane.terminal,

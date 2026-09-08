@@ -41,14 +41,17 @@ function suppressEvent(event: Event): void {
   event.stopImmediatePropagation()
 }
 
-// Why: the native follow-up paste lands in xterm's hidden helper textarea;
+// Why: the native follow-up paste lands in terminal's hidden helper textarea;
 // scope terminal-armed suppression to that surface so unrelated document pastes
 // (right-click Paste, keyboard paste into another control) are never swallowed.
 function isTerminalNativePasteTarget(target: EventTarget | null): boolean {
   if (!(target instanceof Element)) {
     return false
   }
-  return target.classList.contains('xterm-helper-textarea') || target.closest('.xterm') !== null
+  return (
+    target.classList.contains('orca-terminal-helper-textarea') ||
+    target.closest('.orca-terminal-canvas') !== null
+  )
 }
 
 function isPrimarySelectionPasteTargetCurrent(
@@ -108,7 +111,7 @@ export function usePrimarySelectionPaste(enabled: boolean): void {
       }
       // Why: the integrated terminal owns its middle-click paste and cannot mark
       // a pending DOM target, so honor its armed window to swallow the follow-up
-      // native paste event that xterm would otherwise forward to the PTY — but
+      // native paste event that terminal would otherwise forward to the PTY — but
       // only for the terminal's own surface, never unrelated document pastes.
       // Consuming leaves the window disarmed so a later real paste survives.
       if (

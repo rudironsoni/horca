@@ -3,10 +3,10 @@ import {
   createTerminalImeLinuxCandidateState,
   installTerminalImeLinuxCandidateState
 } from './terminal-ime-linux-candidate-state'
-import type { XtermBypassEvent } from './xterm-bypass-policy'
+import type { TerminalBypassEvent } from './terminal-bypass-policy'
 
 /** Creates a terminal keyboard event with default modifier state. */
-function event(overrides: Partial<XtermBypassEvent>): XtermBypassEvent {
+function event(overrides: Partial<TerminalBypassEvent>): TerminalBypassEvent {
   return {
     type: 'keydown',
     key: '',

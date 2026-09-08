@@ -158,9 +158,9 @@ describe('terminal paste target state', () => {
     ).toBe(true)
   })
 
-  it('keeps keyboard-owned paste current when xterm replaces its helper textarea', () => {
-    const originalTerminalInput = makeElement('textarea', ['xterm-helper-textarea'])
-    const replacementTerminalInput = makeElement('textarea', ['xterm-helper-textarea'])
+  it('keeps keyboard-owned paste current when terminal replaces its helper textarea', () => {
+    const originalTerminalInput = makeElement('textarea', ['orca-terminal-helper-textarea'])
+    const replacementTerminalInput = makeElement('textarea', ['orca-terminal-helper-textarea'])
     const paneContainer = makePaneContainerFor([originalTerminalInput, replacementTerminalInput])
 
     expect(
@@ -174,7 +174,7 @@ describe('terminal paste target state', () => {
   })
 
   it('rejects keyboard-owned paste when focus moves to another control in the pane', () => {
-    const terminalInput = makeElement('textarea', ['xterm-helper-textarea'])
+    const terminalInput = makeElement('textarea', ['orca-terminal-helper-textarea'])
     const searchInput = makeElement('input')
     const paneContainer = makePaneContainerFor([terminalInput, searchInput])
 

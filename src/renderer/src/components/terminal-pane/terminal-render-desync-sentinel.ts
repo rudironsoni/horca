@@ -28,7 +28,7 @@ import {
  *
  * Detects the "buffer is correct but the canvas renders stale/garbled glyphs"
  * class of bug (shared glyph-atlas desync) by comparing, per visible pane, the
- * cells the xterm buffer says hold glyphs against the ink actually present on
+ * cells the terminal buffer says hold glyphs against the ink actually present on
  * the WebGL canvas. Modifier-clicks start a short burst that reads the
  * compositor-presented canvas before any forced redraw can heal or destroy the
  * failure. A confirmed trip writes the pixels, buffer, and atlas/model versions

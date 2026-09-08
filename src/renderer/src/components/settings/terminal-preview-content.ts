@@ -1,4 +1,4 @@
-// SGR escape helpers — keep tiny and local; xterm interprets these as ANSI.
+// SGR escape helpers — keep tiny and local; terminal interprets these as ANSI.
 const RESET = '\x1b[0m'
 const DIM = '\x1b[2m'
 const ITALIC = '\x1b[3m'
@@ -18,7 +18,7 @@ function prompt(): string {
 }
 
 // Why: every line must fit in PREVIEW_COLS (see TerminalSettingsPreview) so
-// xterm doesn't wrap mid-content at the default 14px font. Longest visible
+// terminal doesn't wrap mid-content at the default 14px font. Longest visible
 // line below is the def total signature at 32 chars.
 const lines: string[] = [
   `${prompt()}npm test`,
@@ -38,7 +38,7 @@ const lines: string[] = [
   `${prompt()}`
 ]
 
-// Why: xterm interprets `\n` as line-feed only (no carriage return) by default
+// Why: terminal interprets `\n` as line-feed only (no carriage return) by default
 // for `term.write`. We need `\r\n` between visual lines so the cursor returns
 // to column 0; otherwise each subsequent line starts where the previous one
 // ended.

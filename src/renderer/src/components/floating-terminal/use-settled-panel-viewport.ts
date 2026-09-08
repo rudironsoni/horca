@@ -17,7 +17,7 @@ function readViewport(): { width: number; height: number } {
  *
  * Why the floating panel waits for this: its maximized rect is derived from the live
  * viewport, so mounting terminals against a pre-maximize viewport fits them to a grid the
- * window is about to leave. The correcting fit then reflows the xterm buffer under a live
+ * window is about to leave. The correcting fit then reflows the terminal buffer under a live
  * TUI, which is the damage this whole path exists to avoid. Latching true is deliberate —
  * later resizes are ordinary user resizes and the normal fit path owns them.
  */

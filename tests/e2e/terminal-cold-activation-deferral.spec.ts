@@ -59,13 +59,15 @@ async function enableTerminalAccessibilityDom(page: Page, tabId: string): Promis
     if (!pane) {
       throw new Error(`Terminal pane for ${id} is unavailable`)
     }
-    // Why: xterm paints to canvas by default; screen-reader mode mirrors the
+    // Why: terminal paints to canvas by default; screen-reader mode mirrors the
     // visible buffer into DOM rows so the reveal oracle is user-observable.
     pane.terminal.options.screenReaderMode = true
     pane.terminal.refresh(0, pane.terminal.rows - 1)
   }, tabId)
   await expect(
-    page.locator(`[data-terminal-tab-id=${JSON.stringify(tabId)}] .xterm-accessibility-tree`)
+    page.locator(
+      `[data-terminal-tab-id=${JSON.stringify(tabId)}] .orca-terminal-accessibility-tree`
+    )
   ).toBeAttached({ timeout: 10_000 })
 }
 
@@ -227,7 +229,7 @@ test.describe('cold worktree activation deferral', () => {
     await execInTerminal(page, revealedPtyId, `echo ${outputMarker}`)
     await expect(
       page.locator(
-        `[data-terminal-tab-id=${JSON.stringify(deferredTabId)}] .xterm-accessibility-tree`
+        `[data-terminal-tab-id=${JSON.stringify(deferredTabId)}] .orca-terminal-accessibility-tree`
       )
     ).toContainText(outputMarker, { timeout: 15_000 })
   })

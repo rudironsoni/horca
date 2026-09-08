@@ -13,7 +13,7 @@ function makeOperations(): SettingsMutationOperations {
   }
 }
 
-// #10754: desktop IPC, the web RPC and the CLI all reach the store through this boundary, and xterm
+// #10754: desktop IPC, the web RPC and the CLI all reach the store through this boundary, and terminal
 // throws on a non-finite minimumContrastRatio, so the clamp cannot live in the settings UI alone.
 describe('updateSettings terminalMinimumContrastRatio', () => {
   it('persists an in-range floor unchanged', () => {
@@ -27,7 +27,7 @@ describe('updateSettings terminalMinimumContrastRatio', () => {
     ).toBe(4.5)
   })
 
-  it('clamps a hand-edited value into xterm range', () => {
+  it('clamps a hand-edited value into terminal range', () => {
     const operations = makeOperations()
 
     expect(

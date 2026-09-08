@@ -1,5 +1,5 @@
 /**
- * E2E tests for the Set Title editor surviving focus handoffs: xterm stealing
+ * E2E tests for the Set Title editor surviving focus handoffs: terminal stealing
  * focus back, early blurs, and blur-commit behavior.
  */
 
@@ -22,7 +22,9 @@ async function installDelayedTerminalFocusSteals(
       document.removeEventListener('focusin', focusTerminalAfterTitleFocus, true)
       for (const delay of delays) {
         window.setTimeout(() => {
-          const textarea = document.querySelector<HTMLTextAreaElement>('.xterm-helper-textarea')
+          const textarea = document.querySelector<HTMLTextAreaElement>(
+            '.orca-terminal-helper-textarea'
+          )
           textarea?.focus()
         }, delay)
       }
@@ -51,7 +53,7 @@ test.describe('Terminal Panes', () => {
     await expect(titleInput).toBeFocused()
 
     // Why: overlay controls own the title strip. Clicking the already-open
-    // title input must not leak through to xterm and flash the editor closed.
+    // title input must not leak through to terminal and flash the editor closed.
     await titleInput.evaluate((input) => {
       const pointerInit: PointerEventInit = {
         bubbles: true,
@@ -145,7 +147,7 @@ test.describe('Terminal Panes', () => {
     await titleInput.fill(draftTitle)
 
     await orcaPage.evaluate(() => {
-      const textarea = document.querySelector<HTMLTextAreaElement>('.xterm-helper-textarea')
+      const textarea = document.querySelector<HTMLTextAreaElement>('.orca-terminal-helper-textarea')
       textarea?.focus()
     })
 
@@ -169,7 +171,7 @@ test.describe('Terminal Panes', () => {
     })
 
     await orcaPage.evaluate(() => {
-      const textarea = document.querySelector<HTMLTextAreaElement>('.xterm-helper-textarea')
+      const textarea = document.querySelector<HTMLTextAreaElement>('.orca-terminal-helper-textarea')
       textarea?.focus()
     })
 
@@ -193,7 +195,7 @@ test.describe('Terminal Panes', () => {
     await orcaPage.waitForTimeout(300)
     await titleInput.fill(title)
     await orcaPage
-      .locator('.xterm:visible')
+      .locator('.orca-terminal-canvas:visible')
       .first()
       .click({ position: { x: 40, y: 60 } })
 

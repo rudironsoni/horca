@@ -1,57 +1,57 @@
 import { describe, expect, it } from 'vitest'
 import {
-  shouldBypassXtermKeyboardEvent,
+  shouldBypassTerminalKeyboardEvent,
   shouldPreventDefaultTerminalImeCandidateKey,
   shouldSuppressTerminalImeKeyboardEvent
-} from './xterm-bypass-policy'
-import { event } from './xterm-bypass-event-fixture'
+} from './terminal-bypass-policy'
+import { event } from './terminal-bypass-event-fixture'
 
-describe('shouldBypassXtermKeyboardEvent — macOS', () => {
+describe('shouldBypassTerminalKeyboardEvent — macOS', () => {
   const opts = { isMac: true, hasSelection: true }
   const noSel = { isMac: true, hasSelection: false }
 
-  it('bubbles Cmd+C so Chromium copy fires and xterm populates clipboard', () => {
+  it('bubbles Cmd+C so Chromium copy fires and terminal populates clipboard', () => {
     // Why: this is the whole point of the policy. When kitty progressive
-    // enhancement is on, the default xterm path CSI-u encodes Cmd+C and
+    // enhancement is on, the default terminal path CSI-u encodes Cmd+C and
     // preventDefaults the keydown, suppressing the browser copy event.
     expect(
-      shouldBypassXtermKeyboardEvent(event({ key: 'c', code: 'KeyC', metaKey: true }), opts)
+      shouldBypassTerminalKeyboardEvent(event({ key: 'c', code: 'KeyC', metaKey: true }), opts)
     ).toBe(true)
   })
 
   it('bubbles Cmd+C even with no selection (no-op copy is harmless on macOS)', () => {
     expect(
-      shouldBypassXtermKeyboardEvent(event({ key: 'c', code: 'KeyC', metaKey: true }), noSel)
+      shouldBypassTerminalKeyboardEvent(event({ key: 'c', code: 'KeyC', metaKey: true }), noSel)
     ).toBe(true)
   })
 
   it('bubbles Cmd+V so web clients receive the native paste event', () => {
     expect(
-      shouldBypassXtermKeyboardEvent(event({ key: 'v', code: 'KeyV', metaKey: true }), noSel)
+      shouldBypassTerminalKeyboardEvent(event({ key: 'v', code: 'KeyV', metaKey: true }), noSel)
     ).toBe(true)
   })
 
   it('matches Cmd+C by produced logical key rather than physical key', () => {
     expect(
-      shouldBypassXtermKeyboardEvent(event({ key: 'c', code: 'KeyJ', metaKey: true }), opts)
+      shouldBypassTerminalKeyboardEvent(event({ key: 'c', code: 'KeyJ', metaKey: true }), opts)
     ).toBe(true)
     expect(
-      shouldBypassXtermKeyboardEvent(event({ key: 'j', code: 'KeyC', metaKey: true }), opts)
+      shouldBypassTerminalKeyboardEvent(event({ key: 'j', code: 'KeyC', metaKey: true }), opts)
     ).toBe(false)
   })
 
-  it('does NOT bubble other Cmd chords — Orca window handlers intercept them before xterm', () => {
+  it('does NOT bubble other Cmd chords — Orca window handlers intercept them before terminal', () => {
     // Why: this policy is narrowly scoped to clipboard chords. Cmd+F, Cmd+D,
     // Cmd+K, Cmd+W, Cmd+Arrow, Cmd+Backspace are handled in keyboard-handlers.ts
-    // with stopImmediatePropagation before xterm's textarea listener fires.
-    // Cmd+A is claimed by keyboard-handlers.ts before xterm, including when
-    // Kitty keyboard reporting replaces xterm's legacy select-all evaluator.
+    // with stopImmediatePropagation before terminal's textarea listener fires.
+    // Cmd+A is claimed by keyboard-handlers.ts before terminal, including when
+    // Kitty keyboard reporting replaces terminal's legacy select-all evaluator.
     const cases = [
       event({ key: 'a', code: 'KeyA', metaKey: true }),
       event({ key: 't', code: 'KeyT', metaKey: true })
     ]
     for (const e of cases) {
-      expect(shouldBypassXtermKeyboardEvent(e, opts)).toBe(false)
+      expect(shouldBypassTerminalKeyboardEvent(e, opts)).toBe(false)
     }
   })
 
@@ -59,13 +59,13 @@ describe('shouldBypassXtermKeyboardEvent — macOS', () => {
     // Why: some window-level shortcuts call preventDefault without stopping
     // propagation. App shortcuts must not also become terminal input.
     expect(
-      shouldBypassXtermKeyboardEvent(
+      shouldBypassTerminalKeyboardEvent(
         event({ key: 'b', code: 'KeyB', defaultPrevented: true, metaKey: true }),
         opts
       )
     ).toBe(true)
     expect(
-      shouldBypassXtermKeyboardEvent(
+      shouldBypassTerminalKeyboardEvent(
         event({
           key: 'ArrowLeft',
           code: 'ArrowLeft',
@@ -80,7 +80,7 @@ describe('shouldBypassXtermKeyboardEvent — macOS', () => {
 
   it('does not bubble Cmd+Shift+C — already intercepted in keyboard-handlers.ts', () => {
     expect(
-      shouldBypassXtermKeyboardEvent(
+      shouldBypassTerminalKeyboardEvent(
         event({ key: 'C', code: 'KeyC', metaKey: true, shiftKey: true }),
         opts
       )
@@ -88,18 +88,18 @@ describe('shouldBypassXtermKeyboardEvent — macOS', () => {
   })
 
   it('does not bubble Ctrl chords — those must reach the shell', () => {
-    // Ctrl+C is SIGINT, Ctrl+D is EOF, etc. — xterm must see them.
+    // Ctrl+C is SIGINT, Ctrl+D is EOF, etc. — terminal must see them.
     expect(
-      shouldBypassXtermKeyboardEvent(event({ key: 'c', code: 'KeyC', ctrlKey: true }), opts)
+      shouldBypassTerminalKeyboardEvent(event({ key: 'c', code: 'KeyC', ctrlKey: true }), opts)
     ).toBe(false)
     expect(
-      shouldBypassXtermKeyboardEvent(event({ key: 'd', code: 'KeyD', ctrlKey: true }), opts)
+      shouldBypassTerminalKeyboardEvent(event({ key: 'd', code: 'KeyD', ctrlKey: true }), opts)
     ).toBe(false)
   })
 
-  it('does not bubble Cmd+Ctrl combos (unusual; defer to xterm)', () => {
+  it('does not bubble Cmd+Ctrl combos (unusual; defer to terminal)', () => {
     expect(
-      shouldBypassXtermKeyboardEvent(
+      shouldBypassTerminalKeyboardEvent(
         event({ key: 'c', code: 'KeyC', metaKey: true, ctrlKey: true }),
         opts
       )
@@ -108,7 +108,7 @@ describe('shouldBypassXtermKeyboardEvent — macOS', () => {
 
   it('does not bubble already-handled Ctrl chords on macOS', () => {
     expect(
-      shouldBypassXtermKeyboardEvent(
+      shouldBypassTerminalKeyboardEvent(
         event({ key: 'c', code: 'KeyC', defaultPrevented: true, ctrlKey: true }),
         opts
       )
@@ -116,7 +116,7 @@ describe('shouldBypassXtermKeyboardEvent — macOS', () => {
   })
 
   it('does not bubble plain letters — those are normal input', () => {
-    expect(shouldBypassXtermKeyboardEvent(event({ key: 'c', code: 'KeyC' }), opts)).toBe(false)
+    expect(shouldBypassTerminalKeyboardEvent(event({ key: 'c', code: 'KeyC' }), opts)).toBe(false)
   })
 
   it('no longer special-cases Backslash — the native-text forwarder owns it', () => {
@@ -127,7 +127,7 @@ describe('shouldBypassXtermKeyboardEvent — macOS', () => {
     for (const type of ['keydown', 'keyup', 'keypress']) {
       for (const kittyKeyboardFlags of [0, 1]) {
         expect(
-          shouldBypassXtermKeyboardEvent(event({ type, key: '\\', code: 'Backslash' }), {
+          shouldBypassTerminalKeyboardEvent(event({ type, key: '\\', code: 'Backslash' }), {
             ...noSel,
             kittyKeyboardFlags
           })
@@ -138,13 +138,13 @@ describe('shouldBypassXtermKeyboardEvent — macOS', () => {
 
   it('bubbles Shift+non-ASCII printable text so the active keyboard layout wins', () => {
     expect(
-      shouldBypassXtermKeyboardEvent(event({ key: 'Ф', code: 'KeyA', shiftKey: true }), opts)
+      shouldBypassTerminalKeyboardEvent(event({ key: 'Ф', code: 'KeyA', shiftKey: true }), opts)
     ).toBe(true)
   })
 
   it('bubbles Shift+non-ASCII keyup so kitty does not emit a Latin release sequence', () => {
     expect(
-      shouldBypassXtermKeyboardEvent(
+      shouldBypassTerminalKeyboardEvent(
         event({ type: 'keyup', key: 'Ф', code: 'KeyA', shiftKey: true }),
         opts
       )
@@ -153,7 +153,7 @@ describe('shouldBypassXtermKeyboardEvent — macOS', () => {
 
   it('does not bubble Shift+non-ASCII keypress because that carries the layout text', () => {
     expect(
-      shouldBypassXtermKeyboardEvent(
+      shouldBypassTerminalKeyboardEvent(
         event({ type: 'keypress', key: 'Ф', code: 'KeyA', shiftKey: true }),
         opts
       )
@@ -162,13 +162,13 @@ describe('shouldBypassXtermKeyboardEvent — macOS', () => {
 
   it('does not bubble Shift+Latin printable text', () => {
     expect(
-      shouldBypassXtermKeyboardEvent(event({ key: 'A', code: 'KeyA', shiftKey: true }), opts)
+      shouldBypassTerminalKeyboardEvent(event({ key: 'A', code: 'KeyA', shiftKey: true }), opts)
     ).toBe(false)
   })
 
   it('leaves ordinary Shift+Space available to the terminal', () => {
     expect(
-      shouldBypassXtermKeyboardEvent(event({ key: ' ', code: 'Space', shiftKey: true }), opts)
+      shouldBypassTerminalKeyboardEvent(event({ key: ' ', code: 'Space', shiftKey: true }), opts)
     ).toBe(false)
   })
 })
@@ -198,7 +198,7 @@ describe('shouldSuppressTerminalImeKeyboardEvent — macOS', () => {
     ).toBe(true)
   })
 
-  it('lets standalone Process keys reach xterm so its CompositionHelper can diff text', () => {
+  it('lets standalone Process keys reach terminal so its CompositionHelper can diff text', () => {
     expect(
       shouldSuppressTerminalImeKeyboardEvent(
         event({ key: 'Process', code: 'KeyN', keyCode: 229 }),

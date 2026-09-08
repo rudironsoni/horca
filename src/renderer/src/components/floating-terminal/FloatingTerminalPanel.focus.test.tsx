@@ -184,12 +184,12 @@ describe('FloatingTerminalPanel close behavior', () => {
     })
 
     const newerFloatingInput = {
-      classList: { contains: (token: string) => token === 'xterm-helper-textarea' },
+      classList: { contains: (token: string) => token === 'orca-terminal-helper-textarea' },
       closest: vi.fn().mockReturnValue({})
     }
     Object.setPrototypeOf(newerFloatingInput, HTMLElement.prototype)
     mocks.focusTerminalTabSurface.mock.calls[0]?.[2].onImeRefocusSkipped(newerFloatingInput)
-    // Relatched onto the floating xterm: panel ⊇ terminal, both true.
+    // Relatched onto the floating terminal: panel ⊇ terminal, both true.
     expect(mocks.setFloatingFocus).toHaveBeenLastCalledWith({
       panelFocused: true,
       terminalFocused: true
@@ -203,7 +203,7 @@ describe('FloatingTerminalPanel close behavior', () => {
     const panelElement = { contains: vi.fn().mockReturnValue(true), focus: vi.fn() }
     const terminalInput = {
       blur: vi.fn(),
-      classList: { contains: vi.fn((token: string) => token === 'xterm-helper-textarea') },
+      classList: { contains: vi.fn((token: string) => token === 'orca-terminal-helper-textarea') },
       closest: vi.fn((selector: string) => {
         if (selector === '[data-floating-terminal-panel]') {
           return panelElement

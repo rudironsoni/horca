@@ -31,7 +31,7 @@ vi.mock('@/components/terminal-pane/TerminalPane', () => ({
   default: (props: { tabId: string }) => (
     <div data-testid="terminal-pane" data-terminal-tab-id={props.tabId}>
       <div data-pty-id="pty-1" />
-      <div className="xterm-rows">$</div>
+      <div className="orca-terminal-rows">$</div>
     </div>
   )
 }))
