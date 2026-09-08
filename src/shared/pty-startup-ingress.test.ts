@@ -341,7 +341,7 @@ describe('PtyStartupIngress', () => {
     // Why between: a pty read boundary is a macrotask, so the deferred reply is written
     // while the rest of the burst is still unread. A `\x07` head-of-echo guess taken then
     // steals the OSC 11 terminator, leaving the slot unanswered and its bytes emitted
-    // after the BEL — which parks xterm in an OSC that never terminates.
+    // after the BEL — which parks terminal in an OSC that never terminates.
     vi.useFakeTimers()
     const burst = '\x1b]10;?\x07\x1b]11;?\x07'
     for (let split = 0; split <= burst.length; split += 1) {

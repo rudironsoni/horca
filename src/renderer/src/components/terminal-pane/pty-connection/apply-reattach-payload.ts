@@ -215,7 +215,7 @@ export function createReattachPayloadHandlers(
         session.rememberReattachPayloadAgentSignal(ctx.connectResult.replay, {
           fullScreenReplay: true
         })
-        // Relay replay may overlap xterm's pre-disconnect content; clear first to avoid duplication.
+        // Relay replay may overlap terminal's pre-disconnect content; clear first to avoid duplication.
         session.writeReplayData(`${RESET_GRAPHIC_RENDITION}\x1b[2J\x1b[3J\x1b[H`)
         // Why: raw relay replay may contain the app's own kitty pushes; re-arm with set semantics so redelivery can't grow the stack.
         // A constructor-fresh mirror (window reload) first demotes to unproven:
@@ -253,7 +253,7 @@ export function createReattachPayloadHandlers(
           destinationRows = Math.max(destinationRows, proposedDestination.rows)
         }
       } catch {
-        // The current xterm grid remains a safe lower bound for blanking.
+        // The current terminal grid remains a safe lower bound for blanking.
       }
       // Why: shrinking first would promote clipped stale viewport rows into scrollback, beyond the reach of a later viewport-only clear.
       session.writeReplayData(`${RESET_GRAPHIC_RENDITION}\x1b[2J\x1b[H`)
@@ -278,7 +278,7 @@ export function createReattachPayloadHandlers(
           session.suppressStructuralReplayPtyResize = false
         }
       }
-      // Why: recorded scrollback is raw PTY output that may hold query sequences; xterm.write would auto-reply into the new shell's stdin. See replay-guard.ts.
+      // Why: recorded scrollback is raw PTY output that may hold query sequences; terminal.write would auto-reply into the new shell's stdin. See replay-guard.ts.
       session.writeReplayData(
         `${RESET_GRAPHIC_RENDITION}${ctx.connectResult.coldRestore.scrollback}`
       )

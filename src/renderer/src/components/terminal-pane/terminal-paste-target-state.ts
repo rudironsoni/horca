@@ -61,7 +61,7 @@ export function isTerminalPanePasteFocusCurrent({
     return true
   }
   // Why: macOS dictation and clipboard permission handoffs can transiently
-  // blur xterm to body, and xterm may replace its helper textarea mid-paste.
+  // blur terminal to body, and terminal may replace its helper textarea mid-paste.
   if (isInertDocumentFocus(activeElement)) {
     return true
   }
@@ -80,5 +80,5 @@ function isInertDocumentFocus(element: Element | null): boolean {
 }
 
 function isXtermHelperTextarea(element: Element | null): boolean {
-  return element?.classList?.contains('xterm-helper-textarea') === true
+  return element?.classList?.contains('orca-terminal-helper-textarea') === true
 }

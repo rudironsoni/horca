@@ -79,7 +79,7 @@ describe('useTerminalWindowWakeRecovery', () => {
 
   it('clears the glyph atlas on system resume but not on plain window focus', () => {
     // Why: wiping the shared WebGL glyph atlas on a plain refocus provokes
-    // xterm's page-merge race and paints garbled glyphs (#7604). Only a genuine
+    // terminal's page-merge race and paints garbled glyphs (#7604). Only a genuine
     // OS resume — which can leave a stale renderer surface — clears the atlas.
     renderWakeRecoveryHook()
 

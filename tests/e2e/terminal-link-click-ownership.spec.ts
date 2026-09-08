@@ -49,7 +49,8 @@ async function startMouseAwareLinkFixture(
     const tabId = worktreeId ? state?.activeTabIdByWorktree?.[worktreeId] : null
     const manager = tabId ? window.__paneManagers?.get(tabId) : null
     const pane = manager?.getActivePane?.() ?? manager?.getPanes?.()[0] ?? null
-    const screen = pane?.terminal.element?.querySelector<HTMLElement>('.xterm-screen') ?? null
+    const screen =
+      pane?.terminal.element?.querySelector<HTMLElement>('.orca-terminal-canvas') ?? null
     if (!pane || !screen) {
       throw new Error('Active terminal screen unavailable')
     }
@@ -121,7 +122,7 @@ test.describe('terminal link click ownership', () => {
       'osc'
     )
     await orcaPage.mouse.move(target.x, target.y)
-    await expect(orcaPage.locator('.xterm-hover')).toHaveCount(1)
+    await expect(orcaPage.locator('.orca-terminal-hover')).toHaveCount(1)
     await orcaPage.mouse.click(target.x, target.y)
 
     await expect(orcaPage.locator('[data-terminal-link-action-popover]')).toBeVisible()

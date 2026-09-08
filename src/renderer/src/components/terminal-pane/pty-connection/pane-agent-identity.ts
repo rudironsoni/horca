@@ -173,7 +173,7 @@ export function installPaneAgentIdentity(session: ConnectPanePtySession): void {
       session.clearStaleAgentTabTitleOnConfirmedShell()
       // Why: a hard-killed agent leaves mouse/focus/kitty modes armed, and the
       // surviving shell then receives pointer moves as typed SGR reports; the
-      // replay guard keeps xterm's auto-replies from leaking to the shell.
+      // replay guard keeps terminal's auto-replies from leaking to the shell.
       replayIntoTerminal(session.pane, session.deps.replayingPanesRef, POST_REPLAY_REATTACH_RESET, {
         breadcrumbIdentity: {
           tabId: session.deps.tabId,
@@ -331,7 +331,7 @@ export function installPaneAgentIdentity(session: ConnectPanePtySession): void {
     },
     onCommandFinished: session.handleCommandFinished
   })
-  // Why: the xterm OSC 133 swallow is rendering hygiene, not a side effect —
+  // Why: the terminal OSC 133 swallow is rendering hygiene, not a side effect —
   // it stays attached in every authority mode.
   session.commandLifecycle.attachXtermConsumer(session.pane.terminal)
 }

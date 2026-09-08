@@ -158,7 +158,9 @@ function renderPortaledTerminalPane(target: HTMLElement, tabId: string, leafIds:
     const pane = document.createElement('div')
     pane.dataset.leafId = leafId
     pane.setAttribute('data-pty-id', `pty-${leafId}`)
-    pane.appendChild(Object.assign(document.createElement('div'), { className: 'xterm-screen' }))
+    pane.appendChild(
+      Object.assign(document.createElement('div'), { className: 'orca-terminal-canvas' })
+    )
     if (leafId !== isolatedLeafId) {
       pane.style.display = 'none'
     }
@@ -328,7 +330,7 @@ describe('Activity portal pane switching', () => {
         pane.dataset.leafId = leafId
         pane.setAttribute('data-pty-id', `pty-${leafId}`)
         pane.appendChild(
-          Object.assign(document.createElement('div'), { className: 'xterm-screen' })
+          Object.assign(document.createElement('div'), { className: 'orca-terminal-canvas' })
         )
         if (leafId === hiddenLeafId) {
           pane.style.display = 'none'
@@ -392,7 +394,7 @@ describe('Activity portal pane switching', () => {
         pane.dataset.leafId = leafId
         pane.setAttribute('data-pty-id', `pty-${leafId}`)
         pane.appendChild(
-          Object.assign(document.createElement('div'), { className: 'xterm-screen' })
+          Object.assign(document.createElement('div'), { className: 'orca-terminal-canvas' })
         )
         if (mode === 'hidden' && leafId === LEAF_A) {
           pane.style.display = 'none'

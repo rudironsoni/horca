@@ -36,7 +36,7 @@ function isDesktopOscLinkActivation(event: TerminalLinkEvent | undefined): boole
   if ('button' in event && event.button !== undefined && event.button !== 0) {
     return false
   }
-  // Why: desktop xterm links must not open while the user is just placing the
+  // Why: desktop terminal links must not open while the user is just placing the
   // cursor or selecting text. Mobile URL taps use a separate WebView path.
   return isTerminalLinkDirectActivation(event) || isTerminalLinkActionActivation(event)
 }
@@ -62,7 +62,7 @@ export function handleOscLink(
   }
   const finish = (handled: boolean): boolean => {
     if (handled) {
-      // Why: prevent anchor navigation without blocking xterm's document-level selection cleanup.
+      // Why: prevent anchor navigation without blocking terminal's document-level selection cleanup.
       event?.preventDefault?.()
     }
     return handled

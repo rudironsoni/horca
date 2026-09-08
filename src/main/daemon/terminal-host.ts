@@ -291,7 +291,7 @@ export class TerminalHost {
     return getTerminalHostPartialEscapeTail(this.sessions.get(sessionId))
   }
 
-  // Why: renderer diffs this against xterm to detect a dropped/coerced daemon-side resize; null-not-throw like getSnapshot.
+  // Why: renderer diffs this against terminal to detect a dropped/coerced daemon-side resize; null-not-throw like getSnapshot.
   getAppliedSize(sessionId: string): { cols: number; rows: number } | null {
     return getTerminalHostAppliedSize(this.sessions.get(sessionId))
   }

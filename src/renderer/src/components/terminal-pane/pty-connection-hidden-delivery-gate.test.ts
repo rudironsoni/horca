@@ -352,7 +352,7 @@ describe('connectPanePty', () => {
       expect(remountTerminalTabForRecovery).toHaveBeenCalledTimes(2)
       expect(remountTerminalTabForRecovery).toHaveBeenLastCalledWith('tab-1', AUTOMATIC_REQUEST)
 
-      // Latched per xterm instance: repeat restore attempts do not spam.
+      // Latched per terminal instance: repeat restore attempts do not spam.
       _dispatchPtyModelRestoreNeededForTest({ id: 'pty-id', reason: 'hidden-drop', markerSeq: 96 })
       await flushAsyncTicks(4)
       expect(remountTerminalTabForRecovery).toHaveBeenCalledTimes(2)

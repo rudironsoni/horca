@@ -240,7 +240,7 @@ export const electronViteConfig: UserConfig = {
       },
       rollupOptions: {
         // Why: native dependencies must resolve from packaged node_modules,
-        // while the unpacked daemon needs its pure-JS xterm graph bundled.
+        // while the unpacked daemon needs its pure-JS terminal graph bundled.
         external: isExternalMainModule,
         input: {
           index: resolve('src/main/index.ts'),

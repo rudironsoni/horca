@@ -5,7 +5,7 @@ type SearchOptions = { caseSensitive?: boolean; regex?: boolean }
  * `Math.min(terminal.cols - matchCol, remainingSize)`. When the live viewport is
  * narrower than the buffer column where a match starts — e.g. searching content
  * laid out at a wider width before the pane reflowed, or a collapsed/0-col
- * viewport — that width goes negative and xterm's registerDecoration ->
+ * viewport — that width goes negative and terminal's registerDecoration ->
  * _verifyPositiveIntegers throws "This API only accepts positive integers"
  * synchronously inside findNext/findPrevious. Thrown from a React effect/handler,
  * it trips RecoverableRenderErrorBoundary and kills the whole terminal surface

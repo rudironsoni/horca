@@ -14,7 +14,7 @@ const { mockPtySpawn, mockPtyInstance, mockCreateShellPromptReadinessProbe } = v
   mockCreateShellPromptReadinessProbe: vi.fn(),
   mockPtyInstance: {
     pid: process.pid,
-    process: 'xterm-256color',
+    process: 'xterm-ghostty',
     onData: vi.fn(),
     onExit: vi.fn(),
     write: vi.fn(),
