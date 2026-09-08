@@ -18,7 +18,7 @@ import { e2eConfig } from '@/lib/e2e-config'
 import type { PtyRendererDeliveryHealthReply } from '../../../../shared/pty-renderer-delivery-health'
 import { redactPtyIdForDiagnostics } from '../../../../shared/pty-delivery-diagnostics'
 import { deliverPulledPtyModelRestoreMarkers } from './pty-model-restore-channel'
-import { getProcessedPtyCharTotals } from './terminal-pty-ack-gate'
+import { e2eTerminalAckGateIsHolding, getProcessedPtyCharTotals } from './terminal-pty-ack-gate'
 import { recordTerminalFreezeBreadcrumb } from './terminal-freeze-breadcrumbs'
 
 const WATCHDOG_INTERVAL_MS = 15_000
@@ -101,6 +101,10 @@ async function runWatchdogTick(): Promise<void> {
     return
   }
   if (!deps.hasAttachedPtys()) {
+    stallStreakTicks = 0
+    return
+  }
+  if (e2eTerminalAckGateIsHolding()) {
     stallStreakTicks = 0
     return
   }
