@@ -15,6 +15,10 @@ import {
   reclaimExclusiveOrcaPaneBinding
 } from './herdr-binding-metadata'
 import { fromOption } from './herdr-sdk-values'
+import {
+  pauseHerdrPaneScrollbackDrain,
+  resumeHerdrPaneScrollbackDrain
+} from './herdr-pty-scrollback-drain'
 
 type LayoutNodeInput =
   | { type: 'pane'; paneId?: string }
@@ -157,13 +161,18 @@ export async function ensureTabSplits(
   const binding = orcaPaneBinding(projectId, secondLeafId)
   let secondPane = await reclaimExclusiveOrcaPaneBinding(transport, sessionName, snapshot, binding)
   if (!secondPane) {
-    secondPane = await transport.sdk.run(sessionName, (herdr) =>
-      herdr.panes.split(herdr.ids.pane(firstPaneId), {
-        direction: herdrSplitDirection(node.direction),
-        ratio: node.ratio ?? 0.5,
-        focus: false
-      })
-    )
+    pauseHerdrPaneScrollbackDrain()
+    try {
+      secondPane = await transport.sdk.run(sessionName, (herdr) =>
+        herdr.panes.split(herdr.ids.pane(firstPaneId), {
+          direction: herdrSplitDirection(node.direction),
+          ratio: node.ratio ?? 0.5,
+          focus: false
+        })
+      )
+    } finally {
+      resumeHerdrPaneScrollbackDrain()
+    }
     await claimOrcaPaneBinding(
       transport,
       sessionName,
