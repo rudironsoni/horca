@@ -1,4 +1,4 @@
-import type { HerdrEvent } from '@herdr/sdk'
+import type { HerdrEvent } from '@rudironsoni/herdr-ts-sdk'
 import { Option } from 'effect'
 import type { PtyDataEvent } from '../../types'
 import { fromOption } from './herdr-sdk-values'

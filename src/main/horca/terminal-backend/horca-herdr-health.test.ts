@@ -20,18 +20,18 @@ beforeEach(() => {
 describe('local Herdr health', () => {
   it('verifies the executable version and required API surface', async () => {
     runProcessMock
-      .mockResolvedValueOnce({ code: 0, timedOut: false, stdout: 'herdr 0.8.2\n', stderr: '' })
+      .mockResolvedValueOnce({ code: 0, timedOut: false, stdout: 'herdr 0.9.0\n', stderr: '' })
       .mockResolvedValueOnce({
         code: 0,
         timedOut: false,
-        stdout: JSON.stringify({ protocol: 20, schema_version: 1 }),
+        stdout: JSON.stringify({ protocol: 22, schema_version: 1 }),
         stderr: ''
       })
 
     await expect(readLocalHerdrHealth(settings)).resolves.toMatchObject({
       status: 'ready',
       executable: '/app/resources/herdr/herdr',
-      version: '0.8.2'
+      version: '0.9.0'
     })
   })
 
