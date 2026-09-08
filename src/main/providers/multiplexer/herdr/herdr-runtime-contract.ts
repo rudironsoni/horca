@@ -9,10 +9,16 @@ import type {
   SessionSnapshot,
   Tab,
   Workspace
-} from '@herdr/sdk'
+} from '@rudironsoni/herdr-ts-sdk'
 import type { Effect } from 'effect'
 
-export { SUPPORTED_HERDR_PROTOCOLS, isSupportedHerdrProtocol } from '@herdr/sdk'
+export const SUPPORTED_HERDR_PROTOCOLS = [22] as const
+
+export function isSupportedHerdrProtocol(
+  protocol: number
+): protocol is (typeof SUPPORTED_HERDR_PROTOCOLS)[number] {
+  return protocol === 22
+}
 
 export const HERDR_SCHEMA_VERSION = 1
 

@@ -55,8 +55,7 @@ describeRealHerdr('stock Herdr runtime integration', () => {
   it('starts a named server and reports metadata through the SDK', async () => {
     await transport.ensureSession(sessionName)
     const created = await transport.sdk.run(sessionName, (herdr) =>
-      herdr.workspaces.create({
-        cwd: configHome,
+      herdr.workspaces.createInDirectory(configHome, {
         label: 'Orca integration',
         focus: false
       })
@@ -86,8 +85,7 @@ describeRealHerdr('stock Herdr runtime integration', () => {
   it('renames the workspace.create tab away from the stock 1 label', async () => {
     await transport.ensureSession(sessionName)
     const created = await transport.sdk.run(sessionName, (herdr) =>
-      herdr.workspaces.create({
-        cwd: configHome,
+      herdr.workspaces.createInDirectory(configHome, {
         label: 'Orca rename',
         focus: false
       })
@@ -142,8 +140,7 @@ describeRealHerdr('stock Herdr runtime integration', () => {
   it('echoes input through panes.sendText and panes.read', async () => {
     await transport.ensureSession(sessionName)
     const created = await transport.sdk.run(sessionName, (herdr) =>
-      herdr.workspaces.create({
-        cwd: configHome,
+      herdr.workspaces.createInDirectory(configHome, {
         label: 'Orca io',
         focus: false
       })
