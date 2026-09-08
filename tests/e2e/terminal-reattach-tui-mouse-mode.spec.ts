@@ -1,6 +1,6 @@
 /**
  * Regression proof for #8291: a real alt-screen TUI survives an Orca quit/relaunch, and after the
- * warm reattach a drag over it must still go to the TUI as mouse reports, not to xterm's row
+ * warm reattach a drag over it must still go to the TUI as mouse reports, not to terminal's row
  * selection. Drives the rendered surface only — no mocks, no direct mode assertions.
  */
 
@@ -55,7 +55,7 @@ type TerminalSurface = {
   screen: { left: number; top: number; width: number; height: number; cellHeight: number }
 }
 
-// Why one evaluate for everything: it flushes xterm's write queue first, so a caller can never
+// Why one evaluate for everything: it flushes terminal's write queue first, so a caller can never
 // sample mode/selection state mid-replay.
 async function readTerminalSurface(page: Page): Promise<TerminalSurface | null> {
   return page.evaluate(async () => {
@@ -70,11 +70,11 @@ async function readTerminalSurface(page: Page): Promise<TerminalSurface | null> 
     const manager = tabId ? window.__paneManagers?.get(tabId) : null
     const pane = manager?.getActivePane?.() ?? manager?.getPanes?.()[0] ?? null
     const element = pane?.terminal?.element ?? null
-    const screenElement = element?.querySelector<HTMLElement>('.xterm-screen') ?? null
+    const screenElement = element?.querySelector<HTMLElement>('.orca-terminal-canvas') ?? null
     if (!pane || !element || !screenElement) {
       return null
     }
-    // Why a zero-length write: xterm's write queue is FIFO, so this callback fires only after
+    // Why a zero-length write: terminal's write queue is FIFO, so this callback fires only after
     // every earlier replay/reset write was parsed.
     await new Promise<void>((resolve) => {
       const timer = setTimeout(resolve, 3000)
@@ -217,7 +217,7 @@ test.describe('terminal reattach mouse mode', () => {
       const afterDrag = await readTerminalSurface(secondLaunch.page)
       // Why a screenshot and not the video fixture: this spec quits and relaunches Orca,
       // so the recorder's WebM never flushes. This frame IS the proof — on main the drag
-      // paints an xterm row selection across the live TUI; here it must stay clean.
+      // paints an terminal row selection across the live TUI; here it must stay clean.
       const proofShot = process.env.ORCA_E2E_PROOF_SCREENSHOT
       if (proofShot) {
         await secondLaunch.page.screenshot({ path: proofShot })
@@ -225,7 +225,7 @@ test.describe('terminal reattach mouse mode', () => {
       expect(afterDrag, 'terminal surface unavailable after the drag').not.toBeNull()
       expect(
         afterDrag!.selectionText,
-        'dragging over a live mouse-tracking TUI must not paint xterm row selection'
+        'dragging over a live mouse-tracking TUI must not paint terminal row selection'
       ).toBe('')
       expect(afterDrag!.hasSelection).toBe(false)
 

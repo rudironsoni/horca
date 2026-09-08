@@ -25,7 +25,6 @@
   outline: none;
 }
 
-.pane-manager-root .xterm,
 .pane-manager-root .orca-terminal-canvas {
   height: 100%;
   width: 100%;
@@ -35,38 +34,31 @@
   display: block;
 }
 
-.pane-manager-root .xterm-viewport {
-  /* Why: xterm/VS Code keep the scrollbar gutter stable. `auto` lets Linux
+.pane-manager-root .orca-terminal-viewport {
+  /* Why: terminal/VS Code keep the scrollbar gutter stable. `auto` lets Linux
      DOM scrollbars appear/disappear, which can feed resize/reflow jitter. */
   overflow-y: scroll;
 }
 
-/* xterm.css hard-codes the viewport background to #000 (for opaque macOS
-   scrollbars). On light-themed terminals at fractional-pixel positions (e.g.
-   the install terminals inside centered setup modals), that black layer
-   anti-aliases into a faint 1px line above/below the themed .xterm. Match
-   xterm's own selector so this also covers terminals mounted outside the pane
-   manager, and let the themed .xterm background show through; the viewport
-   reuses the canonical editor scrollbar rules in main.css. */
-.xterm:not(.allow-transparency) .xterm-viewport {
+/* Viewport gutter stays transparent so the themed canvas shows through. */
+.orca-terminal-canvas:not(.allow-transparency) .orca-terminal-viewport {
   background-color: transparent;
 }
 
-/* Round the xterm DOM scrollbar thumb; xterm has no option for this, and its
-   default .xterm-slider has square corners. */
-.xterm .xterm-scrollable-element > .xterm-scrollbar > .xterm-slider {
+/* Round the DOM scrollbar thumb. */
+.orca-terminal-canvas
+  .orca-terminal-scrollable-element
+  > .orca-terminal-scrollbar
+  > .orca-terminal-slider {
   border-radius: 4px;
 }
 
-/* xterm.css sets position:absolute;top:0 on .xterm-helpers but omits left,
-   leaving left:auto. In Electron's Blink, left:auto can resolve to a non-zero
-   value and offset the IME candidate window away from the cursor. Anchoring it
-   explicitly to 0 matches the intended layout and fixes the IME position. */
-.pane-manager-root .xterm .xterm-helpers {
+/* Anchor helper overlay to the canvas origin so IME candidates stay on the caret. */
+.pane-manager-root .orca-terminal-canvas .orca-terminal-helpers {
   left: 0;
 }
 
-.xterm-container > .xterm-helper-textarea {
+.orca-terminal-container > .orca-terminal-helper-textarea {
   position: absolute;
   opacity: 0;
   left: 0;
@@ -82,7 +74,7 @@
   caret-color: transparent;
 }
 
-.xterm.orca-ime-composer-placeholder .xterm-composition-remainder {
+.orca-terminal-canvas.orca-ime-composer-placeholder .orca-terminal-composition-remainder {
   visibility: hidden;
 }
 
@@ -189,11 +181,11 @@
   animation: pane-focus-rim-flash 1.5s ease-out forwards;
 }
 
-.pane[data-terminal-attention] .xterm-container {
+.pane[data-terminal-attention] .orca-terminal-container {
   box-shadow: none;
 }
 
-.pane[data-terminal-attention] .xterm-container::after {
+.pane[data-terminal-attention] .orca-terminal-container::after {
   content: '';
   position: absolute;
   inset: 0 4px 4px 0;
@@ -517,10 +509,10 @@
   border-color: var(--ring);
 }
 
-/* Baseline xterm-container layout — padding is driven by CSS custom properties
+/* Baseline orca-terminal-container layout — padding is driven by CSS custom properties
    so Ghostty-imported window-padding-x/y can be applied without inline styles.
    The fallback 4px preserves the legacy default. */
-.xterm-container {
+.orca-terminal-container {
   box-sizing: border-box;
   position: relative;
   width: calc(100% - var(--pane-padding-x, 4px));
@@ -533,7 +525,7 @@
    The .pane container uses position: relative, so the absolutely-positioned
    title bar occupies the top title-height pixels. Height is reduced by the
    same amount to prevent overflow/clipping. */
-.pane[data-has-title] .xterm-container {
+.pane[data-has-title] .orca-terminal-container {
   margin-top: var(--orca-pane-title-height);
   height: calc(100% - var(--orca-pane-title-height)); /* match margin-top */
 }

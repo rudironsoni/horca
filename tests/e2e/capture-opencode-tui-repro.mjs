@@ -126,11 +126,11 @@ const child = pty.spawn(command, ['run', './orca-opencode-tui-repro.tsx'], {
   cwd: opencodePackagePath,
   cols: 120,
   rows: 40,
-  name: 'xterm-256color',
+  name: 'xterm-ghostty',
   env: {
     ...process.env,
     FORCE_COLOR: '1',
-    TERM: 'xterm-256color'
+    TERM: 'xterm-ghostty'
   }
 })
 

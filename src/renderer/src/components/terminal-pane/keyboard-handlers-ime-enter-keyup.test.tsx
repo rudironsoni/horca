@@ -39,7 +39,7 @@ function createHarness(options: { staleActivePane?: boolean } = {}): {
   const scope = document.createElement('div')
   const terminalElement = document.createElement('div')
   const terminalInput = document.createElement('textarea')
-  terminalInput.className = 'xterm-helper-textarea'
+  terminalInput.className = 'orca-terminal-helper-textarea'
   terminalElement.append(terminalInput)
   const staleTerminalElement = document.createElement('div')
   scope.append(staleTerminalElement, terminalElement)

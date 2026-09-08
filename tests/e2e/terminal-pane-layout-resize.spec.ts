@@ -79,8 +79,8 @@ test.describe('Terminal Panes', () => {
 
     // Get the pane widths before resize
     const paneWidthsBefore = await orcaPage.evaluate(() => {
-      const xterms = document.querySelectorAll('.xterm')
-      return Array.from(xterms)
+      const terminals = document.querySelectorAll('.orca-terminal-canvas')
+      return Array.from(terminals)
         .filter((x) => (x as HTMLElement).offsetParent !== null)
         .map((x) => (x as HTMLElement).getBoundingClientRect().width)
     })
@@ -105,8 +105,8 @@ test.describe('Terminal Panes', () => {
       .poll(
         async () => {
           const widthsAfter = await orcaPage.evaluate(() => {
-            const xterms = document.querySelectorAll('.xterm')
-            return Array.from(xterms)
+            const terminals = document.querySelectorAll('.orca-terminal-canvas')
+            return Array.from(terminals)
               .filter((x) => (x as HTMLElement).offsetParent !== null)
               .map((x) => (x as HTMLElement).getBoundingClientRect().width)
           })
@@ -188,8 +188,8 @@ test.describe('Terminal Panes', () => {
 
     // The remaining pane should fill the available space
     const paneWidth = await orcaPage.evaluate(() => {
-      const xterms = document.querySelectorAll('.xterm')
-      const visible = Array.from(xterms).find(
+      const terminals = document.querySelectorAll('.orca-terminal-canvas')
+      const visible = Array.from(terminals).find(
         (x) => (x as HTMLElement).offsetParent !== null
       ) as HTMLElement | null
       return visible?.getBoundingClientRect().width ?? 0

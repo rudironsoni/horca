@@ -89,7 +89,7 @@ async function expectProductionSessionRestored(
     page.locator('[data-testid="sortable-tab"]').filter({ hasText: RESTORED_TITLE })
   ).toBeVisible({ timeout: 15_000 })
   await expect(page.locator('[data-testid="sortable-tab"]')).toHaveCount(1)
-  await expect(page.locator('.xterm').first()).toBeVisible()
+  await expect(page.locator('.orca-terminal-canvas').first()).toBeVisible()
   expect(await discoverActivePtyId(page)).toBe(expected.ptyId)
   expect(await getTerminalContent(page)).toContain(expected.marker)
   expect(

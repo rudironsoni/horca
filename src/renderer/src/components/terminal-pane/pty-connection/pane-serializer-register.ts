@@ -15,7 +15,7 @@ export function bindRegisterPaneSerializer(session: ConnectPanePtySession): void
     // Why: StrictMode mounts panes twice; the first mount is session.disposed
     // before the second runs, but its pty:spawn IPC may have resolved by
     // the time `session.disposed` flips. Without this guard, the session.disposed first
-    // mount would register against a torn-down xterm and replace the live
+    // mount would register against a torn-down terminal and replace the live
     // second-mount registration via owner-token shadowing.
     if (session.disposed) {
       return

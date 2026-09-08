@@ -113,7 +113,7 @@ async function dispatchRealWheel(page: Page, deltaY: number): Promise<void> {
     if (!pane?.terminal.element) {
       throw new Error('Active terminal pane unavailable')
     }
-    const screen = pane.terminal.element.querySelector<HTMLElement>('.xterm-screen')
+    const screen = pane.terminal.element.querySelector<HTMLElement>('.orca-terminal-canvas')
     if (!screen) {
       throw new Error('Active terminal screen unavailable')
     }
@@ -142,21 +142,22 @@ async function dispatchPlainHomeKeydown(page: Page): Promise<void> {
     if (!pane?.terminal.element) {
       throw new Error('Active terminal pane unavailable')
     }
-    const textarea =
-      pane.terminal.element.querySelector<HTMLTextAreaElement>('.xterm-helper-textarea')
+    const textarea = pane.terminal.element.querySelector<HTMLTextAreaElement>(
+      '.orca-terminal-helper-textarea'
+    )
     if (!textarea) {
-      throw new Error('xterm helper textarea unavailable')
+      throw new Error('terminal helper textarea unavailable')
     }
     textarea.focus()
     // Plain Home is delivered to the PTY app (readline start-of-line); it
-    // never scrolls the xterm viewport.
+    // never scrolls the terminal viewport.
     const event = new KeyboardEvent('keydown', {
       bubbles: true,
       cancelable: true,
       key: 'Home',
       code: 'Home'
     })
-    // Why: xterm's key evaluator reads the legacy keyCode, which KeyboardEvent
+    // Why: terminal's key evaluator reads the legacy keyCode, which KeyboardEvent
     // constructors do not populate; without it no escape bytes reach the PTY.
     Object.defineProperty(event, 'keyCode', { configurable: true, value: 36 })
     Object.defineProperty(event, 'which', { configurable: true, value: 36 })
@@ -204,9 +205,11 @@ async function injectQueuedWriteThenType(page: Page, paneKey: string): Promise<v
       if (heldWrites.length === 0) {
         throw new Error('Foreground terminal write was not captured')
       }
-      const textarea = pane.container.querySelector<HTMLTextAreaElement>('.xterm-helper-textarea')
+      const textarea = pane.container.querySelector<HTMLTextAreaElement>(
+        '.orca-terminal-helper-textarea'
+      )
       if (!textarea) {
-        throw new Error('xterm helper textarea unavailable')
+        throw new Error('terminal helper textarea unavailable')
       }
       textarea.focus()
     } catch (error) {
@@ -242,7 +245,7 @@ test.describe('terminal scroll intent keeps following output', () => {
   }) => {
     const ptyId = await startStreamingFixturePhase1(orcaPage)
 
-    // A -2px delta is far below one cell height: xterm scrolls zero rows, but
+    // A -2px delta is far below one cell height: terminal scrolls zero rows, but
     // the intent listener still observes the trackpad-jitter-shaped wheel.
     await dispatchSubRowWheelUp(orcaPage)
     await orcaPage.waitForTimeout(INTENT_SETTLE_WAIT_MS)
@@ -303,7 +306,7 @@ test.describe('terminal scroll intent keeps following output', () => {
       })
       .toBeGreaterThan(2)
 
-    // Hold the xterm write call so typing deterministically lands between the
+    // Hold the terminal write call so typing deterministically lands between the
     // old per-write intent capture and its completion-time enforcement from #8625.
     await injectQueuedWriteThenType(orcaPage, paneKey)
     await expect

@@ -412,7 +412,7 @@ describe('resumeTerminalVisibility reveal repaint', () => {
 
   it('keeps the warm glyph atlas on plain-refocus recovery', async () => {
     // Deliberate reversal of the #6354 focus-clear: wiping the shared atlas on
-    // every refocus forces a mass re-rasterization that can hit xterm's atlas
+    // every refocus forces a mass re-rasterization that can hit terminal's atlas
     // page-merge race (#4480) and garble streaming panes. Focus recovery must
     // resume rendering and present WITHOUT the atlas-clearing reveal repaint —
     // scheduleRevealRepaint runs shared-atlas recovery, so the refocus path

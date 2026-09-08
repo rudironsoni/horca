@@ -67,7 +67,7 @@ export function resetAndRefreshAllTerminalWebglAtlases(reason?: string): void {
       }
     } catch {
       // Why: a pane can unmount between atlas reset and repaint; later
-      // managers still need to repaint from their xterm buffers.
+      // managers still need to repaint from their terminal buffers.
     }
   }
 }
@@ -145,7 +145,7 @@ export function refitAndRefreshAllTerminalPanes(): void {
   for (const manager of liveManagers) {
     try {
       // Why: after bulk desktop restore, background panes may have correct
-      // cols/rows but a stale xterm renderer until focus forces a repaint.
+      // cols/rows but a stale terminal renderer until focus forces a repaint.
       manager.fitAllPanes?.()
       manager.refreshAllPanes?.()
     } catch {
@@ -154,7 +154,7 @@ export function refitAndRefreshAllTerminalPanes(): void {
   }
 }
 
-// Rough xterm BufferLine cost (3 uint32 per cell + object overhead); ranking
+// Rough terminal BufferLine cost (3 uint32 per cell + object overhead); ranking
 // matters, not accuracy.
 const BYTES_PER_TERMINAL_CELL = 16
 const BYTES_PER_KILOBYTE = 1024

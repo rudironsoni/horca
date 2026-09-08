@@ -20,7 +20,7 @@ describe('createPreviewGridClaim', () => {
     const box = document.createElement('div')
     const container = document.createElement('div')
     const screen = document.createElement('div')
-    screen.className = 'xterm-screen'
+    screen.className = 'orca-terminal-canvas'
     box.appendChild(container)
     container.appendChild(screen)
     dimension(box, 'clientWidth', 900)
@@ -53,7 +53,7 @@ describe('createPreviewGridClaim', () => {
     const box = document.createElement('div')
     const container = document.createElement('div')
     const screen = document.createElement('div')
-    screen.className = 'xterm-screen'
+    screen.className = 'orca-terminal-canvas'
     box.appendChild(container)
     container.appendChild(screen)
     dimension(box, 'clientWidth', 800)
