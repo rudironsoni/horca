@@ -1,7 +1,7 @@
 /**
  * The facts about the machine *rendering* the board, as opposed to the machine
  * executing a pty. A card's preview terminal needs both: byte encodings follow
- * the pty's host, while xterm's own ConPTY wrap-marker compat follows the client.
+ * the pty's host, while terminal's own ConPTY wrap-marker compat follows the client.
  */
 export type DashboardClientHost = {
   platform: NodeJS.Platform

@@ -160,7 +160,7 @@ export type DashboardCardTerminalInput = {
   hostPlatform: NodeJS.Platform
   /** Local native Windows ConPTY, where PSReadLine binds Ctrl+←/→ itself. */
   localWindowsConpty: boolean
-  /** OS release of a local Windows client, for xterm's ConPTY wrap-marker compat. */
+  /** OS release of a local Windows client, for terminal's ConPTY wrap-marker compat. */
   osRelease?: string
   /** Shift+Enter encoding resolved from this pane's agent evidence. */
   windowsShiftEnterEncoding: 'alt-enter' | 'csi-u'

@@ -81,7 +81,7 @@ function getSelectedActivityTerminalPortalStatus(
   const hasPtyBinding =
     selectedPane.hasAttribute('data-pty-id') ||
     selectedPane.querySelector<HTMLElement>('[data-pty-id]') !== null
-  const hasXtermScreen = selectedPane.querySelector<HTMLElement>('.xterm-screen') !== null
+  const hasXtermScreen = selectedPane.querySelector<HTMLElement>('.orca-terminal-canvas') !== null
   return {
     ready: isVisibleRoot && !hasUnisolatedSibling && hasPtyBinding && hasXtermScreen,
     unavailable

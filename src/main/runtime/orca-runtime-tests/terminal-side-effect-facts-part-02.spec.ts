@@ -36,7 +36,7 @@ describe('terminal side-effect fact channel', () => {
       data: 'visible content',
       cols: 80,
       rows: 24,
-      // Renderer xterm never saw the synthetic frame (no longer rides pty:data), so its serializer reports a stale title.
+      // Renderer terminal never saw the synthetic frame (no longer rides pty:data), so its serializer reports a stale title.
       lastTitle: 'stale shell title'
     })
     runtime.setPtyController({

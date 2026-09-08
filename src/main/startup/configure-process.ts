@@ -341,7 +341,7 @@ export function enableMainProcessGpuFeatures(): void {
 
   const existingFeatures = app.commandLine.getSwitchValue('enable-features')
   const features = [
-    // Why: mirror VS Code's conservative GPU-channel flags instead of global Vulkan/SkiaGraphite/WebGPU; terminal accel is xterm WebGL.
+    // Why: mirror VS Code's conservative GPU-channel flags instead of global Vulkan/SkiaGraphite/WebGPU; terminal accel is terminal WebGL.
     ...(isLinuxWaylandSession ? [] : ['EarlyEstablishGpuChannel', 'EstablishGpuChannelAsync']),
     existingFeatures
   ]

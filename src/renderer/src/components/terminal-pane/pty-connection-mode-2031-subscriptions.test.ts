@@ -183,7 +183,7 @@ describe('connectPanePty', () => {
 
     it('registers a chunk that ends subscribed, then retires it when the next withdraws', async () => {
       const { transport, deps, emit, dispose } = await connectVisiblePane()
-      // Two separate PTY chunks. xterm would parse both in one batch and see only the net result.
+      // Two separate PTY chunks. terminal would parse both in one batch and see only the net result.
       emit('\x1b[?2031h')
       expect(deps.paneMode2031Ref.current.get(1)).toBe(true)
       emit('\x1b[?2031l')

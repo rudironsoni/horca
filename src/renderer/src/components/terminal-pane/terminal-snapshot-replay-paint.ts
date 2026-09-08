@@ -13,7 +13,7 @@ function abortGapBeforeFirstWrite(writes: string[]): string[] {
 
 /**
  * Shared guards and write choreography for painting a main-model snapshot into
- * a (possibly fresh) xterm. One source for the reattach/hidden-restore paint
+ * a (possibly fresh) terminal. One source for the reattach/hidden-restore paint
  * paths so their dimension guards and alt-screen branches cannot drift.
  */
 
@@ -43,7 +43,7 @@ export function resolvePositiveTerminalDimensions(
 
 /**
  * The column count the post-replay fit will land on. Why not terminal.cols: a
- * pane that has not been fitted yet still reads xterm's 80-column default, so
+ * pane that has not been fitted yet still reads terminal's 80-column default, so
  * comparing against it would drop frames whose width actually matches the
  * container. Returns undefined when the pane cannot be measured, so replay can
  * retain the frame at its capture grid until a final fit exists.

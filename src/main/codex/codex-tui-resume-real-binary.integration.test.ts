@@ -106,7 +106,7 @@ describe('real Codex structured-to-TUI resume', () => {
       expect(opened.historyPath).toContain(opened.threadId)
       expect(opened.historyPath).toContain(join(codexHome, 'sessions'))
       const tui = pty.spawn(codexCommand, ['resume', '--no-alt-screen', opened.threadId], {
-        name: 'xterm-256color',
+        name: 'xterm-ghostty',
         cols: 100,
         rows: 30,
         cwd: process.cwd(),
@@ -114,7 +114,7 @@ describe('real Codex structured-to-TUI resume', () => {
           ...process.env,
           CODEX_HOME: codexHome,
           ORCA_AGENT_LAUNCH_TOKEN: 'real-binary-resume-proof',
-          TERM: 'xterm-256color'
+          TERM: 'xterm-ghostty'
         }
       })
       const tuiExit = new Promise<number>((resolve) =>

@@ -29,7 +29,7 @@ function targetMatchesClosest(target: EventTarget | null, selector: string): boo
 }
 
 function getQuickCommandsShortcutContext(target: EventTarget | null): KeybindingContext {
-  return targetHasClass(target, 'xterm-helper-textarea') ? 'terminal' : 'app'
+  return targetHasClass(target, 'orca-terminal-helper-textarea') ? 'terminal' : 'app'
 }
 
 export function useTabBarQuickCommandsShortcut({

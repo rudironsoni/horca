@@ -183,7 +183,7 @@ export async function serializeStableMobileRendererSnapshot(
   return null
 }
 
-// Why: mobile xterm can't rewrap the HARD newlines baked into a restored snapshot, so a real reflow re-serializes and replays the FULL buffer at the new cols.
+// Why: mobile terminal can't rewrap the HARD newlines baked into a restored snapshot, so a real reflow re-serializes and replays the FULL buffer at the new cols.
 export async function sendMobileResizeRestream(
   runtime: OrcaRuntimeService,
   ptyId: string,

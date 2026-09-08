@@ -17,7 +17,7 @@ function getWindowStorage(): Storage | null {
  *
  * Why it matters: an unpersisted maximize means every restart drops the user into
  * a default-sized panel that they re-maximize by hand. That size jump reflows the
- * xterm buffer under a live relative-cursor TUI, which unwraps its rows and leaves
+ * terminal buffer under a live relative-cursor TUI, which unwraps its rows and leaves
  * permanently mangled scrollback. Restoring the panel as it was removes the jump.
  */
 export function readPersistedFloatingTerminalPanelViewState(): FloatingTerminalPanelViewState | null {

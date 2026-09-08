@@ -1,4 +1,4 @@
-// Why: xterm reports every keystroke, and one store write per key wakes every zustand
+// Why: terminal reports every keystroke, and one store write per key wakes every zustand
 // subscriber in the app. Hibernation — the only real consumer — is a >=60s idle timeout,
 // so the leading edge of a typing burst writes immediately (keeping subscriber-visible
 // behavior identical for the first key) and the rest collapse into one trailing flush.

@@ -150,7 +150,7 @@ describe('connectPanePty', () => {
     await restoreTerminalTestGlobals()
   })
 
-  it('keeps hidden Codex redraw floods off the live xterm path', async () => {
+  it('keeps hidden Codex redraw floods off the live terminal path', async () => {
     const { connectPanePty } = await import('./pty-connection')
     const transport = createMockTransport('pty-id')
     const capturedDataCallback: { current: ((data: string) => void) | null } = { current: null }
@@ -187,7 +187,7 @@ describe('connectPanePty', () => {
     binding.dispose()
   })
 
-  it('keeps hidden Codex terminal query chunks on the live xterm path', async () => {
+  it('keeps hidden Codex terminal query chunks on the live terminal path', async () => {
     const { connectPanePty } = await import('./pty-connection')
     const transport = createMockTransport('pty-id')
     const capturedDataCallback: { current: ((data: string) => void) | null } = { current: null }
@@ -216,7 +216,7 @@ describe('connectPanePty', () => {
     binding.dispose()
   })
 
-  it('keeps only coalesced hidden Codex terminal queries on the live xterm path', async () => {
+  it('keeps only coalesced hidden Codex terminal queries on the live terminal path', async () => {
     const { connectPanePty } = await import('./pty-connection')
     const transport = createMockTransport('pty-id')
     const capturedDataCallback: { current: ((data: string) => void) | null } = { current: null }
@@ -319,7 +319,7 @@ describe('connectPanePty', () => {
     binding.dispose()
   })
 
-  it('keeps split hidden Codex terminal queries on the live xterm path', async () => {
+  it('keeps split hidden Codex terminal queries on the live terminal path', async () => {
     const { connectPanePty } = await import('./pty-connection')
     const transport = createMockTransport('pty-id')
     const capturedDataCallback: { current: ((data: string) => void) | null } = { current: null }
@@ -353,7 +353,7 @@ describe('connectPanePty', () => {
     binding.dispose()
   })
 
-  it('keeps hidden Codex terminal queries split after ESC on the live xterm path', async () => {
+  it('keeps hidden Codex terminal queries split after ESC on the live terminal path', async () => {
     const { connectPanePty } = await import('./pty-connection')
     const transport = createMockTransport('pty-id')
     const capturedDataCallback: { current: ((data: string) => void) | null } = { current: null }

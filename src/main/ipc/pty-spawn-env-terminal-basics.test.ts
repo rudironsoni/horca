@@ -294,7 +294,7 @@ describe('registerPtyHandlers', () => {
     })
     it('always sets TERM and COLORTERM regardless of env', async () => {
       const env = await spawnAndGetEnv()
-      expect(env.TERM).toBe('xterm-256color')
+      expect(env.TERM).toBe('xterm-ghostty')
       expect(env.COLORTERM).toBe('truecolor')
       expect(env.TERM_PROGRAM).toBe('Orca')
     })
@@ -318,7 +318,7 @@ describe('registerPtyHandlers', () => {
       expect(env.GCM_INTERACTIVE).toBe('never')
     })
     it('advertises OSC 8 hyperlink support via FORCE_HYPERLINK', async () => {
-      // Why: supports-hyperlinks allowlists TERM_PROGRAM and reports false for Orca, so FORCE_HYPERLINK=1 forces detection on (xterm.js handles OSC 8 natively).
+      // Why: supports-hyperlinks allowlists TERM_PROGRAM and reports false for Orca, so FORCE_HYPERLINK=1 forces detection on (Ghostty handles OSC 8 natively).
       const env = await spawnAndGetEnv()
       expect(env.FORCE_HYPERLINK).toBe('1')
     })

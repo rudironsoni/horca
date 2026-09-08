@@ -1,6 +1,6 @@
 import type { ManagedPane, PaneManager } from '@/lib/pane-manager/pane-manager'
 
-/** Resolve keyboard ownership from the focused xterm surface before using manager state. */
+/** Resolve keyboard ownership from the focused terminal surface before using manager state. */
 export function resolveTerminalKeyboardPane(
   manager: Pick<PaneManager, 'getActivePane' | 'getPanes'>,
   target: EventTarget | null

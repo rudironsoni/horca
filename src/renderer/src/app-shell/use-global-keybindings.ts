@@ -192,7 +192,7 @@ export function useGlobalKeybindings(args: {
         return
       }
 
-      // Let floating-terminal SSH/tmux control chords reach the terminal (xterm's helper textarea isn't a generic editable target).
+      // Let floating-terminal SSH/tmux control chords reach the terminal (terminal's helper textarea isn't a generic editable target).
       if (isFloatingWorkspaceTerminalInputTarget(input.target)) {
         return
       }

@@ -10,7 +10,7 @@
  * Two independent signals, as required for an end-to-end claim:
  *   1. host-side: the fixture process's own sink file records the typed line —
  *      the bytes reached the authoritative host PTY;
- *   2. client-side: the client's xterm paints the echo — output crossed back.
+ *   2. client-side: the client's terminal paints the echo — output crossed back.
  * Plus PTY identity: the sink must still hold exactly one READY line, so the
  * park never respawned or replaced the process.
  *
@@ -24,7 +24,7 @@
  *
  * After the fix (parked panes keep publishing their runtime-graph leaf):
  *   H-/connected x45,  the typed line reaches the host PTY AND its echo paints
- *   back in the client's own xterm within one 2s sample.
+ *   back in the client's own terminal within one 2s sample.
  *
  * Run:
  *   pnpm exec playwright test tests/e2e/host-parked-pane-remote-viewer.spec.ts \
@@ -338,7 +338,7 @@ test('a cold-parked host pane keeps serving its paired remote viewer', async ({
       }, webTabId)
       inputReached ||= readSink(sinkPath).includes(`LINE:${token}`)
       // Signal 2, and the reason this is not merely a host-side test: the echo
-      // has to come back out to the client's own xterm.
+      // has to come back out to the client's own terminal.
       clientEchoed ||= (await readPaneContent(client.page, webTabId)).includes(`LINE:${token}`)
       timeline.push(
         `${hostMounted ? 'H+' : 'H-'}/${clientPhase}${inputReached ? '/in' : ''}${clientEchoed ? '/echo' : ''}`

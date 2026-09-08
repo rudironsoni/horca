@@ -128,7 +128,7 @@ function containsRewriteEraseSequence(data: string): boolean {
         continue
       }
       // Why: erase-in-line/screen rewrites can leave stale renderer cells until
-      // the next resize; xterm's buffer is correct, but the visible layer needs repainting.
+      // the next resize; terminal's buffer is correct, but the visible layer needs repainting.
       if (char === 'J' || char === 'K') {
         return true
       }
@@ -214,7 +214,7 @@ export function terminalRewriteOutputRenderRefreshDecision(
  * should ALSO schedule a follow-up next-frame repaint.
  *
  * Why: Claude Code echoes prompt keystrokes by redrawing the input line in place
- * (CR + CHA/erase + reprint) without DEC 2026 synchronized output. xterm's buffer
+ * (CR + CHA/erase + reprint) without DEC 2026 synchronized output. terminal's buffer
  * ends up correct, but its DOM renderer can paint these rapid rewrites one frame
  * late — surfacing a phantom first char or an overwritten cell ("zzzx" rendered as
  * "zzx") that only a window resize clears. A single synchronous refresh races that
