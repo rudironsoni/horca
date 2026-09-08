@@ -3,6 +3,7 @@ import { TERMINAL_SCROLLBACK_REPLAY_BYTE_LIMIT } from '../../../../shared/termin
 import type { HerdrTerminalController, HerdrTerminalFrame } from './herdr-runtime-contract'
 import type { HerdrPtyBinding } from './herdr-pty-types'
 import { openSharedHerdrPaneController } from './herdr-pty-attach'
+import { startHerdrPaneScrollbackDrain } from './herdr-pty-scrollback-drain'
 
 function decodeFrame(frame: HerdrTerminalFrame): string {
   return Buffer.from(frame.bytes, 'base64').toString('utf8')
@@ -26,8 +27,6 @@ export async function waitForFirstHerdrFrame(
     }, 2_000)
     const onFrame = (frame: HerdrTerminalFrame): void => {
       const data = decodeFrame(frame)
-      binding.cols = frame.width
-      binding.rows = frame.height
       if (first) {
         first = false
         clearTimeout(timeout)
@@ -99,6 +98,7 @@ export async function waitForFirstHerdrFrame(
       )
     }
     subscribe(binding.controller)
+    startHerdrPaneScrollbackDrain(binding, callbacks.emitData)
   })
 }
 
