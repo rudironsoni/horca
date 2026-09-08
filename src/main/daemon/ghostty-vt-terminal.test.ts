@@ -1,12 +1,15 @@
 import { afterEach, describe, expect, it } from 'vitest'
-import { encodeBrowserMouse } from '../../ghostty-vt/ghostty-mouse-encode'
 import {
   applyPointerSelection,
   resetSelectionGesture
 } from '../../ghostty-vt/ghostty-selection-gesture'
-import { readGridLine } from '../../ghostty-vt/ghostty-grid-introspection'
 import { GhosttyTerminal } from '../../ghostty-vt/ghostty-terminal'
-import { readScrollbar, scrollViewport } from '../../ghostty-vt/ghostty-scroll'
+import {
+  encodeMouse,
+  readGridLine,
+  readScrollbar,
+  scrollViewport
+} from '../../ghostty-vt/ghostty-terminal-ops'
 import { GHOSTTY_VT_REVISION } from '../../ghostty-vt/revision'
 import { getGhosttyVtHost } from './ghostty-vt-node-host'
 
@@ -71,25 +74,8 @@ describe('GhosttyTerminal', () => {
   it('exposes Ghostty render-state graphemes after VT writes', () => {
     terminal = new GhosttyTerminal(getGhosttyVtHost(), { cols: 20, rows: 4 })
     terminal.writePtyOutput('Ab')
-    const host = getGhosttyVtHost()
-    const stateSlot = host.allocOpaque()
-    host.check(host.exports.ghostty_render_state_new(0, stateSlot), 'render_state_new')
-    const state = host.takeOpaque(stateSlot)
-    host.check(host.exports.ghostty_render_state_update(state, terminal.handle()), 'update')
-    const colsPtr = host.alloc(2)
-    host.check(
-      host.exports.ghostty_render_state_get(
-        state,
-        host.enumValue('GhosttyRenderStateData', 'COLS'),
-        colsPtr
-      ),
-      'COLS'
-    )
-    expect(host.view().getUint16(colsPtr, true)).toBe(20)
-    host.free(colsPtr, 2)
-    host.exports.ghostty_render_state_free(state)
-    host.freeOpaque(stateSlot)
     expect(terminal.readViewportText()).toContain('Ab')
+    expect(terminal.cols).toBe(20)
   })
 
   it('encodes paste bytes and reads a Ghostty select-all snapshot', () => {
@@ -103,10 +89,8 @@ describe('GhosttyTerminal', () => {
   it('encodes a mouse press after mouse-tracking is enabled', () => {
     terminal = new GhosttyTerminal(getGhosttyVtHost(), { cols: 80, rows: 24 })
     terminal.writePtyOutput('\x1b[?1000h')
-    const host = getGhosttyVtHost()
-    const encoded = encodeBrowserMouse(
-      host,
-      terminal.handle(),
+    const encoded = encodeMouse(
+      terminal,
       {
         type: 'pointerdown',
         button: 0,
@@ -173,12 +157,17 @@ describe('GhosttyTerminal', () => {
     expect(terminal.readSelection()).toContain('hello world')
   })
 
+  it('does not expose a public hostHandle ABI seam', () => {
+    terminal = new GhosttyTerminal(getGhosttyVtHost(), { cols: 80, rows: 24 })
+    expect('hostHandle' in terminal).toBe(false)
+    expect('handle' in terminal).toBe(false)
+  })
+
   it('exposes wrap, wide cells, and bold from Ghostty grid introspection', () => {
     terminal = new GhosttyTerminal(getGhosttyVtHost(), { cols: 8, rows: 4 })
     terminal.writePtyOutput('\x1b[1m日本語\x1b[0mabcdefghij')
-    const { host, term } = terminal.hostHandle()
-    const first = readGridLine(host, term, 8, 0)
-    const second = readGridLine(host, term, 8, 1)
+    const first = readGridLine(terminal, 0)
+    const second = readGridLine(terminal, 1)
     expect(first?.cells[0]?.width).toBe(2)
     expect(first?.cells[0]?.bold).toBe(true)
     expect(second?.isWrapped).toBe(true)
@@ -187,9 +176,8 @@ describe('GhosttyTerminal', () => {
   it('scrolls the viewport to bottom without a result code', () => {
     terminal = new GhosttyTerminal(getGhosttyVtHost(), { cols: 80, rows: 8 })
     terminal.writePtyOutput(`${'line\n'.repeat(20)}tail`)
-    const host = getGhosttyVtHost()
-    scrollViewport(host, terminal.handle(), 'BOTTOM')
-    const bar = readScrollbar(host, terminal.handle())
+    scrollViewport(terminal, 'BOTTOM')
+    const bar = readScrollbar(terminal)
     expect(bar.offset + bar.len).toBe(bar.total)
   })
 })
