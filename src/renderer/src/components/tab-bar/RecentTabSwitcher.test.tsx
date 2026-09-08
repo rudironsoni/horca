@@ -119,7 +119,7 @@ function appendTerminalTextarea(): {
   keyUp: ReturnType<typeof vi.fn>
 } {
   const input = document.createElement('textarea')
-  input.className = 'xterm-helper-textarea'
+  input.className = 'orca-terminal-helper-textarea'
   const keyDown = vi.fn()
   const keyUp = vi.fn()
   input.addEventListener('keydown', keyDown)

@@ -635,7 +635,7 @@ describe('connectPanePty', () => {
       return {
         binding,
         transport,
-        // Drives the real xterm onData (terminal input) handler.
+        // Drives the real terminal onData (terminal input) handler.
         typeKeystroke: (data = 'a') => sendTerminalInputThroughPane(pane, data)
       }
     }

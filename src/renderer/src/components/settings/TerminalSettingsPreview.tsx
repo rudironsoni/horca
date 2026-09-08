@@ -149,7 +149,7 @@ export function TerminalSettingsPreview({
     // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Why: mutate options directly so xterm repaints in its normal cycle; no refit needed since cols/rows are pinned.
+  // Why: mutate options directly so terminal repaints in its normal cycle; no refit needed since cols/rows are pinned.
   useEffect(() => {
     const terminal = terminalRef.current
     if (!terminal) {

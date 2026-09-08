@@ -111,7 +111,7 @@ describe('per-job path classification', () => {
     expectClassification(['README.md', 'docs/readme/README.zh-CN.md'], {})
   })
 
-  it('runs packaging and always-on jobs for product source, not git/xterm/shell lanes', () => {
+  it('runs packaging and always-on jobs for product source, not git/terminal/shell lanes', () => {
     expectClassification(['src/renderer/src/components/tab-bar/TabBar.tsx'], {
       package: true,
       package_windows: true
@@ -170,13 +170,6 @@ describe('per-job path classification', () => {
       package: true,
       package_windows: true
     })
-  })
-
-  it('does not run a deleted xterm patch-sync job', () => {
-    expect(PR_CHECK_JOBS).not.toContain('xterm_patch_sync')
-    expect(classifyPrJobs(['src/renderer/src/components/tab-bar/TabBar.tsx'])).not.toHaveProperty(
-      'xterm_patch_sync'
-    )
   })
 
   it('runs native package jobs only for the platform that ships the changed native', () => {
@@ -358,7 +351,7 @@ describe('per-job path classification', () => {
       { length: 12_000 },
       (_, index) => `docs/reference/generated-placeholder-${index}.md`
     )
-    const input = `${[...filler, 'config/patches/xterm-upstream.json'].join('\n')}\n`
+    const input = `${[...filler, 'src/shared/git-binary-compatibility.test.ts'].join('\n')}\n`
     expect(input.length).toBeGreaterThan(64 * 1024)
 
     const child = spawn(process.execPath, ['config/scripts/pr-code-change-scope.mjs'], {
@@ -395,7 +388,7 @@ describe('per-job path classification', () => {
     expect(brokePipe).toBe(false)
     expect(exitCode, stderr).toBe(0)
     expect(stdout).toContain('should_run=true\n')
-    expect(stdout).toContain('xterm_patch_sync=true\n')
+    expect(stdout).toContain('git_compatibility=true\n')
   })
 })
 

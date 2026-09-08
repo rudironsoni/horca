@@ -276,13 +276,13 @@ export function installDirectSshRetryStatus(session: ConnectPanePtySession): voi
   }
   session.markInteractiveRedrawInput = (): void => {
     session.lastInteractiveRedrawInputAt = performance.now()
-    // Why: input must probe a wedged xterm even when the PTY produces no renderer output.
+    // Why: input must probe a wedged terminal even when the PTY produces no renderer output.
     requestTerminalWritePipelineProbe(session.pane.terminal)
   }
   session.recordTerminalInputForHibernation = (): void => {
     useAppStore.getState().recordTerminalInput(session.cacheKey)
   }
-  // Why: onData mixes real user input with xterm's parser auto-replies (focus
+  // Why: onData mixes real user input with terminal's parser auto-replies (focus
   // reports, DA/DSR/CPR responses). Recording those replies as activity makes
   // the hibernation planner treat a pane hidden after its agent finished as
   // "input after done" forever. The core user-input signal fires only for real

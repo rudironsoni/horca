@@ -206,7 +206,7 @@ export function useTerminalPaneProcessExitActions(controller: TerminalPaneCloseC
       return
     }
 
-    // A replacement can commit tab/layout ownership while a remounted xterm
+    // A replacement can commit tab/layout ownership while a remounted terminal
     // is still carrying the previous DOM marker. Allow an unbound transport to
     // catch up, but never let a live mismatched transport overwrite its owner.
     for (const pane of manager.getPanes()) {

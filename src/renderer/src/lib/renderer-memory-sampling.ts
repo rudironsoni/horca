@@ -20,7 +20,7 @@ const RENDERER_MEMORY_HIGHWATER_RATIOS = [0.6, 0.8] as const
  * Private-footprint marks that arm the same profile when the growth is NOT in
  * the JS heap. Windows crash 36048e26 reported a 618MB private renderer whose
  * V8 heap sat at 150MB of a 4192MB limit — 3.6% of the ratio the marks above
- * need, so the census that would have named the leak never fired. xterm
+ * need, so the census that would have named the leak never fired. terminal
  * scrollback (`Uint32Array` backing stores) and WebGL glyph atlases both live
  * outside every heap counter, so footprint is the only mark that sees them.
  */
@@ -190,7 +190,7 @@ function recordRendererMemoryHighwater(
     blinkAllocatedMB: toMegabytes(memory.blinkAllocatedBytes),
     ...describeProcessFootprint(memory, footprint),
     domNodes: document.getElementsByTagName('*').length,
-    terminalElements: document.querySelectorAll('.xterm').length,
+    terminalElements: document.querySelectorAll('.orca-terminal-canvas').length,
     browserWebviews: browserWebviews.browserWebviewCount,
     registeredBrowserGuests: browserWebviews.registeredBrowserGuestCount,
     ...collectRendererMemoryProfileCounts()

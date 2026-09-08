@@ -201,7 +201,7 @@ describe('pane terminal output scheduler', () => {
     expect(terminal.write.mock.calls.length).toBeGreaterThan(4)
   })
 
-  it('limits how many background terminals begin xterm writes per drain tick', async () => {
+  it('limits how many background terminals begin terminal writes per drain tick', async () => {
     vi.useFakeTimers()
     const { writeTerminalOutput } = await loadScheduler()
     const terminals = [createTerminal(), createTerminal(), createTerminal()]

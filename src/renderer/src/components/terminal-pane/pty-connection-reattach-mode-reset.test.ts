@@ -267,7 +267,7 @@ describe('connectPanePty', () => {
     connectPanePty(pane as never, manager as never, deps as never)
     await flushAsyncTicks()
 
-    // xterm answers CSI 6n natively with a CPR via onData; it must take the immediate path (skips the remote 8ms debounce that corrupted it).
+    // terminal answers CSI 6n natively with a CPR via onData; it must take the immediate path (skips the remote 8ms debounce that corrupted it).
     sendTerminalInputThroughPane(pane, '\x1b[3;1R')
     expect(transport.sendInputImmediate).toHaveBeenCalledWith('\x1b[3;1R')
 
@@ -279,16 +279,16 @@ describe('connectPanePty', () => {
     expect(transport.sendInput).toHaveBeenCalledWith('\x1b[A')
     expect(transport.sendInputImmediate).not.toHaveBeenCalled()
 
-    // terminal-query-reply.test proves real xterm emits this as one framed onData reply; this pins it to the immediate path.
+    // terminal-query-reply.test proves real terminal emits this as one framed onData reply; this pins it to the immediate path.
     transport.sendInputImmediate.mockClear()
-    const xtversionReply = '\x1bP>|xterm.js(6.1.0-beta.287)\x1b\\'
+    const xtversionReply = '\x1bP>|Ghostty(6.1.0-beta.287)\x1b\\'
     sendTerminalInputThroughPane(pane, xtversionReply)
     expect(transport.sendInputImmediate).toHaveBeenCalledWith(xtversionReply)
 
     // Printable input is user-owned: remote cooked echo returns via PTY output, not onData, so OSC-looking text stays on normal input.
     transport.sendInput.mockClear()
     transport.sendInputImmediate.mockClear()
-    const printableInputs = [']10;hello', '>|xterm.js(6.1.0-beta.287)', ']|literal-text']
+    const printableInputs = [']10;hello', '>|Ghostty(6.1.0-beta.287)', ']|literal-text']
     for (const data of printableInputs) {
       sendTerminalInputThroughPane(pane, data)
       expect(transport.sendInput).toHaveBeenCalledWith(data)
@@ -356,7 +356,7 @@ describe('connectPanePty', () => {
 
     const pane = createPane(1)
     const textarea = {} as HTMLTextAreaElement
-    // Why: public xterm modes plus an agent title are the stable signal for a live focus-driven TUI; avoid private `_core` probes.
+    // Why: public terminal modes plus an agent title are the stable signal for a live focus-driven TUI; avoid private `_core` probes.
     configureTerminalFocusMode(pane, textarea)
     await withMockedDocumentActiveElement(textarea, async () => {
       const manager = createManager(1)
@@ -625,7 +625,7 @@ describe('connectPanePty', () => {
   })
 
   // Why: issue #8291 — the reattach reset wiped the mouse modes the daemon snapshot had just
-  // rehydrated, so xterm re-enabled its row-wise selection over a still-running TUI.
+  // rehydrated, so terminal re-enabled its row-wise selection over a still-running TUI.
   const reattachSnapshotResetFor = async (snapshot: string): Promise<string | undefined> => {
     const { connectPanePty } = await import('./pty-connection')
     const transport = createMockTransport('tab-pty')

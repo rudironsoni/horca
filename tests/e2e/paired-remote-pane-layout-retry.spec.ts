@@ -89,7 +89,7 @@ async function readClientLayout(page: Page, tabId: string): Promise<TerminalLayo
 async function setPaneTitle(page: Page, title: string): Promise<void> {
   const isMac = await page.evaluate(() => navigator.userAgent.includes('Mac'))
   await page
-    .locator('.xterm:visible')
+    .locator('.orca-terminal-canvas:visible')
     .first()
     .click({
       button: isMac ? 'left' : 'right',

@@ -265,7 +265,7 @@ test('promotes the headless owner without replacing its daemon terminal', async 
     const afterMarker = `SERVE_PROMOTION_AFTER_${Date.now()}`
     await execInTerminal(page, promotedPtyId, `echo ${afterMarker}`)
     await waitForTerminalOutput(page, afterMarker, 15_000)
-    await expect(page.locator('.xterm:visible').first()).toBeVisible()
+    await expect(page.locator('.orca-terminal-canvas:visible').first()).toBeVisible()
     expect(await getTerminalContent(page)).toContain(beforeMarker)
   } finally {
     if (activatingProcess && activatingProcess.exitCode === null) {

@@ -113,7 +113,7 @@ function escCapped(s) {
 // ---------------------------------------------------------------- fish config
 
 let configHome = null
-const env = { ...process.env, TERM: 'xterm-256color', COLORTERM: 'truecolor', LANG: 'en_US.UTF-8' }
+const env = { ...process.env, TERM: 'xterm-ghostty', COLORTERM: 'truecolor', LANG: 'en_US.UTF-8' }
 delete env.FISH_HISTORY
 if (!USE_USER_CONFIG) {
   configHome = mkdtempSync(path.join(tmpdir(), 'fish-2031-'))
@@ -155,7 +155,7 @@ log(
 )
 
 const term = pty.spawn(SHELL, ['-l', '-i'], {
-  name: 'xterm-256color',
+  name: 'xterm-ghostty',
   cols: 120,
   rows: 30,
   cwd: REPO_ROOT,

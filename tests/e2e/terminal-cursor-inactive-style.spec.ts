@@ -87,7 +87,7 @@ async function renderInactiveCursor(
     const terminalCore = inactivePane.terminal as unknown as {
       _core?: { _coreBrowserService?: { isFocused?: boolean } }
     }
-    const cursor = inactivePane.container.querySelector<HTMLElement>('.xterm-cursor')
+    const cursor = inactivePane.container.querySelector<HTMLElement>('.orca-terminal-cursor')
     return {
       cursorStyle: inactivePane.terminal.options.cursorStyle,
       cursorInactiveStyle: inactivePane.terminal.options.cursorInactiveStyle,
@@ -117,7 +117,9 @@ test.describe('Terminal inactive cursor rendering', () => {
     expect(fixedBehavior.terminalFocused).toBe(false)
     expect(fixedBehavior.cursorStyle).toBe('block')
     expect(fixedBehavior.cursorInactiveStyle).toBe('outline')
-    expect(fixedBehavior.cursorClassName).toMatch(/xterm-cursor-outline|canvas renderer: outline/)
+    expect(fixedBehavior.cursorClassName).toMatch(
+      /orca-terminal-cursor-outline|canvas renderer: outline/
+    )
 
     const oldBehavior = await renderInactiveCursor(orcaPage, 'outline')
     expect(oldBehavior.terminalFocused).toBe(false)

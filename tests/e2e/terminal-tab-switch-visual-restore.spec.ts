@@ -450,9 +450,9 @@ async function readTabTerminalGeometry(
         throw new Error(`No terminal pane for tab ${tabId}`)
       }
       const overlayRect = overlay?.getBoundingClientRect()
-      const screen = pane.container.querySelector<HTMLElement>('.xterm-screen')
+      const screen = pane.container.querySelector<HTMLElement>('.orca-terminal-canvas')
       if (!screen) {
-        throw new Error(`No xterm screen for tab ${tabId}`)
+        throw new Error(`No terminal screen for tab ${tabId}`)
       }
       const screenRect = screen.getBoundingClientRect()
       const cellWidth = pane.terminal._core?._renderService?.dimensions?.css?.cell?.width ?? 0

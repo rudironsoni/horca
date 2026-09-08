@@ -33,7 +33,7 @@ export async function savePushNotificationsEnabled(enabled: boolean): Promise<vo
 const TEXT_SCALE_KEY = 'orca:terminalTextScale'
 
 // Why: the mobile terminal fits the desktop's full column count to the phone
-// width with a CSS scale, so xterm's raw fontSize is cancelled out and can't
+// width with a CSS scale, so terminal's raw fontSize is cancelled out and can't
 // drive apparent size. Instead we persist a baseline zoom multiplier ("text
 // size") that the WebView applies on top of the fit. Discrete presets keep the
 // settings picker simple and bound the value to ones the zoom logic handles;

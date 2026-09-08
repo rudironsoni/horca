@@ -261,7 +261,7 @@ describe('connectPanePty', () => {
     await flushAsyncTicks()
     expect(capturedDataCallback.current).not.toBeNull()
 
-    // A focused xterm emits CSI I after Codex enables focus reporting; the startup draft must reuse the same transport instead of racing a direct IPC.
+    // A focused terminal emits CSI I after Codex enables focus reporting; the startup draft must reuse the same transport instead of racing a direct IPC.
     ;(
       pane.terminal.onData as unknown as {
         mock: { calls: [(data: string) => void][] }

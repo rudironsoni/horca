@@ -1,5 +1,5 @@
 // Why: mobile terminal streaming needs the exact screen state from the
-// desktop's xterm.js instance. This module maintains a global registry of
+// desktop's Ghostty instance. This module maintains a global registry of
 // serialize functions keyed by ptyId, and handles IPC requests from the
 // main process to serialize a specific terminal's buffer.
 
@@ -60,9 +60,9 @@ export function registerPtySerializer(
     }
     const titleEntry = lastTitleByPtyId.get(ptyId)
     if (titleEntry?.owner === owner) {
-      // Why: dispose the xterm onTitleChange IDisposable alongside the map
-      // cleanup. Without this, the listener stays attached to xterm's emitter
-      // for the lifetime of the xterm instance, firing against a torn-down
+      // Why: dispose the terminal onTitleChange IDisposable alongside the map
+      // cleanup. Without this, the listener stays attached to terminal's emitter
+      // for the lifetime of the terminal instance, firing against a torn-down
       // pane (or worse, leaking during HMR).
       titleEntry.disposable.dispose()
       lastTitleByPtyId.delete(ptyId)
@@ -73,8 +73,8 @@ export function registerPtySerializer(
 // Why: the renderer pane installs an onTitleChange wrapper at the same time
 // it registers the serializer. The wrapper updates lastTitleByPtyId so the
 // IPC response payload can carry the latest observed title without needing
-// the renderer to round-trip xterm state on every serializeBuffer request.
-// xterm's SerializeAddon does NOT round-trip OSC 0/1/2 title sequences, so
+// the renderer to round-trip terminal state on every serializeBuffer request.
+// terminal's SerializeAddon does NOT round-trip OSC 0/1/2 title sequences, so
 // this is the only channel that gets the title back to the main process.
 export function registerPtyTitleSource(
   ptyId: string,
@@ -126,7 +126,7 @@ function ensureSerializerListener(): void {
 
   window.api.pty.onClearBufferRequest((request) => {
     // Why: mobile clear is a terminal action, not a PTY byte. Clearing the
-    // renderer-owned xterm keeps future mobile snapshots from rehydrating
+    // renderer-owned terminal keeps future mobile snapshots from rehydrating
     // scrollback that the user explicitly removed.
     serializersByPtyId.get(request.ptyId)?.clear?.()
   })
@@ -136,7 +136,7 @@ function ensureSerializerListener(): void {
     void Promise.resolve(entry?.fn(request.opts) ?? null)
       .then((result) => {
         // Why: cold parking and remounts can replace the serializer while its
-        // parse wait is in flight; never publish a fossil from the old xterm.
+        // parse wait is in flight; never publish a fossil from the old terminal.
         if (serializersByPtyId.get(request.ptyId) !== entry) {
           window.api.pty.sendSerializedBuffer(request.requestId, null)
           return

@@ -53,7 +53,7 @@ export function handleTerminalWebLinkClick(
   }
 
   if (handled) {
-    // Why: link navigation can steal focus before xterm's mouseup cleanup;
+    // Why: link navigation can steal focus before terminal's mouseup cleanup;
     // clearing selection also detaches its pending drag-selection listeners.
     deps.terminal?.clearSelection()
   }

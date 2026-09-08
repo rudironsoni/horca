@@ -86,7 +86,7 @@ async function pressOptionComposedKey(
     const manager = tabId ? window.__paneManagers?.get(tabId) : null
     const pane = manager?.getActivePane?.() ?? manager?.getPanes?.()[0] ?? null
     const textarea = pane?.container.querySelector(
-      '.xterm-helper-textarea'
+      '.orca-terminal-helper-textarea'
     ) as HTMLTextAreaElement | null
     if (!pane || !textarea) {
       throw new Error('No active terminal textarea for the Option chord dispatch')

@@ -31,8 +31,8 @@ export type PtyBufferSnapshot = {
   pendingDeliveryStartSeq?: number
   source?: 'headless' | 'renderer'
   /** True when the snapshot captures an alternate-screen TUI (Claude Code,
-   *  vim). Restore must NOT clear xterm's buffer in that case — the TUI's
-   *  scrollback lives in xterm and a clear destroys scroll-up after a tab
+   *  vim). Restore must NOT clear terminal's buffer in that case — the TUI's
+   *  scrollback lives in terminal and a clear destroys scroll-up after a tab
    *  return. Mirrors the attach-time guard in pty-transport.ts. */
   alternateScreen?: boolean
   /** Authoritative normal buffer paired with an alternate-screen frame. */

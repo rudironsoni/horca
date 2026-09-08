@@ -10,7 +10,7 @@ export type RefocusScheduler = TerminalImeInputContextRefocusScheduler
 export const REGULAR_TERMINAL_INPUT_FOCUSED_ATTRIBUTE = 'data-regular-terminal-input-focused'
 
 export function isXtermHelperTextarea(target: EventTarget | null): target is HTMLElement {
-  return target instanceof HTMLElement && target.classList.contains('xterm-helper-textarea')
+  return target instanceof HTMLElement && target.classList.contains('orca-terminal-helper-textarea')
 }
 
 export function setRegularTerminalInputFocusAttribute(focused: boolean): void {
@@ -153,7 +153,7 @@ function syncFocusAfterFailedReclaim(
   activeElement: Element | null,
   syncFocused: TerminalInputFocusSync
 ): void {
-  // Why: a later xterm focusin already published terminal ownership; an older
+  // Why: a later terminal focusin already published terminal ownership; an older
   // deferred reclaim must not overwrite that newer process-wide mirror.
   if (!isXtermHelperTextarea(activeElement)) {
     syncFocused(false)

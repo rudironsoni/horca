@@ -6,7 +6,7 @@ export function getTerminalBufferPositionForMouseEvent(
 ): { x: number; y: number } | null {
   const screenElement =
     terminal.element?.querySelector('.orca-terminal-canvas') ??
-    terminal.element?.querySelector('.xterm-screen') ??
+    terminal.element?.querySelector('.orca-terminal-canvas') ??
     terminal.element
   if (!screenElement || terminal.cols <= 0 || terminal.rows <= 0) {
     return null

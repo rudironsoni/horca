@@ -124,7 +124,8 @@ async function findTerminalLinkTarget(page: Page, link: string): Promise<{ x: nu
     const tabId = worktreeId ? state?.activeTabIdByWorktree?.[worktreeId] : null
     const manager = tabId ? window.__paneManagers?.get(tabId) : null
     const pane = manager?.getActivePane?.() ?? manager?.getPanes?.()[0] ?? null
-    const screen = pane?.terminal.element?.querySelector<HTMLElement>('.xterm-screen') ?? null
+    const screen =
+      pane?.terminal.element?.querySelector<HTMLElement>('.orca-terminal-canvas') ?? null
     if (!pane || !screen) {
       throw new Error('paired terminal screen unavailable')
     }
@@ -228,7 +229,7 @@ test('opens a paired-runtime terminal link on its owning host', async ({
 
     const target = await findTerminalLinkTarget(page, fixture.url)
     await page.mouse.move(target.x, target.y)
-    await expect(page.locator('.xterm-hover')).toHaveCount(1)
+    await expect(page.locator('.orca-terminal-hover')).toHaveCount(1)
     await page.mouse.click(target.x, target.y)
     const actionPopover = page.locator('[data-terminal-link-action-popover]')
     await expect(actionPopover).toBeVisible()

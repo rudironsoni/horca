@@ -65,7 +65,7 @@ function flushPaneRevealRepaints(): void {
 }
 
 /**
- * Repaints a revealed tab's panes from their xterm buffers.
+ * Repaints a revealed tab's panes from their terminal buffers.
  *
  * Why: while a pane is hidden, parsed output can update the WebGL renderer's
  * per-cell model without ever presenting a frame. At reveal the model diff

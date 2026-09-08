@@ -4,7 +4,7 @@ import { OrcaRuntimeWithHandleMobileUnsubscribe } from './orca-runtime-handle-mo
 export class OrcaRuntimeWithApplyMobileDisplayMode extends OrcaRuntimeWithHandleMobileUnsubscribe {
   // Why: called when mode changes via terminal.setDisplayMode. Applies the
   // mode change immediately if there's an active subscriber, and emits a
-  // 'resized' event so the mobile client can reinitialize xterm inline.
+  // 'resized' event so the mobile client can reinitialize terminal inline.
   //
   // Multi-mobile: the most recent mobile actor's viewport drives the active
   // phone-fit dims. The earliest-by-subscribe-time subscriber's
@@ -110,7 +110,7 @@ export class OrcaRuntimeWithApplyMobileDisplayMode extends OrcaRuntimeWithHandle
     // safeFit echoes pty:resize(override.cols, override.rows). Treating that
     // echo as legitimate geometry would overwrite each subscriber's
     // previousCols/Rows baseline with phone dims, so the next take-back
-    // enqueues a no-op {kind:'desktop', cols:49, rows:40} and leaves xterm
+    // enqueues a no-op {kind:'desktop', cols:49, rows:40} and leaves terminal
     // stuck. Only filter reports that EXACTLY match the override — a fresh
     // measurement from a now-visible pane (e.g. user activated a previously
     // hidden tab on desktop, container went 0×0 → 1782×1195) reports

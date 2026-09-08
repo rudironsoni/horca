@@ -19,11 +19,11 @@ export function shouldFocusMobileDriverAction(
     return true
   }
 
-  // Why: xterm owns keyboard input through a hidden textarea. When mobile takes
+  // Why: terminal owns keyboard input through a hidden textarea. When mobile takes
   // that terminal over, focus should move to the recovery action, not stay in
   // the now-paused terminal input. Scope this to the pane that owns the overlay
   // so another active terminal pane keeps keyboard focus.
-  if (active.classList?.contains?.('xterm-helper-textarea')) {
+  if (active.classList?.contains?.('orca-terminal-helper-textarea')) {
     return isFocusLike(focusScope) && focusScope.contains?.(active) === true
   }
 

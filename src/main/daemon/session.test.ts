@@ -363,9 +363,9 @@ describe('Session', () => {
     // Why: daemon emulator parses in-process synchronously — before
     // handleSubprocessData forwards bytes onward — so any auto-reply it
     // emits races ahead of the live answerer and clobbers it with
-    // default-xterm values (no theme, stale cursor). Query authority is
+    // default-terminal values (no theme, stale cursor). Query authority is
     // structural (terminal-query-authority.md): a delivered chunk is
-    // answered by the consuming view's xterm, a hidden-dropped chunk by
+    // answered by the consuming view's terminal, a hidden-dropped chunk by
     // MAIN's runtime model responder. The daemon emulator is neither — it
     // stays write-only forever, and these pins are permanent.
     it.each([
@@ -380,7 +380,7 @@ describe('Session', () => {
     ])('does not reply to %s query', async (_label, query) => {
       createSession({ shellReadySupported: false })
       subprocess.simulateData(query)
-      // xterm.js fires terminal.write's completion callback via a microtask;
+      // Ghostty fires terminal.write's completion callback via a microtask;
       // two resolved-promise awaits flush any nested scheduling.
       await Promise.resolve()
       await Promise.resolve()

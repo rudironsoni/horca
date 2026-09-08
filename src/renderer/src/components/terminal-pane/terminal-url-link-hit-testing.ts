@@ -156,7 +156,7 @@ export function installHttpLinkClickFallback(
       return
     }
 
-    // Why: xterm's WebLinksAddon misses first clicks before hover state exists.
+    // Why: terminal's WebLinksAddon misses first clicks before hover state exists.
     const url = findHttpLinkAtTerminalMouseEvent(terminal, event)
     const handled = Boolean(
       url &&

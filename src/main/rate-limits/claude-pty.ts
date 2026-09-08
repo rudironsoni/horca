@@ -70,7 +70,7 @@ export async function fetchViaPty(options?: {
     // and ensure the command path is properly quoted if it contains spaces.
     const isWin32 = process.platform === 'win32'
     const spawnEnv = applyClaudeEnvPatch(
-      { ...process.env, TERM: 'xterm-256color' } as Record<string, string>,
+      { ...process.env, TERM: 'xterm-ghostty' } as Record<string, string>,
       options?.authPreparation?.envPatch ?? {},
       { stripAuthEnv: options?.authPreparation?.stripAuthEnv ?? false }
     )
@@ -116,7 +116,7 @@ export async function fetchViaPty(options?: {
         : []
 
     const term = pty.spawn(spawnFile, spawnArgs, {
-      name: 'xterm-256color',
+      name: 'xterm-ghostty',
       cols: 120,
       rows: 40,
       // Why: hidden usage PTYs must not inherit the process cwd (e.g. / or a

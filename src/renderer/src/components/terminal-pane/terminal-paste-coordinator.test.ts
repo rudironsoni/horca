@@ -130,7 +130,7 @@ describe('terminal paste coordinator', () => {
     expect(plan.redactedDiagnostic).not.toContain(secret)
   })
 
-  it('keeps small text on the xterm paste path', async () => {
+  it('keeps small text on the terminal paste path', async () => {
     const pasteText = vi.fn()
     const writePty = vi.fn()
     const plan = planTerminalPaste({
@@ -203,7 +203,7 @@ describe('terminal paste coordinator', () => {
     expect(yieldToEventLoop).toHaveBeenCalledTimes(writePty.mock.calls.length)
   })
 
-  it('bracket-wraps large terminal-mode paste once with xterm newline semantics', async () => {
+  it('bracket-wraps large terminal-mode paste once with terminal newline semantics', async () => {
     const text = 'alpha\r\nbeta\nbefore\x1b[201~after'
     const plan = planTerminalPaste({
       text,
@@ -221,7 +221,7 @@ describe('terminal paste coordinator', () => {
     expect(chunks.slice(1, -1).join('')).not.toContain('\x1b[201~')
   })
 
-  it('normalizes forced multiline chunked paste line endings like xterm native paste', () => {
+  it('normalizes forced multiline chunked paste line endings like terminal native paste', () => {
     // Why: 4-byte chunks would split this CRLF pair ('abc\r' | '\ndef'), so the
     // pre-chunk normalization is what keeps the LF half away from ConPTY.
     const plan = planTerminalPaste({
@@ -397,7 +397,7 @@ describe('terminal paste coordinator', () => {
     }
   })
 
-  it('uses xterm newline semantics across terminal runtime identities', async () => {
+  it('uses terminal newline semantics across terminal runtime identities', async () => {
     const text = getPastePayloadCorpusText('mixed newline text')
 
     for (const { name, runtime } of RUNTIME_MATRIX) {
@@ -847,7 +847,7 @@ describe('terminal paste coordinator', () => {
     expect(writes).toEqual([BRACKETED_PASTE_START, '0123', BRACKETED_PASTE_END])
   })
 
-  it('rejects oversized payloads before touching xterm or the PTY', async () => {
+  it('rejects oversized payloads before touching terminal or the PTY', async () => {
     const plan = planTerminalPaste({
       text: 'x'.repeat(12),
       source: 'programmatic',

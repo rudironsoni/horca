@@ -49,7 +49,7 @@ test.describe('SSH terminal window-wake stale PTY grid repro', () => {
   test.skip(!RUN_DOCKER_SSH, 'Set ORCA_E2E_SSH_DOCKER=1 to run Docker-backed SSH repro.')
   test.skip(process.platform === 'win32', 'Docker SSH repro uses POSIX SSH tooling.')
 
-  test('window focus heals a remote PTY whose applied grid drifted from xterm', async ({
+  test('window focus heals a remote PTY whose applied grid drifted from terminal', async ({
     orcaPage
   }, testInfo) => {
     test.setTimeout(240_000)
@@ -91,15 +91,18 @@ test.describe('SSH terminal window-wake stale PTY grid repro', () => {
               readRemoteGrid(target!),
               await readRendererGrid(orcaPage, ptyId)
             ),
-          { timeout: 15_000, message: 'Remote PTY and xterm did not establish a matching baseline' }
+          {
+            timeout: 15_000,
+            message: 'Remote PTY and terminal did not establish a matching baseline'
+          }
         )
         .toBe(true)
 
       const baseline = await readRendererGrid(orcaPage, ptyId)
-      if (!baseline.xterm) {
-        throw new Error('Active xterm grid unavailable')
+      if (!baseline.terminal) {
+        throw new Error('Active terminal grid unavailable')
       }
-      const staleGrid = chooseStaleGrid(baseline.xterm)
+      const staleGrid = chooseStaleGrid(baseline.terminal)
       await orcaPage.evaluate(({ id, grid }) => window.api.pty.resize(id, grid.cols, grid.rows), {
         id: ptyId,
         grid: staleGrid
@@ -108,7 +111,7 @@ test.describe('SSH terminal window-wake stale PTY grid repro', () => {
       await expect.poll(() => readRemoteGrid(target!).rows, { timeout: 5_000 }).toBe(staleGrid.rows)
 
       const drifted = await readRendererGrid(orcaPage, ptyId)
-      expect(drifted.xterm).toEqual(baseline.xterm)
+      expect(drifted.terminal).toEqual(baseline.terminal)
       expect(drifted.applied).toEqual(staleGrid)
 
       await orcaPage.evaluate(() => window.dispatchEvent(new Event('focus')))
