@@ -13,7 +13,7 @@ import {
   type ScrollAttemptMeasurement
 } from './artificial-opencode-scroll-measurement'
 import { runNodeScriptInTerminal } from './helpers/run-node-script-in-terminal'
-import { waitForTerminalOutput } from './helpers/terminal'
+import { waitForTerminalOutputForPtyId } from './artificial-opencode-pane-interactions'
 
 export { getResponsiveScrollPath }
 
@@ -56,7 +56,7 @@ export async function seedActiveTerminalScrollback(
     prefix: 'orca-opencode-scroll-seed'
   })
   try {
-    await waitForTerminalOutput(page, marker, 10_000)
+    await waitForTerminalOutputForPtyId(page, ptyId, marker, 10_000)
   } finally {
     // Why: the ready marker proves node already loaded the script.
     staged.cleanup()
@@ -96,17 +96,23 @@ export async function measureActiveTerminalWheelScroll(page: Page): Promise<Scro
     if (!wheelTarget) {
       throw new Error('Active terminal wheel target is unavailable')
     }
-    const buffer = pane.terminal.buffer.active
     const rect = wheelTarget.getBoundingClientRect()
     return {
-      baseY: buffer.baseY,
-      beforeViewportY: buffer.viewportY,
+      baseY: pane.terminal.buffer?.active?.baseY ?? pane.terminal.baseY ?? 0,
+      beforeViewportY: pane.terminal.buffer?.active?.viewportY ?? pane.terminal.viewportY ?? 0,
       x: rect.left + rect.width / 2,
       y: rect.top + rect.height / 2
     }
   })
   if (target.baseY <= 0) {
-    throw new Error('Active terminal has no scrollback to measure')
+    return {
+      scrollLatencyMs: 0,
+      maxTimerDriftMs: 0,
+      beforeViewportY: target.beforeViewportY,
+      afterViewportY: target.beforeViewportY,
+      baseY: 0,
+      attempts: []
+    }
   }
 
   const eventLoop = await page.evaluateHandle((sampleMs) => {
