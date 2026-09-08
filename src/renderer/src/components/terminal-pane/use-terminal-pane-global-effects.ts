@@ -160,7 +160,7 @@ export function useTerminalPaneGlobalEffects({
       resumeTerminalVisibility({
         manager,
         isActive,
-        // Why: chat mode is tab-wide, but only the chat leaf's xterm is covered;
+        // Why: chat mode is tab-wide, but only the chat leaf's terminal is covered;
         // a split terminal leaf that is active must still regain focus on reveal.
         isChatViewMode: isChatViewMode && activePaneIsCoveredByNativeChat(manager),
         wasVisible,

@@ -68,7 +68,7 @@ export type TerminalShortcutAction =
   | { type: 'switchInputSource' }
 
 /**
- * Resolves terminal keyboard events before xterm receives them, centralizing
+ * Resolves terminal keyboard events before terminal receives them, centralizing
  * Orca shortcuts and terminal byte fallbacks in one platform-aware policy.
  */
 export function resolveTerminalShortcutAction(
@@ -214,7 +214,7 @@ export function resolveTerminalShortcutAction(
     if (event.key === 'Delete') {
       return { type: 'sendInput', data: '\x0b' }
     }
-    // Why: xterm.js has no Cmd+Arrow mapping; translate Cmd+←/→ to readline Ctrl+A/Ctrl+E for line start/end (iTerm2/Ghostty).
+    // Why: Ghostty has no Cmd+Arrow mapping; translate Cmd+←/→ to readline Ctrl+A/Ctrl+E for line start/end (iTerm2/Ghostty).
     if (event.key === 'ArrowLeft') {
       return { type: 'sendInput', data: '\x01' }
     }
@@ -237,7 +237,7 @@ export function resolveTerminalShortcutAction(
     !event.shiftKey &&
     event.key === 'Backspace'
   ) {
-    // Why: a kitty-protocol TUI binds the CSI 127;3u xterm emits natively; the legacy \x1b\x7f fallback would bypass it.
+    // Why: a kitty-protocol TUI binds the CSI 127;3u terminal emits natively; the legacy \x1b\x7f fallback would bypass it.
     if ((getKittyKeyboardFlagsActivePane?.() ?? 0) > 0) {
       return null
     }
@@ -252,11 +252,11 @@ export function resolveTerminalShortcutAction(
     event.code?.startsWith('Numpad') !== true &&
     (event.key === 'ArrowLeft' || event.key === 'ArrowRight')
   ) {
-    // Why: a kitty-protocol TUI binds alt+arrow via xterm's native CSI 1;3D/C; \eb/\ef would reach it as alt+b/f.
+    // Why: a kitty-protocol TUI binds alt+arrow via terminal's native CSI 1;3D/C; \eb/\ef would reach it as alt+b/f.
     if ((getKittyKeyboardFlagsActivePane?.() ?? 0) > 0) {
       return null
     }
-    // Why: readline doesn't bind xterm's \e[1;3D/C for alt+←/→, so translate to \eb/\ef for word-nav (iTerm2 "Esc+" behavior).
+    // Why: readline doesn't bind terminal's \e[1;3D/C for alt+←/→, so translate to \eb/\ef for word-nav (iTerm2 "Esc+" behavior).
     return { type: 'sendInput', data: event.key === 'ArrowLeft' ? '\x1bb' : '\x1bf' }
   }
 
@@ -272,7 +272,7 @@ export function resolveTerminalShortcutAction(
     if (isLocalWindowsConptyPane?.()) {
       return null
     }
-    // Why: readline ignores xterm's \e[1;5D/C, so translate Ctrl+←/→ to \eb/\ef for word-nav; !isMac since Mac reserves Ctrl+Arrow.
+    // Why: readline ignores terminal's \e[1;5D/C, so translate Ctrl+←/→ to \eb/\ef for word-nav; !isMac since Mac reserves Ctrl+Arrow.
     return { type: 'sendInput', data: event.key === 'ArrowLeft' ? '\x1bb' : '\x1bf' }
   }
 

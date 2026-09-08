@@ -74,7 +74,7 @@ export function useMobileSessionAccessorySelection(scope: MobileSessionTerminalI
       if (node !== null) {
         return
       }
-      // Why: clear only on real route detach; client churn during mount would wipe xterm state mid-subscribe.
+      // Why: clear only on real route detach; client churn during mount would wipe terminal state mid-subscribe.
       toastSeqRef.current += 1
       clearTerminalCache()
       clearToastHideTimer()

@@ -62,7 +62,7 @@ describe('resolvePreviewShortcutAction', () => {
     ).toEqual({ type: 'scrollViewport', position: 'top' })
   })
 
-  it('leaves Option chords to xterm while the TUI has kitty mode negotiated', () => {
+  it('leaves Option chords to terminal while the TUI has kitty mode negotiated', () => {
     const kittyContext = contextFor({ kitty: true })
     expect(
       resolvePreviewShortcutAction(keydown({ key: 'Backspace', altKey: true }), kittyContext)
@@ -206,7 +206,7 @@ describe('resolvePreviewShortcutAction', () => {
     ).toBeNull()
   })
 
-  it('leaves ordinary typing to xterm', () => {
+  it('leaves ordinary typing to terminal', () => {
     expect(
       resolvePreviewShortcutAction(keydown({ key: 'a', code: 'KeyA' }), contextFor())
     ).toBeNull()

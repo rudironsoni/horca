@@ -1,16 +1,16 @@
-// Why this module exists: a pane's xterm write pipeline can die while its PTY
+// Why this module exists: a pane's terminal write pipeline can die while its PTY
 // stays alive — a synchronous throw escaping an unguarded write callback wedges
 // WriteBuffer (issue #2836), and write() on a disposed terminal silently drops
-// its completion callback (verified against vendored xterm 6.1.0-beta.287). In
+// its completion callback (verified against vendored terminal 6.1.0-beta.287). In
 // both states every later write queues forever: output stops rendering,
 // delivery ack credits leak, and the pane becomes a fossil the user can only
 // cure by reloading the window. Detection here is probe-certified (mirroring
-// replay-guard.ts): a stalled completion triggers an empty probe write; xterm
+// replay-guard.ts): a stalled completion triggers an empty probe write; terminal
 // parses in FIFO order, so a completing probe proves preceding work drained. A
 // silent probe is only certified dead after a full interval without any parse
 // progress. Certification notifies a per-terminal handler (registered by the
 // pane's PTY connection) that requests pane recovery — a remount that rebuilds
-// the xterm and reattaches the live PTY.
+// the terminal and reattaches the live PTY.
 
 type WriteTarget = {
   write(data: string, callback?: () => void): void
@@ -86,7 +86,7 @@ export function registerUndeliverableWriteHandler(
   }
 }
 
-/** One notification per terminal instance: recovery replaces the xterm, so a
+/** One notification per terminal instance: recovery replaces the terminal, so a
  *  second notification for the same object is always a duplicate. */
 export function notifyUndeliverableWrite(terminal: object, reason: UndeliverableWriteReason): void {
   if (certifiedDeadTerminals.has(terminal)) {

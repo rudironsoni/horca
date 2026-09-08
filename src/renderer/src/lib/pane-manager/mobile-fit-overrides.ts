@@ -1,5 +1,5 @@
 // Why: a phone or another desktop may own the shared PTY grid. Non-owners park
-// xterm at that authoritative size so passive fitting cannot start a resize war.
+// terminal at that authoritative size so passive fitting cannot start a resize war.
 
 export type FitHoldMode = 'mobile-fit' | 'remote-desktop-fit' | 'desktop-fit'
 
@@ -29,7 +29,7 @@ type OverrideChangeEvent = {
   rows: number
   // Why: the dimensions the PTY was at *before* this event fired. For a
   // desktop-fit transition this is the prior mobile-fit cols/rows so
-  // listeners can check whether xterm is still stuck at phone dims and
+  // listeners can check whether terminal is still stuck at phone dims and
   // needs the safety-net resize, vs. already moved on (e.g. user resized
   // the desktop pane while mobile was active).
   priorCols: number | null

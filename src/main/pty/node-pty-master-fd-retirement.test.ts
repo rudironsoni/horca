@@ -19,7 +19,7 @@ const POSIX_SHELL = '/bin/sh'
 
 function spawnPty(command: string, cols = 80, rows = 24): pty.IPty {
   return pty.spawn(POSIX_SHELL, ['-c', command], {
-    name: 'xterm-256color',
+    name: 'xterm-ghostty',
     cols,
     rows,
     cwd: process.cwd(),

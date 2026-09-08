@@ -1,7 +1,7 @@
 /**
  * Layout-aware default for the macOS Option-as-Alt setting.
  *
- * Why this exists: when the Option key acts as Meta/Alt, xterm.js skips
+ * Why this exists: when the Option key acts as Meta/Alt, Ghostty skips
  * macOS's dead-key composition, which stops non-US layouts from producing
  * essential punctuation (Turkish Option+Q → `@`, German Option+L → `@`,
  * French Option+E → `€`, etc.). When Option composes, US users lose
@@ -96,7 +96,7 @@ export function detectOptionAsAltFromLayoutMap(
   return 'us'
 }
 
-/** The xterm-side default for a given detection outcome. `'false'` is the
+/** The terminal-side default for a given detection outcome. `'false'` is the
  *  conservative fallback for `unknown` to protect non-US users (the bug in
  *  issue #903 was exactly the opposite default — assuming `'true'` for
  *  everyone). */

@@ -139,7 +139,7 @@ describe('useTerminalPaneGlobalEffects', () => {
     }
 
     // Why: deliberate reversal of the #6354 focus-clear. A refocus atlas wipe
-    // forces every pane to re-rasterize at once, and xterm's page-merge
+    // forces every pane to re-rasterize at once, and terminal's page-merge
     // clear-model flag is consumed by a single renderer (#4480), so panes that
     // lose the race paint garbled glyphs while an agent streams. Focus must
     // stay a WebGL-retry + pane-scoped repaint boundary only.

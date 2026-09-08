@@ -52,9 +52,9 @@ const helpers = [
 ] as const
 
 describe.each(helpers)('%s parked renderer resize', (_name, present) => {
-  it('flushes the resize xterm parked while paused before presenting', () => {
+  it('flushes the resize terminal parked while paused before presenting', () => {
     // A resize that lands under _isPaused only parks WebglRenderer.handleResize;
-    // xterm flushes it solely from the observer callback we are pre-empting.
+    // terminal flushes it solely from the observer callback we are pre-empting.
     const { terminal, service, order } = createPausedTerminal({})
 
     expect(present(terminal)).toBe(true)
@@ -89,7 +89,7 @@ describe.each(helpers)('%s parked renderer resize', (_name, present) => {
 })
 
 describe('parked renderer resize on an unpaused terminal', () => {
-  it('is left to xterm when the pause latch is not set', () => {
+  it('is left to terminal when the pause latch is not set', () => {
     const flush = vi.fn()
     const service = {
       _isPaused: false,

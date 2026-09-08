@@ -257,8 +257,8 @@ const writeToXterm = async (data) => {
   return elapsed
 }
 
-console.log(`\n== xterm headless parse of the same payload (reference) ==`)
-console.log(`${pad('payload', 36)} ${pad('size', 8)} ${pad('xterm write', 11)}`)
+console.log(`\n== terminal headless parse of the same payload (reference) ==`)
+console.log(`${pad('payload', 36)} ${pad('size', 8)} ${pad('terminal write', 11)}`)
 for (const { name, data } of payloads) {
   await writeToXterm(data)
   const samples = []

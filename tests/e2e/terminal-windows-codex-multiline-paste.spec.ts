@@ -99,13 +99,13 @@ async function enableTerminalAccessibilityDom(
     if (!pane) {
       throw new Error(`Terminal pane ${targetPtyId} is unavailable`)
     }
-    // Why: xterm paints to canvas by default. Screen-reader mode mirrors the
+    // Why: terminal paints to canvas by default. Screen-reader mode mirrors the
     // visible prompt into DOM rows so the regression assertions stay user-facing.
     pane.terminal.options.screenReaderMode = true
     pane.terminal.refresh(0, pane.terminal.rows - 1)
   }, ptyId)
   await expect(
-    page.locator(`[data-pty-id=${JSON.stringify(ptyId)}] .xterm-accessibility-tree`)
+    page.locator(`[data-pty-id=${JSON.stringify(ptyId)}] .orca-terminal-accessibility-tree`)
   ).toBeAttached({ timeout: 10_000 })
 }
 
@@ -160,7 +160,7 @@ test.describe('Windows Codex multiline paste', () => {
     await focusActiveTerminalInput(orcaPage)
     await orcaPage.keyboard.type(DRAFT)
     const terminalDom = orcaPage.locator(
-      `[data-pty-id=${JSON.stringify(ptyId)}] .xterm-accessibility-tree`
+      `[data-pty-id=${JSON.stringify(ptyId)}] .orca-terminal-accessibility-tree`
     )
     await expect(terminalDom).toContainText(DRAFT, { timeout: 10_000 })
     await orcaPage.evaluate((text) => window.api.ui.writeClipboardText(text), pastePayload())
@@ -207,7 +207,7 @@ test.describe('Windows Codex multiline paste', () => {
 
       await orcaPage.keyboard.press('Control+V')
       const terminalDom = orcaPage.locator(
-        `[data-pty-id=${JSON.stringify(ptyId)}] .xterm-accessibility-tree`
+        `[data-pty-id=${JSON.stringify(ptyId)}] .orca-terminal-accessibility-tree`
       )
       await expect(terminalDom).toContainText(`${marker}_RESULT:MATCH`, { timeout: 30_000 })
     } finally {

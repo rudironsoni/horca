@@ -16,7 +16,7 @@ import { sendTerminalOscColorQueryReplies } from '../terminal-capability-replies
 import { shouldWritePtyOutputForeground } from './foreground-output-scan'
 
 import type { ConnectPanePtySession } from './connect-pane-pty-session'
-import { bindWritePtyOutputToXterm } from './write-pty-output-to-xterm'
+import { bindWritePtyOutputToTerminal } from './write-pty-output-to-terminal'
 
 import { bindAbandonHiddenOutputRestore } from './hidden-output-restore-abandon'
 import { bindHiddenOutputRestoreChunk } from './hidden-output-restore-chunk'
@@ -28,7 +28,7 @@ export function bindHiddenOutputSeqAndSkip(session: ConnectPanePtySession): void
   // Why record-only: DECSET 2031 subscribes to future color changes, it is not a query —
   // the protocol's query is `CSI ?996n`. fish arms 2031 for the ~1ms it paints a prompt, so
   // any reply lands after the withdrawal and paints `?997;1n` as literal text (#9993).
-  // Why here and not in xterm's CSI handler: xterm batches several PTY chunks into one
+  // Why here and not in terminal's CSI handler: terminal batches several PTY chunks into one
   // synchronous parse, so a handler cannot tell where a chunk ended. One raw chunk in,
   // one order-aware final state out.
   session.observeLiveMode2031Chunk = function (data: string): void {
@@ -55,27 +55,27 @@ export function bindHiddenOutputSeqAndSkip(session: ConnectPanePtySession): void
     )
   }
 
-  // Why installed here: the handler observes CSI 3 J inside xterm's parse, so a
+  // Why installed here: the handler observes CSI 3 J inside terminal's parse, so a
   // redraw split across PTY chunks is reported once, with the pane's rows for
   // this write already applied.
   session.liveScrollbackRestore?.dispose()
   session.liveScrollbackRestore = installTerminalLiveScrollbackRestore(session.pane.terminal)
 
   // Why read it live: `?1049` is not a no-op when the pane is already on the
-  // target buffer — xterm still runs restoreCursor and swaps the kitty flag
+  // target buffer — terminal still runs restoreCursor and swaps the kitty flag
   // registers — so the replay prologue must only switch when it truly differs.
   //
-  // Best-effort by design. xterm parses asynchronously, so this sees only
+  // Best-effort by design. terminal parses asynchronously, so this sees only
   // PARSED writes; a `?1049` transition still queued reads stale. Draining
   // first with a write sentinel was tried and reverted: it puts the repaint
-  // behind xterm's queue, so a wedged terminal stalls recovery, and it breaks
+  // behind terminal's queue, so a wedged terminal stalls recovery, and it breaks
   // the disposal/cancellation ordering the restore paths rely on. A stale read
   // costs one mis-scoped buffer switch; the barrier costs the repaint.
   session.isPaneOnAlternateScreen = function (): boolean {
     return session.pane.terminal.buffer.active.type === 'alternate'
   }
 
-  bindWritePtyOutputToXterm(session)
+  bindWritePtyOutputToTerminal(session)
   session.markHiddenOutputRestoreNeeded = function (): void {
     const ptyId = session.transport.getPtyId()
     if (!session.canUseHiddenOutputSnapshot(ptyId)) {
@@ -119,11 +119,11 @@ export function bindHiddenOutputSeqAndSkip(session: ConnectPanePtySession): void
       )
     }
     if (extracted.statelessQueryData) {
-      session.writePtyOutputToXterm(extracted.statelessQueryData, false, {
+      session.writePtyOutputToTerminal(extracted.statelessQueryData, false, {
         hiddenStartupRendererQuery: true
       })
     }
-    // Stateful hidden queries need ordered terminal state; if the hidden xterm is dirty, skip rather than send stale CPR/DECRQM.
+    // Stateful hidden queries need ordered terminal state; if the hidden terminal is dirty, skip rather than send stale CPR/DECRQM.
   }
 
   bindHiddenStartupRendererQueryWrite(session)

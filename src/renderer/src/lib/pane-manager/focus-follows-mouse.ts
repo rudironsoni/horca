@@ -26,7 +26,7 @@ export function shouldFollowMouseFocus(input: FocusFollowsMouseInput): boolean {
     return false
   }
   // Why mouseButtons !== 0: any held mouse button means a selection or
-  // a drag is in progress. Switching focus mid-drag would break xterm.js
+  // a drag is in progress. Switching focus mid-drag would break Ghostty
   // text selection and the pane drag-to-reorder flow. This single check
   // also covers drag-to-reorder, since the drag is always button-held.
   // See pane-drag-reorder.ts:77-103 for the drag state lifecycle.

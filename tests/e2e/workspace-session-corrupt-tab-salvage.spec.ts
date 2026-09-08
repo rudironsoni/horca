@@ -114,7 +114,9 @@ test('keeps valid terminal tabs visible after a corrupt sibling record on restar
     await ensureTerminalVisible(second.page)
 
     await expectSurvivingTabsVisible(second.page)
-    await expect(second.page.locator('.xterm').first()).toBeVisible({ timeout: 15_000 })
+    await expect(second.page.locator('.orca-terminal-canvas').first()).toBeVisible({
+      timeout: 15_000
+    })
     await expect
       .poll(() => persistedSessionEvidence(session.userDataDir, worktreeId), {
         timeout: 30_000

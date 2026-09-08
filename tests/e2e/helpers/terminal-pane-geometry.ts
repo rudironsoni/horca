@@ -10,12 +10,12 @@ export async function readVisibleXtermContainerBox(
   page: Page
 ): Promise<{ x: number; y: number; width: number; height: number }> {
   return page
-    .locator('.xterm:visible')
+    .locator('.orca-terminal-canvas:visible')
     .first()
-    .evaluate((xterm) => {
-      const container = xterm.closest('.xterm-container')
+    .evaluate((terminal) => {
+      const container = terminal.closest('.orca-terminal-container')
       if (!(container instanceof HTMLElement)) {
-        throw new Error('No visible xterm container found')
+        throw new Error('No visible terminal container found')
       }
       const rect = container.getBoundingClientRect()
       return { x: rect.x, y: rect.y, width: rect.width, height: rect.height }

@@ -21,7 +21,7 @@ import { useStructuredAgentLaunchStatus } from '@/lib/structured-agent-session-l
 export type QuickLaunchAgentMenuItemsProps = {
   worktreeId: string
   groupId: string
-  /** Called after the tab is created so keyboard focus lands in the new xterm.
+  /** Called after the tab is created so keyboard focus lands in the new terminal.
    *  Reuses the TabBar's existing double-rAF handoff — this component does
    *  not duplicate the focus logic. */
   onFocusTerminal: (tabId: string) => void

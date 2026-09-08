@@ -263,7 +263,7 @@ function rebuildNodePty(relayDir) {
 const VERIFY_INHERITANCE_SCRIPT = `
 const pty = require(process.argv[1]);
 const term = pty.spawn('/bin/sh', ['-c', 'exit 0'], {
-  name: 'xterm-256color', cols: 80, rows: 24, cwd: process.cwd(), env: process.env
+  name: 'xterm-ghostty', cols: 80, rows: 24, cwd: process.cwd(), env: process.env
 });
 const probe = require('node:child_process').spawnSync('/bin/sh', ['-c', 'ls -l /proc/self/fd'], { encoding: 'utf8' });
 try { term.kill() } catch {}
@@ -282,7 +282,7 @@ const pty = require(process.argv[1]);
 const terms = [];
 for (let i = 0; i < 3; i++) {
   terms.push(pty.spawn('/bin/sh', ['-c', 'sleep 30'], {
-    name: 'xterm-256color', cols: 80, rows: 24, cwd: process.cwd(), env: process.env
+    name: 'xterm-ghostty', cols: 80, rows: 24, cwd: process.cwd(), env: process.env
   }));
 }
 const probe = require('node:child_process').spawnSync('/bin/sh', ['-c', 'lsof -p ' + process.pid], { encoding: 'utf8', maxBuffer: 1 << 24 });

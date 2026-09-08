@@ -107,7 +107,7 @@ describe('Store', () => {
     expect(settings.notifications.suppressWhenFocused).toBe(true)
   })
 
-  it('repairs a persisted terminal line height outside xterm bounds', async () => {
+  it('repairs a persisted terminal line height outside terminal bounds', async () => {
     const persisted = getDefaultPersistedState(testState.dir)
     writeDataFile({
       ...persisted,

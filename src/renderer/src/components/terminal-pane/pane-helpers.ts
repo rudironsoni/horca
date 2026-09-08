@@ -49,7 +49,10 @@ function shouldPreserveEditableFocus(element: Element | null): boolean {
   if (!(element instanceof HTMLElement)) {
     return false
   }
-  if (element.classList.contains('xterm-helper-textarea') || element.closest('.xterm')) {
+  if (
+    element.classList.contains('orca-terminal-helper-textarea') ||
+    element.closest('.orca-terminal-canvas')
+  ) {
     return false
   }
   // Why: deferred fit/focus work can run after inline rename or settings

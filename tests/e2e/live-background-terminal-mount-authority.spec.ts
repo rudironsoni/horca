@@ -459,12 +459,16 @@ async function enableTerminalAccessibility(page: Page, tabId: string): Promise<v
     pane.terminal.refresh(0, pane.terminal.rows - 1)
   }, tabId)
   await expect(
-    page.locator(`[data-terminal-tab-id=${JSON.stringify(tabId)}] .xterm-accessibility-tree`)
+    page.locator(
+      `[data-terminal-tab-id=${JSON.stringify(tabId)}] .orca-terminal-accessibility-tree`
+    )
   ).toBeAttached({ timeout: 10_000 })
 }
 
 function terminalAccessibility(page: Page, tabId: string) {
-  return page.locator(`[data-terminal-tab-id=${JSON.stringify(tabId)}] .xterm-accessibility-tree`)
+  return page.locator(
+    `[data-terminal-tab-id=${JSON.stringify(tabId)}] .orca-terminal-accessibility-tree`
+  )
 }
 
 async function terminalViewportText(page: Page, tabId: string): Promise<string> {
@@ -482,7 +486,9 @@ async function terminalViewportText(page: Page, tabId: string): Promise<string> 
 }
 
 async function typeIntoTerminal(page: Page, tabId: string, marker: string): Promise<void> {
-  const terminal = page.locator(`[data-terminal-tab-id=${JSON.stringify(tabId)}] .xterm:visible`)
+  const terminal = page.locator(
+    `[data-terminal-tab-id=${JSON.stringify(tabId)}] .orca-terminal-canvas:visible`
+  )
   await terminal.click({ force: true })
   await page.keyboard.type(marker, { delay: 20 })
   await page.keyboard.press('Enter')

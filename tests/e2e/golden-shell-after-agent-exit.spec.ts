@@ -15,7 +15,7 @@ import {
 
 test.use({ launchEnv: getGoldenStubAgentLaunchEnv() })
 
-// Why: xterm renders the typed command itself, so `echo after-agent` would
+// Why: terminal renders the typed command itself, so `echo after-agent` would
 // satisfy waitForTerminalOutput even if the shell never ran it. Splitting the
 // marker keeps it out of the input, so a match proves real shell execution.
 function buildSplitMarkerEcho(prefix: string, suffix: string): { command: string; marker: string } {
