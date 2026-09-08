@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { ManagedPaneInternal } from './pane-manager-types'
 
 const webglRendererMock = vi.hoisted(() => ({
-  attachWebgl: vi.fn(),
+  refreshPaneRenderer: vi.fn(),
   disposeWebgl: vi.fn()
 }))
 
@@ -121,8 +121,8 @@ describe('insertPaneNextTo reparent frame', () => {
 
     expect(webglRendererMock.disposeWebgl).toHaveBeenCalledWith(source)
     expect(webglRendererMock.disposeWebgl).toHaveBeenCalledWith(target)
-    expect(webglRendererMock.attachWebgl).toHaveBeenCalledWith(source)
-    expect(webglRendererMock.attachWebgl).toHaveBeenCalledWith(target)
+    expect(webglRendererMock.refreshPaneRenderer).toHaveBeenCalledWith(source)
+    expect(webglRendererMock.refreshPaneRenderer).toHaveBeenCalledWith(target)
     expect(safeFit).toHaveBeenCalledWith(source)
     expect(safeFit).toHaveBeenCalledWith(target)
   })
@@ -152,7 +152,7 @@ describe('insertPaneNextTo reparent frame', () => {
     destroyed = true
     frames[0]?.(16)
 
-    expect(webglRendererMock.attachWebgl).not.toHaveBeenCalled()
+    expect(webglRendererMock.refreshPaneRenderer).not.toHaveBeenCalled()
     expect(safeFit).not.toHaveBeenCalled()
   })
 
