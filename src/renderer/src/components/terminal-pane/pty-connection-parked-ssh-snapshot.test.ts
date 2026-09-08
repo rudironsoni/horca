@@ -206,7 +206,7 @@ describe('connectPanePty', () => {
     expect(mockStoreState.removeDeferredSshSessionId).toHaveBeenCalledWith('tab-1')
     expect(deps.syncPanePtyLayoutBinding).toHaveBeenCalledWith(1, 'leaf-session')
     expect(deps.updateTabPtyId).toHaveBeenCalledWith('tab-1', 'leaf-session')
-    // Why: the relay's replay buffer holds full history, so clear xterm before writing to avoid duplicating prior-session content.
+    // Why: the relay's replay buffer holds full history, so clear terminal before writing to avoid duplicating prior-session content.
     expect(writes).toContain(`${RESET_GRAPHIC_RENDITION}\x1b[2J\x1b[3J\x1b[H`)
     expect(writes).toContain('restored-ssh-output')
     expect(writes).toContain(POST_REPLAY_REATTACH_RESET)

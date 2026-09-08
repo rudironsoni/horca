@@ -1,7 +1,7 @@
 import type { ManagedPane } from './pane-manager-types'
 import { recordTerminalWebglDiagnostic } from '../../../../shared/terminal-webgl-diagnostics'
 
-/** The xterm options whose writes make the renderer clear, resize and full-refresh. */
+/** The terminal options whose writes make the renderer clear, resize and full-refresh. */
 export type PaneMetricOptions = {
   fontSize?: number
   fontFamily?: string
@@ -18,7 +18,7 @@ type PaneTerminal = ManagedPane['terminal']
 const deferredMetricOptions = new WeakMap<PaneTerminal, PaneMetricOptions>()
 
 /**
- * Why deferred: writing one of these makes xterm clear the renderer, re-resize
+ * Why deferred: writing one of these makes terminal clear the renderer, re-resize
  * to the current grid and full-refresh. On a pane with no usable box that
  * repaint is wasted — it lands in the DOM-renderer fallback while WebGL is
  * suspended — and the cols/rows re-fit that has to follow the write cannot run.

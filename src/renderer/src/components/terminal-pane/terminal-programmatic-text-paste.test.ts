@@ -72,7 +72,7 @@ async function flushPasteTasks(iterations = 6): Promise<void> {
 }
 
 describe('terminal programmatic text paste', () => {
-  it('does not direct-paste through xterm when the pane has no live transport', async () => {
+  it('does not direct-paste through terminal when the pane has no live transport', async () => {
     const pane = makePane()
 
     handleTerminalProgrammaticTextPaste({

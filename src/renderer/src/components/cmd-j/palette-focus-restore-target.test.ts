@@ -8,7 +8,7 @@ afterEach(() => {
 
 function addTerminal(id: string): HTMLTextAreaElement {
   const textarea = document.createElement('textarea')
-  textarea.className = 'xterm-helper-textarea'
+  textarea.className = 'orca-terminal-helper-textarea'
   textarea.dataset.terminal = id
   document.body.appendChild(textarea)
   return textarea
@@ -27,7 +27,7 @@ describe('resolvePaletteFocusRestoreTarget', () => {
   it('falls back to the first terminal when the previous element is gone', () => {
     const first = addTerminal('first')
     const detached = document.createElement('textarea')
-    detached.className = 'xterm-helper-textarea'
+    detached.className = 'orca-terminal-helper-textarea'
     // Never appended → not connected (e.g. its pane unmounted while Cmd+J was open).
 
     expect(detached.isConnected).toBe(false)

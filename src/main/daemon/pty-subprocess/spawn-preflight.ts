@@ -161,11 +161,11 @@ export function runPtySpawnHealthProbe(): Promise<void> {
   let proc: pty.IPty
   try {
     proc = pty.spawn('/bin/sh', ['-c', 'exit 0'], {
-      name: 'xterm-256color',
+      name: 'xterm-ghostty',
       cols: 2,
       rows: 1,
       cwd,
-      env: { ...process.env, TERM: 'xterm-256color' }
+      env: { ...process.env, TERM: 'xterm-ghostty' }
     })
   } catch (err) {
     throw formatPtySpawnError(err, '/bin/sh', cwd)

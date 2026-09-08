@@ -9,11 +9,11 @@ vi.mock('@/components/terminal-pane/terminal-ime-input-context-refresh', () => (
   refreshTerminalImeInputContext: mocks.refreshTerminalImeInputContext
 }))
 
-// Why: tab-wide queries skip leaves whose xterm sits under the native chat portal.
+// Why: tab-wide queries skip leaves whose terminal sits under the native chat portal.
 const TAB_HELPER_SELECTOR =
-  '[data-terminal-tab-id="tab-1"] [data-leaf-id]:not(:has(.native-chat-pane-shell)) .xterm-helper-textarea'
+  '[data-terminal-tab-id="tab-1"] [data-leaf-id]:not(:has(.native-chat-pane-shell)) .orca-terminal-helper-textarea'
 const GLOBAL_HELPER_SELECTOR =
-  '[data-leaf-id]:not(:has(.native-chat-pane-shell)) .xterm-helper-textarea'
+  '[data-leaf-id]:not(:has(.native-chat-pane-shell)) .orca-terminal-helper-textarea'
 
 describe('focusTerminalTabSurface', () => {
   afterEach(() => {
@@ -29,7 +29,7 @@ describe('focusTerminalTabSurface', () => {
     vi.stubGlobal('cancelAnimationFrame', vi.fn())
   }
 
-  it('focuses the scoped xterm helper textarea', () => {
+  it('focuses the scoped terminal helper textarea', () => {
     flushAnimationFrames()
     const textarea = { focus: vi.fn() }
     vi.stubGlobal('document', {
@@ -48,7 +48,10 @@ describe('focusTerminalTabSurface', () => {
     const canvas = { focus: vi.fn() }
     vi.stubGlobal('document', {
       querySelector: vi.fn((selector: string) =>
-        selector === '[data-terminal-tab-id="tab-1"] canvas.xterm' ? canvas : null
+        selector ===
+        '[data-terminal-tab-id="tab-1"] [data-leaf-id]:not(:has(.native-chat-pane-shell)) canvas.orca-terminal-canvas'
+          ? canvas
+          : null
       )
     })
 
@@ -118,7 +121,7 @@ describe('focusTerminalTabSurface', () => {
     expect(textarea.focus).not.toHaveBeenCalled()
   })
 
-  it('does not focus xterm while chat covers the terminal tab', () => {
+  it('does not focus terminal while chat covers the terminal tab', () => {
     flushAnimationFrames()
     const textarea = { focus: vi.fn() }
     vi.stubGlobal('document', {
@@ -149,7 +152,7 @@ describe('focusTerminalTabSurface', () => {
         if (selector === TAB_HELPER_SELECTOR) {
           return terminalTextarea
         }
-        return selector === '[data-terminal-tab-id="tab-1"] .xterm-helper-textarea'
+        return selector === '[data-terminal-tab-id="tab-1"] .orca-terminal-helper-textarea'
           ? coveredTextarea
           : null
       })
@@ -166,7 +169,7 @@ describe('focusTerminalTabSurface', () => {
     const coveredTextarea = { focus: vi.fn() }
     vi.stubGlobal('document', {
       querySelector: vi.fn((selector: string) =>
-        selector === '.xterm-helper-textarea' ? coveredTextarea : null
+        selector === '.orca-terminal-helper-textarea' ? coveredTextarea : null
       )
     })
 
@@ -197,7 +200,8 @@ describe('focusTerminalTabSurface', () => {
         selector === '[data-terminal-tab-id="tab-1"]' ? { getAttribute: () => 'new-leaf' } : null
       ),
       querySelectorAll: vi.fn((selector: string) =>
-        selector === TAB_HELPER_SELECTOR
+        selector ===
+        `${TAB_HELPER_SELECTOR}, [data-terminal-tab-id="tab-1"] [data-leaf-id]:not(:has(.native-chat-pane-shell)) canvas.orca-terminal-canvas`
           ? { length: 1, item: () => textarea }
           : { length: 0, item: () => null }
       )

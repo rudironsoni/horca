@@ -160,7 +160,7 @@ function performSafeFit(pane: ManagedPane): boolean {
           restoreTerminalStructuralScrollIntent(pane.terminal, scrollIntent)
         }
       } catch {
-        // Why: SSH reattach can briefly expose xterm without renderer dimensions.
+        // Why: SSH reattach can briefly expose terminal without renderer dimensions.
       } finally {
         if (pinnedScrollState) {
           releaseScrollStateMarker(pinnedScrollState)
@@ -202,7 +202,7 @@ function armSafeFitContinuationRetry(pane: ManagedPane): void {
   })
 }
 
-// Why: callers that forward xterm's grid to a PTY must wait for a measurable
+// Why: callers that forward terminal's grid to a PTY must wait for a measurable
 // fit or explicit lifecycle cancellation instead of observing replay dimensions.
 export function safeFitAndThen(
   pane: ManagedPane,

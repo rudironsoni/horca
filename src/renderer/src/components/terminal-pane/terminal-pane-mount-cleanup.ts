@@ -92,7 +92,7 @@ export function cleanupTerminalPaneMount(args: {
     if (deferredSplitHandoff) {
       if (tabStillExists && !ptyId) {
         // Keep only the transient launch record; the old transport and
-        // xterm are still disposable during a whole-tab remount.
+        // terminal are still disposable during a whole-tab remount.
         releaseDeferredSplitPaneHandoff(deferredSplitHandoff)
       } else {
         clearDeferredSplitPaneHandoff(deferredSplitHandoff)

@@ -60,8 +60,8 @@ export function recoverProductionTerminalRefs() {
     }
   }
 
-  for (const xterm of document.querySelectorAll('.xterm')) {
-    let root = xterm
+  for (const terminal of document.querySelectorAll('.orca-terminal-canvas')) {
+    let root = terminal
     let fiberKey = null
     while (root && !fiberKey) {
       fiberKey = Object.keys(root).find(

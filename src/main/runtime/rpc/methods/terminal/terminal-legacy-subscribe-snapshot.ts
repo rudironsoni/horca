@@ -232,7 +232,7 @@ export async function publishLegacyBinaryInitialSnapshot(
         .map((query) => query.data)
         .join('')
   if (queryReplayData) {
-    // Why: snapshots omit control queries but their seq trims the live chunk; replay the post-snapshot query so the mobile xterm answers once.
+    // Why: snapshots omit control queries but their seq trims the live chunk; replay the post-snapshot query so the mobile terminal answers once.
     state.outputBatcher.push(queryReplayData)
   }
   if (!initialOutputOverflowed) {

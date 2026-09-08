@@ -99,7 +99,7 @@ export function prepareAgentSessionForkFromPane({
   )
   const agent = sourceAgent ?? tabAgent
   // Why: v1 is a context fork, not a process clone. Capturing scrollback keeps
-  // SSH and local panes on the same path because both expose xterm state here.
+  // SSH and local panes on the same path because both expose terminal state here.
   const prompt = buildAgentSessionForkPrompt({
     capturedText: pane.serializeController.serialize({ scrollback: 800 }),
     sourceLabel: paneKey,

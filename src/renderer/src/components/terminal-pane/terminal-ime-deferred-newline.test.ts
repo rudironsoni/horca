@@ -31,7 +31,7 @@ describe('sendTerminalInputAfterComposition', () => {
     expect(send).not.toHaveBeenCalled()
 
     el.dispatchEvent(new Event('compositionend'))
-    // Deferred a macrotask so xterm's own post-compositionend flush runs first.
+    // Deferred a macrotask so terminal's own post-compositionend flush runs first.
     expect(send).not.toHaveBeenCalled()
 
     vi.runAllTimers()
@@ -101,7 +101,7 @@ describe('sendTerminalInputAfterComposition', () => {
     )
   })
 
-  it('finishes from the captured xterm transaction when deferral starts after compositionend', () => {
+  it('finishes from the captured terminal transaction when deferral starts after compositionend', () => {
     const el = document.createElement('div')
     const send = vi.fn()
 
@@ -112,7 +112,7 @@ describe('sendTerminalInputAfterComposition', () => {
     expect(send).toHaveBeenCalledTimes(1)
   })
 
-  it('waits for every overlapping captured xterm transaction', () => {
+  it('waits for every overlapping captured terminal transaction', () => {
     const el = document.createElement('div')
     const send = vi.fn()
     const terminal = { input: vi.fn() }

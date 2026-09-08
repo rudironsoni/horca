@@ -9,7 +9,7 @@
  * represents a character as TWO cells is the Windows console text buffer, where
  * a DBCS glyph occupies a leading and a trailing cell that both carry the same
  * wchar. Emitting the trailing cell as text produces exactly the reported
- * signature. So the assertion is on the bytes node-pty hands us, BEFORE xterm.
+ * signature. So the assertion is on the bytes node-pty hands us, BEFORE terminal.
  *
  * Orca pins the ConPTY implementation with `useConptyDll: true`
  * (local-pty-utils.ts, pty-subprocess.ts, windows-conpty-warmup.ts), so the
@@ -54,7 +54,7 @@ async function runThroughConpty(opts: { useConptyDll: boolean }): Promise<string
   ].join('')
 
   const proc = nodePty.spawn(process.execPath, ['-e', script], {
-    name: 'xterm-256color',
+    name: 'xterm-ghostty',
     // Why narrow: the reporter's doubling shows on wrapped rows, and a wide glyph
     // straddling the wrap boundary is where the leading/trailing cell pair matters.
     cols: 40,

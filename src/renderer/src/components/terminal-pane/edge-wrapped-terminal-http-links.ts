@@ -103,7 +103,7 @@ export function buildEdgeWrappedHttpLogicalLineCandidates(
   buffer: { getLine(y: number): IBufferLine | undefined },
   bufferLineNumber: number
 ): WrappedLogicalLine[] {
-  // Why: cursor-positioned output lacks xterm wrap metadata, but an HTTP URL
+  // Why: cursor-positioned output lacks terminal wrap metadata, but an HTTP URL
   // may still continue when each earlier row reaches the terminal edge.
   const currentY = bufferLineNumber - 1
   const currentLine = buffer.getLine(currentY)
