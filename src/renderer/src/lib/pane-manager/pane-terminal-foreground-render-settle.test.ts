@@ -78,6 +78,6 @@ describe('writeForegroundTerminalChunk render-pause ownership', () => {
     })
 
     expect(renderServiceRead).not.toHaveBeenCalled()
-    expect(terminal._core.refresh).toHaveBeenCalledWith(0, 23, true)
+    expect(terminal.refresh).toHaveBeenCalledWith(0, 23)
   })
 })
