@@ -16,6 +16,13 @@ describe('terminal container geometry', () => {
     )
   })
 
+  it('hides the helper textarea as a sibling of the canvas', () => {
+    expect(terminalCss).toMatch(
+      /\.xterm-container\s*>\s*\.xterm-helper-textarea\s*{[^}]*position:\s*absolute;[^}]*opacity:\s*0;/s
+    )
+    expect(terminalCss).not.toMatch(/\.pane-manager-root \.xterm \.xterm-helper-textarea/)
+  })
+
   it('bounds cursor-blink repaints to the terminal surface (#10481)', () => {
     expect(terminalCss).toMatch(/\.xterm-container\s*{[^}]*contain:\s*paint;/s)
   })
