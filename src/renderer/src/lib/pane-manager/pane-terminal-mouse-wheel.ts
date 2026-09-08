@@ -95,7 +95,10 @@ function cloneWheelReportEvent(event: WheelEvent): WheelEvent {
 }
 
 function resolveTerminalWheelCellHeight(terminal: TerminalWheelTarget): number | undefined {
-  const screen = queryOrcaTerminalCanvas(terminal.element)
+  if (typeof terminal.element?.querySelector !== 'function') {
+    return undefined
+  }
+  const screen = terminal.element?.querySelector<HTMLElement>('.orca-terminal-canvas')
   const rect = screen?.getBoundingClientRect()
   if (!rect || rect.height <= 0 || terminal.rows <= 0) {
     return undefined

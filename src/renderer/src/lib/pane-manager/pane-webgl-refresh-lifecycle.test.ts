@@ -99,7 +99,7 @@ describe('pane WebGL refresh lifecycle', () => {
     expect(pane.terminal.refresh).toHaveBeenCalledTimes(1)
   })
 
-  it('releases the Ghostty GPU context without dropping the pane wrapper', () => {
+  it('actively releases the terminal WebGL context before disposing the addon', () => {
     const loseContext = vi.fn()
     const dispose = vi.fn()
     const pane = createPane({

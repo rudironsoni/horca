@@ -617,7 +617,7 @@
 /* ── Editor-style scrollbar (matches Monaco) ────────── */
 
 .scrollbar-editor,
-.xterm .xterm-viewport,
+.orca-terminal-canvas .orca-terminal-viewport,
 .orca-terminal-canvas {
   scrollbar-width: thin;
   scrollbar-color: rgba(121, 121, 121, 0.4) transparent;

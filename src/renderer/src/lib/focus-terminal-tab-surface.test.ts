@@ -48,7 +48,10 @@ describe('focusTerminalTabSurface', () => {
     const canvas = { focus: vi.fn() }
     vi.stubGlobal('document', {
       querySelector: vi.fn((selector: string) =>
-        selector === '[data-terminal-tab-id="tab-1"] canvas.xterm' ? canvas : null
+        selector ===
+        '[data-terminal-tab-id="tab-1"] [data-leaf-id]:not(:has(.native-chat-pane-shell)) canvas.orca-terminal-canvas'
+          ? canvas
+          : null
       )
     })
 

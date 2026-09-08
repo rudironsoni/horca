@@ -56,8 +56,8 @@ export function resetTerminalLinkifierHoverState(terminal: unknown): void {
     // Why: keep the cursor recoverable if a future terminal build omits the
     // private cleanup method or has no last mouse event for it to use.
     ;(terminal as { element?: HTMLElement }).element
-      ?.querySelector<HTMLElement>('.xterm-screen')
-      ?.classList.remove('xterm-cursor-pointer')
+      ?.querySelector<HTMLElement>('.orca-terminal-canvas')
+      ?.classList.remove('orca-terminal-cursor-pointer')
   } catch {
     /* linkifier internals unavailable — link recovers on the next cell change */
   }

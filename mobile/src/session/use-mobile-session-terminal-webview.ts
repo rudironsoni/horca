@@ -32,6 +32,7 @@ export function useMobileSessionTerminalWebview(scope: MobileSessionTabSwitching
     readMarkdownTab,
     readFileTab
   } = scope
+  // Why: only store the ref; subscribe on web-ready to avoid the blank-terminal race (init queued before Ghostty loaded).
   const setTerminalWebViewRef = useCallback((handle: string, ref: TerminalWebViewHandle | null) => {
     terminalDiagnosticsRef.current.webViewRef(handle, ref != null)
     if (ref) {
@@ -59,6 +60,7 @@ export function useMobileSessionTerminalWebview(scope: MobileSessionTabSwitching
         handle === activeHandleRef.current
       )
       if (wasAlreadyReady && initializedHandlesRef.current.has(handle)) {
+        // Why: WebView reloaded (hot reload / Android churn); old terminal buffer is gone, so resubscribe for a fresh scrollback.
         unsubscribeTerminal(handle)
         initializedHandlesRef.current.delete(handle)
         if (handle === activeHandleRef.current) {

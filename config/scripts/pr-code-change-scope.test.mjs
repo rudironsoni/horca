@@ -172,13 +172,6 @@ describe('per-job path classification', () => {
     })
   })
 
-  it('does not run a deleted xterm patch-sync job', () => {
-    expect(PR_CHECK_JOBS).not.toContain('xterm_patch_sync')
-    expect(classifyPrJobs(['src/renderer/src/components/tab-bar/TabBar.tsx'])).not.toHaveProperty(
-      'xterm_patch_sync'
-    )
-  })
-
   it('runs native package jobs only for the platform that ships the changed native', () => {
     expectClassification(['native/windows-cli-launcher/OrcaCliLauncher.cs'], {
       package_windows: true

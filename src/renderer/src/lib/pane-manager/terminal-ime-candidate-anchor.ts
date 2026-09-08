@@ -85,7 +85,7 @@ export function installTerminalImeCandidateAnchor(
   if (!terminal.element || !terminal.textarea) {
     return null
   }
-  const screenElement = queryOrcaTerminalCanvas(terminal.element)
+  const screenElement = terminal.element.querySelector<HTMLElement>('.orca-terminal-canvas')
   const compositionView = terminal.element.querySelector<HTMLElement>('.composition-view')
   const textarea = terminal.textarea
   let metrics: ImeAnchorCellMetrics | null = null
@@ -161,7 +161,7 @@ export function installTerminalImeCandidateAnchor(
         isCursorAgent: false
       }
     }
-    // Why: Cursor Agent draws its prompt UI while leaving xterm's public cursor
+    // Why: Cursor Agent draws its prompt UI while leaving terminal's public cursor
     // on a blank row, so the OS IME anchor needs the rendered prompt row instead.
     const cursorAgentAnchor = resolveCursorAgentImeAnchor({
       buffer: buf,

@@ -20,6 +20,7 @@
   "dependencies": {
     "@noble/hashes": "1.8.0",
     "@orca/expo-two-way-audio": "file:./packages/expo-two-way-audio",
+    "@orca/libghostty-terminal": "github:arcboxlabs/expo-libghostty",
     "@react-native-async-storage/async-storage": "^2.2.0",
     "buffer": "^6.0.3",
     "expo": "^55.0.30",

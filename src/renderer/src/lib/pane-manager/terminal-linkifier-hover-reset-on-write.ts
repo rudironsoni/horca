@@ -33,7 +33,7 @@ export function installWriteParsedTerminalLinkifierHoverResetOnWrite(
   terminal: WriteParsedTerminal
 ): IDisposable {
   // Why: never let this break pane creation if a WriteParsedTerminal stub or a future
-  // xterm build lacks onWriteParsed — links then recover on the next cell
+  // terminal build lacks onWriteParsed — links then recover on the next cell
   // change, as they did before this reset existed.
   if (typeof terminal.onWriteParsed !== 'function') {
     return { dispose: () => undefined }

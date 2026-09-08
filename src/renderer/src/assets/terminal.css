@@ -25,7 +25,6 @@
   outline: none;
 }
 
-.pane-manager-root .xterm,
 .pane-manager-root .orca-terminal-canvas {
   height: 100%;
   width: 100%;
@@ -35,8 +34,8 @@
   display: block;
 }
 
-.pane-manager-root .xterm-viewport {
-  /* Why: xterm/VS Code keep the scrollbar gutter stable. `auto` lets Linux
+.pane-manager-root .orca-terminal-viewport {
+  /* Why: terminal/VS Code keep the scrollbar gutter stable. `auto` lets Linux
      DOM scrollbars appear/disappear, which can feed resize/reflow jitter. */
   overflow-y: scroll;
 }
@@ -73,24 +72,6 @@
   padding: 0;
   margin: 0;
   caret-color: transparent;
-}
-
-/* Overlay scrollbar is a sibling of the canvas, not an xterm inner gutter. */
-.orca-terminal-container > .orca-terminal-scrollbar.orca-terminal-vertical {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 8px;
-  height: 100%;
-  z-index: 20;
-}
-
-.orca-terminal-container > .orca-terminal-scrollbar.orca-terminal-vertical > .orca-terminal-slider {
-  position: absolute;
-  left: 0;
-  width: 100%;
-  border-radius: 4px;
-  background: color-mix(in srgb, var(--muted-foreground) 45%, transparent);
 }
 
 .orca-terminal-canvas.orca-ime-composer-placeholder .orca-terminal-composition-remainder {

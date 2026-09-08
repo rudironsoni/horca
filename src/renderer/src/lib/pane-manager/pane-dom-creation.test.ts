@@ -52,7 +52,7 @@ describe('createPaneDOM link tooltips', () => {
     pane.terminal.dispose()
   })
 
-  it('constructs an Orca Ghostty canvas terminal, not xterm', () => {
+  it('constructs an Orca Ghostty canvas terminal, not terminal', () => {
     const leafId = '11111111-1111-4111-8111-111111111111' as TerminalLeafId
     const pane = createPaneDOM(
       1,
@@ -67,6 +67,7 @@ describe('createPaneDOM link tooltips', () => {
     pane.terminal.scrollToBottom()
     expect(pane.terminalHost.contains(pane.terminal.element)).toBe(true)
     expect(pane.terminal.element.tagName).toBe('CANVAS')
+    expect(pane.terminal.textarea.className).toBe('orca-terminal-helper-textarea')
     expect(pane.terminal.serialize()).toContain('hello ghostty')
     pane.terminal.dispose()
   })
