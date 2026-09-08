@@ -87,6 +87,11 @@ export function bindWritePtyOutputToXterm(session: ConnectPanePtySession): void 
         !foreground || parseHiddenStartupOutput
           ? true
           : synchronizedFrameLatencySensitive || session.isLatencySensitiveForegroundOutput(data),
+      interactive:
+        !foreground ||
+        session.isActiveSplitPane() ||
+        performance.now() - session.lastTerminalInputAt <=
+          FOREGROUND_SYNCHRONIZED_FRAME_INTERACTIVE_WINDOW_MS,
       forceForegroundRefresh:
         foregroundOutput &&
         (synchronizedForegroundOutput ||
