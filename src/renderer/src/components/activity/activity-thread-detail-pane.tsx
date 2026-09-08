@@ -60,7 +60,7 @@ export function ActivityThreadDetailPane({
               </div>
             </div>
           </div>
-          {/* Why: Terminal stays mounted in the hidden workspace tree; this target moves that existing TerminalPane here instead of spawning a second PTY/xterm owner. */}
+          {/* Why: Terminal stays mounted in the hidden workspace tree; this target moves that existing TerminalPane here instead of spawning a second PTY/terminal owner. */}
           {(() => {
             // Why: retained threads can outlive their tab; portal needs a live TerminalPane to render into.
             if (!selectedHasLiveTab) {

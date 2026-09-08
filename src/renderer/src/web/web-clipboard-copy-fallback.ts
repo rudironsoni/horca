@@ -11,7 +11,7 @@ export function copyClipboardTextViaExecCommand(text: string, doc: Document = do
       return
     }
     event.clipboardData.setData('text/plain', text)
-    // Why bubble + stop: xterm's listener on terminal.element overwrites text/plain,
+    // Why bubble + stop: terminal's listener on terminal.element overwrites text/plain,
     // and preventDefault alone does not stop it or any later window-level handler.
     event.stopImmediatePropagation()
     event.preventDefault()

@@ -13,7 +13,7 @@ import { compareTerminalScreenshots } from './terminal-screenshot-diff'
 
 /**
  * Reproduction for the "missing bottom rows on reveal, recover on drag-select"
- * bug (PR #7614). The mechanism is xterm's RenderService gating refreshRows() on
+ * bug (PR #7614). The mechanism is terminal's RenderService gating refreshRows() on
  * its IntersectionObserver: while `_isPaused` is true (the observer can lag a
  * frame behind a just-revealed pane, worse under load), refresh() early-returns
  * and only latches `_needsFullRefresh`. The reveal-repaint's terminal.refresh()
@@ -21,7 +21,7 @@ import { compareTerminalScreenshots } from './terminal-screenshot-diff'
  *
  * This spec drives the REAL production reveal path (manager.resetWebglTextureAtlases
  * -> resetWebglTextureAtlas -> forceFullViewportPresent) against a real
- * xterm Terminal + RenderService. It:
+ * terminal Terminal + RenderService. It:
  *   1. proves the bug: while paused, a plain refresh() renders nothing;
  *   2. proves the fix: the real reveal repaint forces a full-viewport render
  *      through the paused gate and clears the pause latch;
@@ -64,7 +64,7 @@ type RevealProbeWindow = Window & {
 }
 
 /**
- * Installs an in-page probe that instruments the active pane's REAL xterm
+ * Installs an in-page probe that instruments the active pane's REAL terminal
  * RenderService. Everything here runs against production objects; the only
  * test-only code is the recording wrapper around `_renderRows` and the manual
  * flip of `_isPaused` that stands in for the observer-lag race.
@@ -336,13 +336,13 @@ async function readSynchronizedRevealProbe(page: Page) {
 }
 
 async function captureFirstRevealedFrame(page: Page, tabId: string): Promise<Buffer> {
-  const screen = page.locator(`[data-terminal-tab-id="${tabId}"] .xterm-screen`).first()
+  const screen = page.locator(`[data-terminal-tab-id="${tabId}"] .orca-terminal-canvas`).first()
   await expect(screen).toBeVisible()
   return screen.screenshot({ animations: 'disabled' })
 }
 
 test.describe('terminal reveal paused-render recovery', () => {
-  test("reveal repaint forces a render through xterm's paused gate", async ({ orcaPage }) => {
+  test("reveal repaint forces a render through terminal's paused gate", async ({ orcaPage }) => {
     // Why: __store / __paneManagers live on the main Orca renderer window
     // (orcaPage), not Playwright's default first page.
     const page = orcaPage

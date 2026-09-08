@@ -76,7 +76,7 @@ describe('pane terminal output scheduler', () => {
       expect(hasTerminalParseProgressSince(terminal, generation)).toBe(false)
       expect(recoveryReasons).toEqual(['write-stalled'])
       expect(isTerminalWritePipelineCertifiedDead(terminal)).toBe(true)
-      // Only the first rejection touches xterm; later PTY deliveries credit
+      // Only the first rejection touches terminal; later PTY deliveries credit
       // directly while recovery owns the certified-dead instance.
       expect(terminal.write).toHaveBeenCalledTimes(1)
       expect(onParsed).not.toHaveBeenCalled()
@@ -99,7 +99,7 @@ describe('pane terminal output scheduler', () => {
     }
 
     // More than two drain slices: rejection must abandon the detached tail
-    // instead of synchronously retrying the same certified-dead xterm.
+    // instead of synchronously retrying the same certified-dead terminal.
     writeTerminalOutput(throwing, 'x'.repeat(40 * 1024), { foreground: false })
 
     // Why: drain runs inside setTimeout; if the throw escapes drainQueuedOutput

@@ -126,7 +126,7 @@ export function recordRuntimeTerminalInputForPtyId(ptyId: string, timestamp = Da
     return
   }
   try {
-    // Why: paired/runtime sends can bypass xterm.onData, so hibernation
+    // Why: paired/runtime sends can bypass terminal.onData, so hibernation
     // needs the same user-input marker from the PTY-id route.
     state.recordTerminalInput(paneKey, timestamp)
   } catch {
@@ -265,7 +265,7 @@ function sendRuntimePtyInputWithinLimit(
       }
     })
     .catch(() => {
-      // Why: web session snapshots can retire a remote handle while xterm still
+      // Why: web session snapshots can retire a remote handle while terminal still
       // flushes a final input event. The next host snapshot will reattach.
     })
   return true

@@ -72,7 +72,7 @@ async function runInteractivePosixPty(args: {
   const shellArgs = shell === 'bash' ? ['--noprofile', '--rcfile', rcfile, '-i'] : ['-f', '-i']
 
   const proc = pty.spawn(shell, shellArgs, {
-    name: 'xterm-256color',
+    name: 'xterm-ghostty',
     cols: 100,
     rows: 30,
     cwd: args.cwd,
@@ -145,7 +145,7 @@ describePosix('OMP shell wrapper node-pty reproduction', () => {
       ORCA_FAKE_OMP_DEFAULT_DIR: ompDir,
       ORCA_CAPTURE_FILE: captureFile,
       ORCA_AFTER_PI_FILE: afterPiFile,
-      TERM: process.env.TERM || 'xterm-256color'
+      TERM: process.env.TERM || 'xterm-ghostty'
     })
 
     const unwrappedCapture = join(tempDir, 'unwrapped-capture')
@@ -216,7 +216,7 @@ exit 0
         ORCA_OMP_STATUS_EXTENSION: statusExtension,
         ORCA_FAKE_OMP_DEFAULT_DIR: sourceDir,
         ORCA_CAPTURE_FILE: captureFile,
-        TERM: process.env.TERM || 'xterm-256color'
+        TERM: process.env.TERM || 'xterm-ghostty'
       },
       input: `omp config
 exit 0
@@ -271,7 +271,7 @@ exit 0
         ORCA_OMP_STATUS_EXTENSION: statusExtension,
         ORCA_FAKE_OMP_DEFAULT_DIR: sourceDir,
         ORCA_CAPTURE_FILE: captureFile,
-        TERM: process.env.TERM || 'xterm-256color'
+        TERM: process.env.TERM || 'xterm-ghostty'
       },
       input: `omp ${subcommand}
 exit 0
@@ -313,7 +313,7 @@ exit 0
           ORCA_OMP_STATUS_EXTENSION: statusExtension,
           ORCA_FAKE_OMP_DEFAULT_DIR: defaultOmpDir,
           ORCA_CAPTURE_FILE: captureFile,
-          TERM: process.env.TERM || 'xterm-256color'
+          TERM: process.env.TERM || 'xterm-ghostty'
         },
         input: `omp config
 exit 0
@@ -436,7 +436,7 @@ ${getPosixOmpShellWrapper()}`,
         ORCA_RESULT_FILE: resultFile,
         ORCA_SCENARIO_FILE: scenarioFile,
         ORCA_TEST_FAKE_OMP_EXIT_CODE: '23',
-        TERM: 'xterm-256color'
+        TERM: 'xterm-ghostty'
       },
       input: 'source "$ORCA_SCENARIO_FILE"\n'
     })

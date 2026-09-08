@@ -32,7 +32,7 @@ export function isTerminalModelQueryAuthorityEnabled(
  *  OrcaRuntimeService.onPtyData — the same module state and tick as the
  *  hidden-gate drop sites, so "chunk dropped" and "main answers" cannot
  *  diverge for live chunks. Remote view subscribers (mobile/web/remote
- *  desktop xterms on the multiplexed stream) keep view authority, so main
+ *  desktop terminals on the multiplexed stream) keep view authority, so main
  *  yields while one is attached. */
 export function shouldModelAnswerHiddenPtyQueries(opts: {
   ptyId: string

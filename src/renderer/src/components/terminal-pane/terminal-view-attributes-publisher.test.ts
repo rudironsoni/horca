@@ -1,6 +1,6 @@
 /**
  * View-attribute bridge publication (terminal-query-authority.md §View-
- * attribute bridge): the composed snapshot must mirror xterm ThemeService
+ * attribute bridge): the composed snapshot must mirror terminal ThemeService
  * resolution (defaults, cursor blend, 256-entry palette), and pushes must
  * happen once per actual change — not per pane, not per font tweak.
  */
@@ -26,7 +26,7 @@ beforeEach(() => {
 })
 
 describe('composeTerminalViewAttributes', () => {
-  it('resolves a null theme to the xterm ThemeService defaults', () => {
+  it('resolves a null theme to the terminal ThemeService defaults', () => {
     const attrs = composeTerminalViewAttributes(null, 'dark', cursorSettings)
     expect(attrs.foreground).toEqual([0xff, 0xff, 0xff])
     expect(attrs.background).toEqual([0x00, 0x00, 0x00])
@@ -49,7 +49,7 @@ describe('composeTerminalViewAttributes', () => {
     const attrs = composeTerminalViewAttributes(
       {
         // composeActiveTerminalTheme emits rgba() when terminalBackgroundOpacity
-        // or terminalCursorOpacity apply; the reply drops alpha like xterm's
+        // or terminalCursorOpacity apply; the reply drops alpha like terminal's
         // toColorRGB, except the cursor which blends over the background.
         background: 'rgba(30, 30, 46, 0.9)',
         foreground: '#d0d0d0',

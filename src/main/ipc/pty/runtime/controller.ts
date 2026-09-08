@@ -76,7 +76,7 @@ export function installPtyRuntimeController(deps: PtyRuntimeControllerDeps): voi
     supportsForegroundProcessEvidence: (connectionId) =>
       supportsForegroundProcessEvidenceFromRuntimeController(connectionId),
     serializeBuffer: (ptyId, opts) => {
-      // Why: mobile xterm must start from the desktop's exact screen state/dimensions before live TUI chunks render correctly.
+      // Why: mobile terminal must start from the desktop's exact screen state/dimensions before live TUI chunks render correctly.
       return requestSerializedBuffer(ptyId, opts)
     },
     serializeProviderBuffer: (ptyId, opts) =>

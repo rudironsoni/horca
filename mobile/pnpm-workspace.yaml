@@ -1,5 +1,7 @@
 allowBuilds:
   esbuild: true
+  expo-libghostty: true
+  expo-libghostty@https://codeload.github.com/arcboxlabs/expo-libghostty/tar.gz/f53920f2bc6945706cff21abf21fd55dd333dc87: true
 
 minimumReleaseAge: 4320
 

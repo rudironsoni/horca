@@ -114,7 +114,7 @@ export function useTerminalWindowWakeRecovery({
       })
     }
     // Why: plain refocus (alt-tab, devtools) is frequent and often lands while
-    // an agent streams; wiping the shared glyph atlas then provokes xterm's
+    // an agent streams; wiping the shared glyph atlas then provokes terminal's
     // page-merge race and paints garbled glyphs. Focus recovery keeps the warm
     // atlas: it only retries WebGL attach, refits, and repaints pane-scoped.
     const onFocus = (): void => recoverVisibleWake(false, 'focus')
@@ -168,7 +168,7 @@ export function useTerminalWindowWakeRecovery({
     }
     const onWindowResize = (): void => {
       // Why: Chromium emits window resize on devicePixelRatio changes even when
-      // the CSS box is unchanged (monitor move / undock). xterm's own observer
+      // the CSS box is unchanged (monitor move / undock). terminal's own observer
       // misses that while the canvas had no box (laptop lid closed).
       const devicePixelRatio = window.devicePixelRatio
       if (devicePixelRatio === observedDevicePixelRatio) {

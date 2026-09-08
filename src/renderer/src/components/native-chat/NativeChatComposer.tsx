@@ -40,7 +40,7 @@ export type {
 } from './native-chat-composer-types'
 
 // Why: a plain ESC byte is what the agent TUIs read as the interrupt key over a
-// PTY (matching how xterm forwards Escape). The richer interrupt-intent
+// PTY (matching how terminal forwards Escape). The richer interrupt-intent
 // inference (agent-interrupt-intent.ts) is driven by the existing PTY input
 // observers, so writing ESC through the same send path feeds that machinery.
 const ESC = '\x1b'

@@ -2,9 +2,9 @@
  * Phase 5 slice 2 (View-attribute bridge): renderer→main
  * `pty:terminalViewAttributes` publication. Composes
  * the reply-relevant slots of the active terminal theme exactly the way
- * xterm's browser ThemeService resolves an ITheme (defaults, cursor blend,
+ * terminal's browser ThemeService resolves an ITheme (defaults, cursor blend,
  * 256-entry palette), so main's hidden-PTY responder replies byte-identically
- * to a visible pane's xterm. Deduped module-globally: applyTerminalAppearance
+ * to a visible pane's terminal. Deduped module-globally: applyTerminalAppearance
  * runs per pane manager and on every font/opacity tweak, but the attributes
  * are app-global, so identical snapshots publish once.
  */
@@ -18,7 +18,7 @@ import type {
 
 type ParsedCssColor = {
   rgb: TerminalViewRgb
-  /** 0-255, the precision xterm stores (rgba byte) — blend parity needs it. */
+  /** 0-255, the precision terminal stores (rgba byte) — blend parity needs it. */
   alpha: number
 }
 
@@ -28,7 +28,7 @@ const DEFAULT_FOREGROUND: ParsedCssColor = { rgb: [0xff, 0xff, 0xff], alpha: 0xf
 const DEFAULT_BACKGROUND: ParsedCssColor = { rgb: [0x00, 0x00, 0x00], alpha: 0xff }
 const DEFAULT_CURSOR: ParsedCssColor = { rgb: [0xff, 0xff, 0xff], alpha: 0xff }
 
-// xterm's DEFAULT_ANSI_COLORS first 16 entries (browser/Types.ts).
+// terminal's DEFAULT_ANSI_COLORS first 16 entries (browser/Types.ts).
 const DEFAULT_ANSI_16: readonly string[] = [
   '#2e3436',
   '#cc0000',
@@ -69,7 +69,7 @@ const THEME_ANSI_KEYS: readonly (keyof ITheme)[] = [
 
 function buildDefaultAnsiPalette(): TerminalViewRgb[] {
   const palette = DEFAULT_ANSI_16.map((hex) => parseThemeColor(hex, DEFAULT_BACKGROUND).rgb)
-  // 16-231: the 6x6x6 color cube, 232-255: greys — same generator as xterm's
+  // 16-231: the 6x6x6 color cube, 232-255: greys — same generator as terminal's
   // DEFAULT_ANSI_COLORS IIFE so untouched extended slots reply identically.
   const v = [0x00, 0x5f, 0x87, 0xaf, 0xd7, 0xff]
   for (let i = 0; i < 216; i++) {
@@ -84,7 +84,7 @@ function buildDefaultAnsiPalette(): TerminalViewRgb[] {
 
 const DEFAULT_ANSI_PALETTE: readonly TerminalViewRgb[] = buildDefaultAnsiPalette()
 
-/** Mirror of xterm's css.toColor fast paths (#rgb[a], #rrggbb[aa], rgb(),
+/** Mirror of terminal's css.toColor fast paths (#rgb[a], #rrggbb[aa], rgb(),
  *  rgba()) — every format first-party inputs produce (builtin themes and the
  *  ghostty import are hex-validated; composeActiveTerminalTheme only adds the
  *  rgba() form this regex accepts). Known divergence boundary: the renderer's
@@ -160,7 +160,7 @@ function parseThemeColor(css: string | undefined, fallback: ParsedCssColor): Par
   return fallback
 }
 
-// Mirror of xterm's color.blend: ThemeService blends the cursor color's
+// Mirror of terminal's color.blend: ThemeService blends the cursor color's
 // alpha over the background at theme-set time (terminalCursorOpacity), and
 // the OSC 12 reply reports the blended value.
 function blendOverBackground(background: TerminalViewRgb, color: ParsedCssColor): TerminalViewRgb {

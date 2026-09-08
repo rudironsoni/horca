@@ -144,7 +144,7 @@ describe('connectPanePty', () => {
   })
 
   describe('PTY size re-assert on visibility resume', () => {
-    // Why: a resize dropped while hidden leaves xterm and the PTY diverged, and dedupe hides it; resume re-asserts on real drift.
+    // Why: a resize dropped while hidden leaves terminal and the PTY diverged, and dedupe hides it; resume re-asserts on real drift.
     async function connectResumablePane(depsOverrides: Record<string, unknown> = {}): Promise<{
       binding: { noteVisibilityResume: () => void }
       transport: MockTransport
@@ -219,7 +219,7 @@ describe('connectPanePty', () => {
       }
     }
 
-    it('re-asserts the current size when the PTY drifted from xterm', async () => {
+    it('re-asserts the current size when the PTY drifted from terminal', async () => {
       vi.mocked(window.api.pty.getSize).mockResolvedValue({ cols: 80, rows: 24 })
       const { binding, transport } = await connectResumablePane()
       transport.resize.mockClear()
@@ -227,7 +227,7 @@ describe('connectPanePty', () => {
       binding.noteVisibilityResume()
       await flushAsyncTicks()
 
-      // xterm is 120x40 (createPane default), PTY reports 80x24 → re-assert.
+      // terminal is 120x40 (createPane default), PTY reports 80x24 → re-assert.
       expect(transport.resize).toHaveBeenCalledWith(120, 40, { claim: true })
     })
 
@@ -287,7 +287,7 @@ describe('connectPanePty', () => {
       }
     })
 
-    it('repairs stale xterm grid drift on foreground output even without a pane resize', async () => {
+    it('repairs stale terminal grid drift on foreground output even without a pane resize', async () => {
       const { connectPanePty } = await import('./pty-connection')
       const transport = createMockTransport('pty-pane-2')
       const capturedDataCallback: { current: ((data: string) => void) | null } = { current: null }
@@ -421,7 +421,7 @@ describe('connectPanePty', () => {
       }
     })
 
-    it('updates the claiming desktop xterm before forwarding an observed viewport claim', async () => {
+    it('updates the claiming desktop terminal before forwarding an observed viewport claim', async () => {
       const originalDocument = globalThis.document
       ;(globalThis as { document?: Document }).document = {
         visibilityState: 'visible',
@@ -567,7 +567,7 @@ describe('connectPanePty', () => {
       }
     })
 
-    it('does NOT re-assert when the PTY already matches xterm (no spurious SIGWINCH)', async () => {
+    it('does NOT re-assert when the PTY already matches terminal (no spurious SIGWINCH)', async () => {
       vi.mocked(window.api.pty.getSize).mockResolvedValue({ cols: 120, rows: 40 })
       const { binding, transport } = await connectResumablePane()
       transport.resize.mockClear()

@@ -441,7 +441,7 @@ test.describe('Terminal raw emoji table scroll restore repro', () => {
   })
 
   // Why: this is the minimal golden for the v1.4.51 regression. It fails if
-  // xterm underfits by one scrollbar column or counts ZWJ emoji as width 4.
+  // terminal underfits by one scrollbar column or counts ZWJ emoji as width 4.
   test('keeps raw emoji box table aligned after restore and scroll @terminal-rendering-golden', async ({
     orcaPage,
     testRepoPath
@@ -468,7 +468,7 @@ test.describe('Terminal raw emoji table scroll restore repro', () => {
 
     try {
       // Why: Ghostty Canvas2D exposes the visible grid as plain text. The old
-      // xterm SerializeAddon UUID markers sit past the viewport after 2J.
+      // terminal SerializeAddon UUID markers sit past the viewport after 2J.
       await sendToTerminal(orcaPage, ptyId, `${nodeTerminalCommand([scriptPath])}\r`)
       await waitForTerminalOutput(orcaPage, 'Singer', 30_000, 8_000)
       await switchToWorktree(orcaPage, secondWorktreeId)

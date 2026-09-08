@@ -51,7 +51,7 @@ type FakeTerminal = {
     refresh: (start: number, end: number, sync?: boolean) => void
   }
   refresh: (start: number, end: number) => void
-  /** Flush all pending xterm write callbacks, simulating parse completion. */
+  /** Flush all pending terminal write callbacks, simulating parse completion. */
   flush: () => void
 }
 
@@ -141,14 +141,14 @@ describe('replay-guard', () => {
     expect(isPaneReplaying(ref, pane.id)).toBe(false)
   })
 
-  it('is replaying between write dispatch and xterm parse completion', () => {
+  it('is replaying between write dispatch and terminal parse completion', () => {
     const ref = makeRef()
     const { pane, terminal } = makeFakePane(1)
 
     replayIntoTerminal(pane, ref, 'hello')
 
-    // Before xterm fires its write-completion callback, the guard is engaged —
-    // this is the window during which xterm could emit auto-replies for any
+    // Before terminal fires its write-completion callback, the guard is engaged —
+    // this is the window during which terminal could emit auto-replies for any
     // query sequences embedded in the replayed data.
     expect(isPaneReplaying(ref, 1)).toBe(true)
 
@@ -161,14 +161,14 @@ describe('replay-guard', () => {
     const { pane, terminal } = makeFakePane(1)
 
     // Simulates the cold-restore path: clear preamble + scrollback + banner
-    // dispatched back-to-back before xterm completes any of them.
+    // dispatched back-to-back before terminal completes any of them.
     replayIntoTerminal(pane, ref, '\x1b[2J\x1b[3J\x1b[H')
     replayIntoTerminal(pane, ref, 'scrollback bytes')
     replayIntoTerminal(pane, ref, '--- session restored ---')
     expect(isPaneReplaying(ref, 1)).toBe(true)
 
     // Completion of the first write must not clear the guard — the later
-    // writes are still in xterm's queue and may still auto-reply.
+    // writes are still in terminal's queue and may still auto-reply.
     terminal.pendingCallbacks.shift()!()
     expect(isPaneReplaying(ref, 1)).toBe(true)
 
@@ -199,7 +199,7 @@ describe('replay-guard', () => {
     expect(isPaneReplaying(ref, 2)).toBe(false)
   })
 
-  it('skips empty data without touching the guard or xterm', () => {
+  it('skips empty data without touching the guard or terminal', () => {
     const ref = makeRef()
     const { pane, terminal } = makeFakePane(1)
     replayIntoTerminal(pane, ref, '')
@@ -215,10 +215,10 @@ describe('replay-guard', () => {
     expect(ref.current.has(1)).toBe(false)
   })
 
-  it('auto-releases the guard when xterm never fires the parse callback', () => {
+  it('auto-releases the guard when terminal never fires the parse callback', () => {
     // Repro of the cold-restore reattach lockout (main #7661):
     // handleReattachResult replays three chunks into a just-mounted /
-    // offscreen pane whose terminal never flushes, so xterm's parse callback
+    // offscreen pane whose terminal never flushes, so terminal's parse callback
     // never runs and the counter would stay pinned at 3 — isPaneReplaying()
     // stuck true drops EVERY keystroke. The probe-certified stall path (probe
     // never parses either => wedged release) must free the guard.
@@ -442,7 +442,7 @@ describe('replay-guard stall handling (probe-certified release)', () => {
 
   it('HOLDS the guard while a slow replay is still parsing — a probe is queued, never a blind release', () => {
     // Why this is the load-bearing safety test: a time-based release here
-    // would leak xterm auto-replies into the shell (and a leaked ESC into an
+    // would leak terminal auto-replies into the shell (and a leaked ESC into an
     // agent TUI reads as the user pressing Escape). The guard must only
     // release when the pipeline itself proves the replay parsed.
     vi.useFakeTimers()
@@ -479,7 +479,7 @@ describe('replay-guard stall handling (probe-certified release)', () => {
       const { pane, terminal } = makeFakePane(1)
 
       replayIntoTerminal(pane, ref, 'restored bytes', { stallCheckMs: 1_000 })
-      terminal.pendingCallbacks.shift() // xterm lost the replay's completion
+      terminal.pendingCallbacks.shift() // terminal lost the replay's completion
       vi.advanceTimersByTime(1_000) // stall check → probe enqueued
 
       // The probe's completion firing certifies every earlier replay byte
@@ -559,7 +559,7 @@ describe('replay-guard stall handling (probe-certified release)', () => {
   it('holds past the probe deadline while sibling completions prove the parser alive', () => {
     // Production shape (wedge-release breadcrumbs in bursts of ~a dozen on a
     // pane that later parses fine): a hidden-restore loop queues several
-    // replay writes and xterm's FIFO parse falls behind by more than two
+    // replay writes and terminal's FIFO parse falls behind by more than two
     // probe windows while still completing writes. Certifying that as wedged
     // opens the guard mid-parse (auto-reply leak) and remounts a live pane.
     vi.useFakeTimers()
