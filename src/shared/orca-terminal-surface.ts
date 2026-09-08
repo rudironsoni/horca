@@ -6,7 +6,7 @@ export type IBufferRange = {
   end: { x: number; y: number }
 }
 
-export type IBufferCell = {
+export type OrcaTerminalCell = {
   getChars: () => string
   getWidth: () => number
   isBold: () => boolean
@@ -14,24 +14,24 @@ export type IBufferCell = {
   isFgDefault: () => boolean
 }
 
-export type IBufferLine = {
+export type OrcaTerminalLine = {
   length: number
   isWrapped: boolean
   translateToString: (trimRight?: boolean, startCol?: number, endCol?: number) => string
-  getCell: (column: number) => IBufferCell | undefined
+  getCell: (column: number) => OrcaTerminalCell | undefined
 }
 
-export type IBuffer = {
+export type OrcaTerminalGrid = {
   cursorX: number
   cursorY: number
   baseY: number
   length?: number
   viewportY: number
   type?: 'normal' | 'alternate'
-  getLine: (y: number) => IBufferLine | undefined
+  getLine: (y: number) => OrcaTerminalLine | undefined
 }
 
-export type ILink = {
+export type OrcaLink = {
   range: IBufferRange
   text?: string
   activate?: (event: MouseEvent, text: string) => void
@@ -39,9 +39,15 @@ export type ILink = {
   leave?: (event: MouseEvent, text: string) => void
 }
 
-export type ILinkProvider = {
-  provideLinks: (bufferLineNumber: number, callback: (links?: ILink[]) => void) => void
+export type OrcaLinkProvider = {
+  provideLinks: (bufferLineNumber: number, callback: (links?: OrcaLink[]) => void) => void
 }
+
+export type IBufferCell = OrcaTerminalCell
+export type IBufferLine = OrcaTerminalLine
+export type IBuffer = OrcaTerminalGrid
+export type ILink = OrcaLink
+export type ILinkProvider = OrcaLinkProvider
 
 export type IParser = {
   registerCsiHandler: (
@@ -64,9 +70,10 @@ export type Terminal = {
     mouseEventsRequireAlt?: boolean
     ignoreBracketedPasteMode?: boolean
   }
-  buffer?: { active: IBuffer }
+  buffer?: { active: OrcaTerminalGrid }
   parser?: IParser
-  registerLinkProvider?: (provider: ILinkProvider) => OrcaDisposable
+  addLinkProvider?: (provider: OrcaLinkProvider) => OrcaDisposable
+  registerLinkProvider?: (provider: OrcaLinkProvider) => OrcaDisposable
   clearSelection?: () => void
   hasSelection?: () => boolean
 }
