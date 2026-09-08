@@ -81,7 +81,7 @@ describe('remote terminal stalled stream recovery', () => {
     })
     sendBinary.mockClear()
 
-    emitOutput(stalled.streamId, 'host output that xterm never parses')
+    emitOutput(stalled.streamId, 'host output that terminal never parses')
     expect(stalledCredits).toHaveLength(1)
 
     await vi.advanceTimersByTimeAsync(REMOTE_TERMINAL_DELIVERY_STALL_TIMEOUT_MS)
@@ -93,7 +93,7 @@ describe('remote terminal stalled stream recovery', () => {
       name: 'remote_terminal_stream_stall_recovery',
       data: expect.objectContaining({
         inactiveForMs: REMOTE_TERMINAL_DELIVERY_STALL_TIMEOUT_MS,
-        outstandingDeliveryBytes: 'host output that xterm never parses'.length,
+        outstandingDeliveryBytes: 'host output that terminal never parses'.length,
         reason: 'delivery-credit-timeout',
         streamId: stalled.streamId,
         terminal: 'term-stalled'

@@ -12,7 +12,7 @@ import { translate } from '@/i18n/i18n'
  * that clears `activeWorktreeId` before tearing down terminals isn't optional
  * polish — shutting down the active worktree while its TerminalPane is still
  * visible causes a visible "reboot" flicker and can crash the pane (PTY exit
- * callbacks race against the live xterm instance). See the original comment
+ * callbacks race against the live terminal instance). See the original comment
  * in WorktreeContextMenu's handleCloseTerminals for the full reasoning.
  * Centralizing the sequence here keeps that safety invariant in one place so
  * a new caller can't accidentally skip it.

@@ -279,11 +279,11 @@ async function setParkingEnabled(page, enabled) {
 
 const toMB = (bytes) => (bytes == null ? null : Math.round((bytes / 1048576) * 10) / 10)
 
-/** Force GC repeatedly (detached xterm buffers are typed arrays that GC lazily),
+/** Force GC repeatedly (detached terminal buffers are typed arrays that GC lazily),
  *  then read whole-app process memory (main+renderer via getAppMetrics), renderer
  *  JS heap, and pane/WebGL counts. */
 async function measureResources(page, cdp) {
-  // Why: one collectGarbage rarely reclaims freshly detached xterm typed-array
+  // Why: one collectGarbage rarely reclaims freshly detached terminal typed-array
   // buffers; drive several passes with settle gaps so the parked delta reflects
   // reclaimed memory, not GC lag.
   for (let i = 0; i < 4; i++) {

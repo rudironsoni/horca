@@ -2,7 +2,7 @@ import type { Page } from '@stablyai/playwright-test'
 import { expect } from '@stablyai/playwright-test'
 
 /**
- * Samples the xterm preedit overlay's real geometry.
+ * Samples the terminal preedit overlay's real geometry.
  *
  * Why geometry and not the `active` class: an overlay forced to
  * `max-width: 0; overflow: hidden` is invisible on screen, yet keeps its class, its
@@ -26,8 +26,8 @@ export type PreeditOverlaySample = {
 
 export function readPreeditOverlay(): PreeditOverlaySample {
   const textarea =
-    document.querySelector<HTMLTextAreaElement>('.xterm-helper-textarea:focus') ??
-    document.querySelector<HTMLTextAreaElement>('.xterm-helper-textarea')
+    document.querySelector<HTMLTextAreaElement>('.orca-terminal-helper-textarea:focus') ??
+    document.querySelector<HTMLTextAreaElement>('.orca-terminal-helper-textarea')
   const view = textarea?.parentElement?.querySelector<HTMLElement>('.composition-view') ?? null
   if (!view) {
     return {

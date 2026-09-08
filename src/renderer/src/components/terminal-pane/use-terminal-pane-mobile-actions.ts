@@ -86,7 +86,7 @@ export function useTerminalPaneMobileActions(controller: TerminalPaneContextCont
       const editable = target.closest(
         'input, textarea, [contenteditable=""], [contenteditable="true"]'
       )
-      return !editable || editable.classList.contains('xterm-helper-textarea')
+      return !editable || editable.classList.contains('orca-terminal-helper-textarea')
     },
     []
   )

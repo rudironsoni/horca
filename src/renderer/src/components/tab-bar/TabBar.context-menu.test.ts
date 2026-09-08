@@ -428,7 +428,7 @@ describe('TabBar context menu wiring', () => {
     expect(pinTabMock).not.toHaveBeenCalled()
   })
 
-  it('waits for async menu-created terminals before focusing xterm', async () => {
+  it('waits for async menu-created terminals before focusing terminal', async () => {
     vi.useFakeTimers()
     Object.assign(window, { setTimeout, clearTimeout })
     const { focusTerminalTabSurface } = await import('@/lib/focus-terminal-tab-surface')

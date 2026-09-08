@@ -1,8 +1,8 @@
 /**
- * Forces a full synchronous repaint through xterm's RenderService even when its
+ * Forces a full synchronous repaint through terminal's RenderService even when its
  * IntersectionObserver still reports the screen element as not intersecting.
  *
- * Why: on tab/worktree reveal the pane is DOM-visible but xterm's own
+ * Why: on tab/worktree reveal the pane is DOM-visible but terminal's own
  * observer callback can lag a frame (worse under load), leaving
  * `RenderService._isPaused === true`. While paused, `refreshRows` early-returns
  * and only latches `_needsFullRefresh`, so the reveal-repaint's
@@ -12,7 +12,7 @@
  * we clear the latch and drive one synchronous full render ourselves; the
  * observer reasserts authority naturally on its next callback.
  *
- * All access is behind typeof guards: an xterm upgrade that renames these
+ * All access is behind typeof guards: an terminal upgrade that renames these
  * internals degrades to a no-op (callers keep their existing refresh path), it
  * never throws into a render frame.
  */
@@ -43,11 +43,11 @@ type TerminalWithRenderService = {
 }
 
 /**
- * Clears xterm's observer-pause latches and runs the renderer resize xterm parked
+ * Clears terminal's observer-pause latches and runs the renderer resize terminal parked
  * while paused.
  *
  * Why the flush: `RenderService.handleResize` under `_isPaused` only parks the
- * WebGL renderer's own resize on an idle task, and xterm flushes that task solely
+ * WebGL renderer's own resize on an idle task, and terminal flushes that task solely
  * from the observer callback gated on `_needsFullRefresh`. Clearing the latch
  * without flushing lets the present below paint the new grid through the old
  * canvas/model geometry (misplaced fragments, stray bars until a user resize).
@@ -73,7 +73,7 @@ function getRenderService(terminal: unknown): PausableRenderService | null {
 }
 
 /**
- * If xterm's renderer is paused (observer hasn't caught up to the reveal),
+ * If terminal's renderer is paused (observer hasn't caught up to the reveal),
  * clear the pause latch and force a synchronous full-viewport repaint.
  * Returns true when it drove the render, false when it left the terminal
  * untouched (not paused, or internals unavailable) so the caller can fall back
@@ -103,7 +103,7 @@ export function forceRepaintThroughRenderPause(terminal: unknown): boolean {
  * Requests a full viewport while preserving a TUI's synchronized-output frame.
  *
  * Why: ordinary reveal must not publish a half-built DEC 2026 frame. Routing
- * through RenderService keeps the previous canvas coherent and arms xterm's
+ * through RenderService keeps the previous canvas coherent and arms terminal's
  * bounded safety timeout if the TUI never closes the frame.
  */
 export function requestFullViewportPresent(terminal: unknown): boolean {
@@ -154,7 +154,7 @@ function isSynchronizedOutputHeld(terminal: unknown): boolean {
 }
 
 /**
- * One synchronous full-viewport present when xterm would otherwise swallow it:
+ * One synchronous full-viewport present when terminal would otherwise swallow it:
  * IntersectionObserver pause, or DEC 2026 synchronized output.
  *
  * Why not on every paint: a forced renderer.renderRows on a fresh, unpaused

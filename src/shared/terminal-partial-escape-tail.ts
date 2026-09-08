@@ -1,5 +1,5 @@
 // Why this module exists: a PTY read can end mid-escape-sequence. The bytes
-// already handed to xterm sit inside its parser state machine, not the screen
+// already handed to terminal sit inside its parser state machine, not the screen
 // buffer, so a serialized snapshot cannot carry them — and the next chunk's
 // continuation bytes then render as literal text after a snapshot restore
 // (Bug E in notes/garble-fuzz-divergences.md). Tracking the unparsed trailing
@@ -8,7 +8,7 @@
 
 // Mirrors the VT500 parser states that can span a chunk boundary. C0 controls
 // (except ESC/CAN/SUB) execute mid-sequence without aborting it, matching
-// xterm's state machine.
+// terminal's state machine.
 type ScanState =
   | 'ground'
   | 'esc'
@@ -86,7 +86,7 @@ export function extractPartialEscapeTail(stream: string): string {
       continue
     }
     // CAN/SUB abort an in-progress escape sequence back to ground in every
-    // non-string state (xterm's VT500 parser). The csi/osc/string cases handle
+    // non-string state (terminal's VT500 parser). The csi/osc/string cases handle
     // this inline below; esc/escIntermediate must too, or `ESC CAN` and
     // `ESC <intermediate> CAN` leave a bogus tail instead of dropping to ground.
     if ((code === CAN || code === SUB) && (state === 'esc' || state === 'escIntermediate')) {

@@ -112,7 +112,7 @@ describe('PtyHandler', () => {
     expect(callArgs.env.ORCA_WORKTREE_ID).toBe('wt-5')
     expect(callArgs.env.ORCA_AGENT_HOOK_PORT).toBe('12345')
     expect(callArgs.env.ORCA_AGENT_HOOK_TOKEN).toBe('abc-uuid')
-    expect(callArgs.env.TERM).toBe('xterm-256color')
+    expect(callArgs.env.TERM).toBe('xterm-ghostty')
     expect(callArgs.env.TERM_PROGRAM).toBe('Orca')
     expect(callArgs.env.ORCA_SHELL_FEATURES).not.toContain('ready')
     expect(callArgs.env.ORCA_SHELL_FEATURES).not.toContain('identity')
@@ -274,8 +274,8 @@ describe('PtyHandler', () => {
       name: string
       env: Record<string, string>
     }
-    expect(initialEnv.name).toBe('xterm-256color')
-    expect(initialEnv.env.TERM).toBe('xterm-256color')
+    expect(initialEnv.name).toBe('xterm-ghostty')
+    expect(initialEnv.env.TERM).toBe('xterm-ghostty')
 
     const state = (await dispatcher.callRequest('pty.serialize', { ids: [PTY_1] })) as string
     const [serialized] = JSON.parse(state) as {
@@ -303,8 +303,8 @@ describe('PtyHandler', () => {
       name: string
       env: Record<string, string>
     }
-    expect(revivedEnv.name).toBe('xterm-256color')
-    expect(revivedEnv.env.TERM).toBe('xterm-256color')
+    expect(revivedEnv.name).toBe('xterm-ghostty')
+    expect(revivedEnv.env.TERM).toBe('xterm-ghostty')
     expect(revivedEnv.env.ORCA_STALE_TEST_ENV).toBeUndefined()
   })
 
@@ -334,8 +334,8 @@ describe('PtyHandler', () => {
       name: string
       env: Record<string, string>
     }
-    expect(revivedEnv.name).toBe('xterm-256color')
-    expect(revivedEnv.env.TERM).toBe('xterm-256color')
+    expect(revivedEnv.name).toBe('xterm-ghostty')
+    expect(revivedEnv.env.TERM).toBe('xterm-ghostty')
     expect(revivedEnv.env.ORCA_STALE_TEST_ENV).toBeUndefined()
 
     const serializedState = (await dispatcher.callRequest('pty.serialize', {
@@ -424,7 +424,7 @@ describe('PtyHandler', () => {
     }
 
     const revivedEnv = mockPtySpawn.mock.calls[0][2] as { env: Record<string, string> }
-    expect(revivedEnv.env.TERM).toBe('xterm-256color')
+    expect(revivedEnv.env.TERM).toBe('xterm-ghostty')
     expect(revivedEnv.env.ORCA_STALE_TEST_ENV).toBe('/tmp/legacy-stale')
   })
 

@@ -184,7 +184,7 @@ export function AgentKanbanBoard({
       }
       if (
         event.target instanceof Element &&
-        event.target.closest('input, textarea, [contenteditable="true"], .xterm')
+        event.target.closest('input, textarea, [contenteditable="true"], .orca-terminal-canvas')
       ) {
         return
       }

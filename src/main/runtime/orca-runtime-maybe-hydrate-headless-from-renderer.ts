@@ -6,7 +6,7 @@ import { shouldModelAnswerHiddenPtyQueries } from './terminal-model-query-author
 
 export class OrcaRuntimeWithMaybeHydrateHeadlessFromRenderer extends OrcaRuntimeWithSerializeMainTerminalBuffer {
   // Why: hydrate the runtime headless emulator from the desktop renderer's
-  // xterm buffer on the first onPtyData byte after a PTY is taken over by a
+  // terminal buffer on the first onPtyData byte after a PTY is taken over by a
   // pane. Eager-state pattern matches seedHeadlessTerminal: headlessTerminals
   // is populated synchronously so concurrent live writes from
   // trackHeadlessTerminalData chain after the seed via the same writeChain.
@@ -74,7 +74,7 @@ export class OrcaRuntimeWithMaybeHydrateHeadlessFromRenderer extends OrcaRuntime
         if (ptyDims && (ptyDims.cols !== rendered.cols || ptyDims.rows !== rendered.rows)) {
           state.emulator.resize(ptyDims.cols, ptyDims.rows)
         }
-        // Why: the renderer xterm no longer sees synthetic hook title frames
+        // Why: the renderer terminal no longer sees synthetic hook title frames
         // (they feed main's tracker only), so its serializer lastTitle can be
         // stale here. Prefer main's tracked title; the renderer's is only the
         // seed when main has observed none (fresh relaunch, cold tracker).

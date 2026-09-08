@@ -156,7 +156,7 @@ export async function runTerminalJsonSubscription(args: TerminalSubscriptionArgs
     const unsubscribeStreamData = runtime.subscribeToTerminalData(ptyId, (data) => {
       outputBatcher?.push(data)
     })
-    // Why: the legacy JSON stream can feed a live xterm view, so register as a view subscriber; worst case is a withheld model reply, safer than a double reply.
+    // Why: the legacy JSON stream can feed a live terminal view, so register as a view subscriber; worst case is a withheld model reply, safer than a double reply.
     const releaseViewSubscriber = runtime.registerRemoteTerminalViewSubscriber(ptyId)
     unsubscribeData = () => {
       releaseViewSubscriber()

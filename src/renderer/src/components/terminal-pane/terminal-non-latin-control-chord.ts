@@ -8,7 +8,7 @@
  *
  * The browser does not expose that translation. `KeyboardEvent.key` carries the layout's
  * glyph, so anything matching on `key` sees `ㅁ` for Ctrl+A and cannot recognise the chord.
- * xterm's legacy encoder sidesteps it by reading `keyCode` (65-90), which Chromium reports
+ * terminal's legacy encoder sidesteps it by reading `keyCode` (65-90), which Chromium reports
  * from the physical key — but its kitty encoder derives the key number from `key`, and only
  * consults `code` when Shift or Option is held. Ctrl is not in that gate, so a pane with the
  * kitty protocol negotiated reports CSI-u for U+3141 instead of `a` and the chord does
@@ -28,7 +28,7 @@ function hasNonAsciiLogicalKey(key: string): boolean {
 
 /**
  * `KeyA`-`KeyZ` except `KeyC`. Digits and punctuation stay ASCII in `key` on these layouts,
- * so they reach xterm intact and are not this module's to touch.
+ * so they reach terminal intact and are not this module's to touch.
  *
  * `KeyC` is excluded because Ctrl+C is not a plain control chord: off macOS it must yield to
  * a selection so the copy binding wins, and it resets the pane's kitty flags because a CLI

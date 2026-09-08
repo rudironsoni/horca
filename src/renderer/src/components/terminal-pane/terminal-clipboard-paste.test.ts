@@ -56,7 +56,7 @@ describe('terminal clipboard paste', () => {
     expect(terminal.options.ignoreBracketedPasteMode).toBe(false)
   })
 
-  it('forces generated image paste even when xterm bracketed paste mode is off', async () => {
+  it('forces generated image paste even when terminal bracketed paste mode is off', async () => {
     const observedIgnoreBracketedPasteMode: boolean[] = []
     const terminal = {
       modes: { bracketedPasteMode: false },

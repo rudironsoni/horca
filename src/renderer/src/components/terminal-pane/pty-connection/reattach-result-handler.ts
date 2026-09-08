@@ -117,7 +117,7 @@ export function bindHandleReattachResult(sessionBag: ConnectPanePtySession): voi
         recoverUnverifiableDirectSshReattach(sessionBag, staleSessionId)
         return false
       }
-      // Why: a stale restored session can fail reattach after mount; don't leave xterm alive without a backing PTY.
+      // Why: a stale restored session can fail reattach after mount; don't leave terminal alive without a backing PTY.
       if (staleSessionId) {
         session.clearExitedPanePtyLayoutBinding(staleSessionId)
       } else {
@@ -236,13 +236,13 @@ export function bindHandleReattachResult(sessionBag: ConnectPanePtySession): voi
     session.agentCompletionCoordinator.startProcessTracking()
     session.sampleVisiblePaneForegroundAgent()
 
-    // Why: mobile streaming needs xterm's exact screen state; install the serializer + lastTitle source for main-process hydration parity.
+    // Why: mobile streaming needs terminal's exact screen state; install the serializer + lastTitle source for main-process hydration parity.
     session.registerPaneSerializerFor(ptyId)
 
     // Why (C1 SSH parking): main's headless model holds ~5k rows for SSH ptys
     // while the relay replay is a 100KiB raw-byte tail; prefer the model on
     // reveal. Only a non-empty 'headless'-sourced snapshot qualifies — the
-    // renderer-serializer fallback has no mounted xterm after a park. The
+    // renderer-serializer fallback has no mounted terminal after a park. The
     // paint happens inline in the snapshot-branch style: session.applyMainBufferSnapshot
     // would nest session.structuralReplayCoordinator.run inside the reattach task and
     // deadlock on the coordinator's tail chain.
@@ -257,7 +257,7 @@ export function bindHandleReattachResult(sessionBag: ConnectPanePtySession): voi
       (connectResult?.isReattach === true || isRemoteRuntimePtyId(ptyId))
     session.mountFollowsTerminalPark = false
     // An SSH reconnect remounts the pane (tab.generation is its React key), so it also paints into
-    // a fresh xterm — but unlike a park it may only use the model for a FULL-SCREEN app. See
+    // a fresh terminal — but unlike a park it may only use the model for a FULL-SCREEN app. See
     // sshReconnectPaintsFromModel for why.
     //
     // NOT consume-once, unlike mountFollowsTerminalPark: followsDirectSshReconnect is captured per
@@ -267,9 +267,9 @@ export function bindHandleReattachResult(sessionBag: ConnectPanePtySession): voi
     // accepts the live binding and so stays truthy for every later remount of the generation.
     const reconnectMayUseModel =
       Boolean(session.followsDirectSshReconnect) && !revealFollowsTerminalPark
-    // Why: ordinary parking destroys xterm. Rebuild from the authoritative
+    // Why: ordinary parking destroys terminal. Rebuild from the authoritative
     // host snapshot before releasing queued live bytes; null falls back to
-    // the subscribe screen without keeping the old xterm mounted.
+    // the subscribe screen without keeping the old terminal mounted.
     let prefetchedParkModelSnapshot: PtyBufferSnapshot | null = null
     if (revealFollowsTerminalPark && (!hasStructuralReplay || isRemoteRuntimePtyId(ptyId))) {
       if (parseAppSshPtyId(ptyId)) {

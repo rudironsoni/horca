@@ -224,7 +224,7 @@ test.describe('Workspace Back/Forward Navigation', () => {
     await seedVisit(orcaPage, secondaryId)
 
     // Why: focus body so the window-level keydown capture handler runs without
-    // an `isEditableTarget` bail-out. The xterm helper textarea is explicitly
+    // an `isEditableTarget` bail-out. The terminal helper textarea is explicitly
     // treated as non-editable, but body is the simplest stable target in a
     // hidden-window Electron run.
     await orcaPage.evaluate(() => document.body.focus())

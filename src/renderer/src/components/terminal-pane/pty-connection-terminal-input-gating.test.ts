@@ -614,7 +614,7 @@ describe('connectPanePty', () => {
     }
   })
 
-  it('drops xterm protocol replies from live TUI output while mobile presence lock is active', async () => {
+  it('drops terminal protocol replies from live TUI output while mobile presence lock is active', async () => {
     const { connectPanePty } = await import('./pty-connection')
     const { setDriverForPty } = await import('@/lib/pane-manager/mobile-driver-state')
 
@@ -641,7 +641,7 @@ describe('connectPanePty', () => {
       if (!onDataHandler) {
         throw new Error('expected onData handler to be registered')
       }
-      // Simulate xterm answering a TUI's DA1 query while the phone owns the PTY.
+      // Simulate terminal answering a TUI's DA1 query while the phone owns the PTY.
       ;(onDataHandler as unknown as (data: string) => void)('\x1b[?1;2c')
       // Capability handlers are registered outside onData and must honor the same mobile query-authority lock.
       const csiCalls = (

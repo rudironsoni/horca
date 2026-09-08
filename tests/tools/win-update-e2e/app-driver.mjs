@@ -5,7 +5,7 @@
 // `--mode e2e` / VITE_EXPOSE_STORE build. Everything here uses ARIA/DOM
 // selectors that ship in production (matching tests/e2e/helpers/terminal.ts and
 // terminal-attention.spec.ts) and proves interactivity through filesystem
-// sentinels rather than by reading the WebGL-rendered xterm buffer:
+// sentinels rather than by reading the WebGL-rendered terminal buffer:
 //   - typed commands write a marker FILE; the harness checks the file. This
 //     proves keystrokes reached the shell AND executed — stronger, and robust,
 //     than scraping canvas-rendered terminal text.
@@ -28,8 +28,8 @@ const SORTABLE_TAB = '[data-testid="sortable-tab"]'
 // Why: the layout mounts hidden duplicate panes; only the visible one is the
 // live terminal, so target `:visible` to avoid focusing/measuring a hidden copy.
 const TERMINAL_SURFACE_VISIBLE = '[data-terminal-tab-id]:visible'
-const XTERM_CONTAINER_VISIBLE = '.xterm:visible'
-const XTERM_INPUT = '.xterm-helper-textarea'
+const XTERM_CONTAINER_VISIBLE = '.orca-terminal-canvas:visible'
+const XTERM_INPUT = '.orca-terminal-helper-textarea'
 const RESTRICTED_E2E_ENV_KEYS = new Set([
   'HOME',
   'USERPROFILE',
@@ -213,7 +213,7 @@ export async function captureFailureDiagnostics(page, dir, label) {
   return out
 }
 
-/** Wait until the visible terminal surface and its xterm container are mounted.
+/** Wait until the visible terminal surface and its terminal container are mounted.
  *  An expected tab id prevents post-restore probes from accepting another tab. */
 export async function waitForTerminalReady(page, timeoutMs = 60_000, terminalTabId = null) {
   const selector = terminalTabId
@@ -390,7 +390,7 @@ export async function listTabIds(page) {
 
 /**
  * Focus the live terminal so keystrokes reach the shell. Clicking the visible
- * xterm surface is what actually gives xterm keyboard focus — focusing the
+ * terminal surface is what actually gives terminal keyboard focus — focusing the
  * off-screen helper textarea alone does not, which is why typed input was being
  * dropped. Click the pane, then focus the helper textarea as a belt-and-braces.
  */
@@ -478,7 +478,7 @@ export async function readTerminalTextBestEffort(page) {
         return out
       }
     }
-    return Array.from(document.querySelectorAll('.xterm-rows'))
+    return Array.from(document.querySelectorAll('.orca-terminal-rows'))
       .map((el) => el.textContent ?? '')
       .join('\n')
   })
