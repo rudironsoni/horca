@@ -1,5 +1,5 @@
 import { isAbsolute } from 'node:path'
-import type { Pane, Tab, Workspace, WorkspaceWorktree } from '@herdr/sdk'
+import type { Pane, Tab, Workspace, WorkspaceWorktree } from '@rudironsoni/herdr-ts-sdk'
 import { Option } from 'effect'
 
 /** SDK OptionFromOptionalKey rejects `cwd: undefined`; omit the key unless the path is absolute. */
