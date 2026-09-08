@@ -173,7 +173,7 @@ export class OrcaRuntimeWithVisibleSnapshotPreview extends OrcaRuntimeWithCaptur
     }
     try {
       // Why: raw PTY tails can be whitespace-only while a full-screen TUI is
-      // visibly nonblank in renderer xterm. Ask the renderer for the active
+      // visibly nonblank in renderer terminal. Ask the renderer for the active
       // screen instead of reusing the headless transcript path.
       const snapshot = await withTimeout(
         controller.serializeBuffer(ptyId, { scrollbackRows: 0 }),

@@ -5,10 +5,10 @@ import {
   shouldSuppressTerminalInterruptKeyup,
   shouldSuppressTerminalModifierKeyboardEvent,
   TERMINAL_INTERRUPT_INPUT,
-  type XtermBypassEvent
-} from './xterm-bypass-policy'
+  type TerminalBypassEvent
+} from './terminal-bypass-policy'
 
-function event(overrides: Partial<XtermBypassEvent>): XtermBypassEvent {
+function event(overrides: Partial<TerminalBypassEvent>): TerminalBypassEvent {
   return {
     type: 'keydown',
     key: '',
@@ -39,7 +39,7 @@ describe('shouldHandleTerminalInterruptKeyboardEvent', () => {
     ).toBe(true)
   })
 
-  it('does not handle macOS Cmd+C so host copy can bypass xterm', () => {
+  it('does not handle macOS Cmd+C so host copy can bypass terminal', () => {
     expect(
       shouldHandleTerminalInterruptKeyboardEvent(event({ key: 'c', code: 'KeyC', metaKey: true }), {
         isMac: true,

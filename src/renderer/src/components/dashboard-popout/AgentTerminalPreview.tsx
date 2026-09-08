@@ -83,7 +83,7 @@ export function AgentTerminalPreview({
   const [ptyGone, setPtyGone] = useState(false)
 
   // Why: refs are seeded at first render and refreshed on commit — assigning
-  // during render trips react-compiler. Layout, not passive: xterm's keydown is
+  // during render trips react-compiler. Layout, not passive: terminal's keydown is
   // a native listener, so React would not flush a passive effect before the
   // next keystroke and a just-relayed profile could miss it.
   useLayoutEffect(() => {

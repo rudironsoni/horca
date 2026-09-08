@@ -58,8 +58,8 @@ export type PtyDataMeta = {
   droppedOutput?: boolean
 }
 
-/** Sidecar PTY-data observers, invoked AFTER the primary handler so a side-effect-only watcher can't delay xterm rendering. */
-/** Per-PTY replay handlers on a dedicated pty:replay channel so the renderer can engage the replay guard and suppress xterm auto-replies. */
+/** Sidecar PTY-data observers, invoked AFTER the primary handler so a side-effect-only watcher can't delay terminal rendering. */
+/** Per-PTY replay handlers on a dedicated pty:replay channel so the renderer can engage the replay guard and suppress terminal auto-replies. */
 const ptyExitSidecars = new Map<
   string,
   Set<(code: number, context: { hadPrimary: boolean }) => void>
@@ -163,7 +163,7 @@ function handleDispatchedPtyData(payload: {
     }
   }
   recordPtyDataReceived(payload.id, chars)
-  // Why deferred: main budgets by bytes PARSED not received; ACK fires when xterm consumes, and undelivered chunks settle at return so no PTY stays backpressured.
+  // Why deferred: main budgets by bytes PARSED not received; ACK fires when terminal consumes, and undelivered chunks settle at return so no PTY stays backpressured.
   deliverPtyDataWithDeferredAck(payload.id, chars, dispatch)
 }
 

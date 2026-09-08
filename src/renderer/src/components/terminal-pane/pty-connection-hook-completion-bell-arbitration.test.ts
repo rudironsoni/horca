@@ -445,7 +445,7 @@ describe('connectPanePty', () => {
     })
   })
 
-  // Why: a DOM keydown signals "user is here"; raw xterm onData is lower-level (can include terminal replies/control bytes).
+  // Why: a DOM keydown signals "user is here"; raw terminal onData is lower-level (can include terminal replies/control bytes).
   it('clears tab and worktree unread on real keydown', async () => {
     const { connectPanePty } = await import('./pty-connection')
     const transport = createMockTransport()
@@ -528,7 +528,7 @@ describe('connectPanePty', () => {
     expect(transport.sendInput).toHaveBeenCalledWith('a')
   })
 
-  // Why: xterm auto-replies during replay must not count as user interaction, or a BELed pane would self-dismiss unseen.
+  // Why: terminal auto-replies during replay must not count as user interaction, or a BELed pane would self-dismiss unseen.
   it('does not clear unread when onData fires during replay', async () => {
     const { connectPanePty } = await import('./pty-connection')
     const transport = createMockTransport()

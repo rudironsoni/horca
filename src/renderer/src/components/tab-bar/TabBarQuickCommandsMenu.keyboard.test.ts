@@ -298,7 +298,7 @@ describe('TabBarQuickCommandsMenu keyboard shortcut', () => {
     reactRuntime.effects[0]()
 
     const terminalTarget = {
-      classList: { contains: (className: string) => className === 'xterm-helper-textarea' },
+      classList: { contains: (className: string) => className === 'orca-terminal-helper-textarea' },
       closest: () => null
     } as unknown as EventTarget
     const handler = windowListeners.get('keydown')!

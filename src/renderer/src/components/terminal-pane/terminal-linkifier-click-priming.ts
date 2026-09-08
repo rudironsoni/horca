@@ -33,7 +33,7 @@ function primeTerminalLinkifier(terminal: Terminal, event: MouseEvent): void {
     }
     linkifier._handleMouseMove(event)
   } catch {
-    /* xterm internals unavailable — hover still primes later clicks */
+    /* terminal internals unavailable — hover still primes later clicks */
   }
 }
 
@@ -43,7 +43,7 @@ export function installTerminalLinkifierClickPriming(terminal: Terminal): IDispo
     if (!isTerminalOwnedLinkGesture(event)) {
       return
     }
-    // Why: xterm snapshots its current link on mousedown but otherwise resolves
+    // Why: terminal snapshots its current link on mousedown but otherwise resolves
     // links only on mousemove, so output painted under a still pointer misses its first click.
     primeTerminalLinkifier(terminal, event)
   }

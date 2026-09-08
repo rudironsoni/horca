@@ -64,7 +64,9 @@ async function focusActiveTerminalInput(page: Page): Promise<void> {
           : null
     const manager = tabId ? window.__paneManagers?.get(tabId) : null
     const pane = manager?.getActivePane?.() ?? manager?.getPanes?.()[0] ?? null
-    const textarea = pane?.container.querySelector<HTMLTextAreaElement>('.xterm-helper-textarea')
+    const textarea = pane?.container.querySelector<HTMLTextAreaElement>(
+      '.orca-terminal-helper-textarea'
+    )
     if (!pane || !textarea) {
       throw new Error('Active terminal input is unavailable')
     }
@@ -117,7 +119,7 @@ async function readActiveTerminalRasterTarget(page: Page): Promise<TerminalRaste
           : null
     const manager = tabId ? window.__paneManagers?.get(tabId) : null
     const pane = manager?.getActivePane?.() ?? manager?.getPanes?.()[0] ?? null
-    const screen = pane?.container.querySelector<HTMLElement>('.xterm-screen')
+    const screen = pane?.container.querySelector<HTMLElement>('.orca-terminal-canvas')
     const dimensions = pane?.terminal._core?._renderService?.dimensions?.css?.cell
     if (!pane || !screen || !dimensions) {
       throw new Error('Active terminal screen is unavailable')

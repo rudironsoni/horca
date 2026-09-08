@@ -52,9 +52,9 @@ async function waitForPhaseOneAtBottom(page: Page, tabId: string): Promise<void>
             }
           }
           const scrollbar = pane.container.querySelector<HTMLElement>(
-            '.xterm-scrollbar.xterm-vertical'
+            '.orca-terminal-scrollbar.orca-terminal-vertical'
           )
-          const thumb = scrollbar?.querySelector<HTMLElement>('.xterm-slider') ?? null
+          const thumb = scrollbar?.querySelector<HTMLElement>('.orca-terminal-slider') ?? null
           return Boolean(
             buffer.baseY > 0 &&
             buffer.viewportY === buffer.baseY &&
@@ -85,7 +85,7 @@ async function injectQueuedWriteAndRefocus(
         throw new Error('Hidden terminal pane unavailable')
       }
       const terminal = pane.terminal
-      // Why: fail loudly if xterm moves the private buffer path that models this wobble.
+      // Why: fail loudly if terminal moves the private buffer path that models this wobble.
       const bufferService = (
         terminal as typeof terminal & {
           _core?: {
@@ -95,7 +95,7 @@ async function injectQueuedWriteAndRefocus(
       )._core?._bufferService
       const internalBuffer = bufferService?.buffer
       if (!internalBuffer || !bufferService) {
-        throw new Error('xterm internal buffer unavailable')
+        throw new Error('terminal internal buffer unavailable')
       }
       const originalWrite = terminal.write
       let wobbleApplied = false
@@ -105,7 +105,7 @@ async function injectQueuedWriteAndRefocus(
         internalBuffer.ydisp = 0
         bufferService.isUserScrolling = true
         if (terminal.buffer.active.viewportY !== 0) {
-          throw new Error('xterm viewport wobble was not observable')
+          throw new Error('terminal viewport wobble was not observable')
         }
         originalWrite.call(terminal, data, callback)
       }) as typeof terminal.write
@@ -126,7 +126,7 @@ async function injectQueuedWriteAndRefocus(
       // Why: focus recovery must flush through terminal.write in this synchronous dispatch.
       window.dispatchEvent(new Event('focus'))
       if (!wobbleApplied) {
-        throw new Error('refocus did not flush the queued xterm write')
+        throw new Error('refocus did not flush the queued terminal write')
       }
     },
     { targetTabId: tabId, paneKey }
@@ -169,10 +169,12 @@ async function sampleRevealFrames(page: Page, targetTabId: string): Promise<Reve
         }
         const sample = (): void => {
           const pane = window.__paneManagers?.get(targetTabId)?.getPanes?.()[0]
-          const targetXterm = pane?.container.querySelector('.xterm') ?? null
+          const targetXterm = pane?.container.querySelector('.orca-terminal-canvas') ?? null
           const scrollbar =
-            targetXterm?.querySelector<HTMLElement>('.xterm-scrollbar.xterm-vertical') ?? null
-          const thumb = scrollbar?.querySelector<HTMLElement>('.xterm-slider') ?? null
+            targetXterm?.querySelector<HTMLElement>(
+              '.orca-terminal-scrollbar.orca-terminal-vertical'
+            ) ?? null
+          const thumb = scrollbar?.querySelector<HTMLElement>('.orca-terminal-slider') ?? null
           frames.push({
             targetPresented: isPresented(targetXterm),
             thumbTop: thumb?.offsetTop ?? null,
@@ -226,11 +228,13 @@ test.describe('terminal streaming refocus viewport', () => {
     await expect
       .poll(() => getTerminalContent(orcaPage), { timeout: 15_000 })
       .toContain('REFOCUS_STREAM_DONE')
-    const visibleScrollbar = orcaPage.locator('.xterm-scrollbar.xterm-vertical:visible').first()
+    const visibleScrollbar = orcaPage
+      .locator('.orca-terminal-scrollbar.orca-terminal-vertical:visible')
+      .first()
     await expect(visibleScrollbar).toBeVisible()
     expect(
       await visibleScrollbar.evaluate((scrollbar) => {
-        const thumb = scrollbar.querySelector<HTMLElement>('.xterm-slider')
+        const thumb = scrollbar.querySelector<HTMLElement>('.orca-terminal-slider')
         return Boolean(
           thumb && Math.abs(scrollbar.clientHeight - thumb.offsetHeight - thumb.offsetTop) <= 2
         )

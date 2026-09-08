@@ -126,7 +126,7 @@ async function setPaneTitleFromTerminalMenu(page: Page, title: string): Promise<
   const modifiers: ('Alt' | 'Control' | 'Meta' | 'Shift')[] =
     process.platform === 'win32' ? ['Control'] : []
   await page
-    .locator('.xterm:visible')
+    .locator('.orca-terminal-canvas:visible')
     .first()
     .click({ button: 'right', position: { x: 40, y: 40 }, modifiers })
   await page.getByText('Set Title…', { exact: true }).click()
@@ -242,7 +242,7 @@ test.describe('Terminal restart persistence', () => {
       secondApp = secondLaunch.app
       await bootstrapRestoredLaunch(secondLaunch.page, worktreeId)
 
-      // Why: daemon reattach replays its snapshot through xterm.write during
+      // Why: daemon reattach replays its snapshot through terminal.write during
       // pane mount. Poll the live terminal content, not the store, because the
       // store intentionally no longer carries local scrollback buffers.
       await expect

@@ -43,7 +43,7 @@ describe('installTypingLatencyInputEvents', () => {
     ])
   })
 
-  it('uses reconciled xterm session data instead of raw compositionend data', () => {
+  it('uses reconciled terminal session data instead of raw compositionend data', () => {
     const signals: TypingInputSignal[] = []
     detach = installTypingLatencyInputEvents(window, (signal) => {
       signals.push(signal)

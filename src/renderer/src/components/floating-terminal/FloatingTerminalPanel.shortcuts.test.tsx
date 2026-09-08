@@ -241,7 +241,7 @@ describe('FloatingTerminalPanel close behavior', () => {
     const panel = findByProp(element, 'data-floating-terminal-panel')
     const panelElement = { contains: vi.fn().mockReturnValue(true), focus: vi.fn() }
     const target = {
-      classList: { contains: vi.fn((token: string) => token === 'xterm-helper-textarea') },
+      classList: { contains: vi.fn((token: string) => token === 'orca-terminal-helper-textarea') },
       closest: vi.fn((selector: string) =>
         selector === '[data-floating-terminal-panel]' ? panelElement : null
       )
@@ -314,7 +314,7 @@ describe('FloatingTerminalPanel close behavior', () => {
     const panel = findByProp(element, 'data-floating-terminal-panel')
     const panelElement = { contains: vi.fn().mockReturnValue(true), focus: vi.fn() }
     const target = {
-      classList: { contains: vi.fn((token: string) => token === 'xterm-helper-textarea') },
+      classList: { contains: vi.fn((token: string) => token === 'orca-terminal-helper-textarea') },
       closest: vi.fn((selector: string) =>
         selector === '[data-floating-terminal-panel]' ? panelElement : null
       )
@@ -376,7 +376,7 @@ describe('FloatingTerminalPanel close behavior', () => {
     const panelElement = { contains: vi.fn().mockReturnValue(true), focus: vi.fn() }
     const activeElement = { closest: vi.fn().mockReturnValue(panelElement) }
     const target = {
-      classList: { contains: vi.fn((token: string) => token === 'xterm-helper-textarea') },
+      classList: { contains: vi.fn((token: string) => token === 'orca-terminal-helper-textarea') },
       closest: vi.fn((selector: string) =>
         selector === '[data-floating-terminal-panel]' ? panelElement : null
       )
@@ -623,7 +623,7 @@ describe('FloatingTerminalPanel close behavior', () => {
     expect(dispatchedRenameTabIds()).toEqual([])
   })
 
-  it('leaves focused floating xterm tab index shortcuts to terminal-first terminals', async () => {
+  it('leaves focused floating terminal tab index shortcuts to terminal-first terminals', async () => {
     setFloatingTabs([makeTab({ id: 'tab-1' }), makeTab({ id: 'tab-2' })])
     ;(storeBox.state as FloatingPanelStoreState).settings = {
       ...(storeBox.state as FloatingPanelStoreState).settings,
@@ -633,7 +633,7 @@ describe('FloatingTerminalPanel close behavior', () => {
     const panel = findByProp(element, 'data-floating-terminal-panel')
     const panelElement = { contains: vi.fn().mockReturnValue(true), focus: vi.fn() }
     const target = {
-      classList: { contains: vi.fn((token: string) => token === 'xterm-helper-textarea') },
+      classList: { contains: vi.fn((token: string) => token === 'orca-terminal-helper-textarea') },
       closest: vi.fn((selector: string) =>
         selector === '[data-floating-terminal-panel]' ? panelElement : null
       )

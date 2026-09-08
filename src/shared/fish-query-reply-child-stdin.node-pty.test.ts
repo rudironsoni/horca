@@ -29,7 +29,7 @@ const itWithFish = FISH.available ? it : it.skip
 const PROMPT_MARK = 'ORCA13892> '
 
 /* oxlint-disable no-control-regex -- terminal query grammars are control sequences */
-/** Anchored at an ESC, first match wins; reply values match xterm.js's. */
+/** Anchored at an ESC, first match wins; reply values match Ghostty's. */
 const QUERY_GRAMMARS = [
   {
     re: /^\x1b\]1[012];\?(\x07|\x1b\\)/,
@@ -107,14 +107,14 @@ describe('a held query reply never reaches the next child process (#13892)', () 
 
       const nodePty = await import('node-pty')
       const term = nodePty.spawn(FISH.path as string, ['-l', '-i'], {
-        name: 'xterm-256color',
+        name: 'xterm-ghostty',
         cols: 120,
         rows: 30,
         cwd: configHome,
         env: {
           PATH: process.env.PATH ?? '/usr/bin:/bin',
           HOME: configHome,
-          TERM: 'xterm-256color',
+          TERM: 'xterm-ghostty',
           COLORTERM: 'truecolor',
           LANG: 'en_US.UTF-8',
           XDG_CONFIG_HOME: configHome,

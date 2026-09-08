@@ -77,7 +77,7 @@ export function useMobileOverlayTicks({ managerRef, paneTransportsRef }: MobileO
           event.ptyId
         )
       if (event.mode === 'mobile-fit' || event.mode === 'remote-desktop-fit') {
-        // Why: when mobile drives, xterm must shrink to phone dims or the wide desktop grid garbles the phone-wrapped stream.
+        // Why: when mobile drives, terminal must shrink to phone dims or the wide desktop grid garbles the phone-wrapped stream.
         // Why: skip the rAF unless this tab actually has a mis-parked pane.
         const panesNeedingFit = getPanesNeedingOverrideFit(
           getAffectedPanes(),
@@ -106,7 +106,7 @@ export function useMobileOverlayTicks({ managerRef, paneTransportsRef }: MobileO
           }
         }
         scheduleFitFrame(fitAffectedPanes)
-        // Why: direct-resize fallback if safeFit no-op'd, only while xterm is still at the prior mobile-fit dims; else event.cols/rows is a stale baseline that clobbers the fit.
+        // Why: direct-resize fallback if safeFit no-op'd, only while terminal is still at the prior mobile-fit dims; else event.cols/rows is a stale baseline that clobbers the fit.
         scheduleFallbackTimer(() => {
           for (const pane of getAffectedPanes()) {
             // Why: skip 0×0 hidden panes; forcing desktop dims with no DOM geometry leaves a mismatched grid (fallback is only for the visible pane that failed to refit).

@@ -246,7 +246,7 @@ describe('terminal viewport refit', () => {
     expect(hookSource).toContain("updateViewportCapabilityRef.current = 'unknown'")
   })
 
-  it('reflows the local xterm scrollback after a successful updateViewport', () => {
+  it('reflows the local terminal scrollback after a successful updateViewport', () => {
     // Why: updateViewport may only record an informational mobile viewport in
     // desktop mode. Reflow local scrollback only after the server says it
     // actually applied phone-fit to the PTY.

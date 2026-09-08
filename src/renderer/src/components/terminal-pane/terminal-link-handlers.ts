@@ -1,9 +1,4 @@
-import type {
-  IDisposable,
-  ILink,
-  ILinkProvider,
-  Terminal
-} from '../../../../shared/orca-terminal-surface'
+import type { IDisposable, ILinkProvider, Terminal } from '../../../../shared/orca-terminal-surface'
 import {
   extractTerminalFileLinkCandidates,
   extractTerminalFileLinks,
@@ -26,8 +21,7 @@ import {
 import {
   buildHardWrappedPathLogicalLineCandidates,
   buildWrappedLogicalLine,
-  rangeForParsedFileLink,
-  type WrappedLogicalLine
+  rangeForParsedFileLink
 } from './wrapped-terminal-link-ranges'
 import {
   getTerminalPathExistsCacheKey,
@@ -46,6 +40,10 @@ import { isTerminalLinkDirectActivation } from './terminal-link-activation'
 import { getTerminalBufferPositionForMouseEvent } from './terminal-mouse-buffer-position'
 import type { TerminalLinkActionContext } from './terminal-link-action-request'
 import { handleTerminalFileLink } from './terminal-file-link-actions'
+import {
+  preferLongestNonOverlappingLinks,
+  type ProvidedFileLink
+} from './terminal-link-range-overlap'
 
 export { openDetectedFilePath } from './terminal-file-open-routing'
 export { mapTerminalFilePath } from './terminal-file-open-routing'
@@ -66,38 +64,6 @@ export type LinkHandlerDeps = {
   wslDistro?: string | null
   getRuntimeEnvironmentIdForPane?: (paneId: number) => string | null
   getLinkActionContext?: (paneId: number) => TerminalLinkActionContext | null
-}
-
-type ProvidedFileLink = {
-  link: ILink
-  logicalLine: WrappedLogicalLine
-}
-
-function rangesOverlap(left: ILink['range'], right: ILink['range']): boolean {
-  const leftStartsAfterRightEnds =
-    left.start.y > right.end.y || (left.start.y === right.end.y && left.start.x > right.end.x)
-  const rightStartsAfterLeftEnds =
-    right.start.y > left.end.y || (right.start.y === left.end.y && right.start.x > left.end.x)
-  return !leftStartsAfterRightEnds && !rightStartsAfterLeftEnds
-}
-
-function preferLongestNonOverlappingLinks(links: ProvidedFileLink[]): ProvidedFileLink[] {
-  const selected: ProvidedFileLink[] = []
-  const byLengthDescending = [...links].sort(
-    (a, b) =>
-      (b.link.text?.length ?? 0) - (a.link.text?.length ?? 0) ||
-      a.link.range.start.y - b.link.range.start.y ||
-      a.link.range.start.x - b.link.range.start.x
-  )
-  for (const link of byLengthDescending) {
-    if (!selected.some((existing) => rangesOverlap(existing.link.range, link.link.range))) {
-      selected.push(link)
-    }
-  }
-  return selected.sort(
-    (a, b) =>
-      a.link.range.start.y - b.link.range.start.y || a.link.range.start.x - b.link.range.start.x
-  )
 }
 
 export function createFilePathLinkProvider(
@@ -267,7 +233,7 @@ export function createFilePathLinkProvider(
           }
         )
         .catch(() => {
-          // Link discovery is best-effort; a stale xterm callback must not
+          // Link discovery is best-effort; a stale terminal callback must not
           // recreate the unhandled rejection this path is meant to contain.
         })
     }
@@ -291,7 +257,7 @@ export function installFilePathLinkClickFallback(
     }
     const runtimeEnvironmentId =
       deps.getRuntimeEnvironmentIdForPane?.(paneId) ?? deps.runtimeEnvironmentId ?? null
-    // Why: xterm can show a wrapped provider link as active while still missing
+    // Why: terminal can show a wrapped provider link as active while still missing
     // activation for the clicked wrapped row. Always retry file-path hit testing
     // on modifier mouseup; openDetectedFilePath coalesces duplicate opens.
     const opened = openFilePathLinkAtBufferPosition(

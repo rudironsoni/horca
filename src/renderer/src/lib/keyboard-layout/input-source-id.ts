@@ -8,7 +8,7 @@
  * layer for dead-key composition — ABC (Option+A = å), Polish Pro
  * (Option+A = ą), US Extended, ABC Extended, and the CJK Roman IMEs all
  * share this trap. The fingerprint classifies them as `'us'`, the
- * effective setting resolves to `'true'`, xterm's `macOptionIsMeta`
+ * effective setting resolves to `'true'`, terminal's `macOptionIsMeta`
  * turns on, and every Option+letter keystroke is silently translated to
  * an Esc+letter readline chord — so typing å, ą, ï, etc., fails with no
  * visible feedback (issue #1205).

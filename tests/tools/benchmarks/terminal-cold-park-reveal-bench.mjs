@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Cold-park reveal-cost benchmark: measures the reveal latency a user pays when
 // returning to a terminal whose hidden view was cold-parked (React subtree
-// unmounted, xterm/buffers/WebGL released) versus a warm reveal where the tab
+// unmounted, terminal/buffers/WebGL released) versus a warm reveal where the tab
 // was still in the hot-retain working set. The stock terminal-perf-bench
 // workspace-switch scenario cycles 3 worktrees fast enough that parking never
 // fires, so it only ever measures warm reveals. This bench drives the
@@ -11,7 +11,7 @@
 //
 // Output phases per reveal (ms from the switch-back click):
 //   activationMs   store activeWorktree flips to the target terminal
-//   ptyBindMs      the revealed pane has a bound ptyId (xterm remounted+attached)
+//   ptyBindMs      the revealed pane has a bound ptyId (terminal remounted+attached)
 //   paintSettleMs  two RAFs after ptyBind (first painted frame settled)
 //
 // Arms:
@@ -236,7 +236,7 @@ async function waitForBoundTerminal(page, worktreeId) {
 /** Fill the active pane's terminal with ~lineCount lines of output so the
  *  parked snapshot (and thus the cold reveal replay) reflects a busy TUI-sized
  *  buffer rather than an empty shell. Writes to the pty and waits for the
- *  xterm buffer to grow. Returns the observed serialized length. */
+ *  terminal buffer to grow. Returns the observed serialized length. */
 async function primeScrollback(page, worktreeId, lineCount) {
   const ptyId = await page.evaluate((id) => {
     const state = window.__store?.getState?.()

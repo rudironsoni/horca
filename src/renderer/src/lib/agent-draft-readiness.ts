@@ -10,7 +10,7 @@ const BRACKETED_PASTE_QUIET_MS = 1500
 
 /**
  * Tap the PTY data stream as a side-channel observer (does NOT take over
- * the primary handler that feeds xterm) and resolve once input is ready.
+ * the primary handler that feeds terminal) and resolve once input is ready.
  *
  * Why a sidecar subscription:
  *   - the main pane may attach mid-flight; we must not race against its
@@ -82,7 +82,7 @@ export function waitForAgentDraftInputReady(
     } else {
       unsubscribe = subscribeToPtyData(ptyId, observeData)
       // Why: spawn can resolve after the first Codex frame was buffered. Replay
-      // it to this observer without consuming the primary xterm handler's copy.
+      // it to this observer without consuming the primary terminal handler's copy.
       replayPreHandlerPtyData(ptyId, observeData)
     }
 

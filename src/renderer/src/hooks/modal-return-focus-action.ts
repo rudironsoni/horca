@@ -23,7 +23,7 @@ export type ModalReturnFocusAction =
 
 // Why: a browser page lives in a separate webContents, so focus must route
 // through the browser focus request channel. Other surfaces need type-specific
-// DOM focus so a hidden xterm cannot steal focus from the active editor.
+// DOM focus so a hidden terminal cannot steal focus from the active editor.
 export function resolveModalReturnFocusAction(
   captured: ModalReturnFocusSurface | null
 ): ModalReturnFocusAction {
