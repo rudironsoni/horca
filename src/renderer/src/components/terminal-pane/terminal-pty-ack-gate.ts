@@ -74,6 +74,10 @@ export function exposeE2eTerminalPtyAckGate(): void {
   }
 }
 
+export function e2eTerminalAckGateIsHolding(): boolean {
+  return e2eTerminalAckGatePtyIds.size > 0
+}
+
 export function ackPtyData(ptyId: string, chars: number): void {
   // Why: held e2e-gate chars stay out of the cumulative total too, so a
   // delivery-resync probe cannot leak them past the simulated backpressure.
