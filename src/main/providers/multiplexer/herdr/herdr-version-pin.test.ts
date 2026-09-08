@@ -17,7 +17,7 @@ describe('herdr release version pin', () => {
     }
 
     expect(pin.version).toMatch(/^\d+\.\d+\.\d+(?:-preview\.[0-9a-z.-]+)?$/)
-    expect(pin.tag).toMatch(/^preview-/)
+    expect(pin.tag).toMatch(/^(v\d+\.\d+\.\d+|preview-.+)$/)
     expect(SUPPORTED_HERDR_PROTOCOLS).toContain(pin.protocol)
     expect(pin.schemaVersion).toBe(HERDR_SCHEMA_VERSION)
     expect(pin.sha256).toEqual({
