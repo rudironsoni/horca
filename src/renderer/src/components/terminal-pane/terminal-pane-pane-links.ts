@@ -76,13 +76,13 @@ export function installTerminalPaneLinkHandling(context: PaneLinkContext): void 
   refs.linkPointerGesturesRef.current.set(pane.id, linkPointerGesture)
   refs.linkProviderDisposablesRef.current.set(
     pane.id,
-    pane.terminal.registerLinkProvider(
+    pane.terminal.addLinkProvider(
       createFilePathLinkProvider(pane.id, linkDeps, pane.linkTooltip, fileOpenLinkHint)
     )
   )
   refs.terminalHandleLinkDisposablesRef.current.set(
     pane.id,
-    pane.terminal.registerLinkProvider(
+    pane.terminal.addLinkProvider(
       createTerminalHandleLinkProvider({
         getTerminal: () =>
           managerRef.current?.getPanes().find((candidate) => candidate.id === pane.id)?.terminal ??
