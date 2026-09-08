@@ -200,7 +200,7 @@ export function buildHardWrappedPathLogicalLineCandidates(
   maxRows = 20
 ): WrappedLogicalLine[] {
   // Why: agent TUIs may hard-wrap long paths into separate terminal rows, so
-  // xterm's isWrapped metadata is absent even though the visible path continues.
+  // terminal's isWrapped metadata is absent even though the visible path continues.
   const currentY = bufferLineNumber - 1
   if (!buffer.getLine(currentY)) {
     return []
@@ -339,7 +339,7 @@ export function rangeForParsedFileLink(
   }
 
   return {
-    // Why: xterm's link hit-test uses 1-based inclusive coordinates, while
+    // Why: terminal's link hit-test uses 1-based inclusive coordinates, while
     // parsed file links use zero-based half-open string indexes.
     start: { x: start.x + 1, y: start.y },
     end: { x: end.x, y: end.y }

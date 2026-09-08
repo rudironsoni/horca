@@ -201,7 +201,7 @@ describe('useTabGroupWorkspaceModel terminal activation focus', () => {
     vi.unstubAllGlobals()
   })
 
-  it('returns keyboard focus to xterm after a terminal tab is activated', async () => {
+  it('returns keyboard focus to terminal after a terminal tab is activated', async () => {
     const { useTabGroupWorkspaceModel } = await import('./useTabGroupWorkspaceModel')
     const model = useTabGroupWorkspaceModel({ groupId: 'group-1', worktreeId: 'wt-1' })
 

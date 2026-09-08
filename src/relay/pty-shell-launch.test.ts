@@ -23,7 +23,7 @@ function runInteractiveBashRcfile(
       env: {
         ...process.env,
         HOME: homeDir,
-        TERM: process.env.TERM || 'xterm'
+        TERM: process.env.TERM || 'terminal'
       },
       timeout: 5000
     }

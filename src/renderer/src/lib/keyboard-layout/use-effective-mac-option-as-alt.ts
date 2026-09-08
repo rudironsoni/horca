@@ -1,7 +1,7 @@
 /**
  * React hook: resolve the user-facing `terminalMacOptionAsAlt` setting
  * (which may be `'auto'`) into the four-valued `EffectiveMacOptionAsAlt`
- * that xterm.js and terminal-shortcut-policy consume.
+ * that Ghostty and terminal-shortcut-policy consume.
  *
  * The probe's `current` is held outside React state, so we subscribe inside
  * a useSyncExternalStore to keep every consumer in sync when the OS layout

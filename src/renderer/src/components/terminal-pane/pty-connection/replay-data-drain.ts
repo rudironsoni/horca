@@ -55,8 +55,8 @@ export function bindReplayDataDrain(session: ConnectPanePtySession): void {
       }
       // Why: a live TUI such as cursor-agent parks the real terminal cursor off
       // its own input caret and moves it back only on a focus-in. Reattach
-      // reuses the same live PTY and the xterm textarea already holds DOM
-      // focus, so xterm never emits the focus-in the agent needs and the parked
+      // reuses the same live PTY and the terminal textarea already holds DOM
+      // focus, so terminal never emits the focus-in the agent needs and the parked
       // cursor anchors the IME/caret to the wrong cell. Gated on ?1004h so a
       // bare shell never receives a stray \x1b[I.
       const sendFocusMode = terminalHasFocusReportingEnabled(session.pane.terminal)
@@ -70,7 +70,7 @@ export function bindReplayDataDrain(session: ConnectPanePtySession): void {
   session.pendingReplayData = null
   session.replayPayloadGeneration = 0
   let replayDrainQueued = false
-  // Why: a payload replayed at a foreign grid leaves xterm sized to the source,
+  // Why: a payload replayed at a foreign grid leaves terminal sized to the source,
   // so the destination fit belongs after the whole transaction parses.
   let replayedAtSourceGrid = false
   const drainReplayDataQueue = async (
@@ -112,7 +112,7 @@ export function bindReplayDataDrain(session: ConnectPanePtySession): void {
         continue
       }
       // Relay replay buffers may overlap with content already rendered in
-      // xterm. Local eager replay decides this earlier so metadata-only frames
+      // terminal. Local eager replay decides this earlier so metadata-only frames
       // can keep restored scrollback while still using the replay guard.
       // Why ahead of the source-grid resize: the clear is grid-independent, so
       // dropping the scrollback first spares a reflow of history the very next
@@ -179,14 +179,14 @@ export function bindReplayDataDrain(session: ConnectPanePtySession): void {
       }
       // Why: remote-runtime snapshots can arrive after WebGL attached to an
       // empty buffer; rebuilding after replay parses seeds the glyph atlas
-      // from the now-populated xterm state.
+      // from the now-populated terminal state.
       session.manager.rebuildPaneWebgl(session.pane.id)
       appliedCurrentPayload = true
     }
     return appliedCurrentPayload
   }
   // Why the same helper the reattach payload uses: a source-grid replay leaves
-  // xterm at the host's geometry, so the pane must fit back and push the
+  // terminal at the host's geometry, so the pane must fit back and push the
   // resulting grid to the PTY before live bytes resume.
   const fitAfterSourceGridReplay = async (
     scheduledPtyId: string | null,

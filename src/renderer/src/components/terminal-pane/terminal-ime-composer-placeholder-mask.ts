@@ -23,7 +23,7 @@ export function installTerminalImeComposerPlaceholderMask(terminal: Terminal): I
     return { dispose: () => undefined }
   }
 
-  // xterm renders one composition view; a newer transaction supersedes any older pending one.
+  // terminal renders one composition view; a newer transaction supersedes any older pending one.
   // Keeping only its id makes malformed/repeated starts bounded without evicting live ownership.
   let activeSessionId: number | null = null
   const syncPlaceholderOwnership = (): void => {

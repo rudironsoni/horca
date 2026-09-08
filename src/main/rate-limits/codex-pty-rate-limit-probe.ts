@@ -44,7 +44,7 @@ export async function fetchCodexRateLimitsViaPty(
     let timeout: ReturnType<typeof setTimeout> | null = null
 
     const term = pty.spawn(command.command, command.args, {
-      name: 'xterm-256color',
+      name: 'xterm-ghostty',
       cols: 120,
       rows: 40,
       cwd: command.cwd,

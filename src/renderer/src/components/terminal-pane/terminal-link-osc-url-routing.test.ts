@@ -153,7 +153,7 @@ describe('handleOscLink', () => {
     expect(openUrlMock).toHaveBeenCalledWith('https://example.com/')
     expect(createBrowserTabMock).not.toHaveBeenCalled()
     expect(preventDefault).toHaveBeenCalled()
-    // Why: we intentionally do NOT stopPropagation — xterm's SelectionService
+    // Why: we intentionally do NOT stopPropagation — terminal's SelectionService
     // relies on the mouseup bubbling to ownerDocument to detach its drag-select
     // mousemove listener. Stopping propagation was causing phantom selections
     // after Cmd+clicking a link and then moving the mouse back over the terminal.

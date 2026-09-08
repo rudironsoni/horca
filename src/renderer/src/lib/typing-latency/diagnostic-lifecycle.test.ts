@@ -111,7 +111,7 @@ describe('typing latency diagnostic lifecycle', () => {
     bridge.start()
 
     const registration = mocks.inputListener({
-      event: new CustomEvent('xterm-composition-session-end'),
+      event: new CustomEvent('terminal-composition-session-end'),
       source: 'ime',
       text: '한'
     })
@@ -137,7 +137,7 @@ describe('typing latency diagnostic lifecycle', () => {
     bridge.start()
 
     const registration = mocks.inputListener({
-      event: new CustomEvent('xterm-composition-session-end'),
+      event: new CustomEvent('terminal-composition-session-end'),
       source: 'ime',
       text: '한'
     })
@@ -165,7 +165,7 @@ describe('typing latency diagnostic lifecycle', () => {
     bridge.start()
 
     const registration = mocks.inputListener({
-      event: new CustomEvent('xterm-composition-session-end'),
+      event: new CustomEvent('terminal-composition-session-end'),
       source: 'ime',
       text: '한'
     })
@@ -191,7 +191,7 @@ describe('typing latency diagnostic lifecycle', () => {
     bridge.start()
 
     const registration = mocks.inputListener({
-      event: new CustomEvent('xterm-composition-session-end'),
+      event: new CustomEvent('terminal-composition-session-end'),
       source: 'ime',
       text: '한'
     })

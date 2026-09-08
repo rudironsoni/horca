@@ -7,7 +7,7 @@ type HiddenOutputRestoreEntry = {
   requestRestore: HiddenOutputRestoreRequest
 }
 
-// Why: one inactive xterm scrollback replay per frame keeps tab return focused
+// Why: one inactive terminal scrollback replay per frame keeps tab return focused
 // on the active pane while still catching watched split panes up quickly.
 const INACTIVE_RESTORE_INTERVAL_MS = 16
 

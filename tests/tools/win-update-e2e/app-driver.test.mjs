@@ -108,16 +108,16 @@ describe('dismissOverlays', () => {
         getByRole: vi.fn().mockReturnValue(createWorktree)
       }
       composer.last.mockReturnValue(composer)
-      const xterm = {
+      const terminal = {
         first: vi.fn(),
         waitFor: vi.fn().mockResolvedValue(undefined)
       }
-      xterm.first.mockReturnValue(xterm)
+      terminal.first.mockReturnValue(terminal)
       const terminalSurface = {
         first: vi.fn(),
         isVisible: vi.fn().mockResolvedValue(false),
         waitFor: vi.fn().mockResolvedValue(undefined),
-        locator: vi.fn().mockReturnValue(xterm)
+        locator: vi.fn().mockReturnValue(terminal)
       }
       terminalSurface.first.mockReturnValue(terminalSurface)
       const page = {
@@ -158,16 +158,16 @@ describe('dismissOverlays', () => {
       locator: vi.fn().mockReturnValue(dialogClose)
     }
     featureTipDialog.first.mockReturnValue(featureTipDialog)
-    const xterm = {
+    const terminal = {
       first: vi.fn(),
       waitFor: vi.fn().mockResolvedValue(undefined)
     }
-    xterm.first.mockReturnValue(xterm)
+    terminal.first.mockReturnValue(terminal)
     const terminalSurface = {
       first: vi.fn(),
       isVisible: vi.fn().mockResolvedValue(true),
       waitFor: vi.fn().mockResolvedValue(undefined),
-      locator: vi.fn().mockReturnValue(xterm)
+      locator: vi.fn().mockReturnValue(terminal)
     }
     terminalSurface.first.mockReturnValue(terminalSurface)
     const page = {
@@ -202,16 +202,16 @@ describe('dismissOverlays', () => {
       getByRole: vi.fn().mockReturnValue(createWorktree)
     }
     composer.last.mockReturnValue(composer)
-    const xterm = {
+    const terminal = {
       first: vi.fn(),
       waitFor: vi.fn().mockResolvedValue(undefined)
     }
-    xterm.first.mockReturnValue(xterm)
+    terminal.first.mockReturnValue(terminal)
     const terminalSurface = {
       first: vi.fn(),
       isVisible: vi.fn().mockResolvedValue(false),
       waitFor: vi.fn().mockResolvedValue(undefined),
-      locator: vi.fn().mockReturnValue(xterm)
+      locator: vi.fn().mockReturnValue(terminal)
     }
     terminalSurface.first.mockReturnValue(terminalSurface)
     const unintendedDialogClose = {

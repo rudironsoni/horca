@@ -10,9 +10,9 @@ export function resolvePaletteFocusRestoreTarget(
   if (preferredTarget && preferredTarget.isConnected) {
     return preferredTarget
   }
-  const xterm = doc.querySelector('.xterm-helper-textarea')
-  if (xterm instanceof HTMLElement) {
-    return xterm
+  const terminal = doc.querySelector('.orca-terminal-helper-textarea')
+  if (terminal instanceof HTMLElement) {
+    return terminal
   }
   const monaco = doc.querySelector('.monaco-editor textarea')
   return monaco instanceof HTMLElement ? monaco : null

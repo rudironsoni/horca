@@ -153,7 +153,7 @@ describe('resolveTerminalKeyboardShortcutAction', () => {
 describe('runTerminalSearchNavigation', () => {
   const searchState = { query: 'hello', caseSensitive: true, regex: false }
 
-  it('runs the next search through the guarded xterm path', () => {
+  it('runs the next search through the guarded terminal path', () => {
     const findNext = vi.fn(() => true)
     const findPrevious = vi.fn(() => false)
     const pane = { searchController: { findNext, findPrevious } } as unknown as Parameters<
@@ -165,7 +165,7 @@ describe('runTerminalSearchNavigation', () => {
     expect(findPrevious).not.toHaveBeenCalled()
   })
 
-  it('runs the previous search through the guarded xterm path', () => {
+  it('runs the previous search through the guarded terminal path', () => {
     const findNext = vi.fn(() => false)
     const findPrevious = vi.fn(() => true)
     const pane = { searchController: { findNext, findPrevious } } as unknown as Parameters<
@@ -177,7 +177,7 @@ describe('runTerminalSearchNavigation', () => {
     expect(findNext).not.toHaveBeenCalled()
   })
 
-  it('contains the xterm decoration positive-integer crash from shortcut navigation', () => {
+  it('contains the terminal decoration positive-integer crash from shortcut navigation', () => {
     const findNext = vi.fn(() => {
       throw new Error('This API only accepts positive integers')
     })

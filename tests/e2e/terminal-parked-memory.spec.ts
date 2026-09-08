@@ -49,7 +49,7 @@ const HEAP_SAMPLE_INTERVAL_MS = 250
 const PARKED_MEMORY_TEST_TIMEOUT_MS = 300_000
 
 // Why: mixed-width content (ASCII, CJK wide cells, emoji, box drawing) makes
-// each xterm hold realistic narrow+wide buffer rows, so released parked-tab
+// each terminal hold realistic narrow+wide buffer rows, so released parked-tab
 // memory reflects real agent output rather than uniform filler.
 function writeScrollbackFillScript(
   scriptPath: string,
@@ -94,7 +94,7 @@ type TerminalTabViewState = {
 }
 
 // Why: TerminalPane unmount deletes its entry from window.__paneManagers, so
-// a missing manager is the observable signal that the tab's xterm was parked.
+// a missing manager is the observable signal that the tab's terminal was parked.
 async function readTerminalTabViewState(page: Page, tabId: string): Promise<TerminalTabViewState> {
   return page.evaluate((tabId) => {
     const manager = window.__paneManagers?.get(tabId)
@@ -179,7 +179,7 @@ type ScrollbackTabSetup = {
   scrollbackTabs: ScrollbackTab[]
 }
 
-// Why: each tab generates its scrollback while visible, so every xterm holds
+// Why: each tab generates its scrollback while visible, so every terminal holds
 // the full buffer before going hidden — the hidden-delivery gate never gets a
 // chance to drop the output the memory comparison depends on.
 async function setUpScrollbackTabs(
@@ -215,7 +215,7 @@ type ParkedMemoryMetrics = {
 
 // Why: usedJSHeapSize only drops after a GC, so force one over CDP (best
 // effort) and take the min of several settled samples — the min reflects
-// retained heap instead of allocation noise between collections. Note xterm
+// retained heap instead of allocation noise between collections. Note terminal
 // buffer rows are typed-array backing stores outside the V8 heap, so the
 // liveTerminals/livePaneManagers counts are the strong release signal and the
 // heap figure tracks only the on-heap share.
@@ -245,7 +245,7 @@ async function sampleParkedMemoryMetrics(page: Page): Promise<ParkedMemoryMetric
   }
 
   const liveCounts = await page.evaluate(() => ({
-    liveTerminals: document.querySelectorAll('.xterm').length,
+    liveTerminals: document.querySelectorAll('.orca-terminal-canvas').length,
     livePaneManagers: window.__paneManagers?.size ?? 0
   }))
   return { heapUsedMB: minHeapBytes / (1024 * 1024), ...liveCounts }
@@ -306,7 +306,7 @@ test.describe('Terminal parked memory', () => {
       expect(visibleState.paneCount).toBeGreaterThan(0)
       // Why: design invariant 5 — renderer terminal views scale with mounted
       // panes; only the visible tab and the exempt last-active tab keep an
-      // xterm and pane manager, everything else parks.
+      // terminal and pane manager, everything else parks.
       expect(metrics.livePaneManagers).toBe(2)
     } finally {
       rmSync(scriptPath, { force: true })
@@ -361,7 +361,7 @@ test.describe('Terminal parked memory', () => {
       })
 
       // Structural assertions: every hidden tab keeps its pane manager and
-      // xterm; nothing parked even after the settle + sampling window.
+      // terminal; nothing parked even after the settle + sampling window.
       for (const tab of scrollbackTabs) {
         const state = await readTerminalTabViewState(orcaPage, tab.tabId)
         expect(state.hasManager).toBe(true)
@@ -387,14 +387,14 @@ test.describe('Terminal parked memory', () => {
 //    remote-runtime-shaped id. That is a fidelity proxy: park-restorability and
 //    eviction-exemption are decided from that field alone, but the transports
 //    underneath stay real LOCAL PTYs — this is not a live remote runtime.
-//  - The primary gate is retained xterm buffer CELLS (deterministic), not RSS.
-//    xterm rows are typed arrays outside the V8 heap, so usedJSHeapSize misses
+//  - The primary gate is retained terminal buffer CELLS (deterministic), not RSS.
+//    terminal rows are typed arrays outside the V8 heap, so usedJSHeapSize misses
 //    most of what is released; renderer RSS is recorded and only gated as
 //    non-growth because it moves with GC timing and compositor allocations.
 const RETENTION_TAB_COUNT = 4
 const RETENTION_FILL_LINE_COUNT = 12_000
 const RETENTION_SCROLLBACK_ROWS = 25_000
-// Why 12: xterm packs each cell as 3 uint32s in the BufferLine typed array.
+// Why 12: terminal packs each cell as 3 uint32s in the BufferLine typed array.
 const XTERM_BYTES_PER_CELL = 12
 // Why 40: this staging measures ~87 MB of retained buffer, so half of that is a
 // floor that fails loudly if the fill silently stops producing scrollback.
@@ -419,7 +419,7 @@ type RetainedBufferSample = {
   panes: number
 }
 
-// Why walk the buffers instead of trusting a heap delta: xterm rows live in
+// Why walk the buffers instead of trusting a heap delta: terminal rows live in
 // typed arrays outside the V8 heap, so retained cells are the only
 // deterministic measure of what a force-park actually released.
 async function readRetainedTerminalBufferCells(page: Page): Promise<RetainedBufferSample> {

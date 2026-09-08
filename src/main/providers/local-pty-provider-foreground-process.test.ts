@@ -182,7 +182,7 @@ describe('LocalPtyProvider', () => {
 
     it('uses the spawned Windows shell when node-pty reports only the terminal name', async () => {
       Object.defineProperty(process, 'platform', { configurable: true, value: 'win32' })
-      mockProc.process = 'xterm-256color'
+      mockProc.process = 'xterm-ghostty'
 
       const { id } = await provider.spawn({
         cols: 80,

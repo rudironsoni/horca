@@ -208,7 +208,7 @@ describe('createIpcPtyTransport', () => {
   it('routes eager-buffered bytes through onReplayData so the renderer can engage the replay guard', async () => {
     const { createIpcPtyTransport, registerEagerPtyBuffer } = await import('./pty-transport')
 
-    // Why: eager bytes carry DA1-style query sequences; onData bypasses the replay guard so xterm auto-replies, leaking input.
+    // Why: eager bytes carry DA1-style query sequences; onData bypasses the replay guard so terminal auto-replies, leaking input.
     const bufferedPayload = 'hello\x1b[cworld'
 
     const handle = registerEagerPtyBuffer('pty-restored', vi.fn())
@@ -360,7 +360,7 @@ describe('createIpcPtyTransport', () => {
       }
     })
 
-    // Why: OSC 9999 is stripped before xterm; a raw status frame must not clear restored scrollback and replay nothing.
+    // Why: OSC 9999 is stripped before terminal; a raw status frame must not clear restored scrollback and replay nothing.
     const clear = '\x1b[2J\x1b[3J\x1b[H'
     expect(onReplayData.mock.calls).toEqual([['', { clearBeforeReplay: false }]])
     expect(onReplayData).not.toHaveBeenCalledWith(clear)
@@ -381,7 +381,7 @@ describe('createIpcPtyTransport', () => {
       }
     })
 
-    // Why: restored scrollback may already be in xterm before attach; an empty eager buffer must not erase it.
+    // Why: restored scrollback may already be in terminal before attach; an empty eager buffer must not erase it.
     expect(onReplayData).not.toHaveBeenCalled()
     expect(onDataCallback).not.toHaveBeenCalled()
   })

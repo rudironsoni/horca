@@ -48,10 +48,10 @@ async function echoOf(reply: string, discipline: 'readline' | 'cooked'): Promise
   const { spawn } = await import('node-pty')
   let output = ''
   const pty = spawn(BASH, ['--norc', '--noprofile', '-i'], {
-    name: 'xterm-256color',
+    name: 'xterm-ghostty',
     cols: 80,
     rows: 24,
-    env: { ...process.env, PS1: 'ORCA16542> ', TERM: 'xterm-256color' }
+    env: { ...process.env, PS1: 'ORCA16542> ', TERM: 'xterm-ghostty' }
   })
   live = { write: (data) => pty.write(data), kill: () => pty.kill() }
   pty.onData((data) => {

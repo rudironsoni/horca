@@ -176,7 +176,7 @@ export function useMobileSessionTabReconciliation(scope: MobileSessionMarkdownAc
       )
       setQuickCommandsSupported(supportsMobileQuickCommands(capabilities))
       // Why: hosts without this capability strip inputKind from terminal.send,
-      // so a forwarded xterm reply would become floor-stealing shell input.
+      // so a forwarded terminal reply would become floor-stealing shell input.
       hostQueryReplyInputSupportedRef.current = capabilities.includes(
         TERMINAL_QUERY_REPLY_INPUT_RUNTIME_CAPABILITY
       )

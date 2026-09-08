@@ -66,7 +66,7 @@ test('restores the active top-level view (Tasks) after an app restart', async (/
       first.page.locator('[data-contextual-tour-target="tasks-source-filters"]')
     ).toBeVisible({ timeout: 10_000 })
     // And the terminal grid is not the active surface.
-    await expect(first.page.locator('.xterm')).not.toBeVisible({ timeout: 10_000 })
+    await expect(first.page.locator('.orca-terminal-canvas')).not.toBeVisible({ timeout: 10_000 })
 
     // Closing also exercises the synchronous checkpoint that covers the race
     // where exit starts before the tiny asynchronous preference write finishes.
@@ -89,7 +89,7 @@ test('restores the active top-level view (Tasks) after an app restart', async (/
     await expect(
       second.page.locator('[data-contextual-tour-target="tasks-source-filters"]')
     ).toBeVisible({ timeout: 10_000 })
-    await expect(second.page.locator('.xterm')).not.toBeVisible({ timeout: 10_000 })
+    await expect(second.page.locator('.orca-terminal-canvas')).not.toBeVisible({ timeout: 10_000 })
   } finally {
     // Guard each step so a failing close still runs the remaining cleanup.
     for (const app of [secondApp, firstApp]) {

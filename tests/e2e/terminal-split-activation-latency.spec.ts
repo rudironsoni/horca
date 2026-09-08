@@ -235,7 +235,7 @@ async function installRendererProbe(
         return
       }
       const target = event.target
-      if (!(target instanceof HTMLElement) || !target.matches('.xterm-helper-textarea')) {
+      if (!(target instanceof HTMLElement) || !target.matches('.orca-terminal-helper-textarea')) {
         return
       }
       const paneElement = target.closest<HTMLElement>('.pane[data-pane-id]')
