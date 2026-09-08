@@ -102,13 +102,16 @@ export async function ensureStockHerdrWorkspace(
     }
   }
 
-  const created = await transport.sdk.run(sessionName, (herdr) =>
-    herdr.workspaces.create({
-      ...herdrOptionalCwd(worktree.path),
+  const created = await transport.sdk.run(sessionName, (herdr) => {
+    const options = {
       label: worktree.displayName || basename(worktree.path),
       focus: false
-    })
-  )
+    }
+    const cwd = herdrOptionalCwd(worktree.path)
+    return 'cwd' in cwd
+      ? herdr.workspaces.createInDirectory(cwd.cwd, options)
+      : herdr.workspaces.create(options)
+  })
   await reportOrcaWorkspaceBinding(transport, sessionName, created.workspace.id, binding)
   const firstLeafId = firstTerminalLeafId(firstRoot)
   if (firstTab && firstLeafId) {
