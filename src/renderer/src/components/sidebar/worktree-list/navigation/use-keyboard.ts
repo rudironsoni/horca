@@ -22,8 +22,8 @@ function isEditableTarget(target: EventTarget | null): boolean {
     return false
   }
 
-  // xterm's hidden input textarea isn't a real text field; treating it as one would block sidebar shortcuts.
-  if (target.classList.contains('xterm-helper-textarea')) {
+  // terminal's hidden input textarea isn't a real text field; treating it as one would block sidebar shortcuts.
+  if (target.classList.contains('orca-terminal-helper-textarea')) {
     return false
   }
 
@@ -151,7 +151,7 @@ export function useWorktreeListKeyboardNavigation(args: {
         e.preventDefault()
       } else if (e.key === 'Enter') {
         const helper = document.querySelector(
-          '.xterm-helper-textarea'
+          '.orca-terminal-helper-textarea'
         ) as HTMLTextAreaElement | null
         if (helper) {
           helper.focus()

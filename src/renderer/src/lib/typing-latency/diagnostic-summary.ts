@@ -4,7 +4,7 @@
  * worktree nesting, suspect settings) that explains WHY a renderer is slow.
  *
  * Kept separate from the DOM/store wiring in diagnostic.ts so
- * the arithmetic is unit-testable without an xterm or a live store.
+ * the arithmetic is unit-testable without an terminal or a live store.
  */
 import {
   isWindowsAbsolutePathLike,

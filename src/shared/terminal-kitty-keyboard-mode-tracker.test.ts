@@ -15,7 +15,7 @@ describe('TerminalKittyKeyboardModeTracker', () => {
     expect(tracker.flags).toBe(0)
   })
 
-  it('tracks push and pop like xterm, including the pop-to-empty zeroing', () => {
+  it('tracks push and pop like terminal, including the pop-to-empty zeroing', () => {
     const tracker = new TerminalKittyKeyboardModeTracker()
     tracker.scan('\x1b[>1u')
     expect(tracker.flags).toBe(1)
@@ -24,7 +24,7 @@ describe('TerminalKittyKeyboardModeTracker', () => {
     tracker.scan('\x1b[<u')
     expect(tracker.flags).toBe(1)
 
-    // Why: xterm zeroes flags whenever a pop drains the stack, even though the
+    // Why: terminal zeroes flags whenever a pop drains the stack, even though the
     // popped frame was the pre-push value — mirror that exactly.
     const drained = new TerminalKittyKeyboardModeTracker()
     drained.scan('\x1b[=3;1u\x1b[>5u\x1b[<u')
@@ -99,12 +99,12 @@ describe('TerminalKittyKeyboardModeTracker', () => {
     expect(tracker.flags).toBe(0)
   })
 
-  it('clears kitty state on DECSTR (CSI ! p) like xterm, without switching screens', () => {
+  it('clears kitty state on DECSTR (CSI ! p) like terminal, without switching screens', () => {
     const tracker = new TerminalKittyKeyboardModeTracker()
     tracker.scan('\x1b[>1u\x1b[!p')
     expect(tracker.flags).toBe(0)
 
-    // xterm's soft reset wipes both screens' slots but stays on the current
+    // terminal's soft reset wipes both screens' slots but stays on the current
     // buffer; a later alt-screen exit must not resurrect pre-reset flags.
     const onAlt = new TerminalKittyKeyboardModeTracker()
     onAlt.scan('\x1b[>1u\x1b[?1049h\x1b[>2u')

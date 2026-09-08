@@ -39,7 +39,7 @@ export class OrcaRuntimeWithSerializeTerminalBufferFromAvailableState extends Or
     if (rendererSnapshot.data.length > 0) {
       return rendererSnapshot
     }
-    // Why: parked desktop panes register serializers before their xterm has
+    // Why: parked desktop panes register serializers before their terminal has
     // hydrated. Treat that empty shell as provisional so retained provider
     // history can restore mobile without forcing the desktop pane to mount.
     const providerSnapshot = await this.serializeProviderTerminalBuffer(ptyId, opts)

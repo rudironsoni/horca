@@ -53,7 +53,7 @@ export function isEditableTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) {
     return false
   }
-  if (target.classList.contains('xterm-helper-textarea')) {
+  if (target.classList.contains('orca-terminal-helper-textarea')) {
     return false
   }
   if (target.isContentEditable) {

@@ -145,7 +145,7 @@ export function installPtyInputRecovery(session: ConnectPanePtySession): void {
     return !ptyId || !isPtyLocked(ptyId)
   }
   // Why: parser/capability handlers bypass the ordinary onData guard. Keep
-  // desktop silent while the elected mobile xterm owns query replies.
+  // desktop silent while the elected mobile terminal owns query replies.
   session.sendDesktopQueryReplyImmediate = (data: string): boolean =>
     session.canSendDesktopQueryReply() && session.transport.sendInputImmediate(data)
   // Why (gate mode only): gate-managed PTYs never see the subscribe bytes, so this fact is
@@ -322,8 +322,8 @@ export function installPtyInputRecovery(session: ConnectPanePtySession): void {
     })
   }
   // Why: the write-pipeline health watch (scheduler stall probe, replay-guard
-  // wedge certification) detects a dead xterm pipeline; route its verdict to
-  // the same tab remount. Registered per xterm instance — recovery replaces
+  // wedge certification) detects a dead terminal pipeline; route its verdict to
+  // the same tab remount. Registered per terminal instance — recovery replaces
   // the instance, which resets certification naturally.
   session.unregisterUndeliverableWriteHandler = registerUndeliverableWriteHandler(
     session.pane.terminal,

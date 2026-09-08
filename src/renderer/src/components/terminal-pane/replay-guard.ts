@@ -11,13 +11,13 @@ import {
 } from '@/lib/pane-manager/terminal-write-pipeline-health'
 import { redactPtyIdForDiagnostics } from '../../../../shared/pty-delivery-diagnostics'
 
-// Why this guard exists: xterm auto-replies to query sequences (DA1/DECRQM/OSC 10-11/CPR) via onData → shell stdin, so replaying recorded PTY bytes leaks stray replies onto the new shell's prompt.
-// The per-pane counter suppresses synthetic onData during replay parsing; xterm's user-input signal keeps real keystrokes flowing.
+// Why this guard exists: terminal auto-replies to query sequences (DA1/DECRQM/OSC 10-11/CPR) via onData → shell stdin, so replaying recorded PTY bytes leaks stray replies onto the new shell's prompt.
+// The per-pane counter suppresses synthetic onData during replay parsing; terminal's user-input signal keeps real keystrokes flowing.
 
 export type ReplayingPanesRef = React.RefObject<Map<number, number>>
 
-// Why stall handling exists: the decrement only runs on xterm's write completion; a wedged WriteBuffer or disposed-terminal race can drop it forever, latching the guard so it eats every keystroke (issue #2836).
-// Why release is probe-certified, not time-based: a blind timeout during a slow replay would leak xterm auto-replies into the shell/agent TUIs, so an empty FIFO probe certifies wedged only after a fully quiet window.
+// Why stall handling exists: the decrement only runs on terminal's write completion; a wedged WriteBuffer or disposed-terminal race can drop it forever, latching the guard so it eats every keystroke (issue #2836).
+// Why release is probe-certified, not time-based: a blind timeout during a slow replay would leak terminal auto-replies into the shell/agent TUIs, so an empty FIFO probe certifies wedged only after a fully quiet window.
 const REPLAY_GUARD_STALL_CHECK_MS = 10_000
 
 type ReplayTerminalOptions = {
@@ -116,7 +116,7 @@ function engageReplayGuard(
       recordRendererCrashBreadcrumb('terminal_replay_guard_lost_completion', breadcrumbData)
     } else if (reason === 'wedged') {
       console.error(
-        `[terminal] replay guard released for pane ${paneId} — xterm rejected the replay write or its probe never parsed (undeliverable write pipeline; pane likely needs recovery)`
+        `[terminal] replay guard released for pane ${paneId} — terminal rejected the replay write or its probe never parsed (undeliverable write pipeline; pane likely needs recovery)`
       )
       recordRendererCrashBreadcrumb('terminal_replay_guard_wedged_release', breadcrumbData)
       // Why: a rejected replay or silent probe makes the pipeline undeliverable; recover instead of a fossil that eats input.
@@ -168,7 +168,7 @@ function engageReplayGuard(
 }
 
 /** Writes `data` into the pane's terminal with the replay guard engaged, so
- *  xterm's auto-replies to embedded query sequences don't leak to the shell.
+ *  terminal's auto-replies to embedded query sequences don't leak to the shell.
  *  The counter increments/decrements so nested replays compose correctly. */
 export function replayIntoTerminal(
   pane: ManagedPane,
@@ -271,7 +271,7 @@ export function waitForTerminalReplayWritesParsed(
     }
     stallTimer = setTimeout(queueProbe, options.stallCheckMs ?? REPLAY_GUARD_STALL_CHECK_MS)
     try {
-      // Why empty: keep pendingEscapeTailAnsi as the final replay bytes; xterm still orders this completion after earlier writes.
+      // Why empty: keep pendingEscapeTailAnsi as the final replay bytes; terminal still orders this completion after earlier writes.
       terminal.write('', finish)
     } catch {
       // A disposed terminal cannot parse any remaining replay bytes.

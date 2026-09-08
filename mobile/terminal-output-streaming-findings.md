@@ -10,9 +10,9 @@ The investigation was limited to `mobile/`. Server-side files under `src/main/` 
 
 - The phone can connect to `ws://192.168.0.179:6768`, list worktrees, list terminals, and call `terminal.send`.
 - The phone's saved host token is valid; a direct WebSocket probe from the desktop using the same token can call `worktree.ps`, `terminal.list`, `terminal.subscribe`, `terminal.send`, and `terminal.read`.
-- `TerminalWebView` can render text when the React Native side writes to it after xterm initializes. A temporary marker written after `init()` appeared visibly in the WebView.
+- `TerminalWebView` can render text when the React Native side writes to it after terminal initializes. A temporary marker written after `init()` appeared visibly in the WebView.
 - Messages posted to the WebView before its page installs message handlers can be dropped. The mobile fix queues `init`, `write`, and `clear` until the WebView reports `web-ready`.
-- The WebView also has an internal queue for writes that arrive after `web-ready` but before xterm finishes `init()`.
+- The WebView also has an internal queue for writes that arrive after `web-ready` but before terminal finishes `init()`.
 - The selected physical-phone test worktree was `refs/heads/tasks-improvements` at `/Users/jinwoohong/orca/workspaces/orca/pr-1172-review`.
 - For that test worktree, `terminal.subscribe` produced an initial `scrollback` event with an empty `lines` array and no serialized buffer.
 - Sending commands to that test terminal returned `ok:true`, but a direct WebSocket `terminal.read` for the same handle still returned an empty tail and no live `data` chunks were observed.
@@ -29,7 +29,7 @@ The investigation was limited to `mobile/`. Server-side files under `src/main/` 
 
 - `mobile/src/terminal/TerminalWebView.tsx`
   - Added a native-side queue so WebView messages are not sent until the HTML reports `web-ready`.
-  - Added a WebView-side queue so writes wait until xterm finishes `init()`.
+  - Added a WebView-side queue so writes wait until terminal finishes `init()`.
 - `mobile/src/transport/rpc-client.ts`
   - Stored full stream request metadata so active streams can be replayed after reconnect.
   - Avoided sending a subscription before the socket reaches `connected`.

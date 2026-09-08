@@ -9,7 +9,7 @@ import {
 } from './terminal-contrast-correction'
 import { TERMINAL_THEME_CATALOG } from './terminal-themes'
 
-// WCAG relative-luminance contrast ratio, matching xterm's minimumContrastRatio gate.
+// WCAG relative-luminance contrast ratio, matching terminal's minimumContrastRatio gate.
 function contrastRatio(a: string, b: string): number {
   const lum = (hex: string): number => {
     const n = Number.parseInt(hex.replace('#', ''), 16)
@@ -61,7 +61,7 @@ describe('resolveTerminalMinimumContrastRatio with a user override', () => {
     expect(resolveTerminalMinimumContrastRatio('#ffffff', 'light', 7)).toBe(7)
   })
 
-  it("clamps an out-of-range override to xterm's 1-21 window", () => {
+  it("clamps an out-of-range override to terminal's 1-21 window", () => {
     expect(resolveTerminalMinimumContrastRatio('#1e242a', 'dark', 0)).toBe(
       MIN_TERMINAL_CONTRAST_RATIO
     )
@@ -74,7 +74,7 @@ describe('resolveTerminalMinimumContrastRatio with a user override', () => {
   })
 
   it('falls back to the automatic floor when the override is unset or unusable', () => {
-    // A hand-edited settings file can carry any of these; xterm throws on a non-finite option.
+    // A hand-edited settings file can carry any of these; terminal throws on a non-finite option.
     for (const value of [undefined, Number.NaN, Number.POSITIVE_INFINITY]) {
       expect(resolveTerminalMinimumContrastRatio('#1e242a', 'dark', value)).toBe(
         DARK_BG_MIN_CONTRAST
@@ -109,12 +109,12 @@ describe('DARK_BG_MIN_CONTRAST rescue window', () => {
   const DARK_BG = '#1e242a'
 
   it('is high enough to lift Antigravity-style near-background body text', () => {
-    // #262b30 on #1e242a is ~1.1:1 — invisible at floor 1. The floor must exceed it so xterm corrects it.
+    // #262b30 on #1e242a is ~1.1:1 — invisible at floor 1. The floor must exceed it so terminal corrects it.
     expect(contrastRatio(DARK_BG, '#262b30')).toBeLessThan(DARK_BG_MIN_CONTRAST)
   })
 
   it('stays below the contrast that saturated ANSI colors naturally reach on a dark background', () => {
-    // Normal red/blue/magenta sit at ~3.0-3.4:1 here; the floor must not exceed them or xterm would
+    // Normal red/blue/magenta sit at ~3.0-3.4:1 here; the floor must not exceed them or terminal would
     // wash them toward white — exactly the over-brightening #7934 disabled the 4.5 floor to avoid.
     for (const ansi of ['#cd3131', '#2472c8', '#bc3fbc']) {
       expect(contrastRatio(DARK_BG, ansi)).toBeGreaterThanOrEqual(DARK_BG_MIN_CONTRAST)

@@ -15,8 +15,8 @@ function positiveGrid(cols: unknown, rows: unknown): PtyGrid | undefined {
 }
 
 /** Pre-attach seed for `ptySizes`. Daemon PTYs can emit before spawn() resolves, so a genuinely
- *  fresh session must record its geometry now or early bytes parse at xterm's 80x24 default.
- *  An attach must not seed: a pane that mounted while hidden reports xterm's unmeasured default,
+ *  fresh session must record its geometry now or early bytes parse at terminal's 80x24 default.
+ *  An attach must not seed: a pane that mounted while hidden reports terminal's unmeasured default,
  *  and the live PTY's real grid is either already cached or arrives with the attach result. */
 export function shouldSeedPreAttachPtySize(args: {
   isFreshSessionId: boolean

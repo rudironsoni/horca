@@ -97,13 +97,13 @@ export const BROWSER_NETWORK_TUNNEL_RUNTIME_CAPABILITY = 'network.browserTunnel.
 export const BROWSER_NETWORK_EXECUTION_HOSTS_RUNTIME_CAPABILITY =
   'network.browserTunnel.executionHosts.v1' as const
 // Why: hosts without this strip terminal.send's inputKind (zod object drops
-// unknown keys), so a mobile xterm query reply would land as ordinary
+// unknown keys), so a mobile terminal query reply would land as ordinary
 // floor-taking input. Mobile must not forward replies unless advertised.
 export const TERMINAL_QUERY_REPLY_INPUT_RUNTIME_CAPABILITY =
   'terminal.query-reply-input.v1' as const
 // Why: without this, prompt request IDs and waitSubmitMs are stripped and a retry would resend raw input.
 export const TERMINAL_PROMPT_DELIVERY_RUNTIME_CAPABILITY = 'terminal.prompt-delivery.v1' as const
-// Why: paired clients may unmount xterm only when the host can return a
+// Why: paired clients may unmount terminal only when the host can return a
 // bounded, sequenced scrollback snapshot for lossless reveal.
 export const TERMINAL_PAIRED_PARKING_RUNTIME_CAPABILITY = 'terminal.paired-parking.v1' as const
 // Why: older hosts lack the targeted settings RPCs and strip agentPrompt from

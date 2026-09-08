@@ -78,10 +78,10 @@ async function readActiveTerminalRasterTarget(page: Page): Promise<TerminalRaste
     if (!pane) {
       throw new Error('No active terminal pane')
     }
-    const screen = pane.container.querySelector<HTMLElement>('.xterm-screen')
+    const screen = pane.container.querySelector<HTMLElement>('.orca-terminal-canvas')
     const dimensions = pane.terminal._core?._renderService?.dimensions?.css?.cell
     if (!screen || !dimensions) {
-      throw new Error('Active terminal has no measurable xterm screen')
+      throw new Error('Active terminal has no measurable terminal screen')
     }
     const diagnostics = manager
       ?.getRenderingDiagnostics()

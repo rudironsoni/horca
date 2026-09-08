@@ -20,14 +20,14 @@ import {
   resolveNonLatinControlChordInput
 } from './terminal-non-latin-control-chord'
 import {
-  shouldBypassXtermKeyboardEvent,
+  shouldBypassTerminalKeyboardEvent,
   shouldHandleTerminalInterruptKeyboardEvent,
   shouldPreventDefaultTerminalImeCandidateKey,
   shouldSuppressTerminalImeKeyboardEvent,
   shouldSuppressTerminalInterruptKeyup,
   shouldSuppressTerminalModifierKeyboardEvent,
   TERMINAL_INTERRUPT_INPUT
-} from './xterm-bypass-policy'
+} from './terminal-bypass-policy'
 import { markTerminalPinnedViewport } from '@/lib/pane-manager/terminal-scroll-intent'
 import { syncTerminalScrollIntentSoon } from '@/lib/pane-manager/terminal-scroll-intent-settle'
 import { resetTerminalKeyboardProtocolAfterInterrupt } from './terminal-pane-lifecycle-primitives'
@@ -191,7 +191,7 @@ export function installTerminalPaneInputHandling(context: PaneInputContext): voi
       observeLinuxCandidateEvent()
       return false
     }
-    const shouldBypass = shouldBypassXtermKeyboardEvent(event, {
+    const shouldBypass = shouldBypassTerminalKeyboardEvent(event, {
       isMac,
       isIosWeb,
       hasSelection: pane.terminal.hasSelection(),

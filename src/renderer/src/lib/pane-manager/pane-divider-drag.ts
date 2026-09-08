@@ -215,7 +215,7 @@ export function attachDividerDrag(
     nextInitialFlex = nextEl.style.flex
 
     // Why: shells redraw prompts on every PTY SIGWINCH. During a divider drag
-    // we still fit xterm locally, but forward only the final PTY size on drop.
+    // we still fit terminal locally, but forward only the final PTY size on drop.
     releasePtyResizeHold = holdPtyResizesForPaneSubtrees([prevEl, nextEl])
 
     totalSize = measuredTotalSize

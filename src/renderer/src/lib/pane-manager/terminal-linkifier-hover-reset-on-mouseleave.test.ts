@@ -69,7 +69,7 @@ describe('installTerminalLinkifierHoverResetOnMouseLeave', () => {
     const harness = createHarness()
     installTerminalLinkifierHoverResetOnMouseLeave(harness.terminal, harness.linkTooltip)
 
-    expect(harness.querySelector).toHaveBeenCalledWith('.xterm-screen')
+    expect(harness.querySelector).toHaveBeenCalledWith('.orca-terminal-canvas')
     expect(harness.addEventListener).toHaveBeenCalledWith('mouseleave', expect.any(Function))
     harness.dispatchMouseLeave()
 
@@ -104,7 +104,7 @@ describe('installTerminalLinkifierHoverResetOnMouseLeave', () => {
     ).not.toThrow()
   })
 
-  it('does not throw when xterm linkifier internals are unavailable', () => {
+  it('does not throw when terminal linkifier internals are unavailable', () => {
     const harness = createHarness()
     const terminal = harness.terminal as unknown as { _core?: unknown }
     terminal._core = undefined

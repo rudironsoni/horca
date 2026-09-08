@@ -49,7 +49,7 @@ export function writeTerminalOutputImpl(
   options: WriteTerminalOutputOptions
 ): void {
   exposeDebugApi()
-  // Why: recovery may be budget-delayed while PTY output keeps flowing; main owns the authoritative buffer, so credit delivery without waking dead xterm.
+  // Why: recovery may be budget-delayed while PTY output keeps flowing; main owns the authoritative buffer, so credit delivery without waking dead terminal.
   if (isTerminalWritePipelineCertifiedDead(terminal)) {
     options.ackCredit?.()
     return
@@ -215,7 +215,7 @@ export function writeTerminalOutputImpl(
         }
       )
     } catch (error) {
-      // Why: beforeWrite can throw before xterm owns the callback, so consume the delivery here (xterm write throws are caught by the foreground writer).
+      // Why: beforeWrite can throw before terminal owns the callback, so consume the delivery here (terminal write throws are caught by the foreground writer).
       ackCreditsParsed?.()
       cancelTerminalWriteStallWatch(terminal)
       throw error
@@ -242,7 +242,7 @@ export function writeTerminalOutputImpl(
   if (debugEnabled) {
     debugState.backgroundEnqueueCount++
   }
-  // Why: letting every non-focused pane call xterm.write immediately spawns a WriteBuffer timer per pane, starving the focused terminal on the shared renderer thread.
+  // Why: letting every non-focused pane call terminal.write immediately spawns a WriteBuffer timer per pane, starving the focused terminal on the shared renderer thread.
   scheduleDrain(
     entry.highPriority || entry.queuedChars > LARGE_BACKLOG_CHARS ? 0 : BACKGROUND_FLUSH_DELAY_MS
   )
