@@ -1,13 +1,13 @@
 {
-  "version": "0.8.2-preview.2026-08-31-b1ff4582e968",
-  "tag": "preview-2026-08-31-b1ff4582e968",
-  "protocol": 21,
+  "version": "0.9.0",
+  "tag": "v0.9.0",
+  "protocol": 22,
   "schemaVersion": 1,
   "sha256": {
-    "herdr-linux-aarch64": "32609bf5f564aaafe951a79cf8e51163319f82bfad8e8c3877b87938a5952a43",
-    "herdr-linux-x86_64": "61c1c9181c0cf62a00882f21f2c6e19ce8ee6360410736a4c6c5a1387a0fc388",
-    "herdr-macos-aarch64": "93bb174c2962e1282a0fa4df5f986956a4253e08aaf7eecdca3d919d2704106b",
-    "herdr-macos-x86_64": "b00cc237c04fecaa3385a80d38d3352483a4250cbf21edef37a1c2fa3019ddce",
-    "herdr-windows-x86_64.zip": "e35e9d92a9f77c559cf814f36d0e5f6e66ab3a6f61eadac58ab5be9bb9223f7e"
+    "herdr-linux-aarch64": "9c8db20fb7e7427b138d5367113f1621ffd319f2f65d6f009e2594029115f0d2",
+    "herdr-linux-x86_64": "4fa1a01158dd8043da92d31b270780b0dcc10603038d9b61cac4d81ab63fb71f",
+    "herdr-macos-aarch64": "32b53df09872628059c789a69f02a6b8e29e14ddf26711421f3463f70c1aef17",
+    "herdr-macos-x86_64": "d0c920b2a126a74809fa1491411c9a097a44786cac9c2ca51b818a995581cf16",
+    "herdr-windows-x86_64.zip": "b4508c445de1c1a68c760a01735da2aba2fa214b2aafd4b07f732e49b2a64b11"
   }
 }
