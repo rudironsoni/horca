@@ -56,7 +56,7 @@ function presentPaneViewportWithMode(pane: ManagedPane, mode: ViewportPresentMod
     return
   }
   try {
-    // Why: on reveal xterm's IntersectionObserver can still report the pane as
+    // Why: on reveal terminal's IntersectionObserver can still report the pane as
     // not intersecting, so a plain refresh() is swallowed by RenderService's
     // paused-render gate and the pending model never repaints (stale bottom rows
     // until a drag-select forces a redraw). Request one synchronous full present
@@ -71,7 +71,7 @@ function presentPaneViewportWithMode(pane: ManagedPane, mode: ViewportPresentMod
     // fires on a change, so it never re-pauses. Clearing _needsFullRefresh with
     // it also drops the full repaint the observer owes the pane on reveal, and
     // the deferred _pausedResizeTask that flushes alongside it. Latching is what
-    // xterm's own gate does, and the reveal repaints from the latch.
+    // terminal's own gate does, and the reveal repaints from the latch.
     if (isManagedPaneDisplayNone(pane)) {
       pane.terminal.refresh(0, pane.terminal.rows - 1)
       // Why: light tab reveal runs while the overlay is still display:none

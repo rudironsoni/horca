@@ -99,7 +99,7 @@ describe('pane WebGL refresh lifecycle', () => {
     expect(pane.terminal.refresh).toHaveBeenCalledTimes(1)
   })
 
-  it('actively releases the xterm WebGL context before disposing the addon', () => {
+  it('actively releases the terminal WebGL context before disposing the addon', () => {
     const loseContext = vi.fn()
     const canvas = { width: 120, height: 40 }
     const dispose = vi.fn()

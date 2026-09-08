@@ -28,7 +28,7 @@ export function getEffectiveLayoutForWorktree(
  * Why: the split-group container hosts ALL mounted worktrees' pane trees.
  * Gating it on only the *active* worktree's layout causes the entire tree
  * to unmount when switching to a newly-activated worktree that has no
- * groups yet — destroying PaneManagers, xterm buffers, and PTY connections.
+ * groups yet — destroying PaneManagers, terminal buffers, and PTY connections.
  */
 export function anyMountedWorktreeHasLayout(
   allWorktreeIds: string[],

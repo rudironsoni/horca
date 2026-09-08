@@ -32,7 +32,7 @@ import type { ConnectPanePtySession } from './connect-pane-pty-session'
 export function bindHiddenOutputRestoreSnapshot(session: ConnectPanePtySession): void {
   session.writeRestoreUnavailableWarning = function (): void {
     // The reset must parse before both the warning and any foreground drain.
-    session.writePtyOutputToXterm(RESET_AFTER_BYTE_GAP, true)
+    session.writePtyOutputToTerminal(RESET_AFTER_BYTE_GAP, true)
     if (!shouldWritePtyOutputForeground(session.deps.isVisibleRef.current)) {
       return
     }
@@ -98,7 +98,7 @@ export function bindHiddenOutputRestoreSnapshot(session: ConnectPanePtySession):
             (session.pane.terminal.cols !== snapshot.cols ||
               session.pane.terminal.rows !== snapshot.rows)
           ) {
-            // Why: xterm parses writes later; hold snapshot dimensions until the FIFO sentinel completes so serialized wraps stay exact.
+            // Why: terminal parses writes later; hold snapshot dimensions until the FIFO sentinel completes so serialized wraps stay exact.
             session.suppressStructuralReplayPtyResize = true
             try {
               session.pane.terminal.resize(snapshot.cols, snapshot.rows)

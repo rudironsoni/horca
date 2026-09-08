@@ -66,7 +66,7 @@ describe('installTerminalLinkifierClickPriming', () => {
     vi.unstubAllGlobals()
   })
 
-  it('primes a fresh OSC link before xterm snapshots a macOS mousedown', () => {
+  it('primes a fresh OSC link before terminal snapshots a macOS mousedown', () => {
     vi.stubGlobal('navigator', { userAgent: 'Macintosh' })
     const order: string[] = []
     const linkifier: FakeLinkifier = {
@@ -124,7 +124,7 @@ describe('installTerminalLinkifierClickPriming', () => {
     expect(linkifier._activeLine).toBe(5)
   })
 
-  it('primes plain action clicks and degrades safely when xterm internals are unavailable', () => {
+  it('primes plain action clicks and degrades safely when terminal internals are unavailable', () => {
     vi.stubGlobal('navigator', { userAgent: 'Macintosh' })
     const handleMouseMove = vi.fn()
     const present = createTerminal({ _handleMouseMove: handleMouseMove })

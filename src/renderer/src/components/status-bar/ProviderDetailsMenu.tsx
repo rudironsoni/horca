@@ -143,7 +143,7 @@ export function useStatusBarMenuFocusHandoff(): {
         return
       }
       skipCloseAutoFocusRef.current = false
-      // Why: Radix trigger restoration steals the first click from surfaces such as xterm.
+      // Why: Radix trigger restoration steals the first click from surfaces such as terminal.
       event.preventDefault()
     }
   }

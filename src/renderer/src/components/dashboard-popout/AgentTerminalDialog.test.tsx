@@ -11,7 +11,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { AgentTerminalDialog, AgentTerminalPanel } from './AgentTerminalDialog'
 
 // Stub the preview so the assertion is on the props the dialog hands it, with
-// no xterm / IPC machinery in the way.
+// no terminal / IPC machinery in the way.
 vi.mock('./AgentTerminalPreview', () => ({
   AgentTerminalPreview: ({
     ptyId,

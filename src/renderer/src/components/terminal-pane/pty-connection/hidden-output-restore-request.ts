@@ -26,7 +26,7 @@ export function bindHiddenOutputRestoreRequest(session: ConnectPanePtySession): 
   session.requestHiddenOutputRestoreIfNeeded = function (opts?: {
     bypassScheduler?: boolean
   }): boolean {
-    // Why: once the write pipeline is probe-certified dead a restore can never parse; recovery owns the pane and the remount gets a fresh xterm + restore.
+    // Why: once the write pipeline is probe-certified dead a restore can never parse; recovery owns the pane and the remount gets a fresh terminal + restore.
     if (isTerminalWritePipelineCertifiedDead(session.pane.terminal)) {
       // Why the re-kick: certification's recovery request can be budget-declined or cancelled by a sibling remount; without this, a revealed dead pane keeps the stale frame forever.
       if (!session.certifiedDeadRestoreRecoveryRequested && !session.disposed) {
@@ -65,7 +65,7 @@ export function bindHiddenOutputRestoreRequest(session: ConnectPanePtySession): 
           session.hiddenOutputRestoreScheduled = true
           const scheduledPtyId = ptyId
           const scheduledGeneration = session.hiddenOutputRestoreGeneration
-          // Why: resume can reveal many split panes at once; spread inactive replays across frames so xterm scrollback replay doesn't block return.
+          // Why: resume can reveal many split panes at once; spread inactive replays across frames so terminal scrollback replay doesn't block return.
           scheduleHiddenOutputRestore(
             session.pane.terminal,
             (): boolean => {

@@ -1,21 +1,21 @@
 /**
- * Repro: xterm <-> PTY column desync.
+ * Repro: terminal <-> PTY column desync.
  *
  * Symptom (observed live, macOS, build 1.4.103): an interactive TUI (Claude
  * Code) renders garbled — ~1 char per line, overlapping text. Ruled out:
- * xterm version, font/letter-spacing, pane width, GPU (DOM renderer).
+ * terminal version, font/letter-spacing, pane width, GPU (DOM renderer).
  *
- * Hypothesis: xterm reflows to the visible width but the PTY's
+ * Hypothesis: terminal reflows to the visible width but the PTY's
  * process.stdout.columns is pinned to a stale/tiny value, so the program keeps
- * emitting output sized for the wrong width and xterm faithfully paints
+ * emitting output sized for the wrong width and terminal faithfully paints
  * garbage. The suspected gate is isRendererPtyResizeAuthoritative() in
- * pty-connection.ts: while a pane is hidden it returns false, so xterm reflows
+ * pty-connection.ts: while a pane is hidden it returns false, so terminal reflows
  * that happen off-screen never reach the PTY, and the resume-time correction
  * (safeFit + transport.resize, pty-connection.ts ~3316) is the only thing that
  * can re-sync. If that correction is missed, the PTY stays stale.
  *
  * The proof is a direct comparison: process.stdout.columns inside the PTY must
- * equal terminal.cols in xterm. This spec drives several scenarios that mimic
+ * equal terminal.cols in terminal. This spec drives several scenarios that mimic
  * the real usage and asserts the two match.
  *
  * Reproduces reliably (always on the first mount) when run in isolation:
@@ -23,7 +23,7 @@
  *     tests/e2e/terminal-column-desync-repro.spec.ts --project electron-headless \
  *     -g "during initial mount"
  * Observed: the first terminal spawns its PTY at the full window width
- * (e.g. 203 cols) while xterm fits the pane to the real layout width (79 cols);
+ * (e.g. 203 cols) while terminal fits the pane to the real layout width (79 cols);
  * the gap never closes. Under heavy parallel load the timing can shift, so the
  * `-g "during initial mount"` test (serial, reload-looped) is the golden repro.
  */
@@ -50,7 +50,7 @@ import { waitForPtyShellEcho } from './terminal-pty-readiness'
 // process.stdout.columns instead of waiting for it to drop below a target.
 const READ_ANY_COLS = 100_000
 
-/** Read xterm's authoritative column count for the active terminal pane. */
+/** Read terminal's authoritative column count for the active terminal pane. */
 async function readRenderedTerminalCols(page: Page): Promise<number> {
   return page.evaluate(() => {
     const store = window.__store
@@ -73,7 +73,7 @@ async function readPtyCols(page: Page, ptyId: string): Promise<number> {
   return waitForPtyColumnsAtMost(page, ptyId, READ_ANY_COLS, 30_000)
 }
 
-/** Read xterm cols for the pane bound to a specific PTY id. */
+/** Read terminal cols for the pane bound to a specific PTY id. */
 async function readRenderedColsForPty(page: Page, ptyId: string): Promise<number> {
   return page.evaluate((ptyId) => {
     for (const manager of window.__paneManagers?.values() ?? []) {
@@ -97,12 +97,12 @@ async function readReportedPtyCols(page: Page, ptyId: string): Promise<number> {
   }, ptyId)
 }
 
-type ColumnSnapshot = { xtermCols: number; ptyCols: number }
+type ColumnSnapshot = { terminalCols: number; ptyCols: number }
 
 async function readColumnSnapshot(page: Page, ptyId: string): Promise<ColumnSnapshot> {
-  const xtermCols = await readRenderedTerminalCols(page)
+  const terminalCols = await readRenderedTerminalCols(page)
   const ptyCols = await readPtyCols(page, ptyId)
-  return { xtermCols, ptyCols }
+  return { terminalCols, ptyCols }
 }
 
 async function closeRightSidebarAndFeatureTips(page: Page): Promise<void> {
@@ -126,7 +126,7 @@ async function settleTerminal(page: Page): Promise<string> {
 }
 
 test.describe('Terminal column desync repro', () => {
-  test('PTY columns stay in sync with xterm across a visible resize', async ({ orcaPage }) => {
+  test('PTY columns stay in sync with terminal across a visible resize', async ({ orcaPage }) => {
     test.setTimeout(120_000)
     await waitForSessionReady(orcaPage)
     await waitForActiveWorktree(orcaPage)
@@ -143,11 +143,11 @@ test.describe('Terminal column desync repro', () => {
         .poll(
           async () => {
             const snap = await readColumnSnapshot(orcaPage, ptyId)
-            return snap.ptyCols === snap.xtermCols
+            return snap.ptyCols === snap.terminalCols
               ? 'synced'
-              : `pty=${snap.ptyCols} xterm=${snap.xtermCols}`
+              : `pty=${snap.ptyCols} terminal=${snap.terminalCols}`
           },
-          { timeout: 30_000, message: `${label}: PTY cols should converge to xterm cols` }
+          { timeout: 30_000, message: `${label}: PTY cols should converge to terminal cols` }
         )
         .toBe('synced')
     }
@@ -155,7 +155,7 @@ test.describe('Terminal column desync repro', () => {
     // Baseline: a freshly fit terminal should agree with its PTY.
     await expectColumnsInSync('baseline')
 
-    // Shrink the window while the terminal is visible, then widen it. xterm
+    // Shrink the window while the terminal is visible, then widen it. terminal
     // reflows via the ResizeObserver; the PTY must follow.
     await orcaPage.setViewportSize({ width: 760, height: 800 })
     await expectColumnsInSync('after shrink')
@@ -165,11 +165,11 @@ test.describe('Terminal column desync repro', () => {
   })
 
   // Why: guards the applied-size IPC contract the desync fix relies on. The
-  // renderer's resume/handoff drift-check compares xterm against pty:getSize; if
+  // renderer's resume/handoff drift-check compares terminal against pty:getSize; if
   // pty:getSize reports the renderer's last-REQUESTED size (the old intent-only
   // behavior) instead of the size the PTY actually APPLIED, a dropped resize is
   // invisible and the TUI stays garbled. So pty:getSize must equal the real
-  // in-PTY process.stdout.columns, not just xterm.
+  // in-PTY process.stdout.columns, not just terminal.
   test('pty:getSize reports the size the PTY actually applied', async ({ orcaPage }) => {
     test.setTimeout(120_000)
     await waitForSessionReady(orcaPage)
@@ -218,7 +218,7 @@ test.describe('Terminal column desync repro', () => {
     await orcaPage.waitForTimeout(400)
 
     const baseline = await readColumnSnapshot(orcaPage, ptyId)
-    expect(baseline.ptyCols).toBe(baseline.xtermCols)
+    expect(baseline.ptyCols).toBe(baseline.terminalCols)
 
     // Hide the terminal by switching worktrees, resize the window narrow while
     // it is in the background (so isRendererPtyResizeAuthoritative() is false
@@ -235,9 +235,9 @@ test.describe('Terminal column desync repro', () => {
     const afterReturn = await readColumnSnapshot(orcaPage, ptyId)
     expect(
       afterReturn.ptyCols,
-      `after hidden resize + return, PTY cols (${afterReturn.ptyCols}) should equal xterm cols ` +
-        `(${afterReturn.xtermCols}); a stale PTY width is the column-desync bug`
-    ).toBe(afterReturn.xtermCols)
+      `after hidden resize + return, PTY cols (${afterReturn.ptyCols}) should equal terminal cols ` +
+        `(${afterReturn.terminalCols}); a stale PTY width is the column-desync bug`
+    ).toBe(afterReturn.terminalCols)
   })
 
   test('PTY columns re-sync after repeated background resizes', async ({ orcaPage }) => {
@@ -274,9 +274,9 @@ test.describe('Terminal column desync repro', () => {
       const snapshot = await readColumnSnapshot(orcaPage, ptyId)
       expect(
         snapshot.ptyCols,
-        `cycle ${index} (width ${width}): PTY cols (${snapshot.ptyCols}) should equal xterm cols ` +
-          `(${snapshot.xtermCols})`
-      ).toBe(snapshot.xtermCols)
+        `cycle ${index} (width ${width}): PTY cols (${snapshot.ptyCols}) should equal terminal cols ` +
+          `(${snapshot.terminalCols})`
+      ).toBe(snapshot.terminalCols)
     }
   })
 
@@ -293,9 +293,9 @@ test.describe('Terminal column desync repro', () => {
     const firstPtyId = await settleTerminal(orcaPage)
 
     const baseline = await readColumnSnapshot(orcaPage, firstPtyId)
-    expect(baseline.ptyCols).toBe(baseline.xtermCols)
+    expect(baseline.ptyCols).toBe(baseline.terminalCols)
 
-    // Splitting halves the width of the original pane: xterm reflows to ~half
+    // Splitting halves the width of the original pane: terminal reflows to ~half
     // the columns. The PTY must follow, otherwise the existing shell keeps
     // emitting full-width output into a half-width pane.
     await splitActiveTerminalPane(orcaPage, 'vertical')
@@ -319,11 +319,11 @@ test.describe('Terminal column desync repro', () => {
         continue
       }
       const ptyCols = await readPtyCols(orcaPage, ptyId)
-      const xtermCols = await readRenderedColsForPty(orcaPage, ptyId)
+      const terminalCols = await readRenderedColsForPty(orcaPage, ptyId)
       expect(
         ptyCols,
-        `after split, pane ${ptyId} PTY cols (${ptyCols}) should equal its xterm cols (${xtermCols})`
-      ).toBe(xtermCols)
+        `after split, pane ${ptyId} PTY cols (${ptyCols}) should equal its terminal cols (${terminalCols})`
+      ).toBe(terminalCols)
     }
   })
 
@@ -332,7 +332,7 @@ test.describe('Terminal column desync repro', () => {
   // side by side from frame 0) spawns each PTY at the wide window width, then
   // the split equalize narrows each pane AFTER the post-spawn reconcile window
   // has closed. The corrective onResize is dropped by the visibility gate during
-  // the mount window, so the PTY stays pinned wide while xterm shows the narrow
+  // the mount window, so the PTY stays pinned wide while terminal shows the narrow
   // split width — only a later manual resize re-syncs it ("resizing fixed it").
   // We reproduce the fresh split mount by splitting then reloading: the split
   // layout persists across reload, so the tab remounts with two panes already
@@ -345,7 +345,7 @@ test.describe('Terminal column desync repro', () => {
     // A single mount only trips the race intermittently, so reload-loop the
     // restored-split first-mount and assert none of the attempts desynced.
     const MOUNT_ATTEMPTS = 6
-    const desyncs: { attempt: number; ptyId: string; ptyCols: number; xtermCols: number }[] = []
+    const desyncs: { attempt: number; ptyId: string; ptyCols: number; terminalCols: number }[] = []
 
     await waitForSessionReady(orcaPage)
     await waitForActiveWorktree(orcaPage)
@@ -386,28 +386,28 @@ test.describe('Terminal column desync repro', () => {
           continue
         }
         const ptyCols = await readPtyCols(orcaPage, ptyId)
-        const xtermCols = await readRenderedColsForPty(orcaPage, ptyId)
-        if (ptyCols !== xtermCols) {
-          desyncs.push({ attempt, ptyId, ptyCols, xtermCols })
+        const terminalCols = await readRenderedColsForPty(orcaPage, ptyId)
+        if (ptyCols !== terminalCols) {
+          desyncs.push({ attempt, ptyId, ptyCols, terminalCols })
         }
       }
     }
 
     expect(
       desyncs,
-      `PTY columns desynced from xterm on a restored-split mount (${desyncs.length} pane(s) ` +
-        `across ${MOUNT_ATTEMPTS} attempts). A PTY pinned at the wide startup width while xterm ` +
+      `PTY columns desynced from terminal on a restored-split mount (${desyncs.length} pane(s) ` +
+        `across ${MOUNT_ATTEMPTS} attempts). A PTY pinned at the wide startup width while terminal ` +
         `reflowed to the narrower split width is the column-desync bug that garbles interactive ` +
         `TUIs: ${JSON.stringify(desyncs)}`
     ).toEqual([])
   })
 
   // Why: this is the tightest isolation of the real bug. A viewport resize that
-  // lands in the terminal's initial mount window — after xterm exists but
-  // before the PTY binding/visibility settle — reflows xterm to the new width,
+  // lands in the terminal's initial mount window — after terminal exists but
+  // before the PTY binding/visibility settle — reflows terminal to the new width,
   // but forwardPtyResize drops it (isRendererPtyResizeAuthoritative()===false,
   // or the spawn captures the pre-resize cols and no later resize fires). The
-  // PTY stays pinned at the startup width while xterm shows the new width, and
+  // PTY stays pinned at the startup width while terminal shows the new width, and
   // nothing re-syncs. A long-output program then prints sized for the stale
   // PTY width into the narrower pane → the garbled "1 char per line" render.
   test('PTY columns stay synced when the window is resized during initial mount', async ({
@@ -417,13 +417,13 @@ test.describe('Terminal column desync repro', () => {
 
     // Why: the desync is a race in the *initial* mount window — the first
     // terminal spawns its PTY at the wide default window width, and a resize
-    // landing before the PTY binding/visibility settle reflows xterm but is
+    // landing before the PTY binding/visibility settle reflows terminal but is
     // dropped by forwardPtyResize, with no later correction. A single attempt
     // only trips it ~1 in 3 runs, so reload the renderer to re-run the full
     // first-mount sequence each attempt and resize mid-mount. We assert none of
     // the attempts desynced, so a single stale PTY fails the test.
     const MOUNT_ATTEMPTS = 8
-    const desyncs: { attempt: number; ptyCols: number; xtermCols: number }[] = []
+    const desyncs: { attempt: number; ptyCols: number; terminalCols: number }[] = []
     for (let attempt = 0; attempt < MOUNT_ATTEMPTS; attempt += 1) {
       if (attempt > 0) {
         // Re-run the first-mount path: a wide window, then reload so the
@@ -445,15 +445,15 @@ test.describe('Terminal column desync repro', () => {
       await orcaPage.waitForTimeout(700)
 
       const snapshot = await readColumnSnapshot(orcaPage, ptyId)
-      if (snapshot.ptyCols !== snapshot.xtermCols) {
-        desyncs.push({ attempt, ptyCols: snapshot.ptyCols, xtermCols: snapshot.xtermCols })
+      if (snapshot.ptyCols !== snapshot.terminalCols) {
+        desyncs.push({ attempt, ptyCols: snapshot.ptyCols, terminalCols: snapshot.terminalCols })
       }
     }
 
     expect(
       desyncs,
-      `PTY columns desynced from xterm on ${desyncs.length}/${MOUNT_ATTEMPTS} mount attempts. ` +
-        `A PTY pinned at the wider startup width while xterm reflowed narrower is the ` +
+      `PTY columns desynced from terminal on ${desyncs.length}/${MOUNT_ATTEMPTS} mount attempts. ` +
+        `A PTY pinned at the wider startup width while terminal reflowed narrower is the ` +
         `column-desync bug that garbles interactive TUIs: ${JSON.stringify(desyncs)}`
     ).toEqual([])
   })

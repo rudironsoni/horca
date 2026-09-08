@@ -18,7 +18,7 @@ export function warmWindowsConptyOnce(spawnPty: typeof pty.spawn = pty.spawn): v
   setImmediate(() => {
     try {
       const proc = spawnPty(process.env.COMSPEC || 'cmd.exe', ['/c', 'exit'], {
-        name: 'xterm-256color',
+        name: 'xterm-ghostty',
         cols: 2,
         rows: 1,
         cwd: os.homedir(),

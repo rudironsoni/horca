@@ -4,7 +4,7 @@ import { extractOscScanTail, scanOsc7Uris } from './osc7-uri-extraction'
 
 const OSC_SCAN_TAIL_LIMIT = 4096
 
-/** Mirror of the OSC sequences the emulator tracks outside xterm: OSC 7 cwd
+/** Mirror of the OSC sequences the emulator tracks outside terminal: OSC 7 cwd
  *  updates and OSC 0/2 titles. Keeps an unterminated-sequence tail so
  *  sequences split across PTY chunks still parse. Uses the bounded regex-free
  *  scanners so giant pasted chunks stay cheap. */

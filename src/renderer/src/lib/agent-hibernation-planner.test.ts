@@ -499,7 +499,7 @@ describe('agent sleep planner', () => {
     }
   )
 
-  it('rejects mobile-driven panes because paired clients can send input outside desktop xterm', () => {
+  it('rejects mobile-driven panes because paired clients can send input outside desktop terminal', () => {
     expect(plannedWorktrees(snapshot({ mobileLockedPtyIds: ['pty-1'] }))).toEqual([])
   })
 
