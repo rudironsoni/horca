@@ -1,4 +1,4 @@
-import type { LayoutDescription } from '@herdr/sdk'
+import { HerdrSplitRatio, type LayoutDescription } from '@rudironsoni/herdr-ts-sdk'
 import { Option } from 'effect'
 import type {
   HerdrPane,
@@ -107,8 +107,8 @@ export function testPane(raw: LooseRecord = {}): HerdrPane {
 
 export function testSnapshot(raw: LooseRecord = {}): MutableHerdrSnapshot {
   return {
-    version: text(raw.version, '0.8.2'),
-    protocol: typeof raw.protocol === 'number' ? raw.protocol : 21,
+    version: text(raw.version, '0.9.0'),
+    protocol: typeof raw.protocol === 'number' ? raw.protocol : 22,
     focusedWorkspaceId: Option.none(),
     focusedTabId: Option.none(),
     focusedPaneId: Option.none(),
@@ -177,7 +177,7 @@ function testLayoutNode(node: LooseRecord): LayoutDescription['root'] {
     return {
       type: 'split',
       direction: node.direction === 'down' ? 'down' : 'right',
-      ratio: typeof node.ratio === 'number' ? node.ratio : 0.5,
+      ratio: HerdrSplitRatio.make(typeof node.ratio === 'number' ? node.ratio : 0.5),
       first: testLayoutNode((node.first ?? { type: 'pane' }) as LooseRecord),
       second: testLayoutNode((node.second ?? { type: 'pane' }) as LooseRecord)
     }
