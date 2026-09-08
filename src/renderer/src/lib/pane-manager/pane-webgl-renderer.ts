@@ -207,7 +207,7 @@ function refitAfterLateWebglAttach(pane: ManagedPaneInternal): void {
 /** Single pairing for every late attach: without the refit the pane keeps a
  *  grid measured under the DOM renderer. */
 function attachWebglAndRefit(pane: ManagedPaneInternal, diagnosticKind: string): void {
-  attachWebgl(pane)
+  refreshPaneRenderer(pane)
   if (pane.gpuRenderer) {
     recordTerminalWebglDiagnostic(diagnosticKind, { paneId: pane.id })
     refitAfterLateWebglAttach(pane)
@@ -241,4 +241,6 @@ setPaneFitWebglAttachHook((pane) => {
   repairPaneWebglCanvasDprMismatch(pane)
 })
 
-export function attachWebgl(_pane: ManagedPaneInternal): void {}
+export function refreshPaneRenderer(pane: ManagedPaneInternal): void {
+  presentPaneViewport(pane)
+}

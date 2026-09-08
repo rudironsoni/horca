@@ -1,13 +1,17 @@
-import { encodeBrowserKey } from '../../../../ghostty-vt/ghostty-key-encode'
-import type { ILinkProvider } from '../../../../shared/orca-terminal-surface'
+import type { OrcaLinkProvider } from '../../../../shared/orca-terminal-surface'
 import { bindOrcaPaneLinkProviders } from './orca-pane-links'
-import { encodeBrowserMouse } from '../../../../ghostty-vt/ghostty-mouse-encode'
-import { searchNext, searchPrevious } from '../../../../ghostty-vt/ghostty-search'
 import {
   applyPointerSelection,
   disposeSelectionGesture
 } from '../../../../ghostty-vt/ghostty-selection-gesture'
-import { clearSelectionOnTerminal } from '../../../../ghostty-vt/ghostty-selection'
+import {
+  clearSelection,
+  encodeKey,
+  encodeMouse,
+  findNext,
+  findPrevious,
+  readScrollbar
+} from '../../../../ghostty-vt/ghostty-terminal-ops'
 import type { GhosttyTerminal } from '../../../../ghostty-vt/ghostty-terminal'
 
 export function pasteIntoGhostty(engine: GhosttyTerminal, text: string): string {
@@ -19,13 +23,11 @@ export function selectAllOnGhostty(engine: GhosttyTerminal): void {
 }
 
 export function clearSelectionOnGhostty(engine: GhosttyTerminal): void {
-  const { host, term } = engine.hostHandle()
-  clearSelectionOnTerminal(host, term)
+  clearSelection(engine)
 }
 
 export function encodeGhosttyKey(engine: GhosttyTerminal, event: KeyboardEvent): string {
-  const { host, term } = engine.hostHandle()
-  return encodeBrowserKey(host, term, event)
+  return encodeKey(engine, event)
 }
 
 export function encodeGhosttyMouse(
@@ -49,18 +51,15 @@ export function encodeGhosttyMouse(
     rows: number
   }
 ): string {
-  const { host, term } = engine.hostHandle()
-  return encodeBrowserMouse(host, term, event, surface)
+  return encodeMouse(engine, event, surface)
 }
 
 export function findGhosttyNext(engine: GhosttyTerminal, query: string): boolean {
-  const { host, term } = engine.hostHandle()
-  return searchNext(host, term, query)
+  return findNext(engine, query)
 }
 
 export function findGhosttyPrevious(engine: GhosttyTerminal, query: string): boolean {
-  const { host, term } = engine.hostHandle()
-  return searchPrevious(host, term, query)
+  return findPrevious(engine, query)
 }
 
 export function hitTestGhosttyHyperlink(
@@ -74,8 +73,14 @@ export function hitTestGhosttyHyperlink(
   const rect = element.getBoundingClientRect()
   const col = Math.floor((clientX - rect.left) / cellWidth)
   const row = Math.floor((clientY - rect.top) / cellHeight)
+  if (col < 0 || row < 0 || col >= engine.cols || row >= engine.rows) {
+    return null
+  }
+  const screenY = readScrollbar(engine).offset + row
   const links = engine.collectHyperlinkRanges()
-  const hit = links.find((link) => link.row === row && col >= link.startCol && col < link.endCol)
+  const hit = links.find(
+    (link) => link.row === screenY && col >= link.startCol && col < link.endCol
+  )
   return hit?.uri ?? null
 }
 
@@ -115,7 +120,6 @@ export function bindOrcaPaneSession(
   pane: {
     element: HTMLCanvasElement
     textarea: HTMLTextAreaElement
-    engine: GhosttyTerminal
     encodeKey: (event: KeyboardEvent) => string
     encodeMouse: (event: MouseEvent) => string
     input: (data: string) => void
@@ -126,14 +130,15 @@ export function bindOrcaPaneSession(
     cols: number
     rows: number
     baseY: number
-    linkProviders: Set<ILinkProvider>
+    linkProviders: Set<OrcaLinkProvider>
   },
   policy: {
     customKeyHandler: () => ((event: KeyboardEvent) => boolean) | null
     onSelectionChange: () => void
-  }
+  },
+  engine: GhosttyTerminal
 ): () => void {
-  const unbindPointer = bindGhosttyPointerInput(pane, policy.onSelectionChange)
+  const unbindPointer = bindGhosttyPointerInput(pane, policy.onSelectionChange, engine)
   const unbindKeys = bindGhosttyKeyboardInput({
     element: pane.textarea,
     encodeKey: (event) => pane.encodeKey(event),
@@ -152,7 +157,6 @@ export function bindGhosttyPointerInput(
   pane: {
     element: HTMLCanvasElement
     textarea?: HTMLTextAreaElement
-    engine: GhosttyTerminal
     encodeMouse: (event: MouseEvent) => string
     input: (data: string) => void
     refresh: () => void
@@ -162,13 +166,14 @@ export function bindGhosttyPointerInput(
     cols: number
     rows: number
   },
-  onSelectionChange?: () => void
+  onSelectionChange: (() => void) | undefined,
+  engine: GhosttyTerminal
 ): () => void {
   const send = (event: MouseEvent): void => {
-    if (!pane.engine.mouseTracking) {
-      const before = pane.engine.readSelection()
+    if (!engine.mouseTracking) {
+      const before = engine.readSelection()
       const rect = pane.element.getBoundingClientRect()
-      applyPointerSelection(pane.engine, event, {
+      applyPointerSelection(engine, event, {
         left: rect.left,
         top: rect.top,
         cellWidth: pane.cellWidth,
@@ -177,7 +182,7 @@ export function bindGhosttyPointerInput(
         rows: pane.rows
       })
       pane.refresh()
-      if (pane.engine.readSelection() !== before) {
+      if (engine.readSelection() !== before) {
         onSelectionChange?.()
       }
       return
@@ -204,6 +209,6 @@ export function bindGhosttyPointerInput(
     host.removeEventListener('compositionstart', onComposition)
     host.removeEventListener('compositionupdate', onComposition)
     host.removeEventListener('compositionend', onComposition)
-    disposeSelectionGesture(pane.engine)
+    disposeSelectionGesture(engine)
   }
 }
