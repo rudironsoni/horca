@@ -1,9 +1,9 @@
-import { readScrollbar, scrollViewport } from '../../../../ghostty-vt/ghostty-scroll'
 import type { GhosttyTerminal } from '../../../../ghostty-vt/ghostty-terminal'
+import { readScrollbar, scrollViewport } from '../../../../ghostty-vt/ghostty-terminal-ops'
 import type {
-  IBuffer,
-  ILinkProvider,
-  OrcaDisposable
+  OrcaDisposable,
+  OrcaLinkProvider,
+  OrcaTerminalGrid
 } from '../../../../shared/orca-terminal-surface'
 import {
   measureCellSize,
@@ -21,7 +21,7 @@ import {
 } from './orca-pane-buffer'
 import { registerOrcaPaneLinkProvider } from './orca-pane-links'
 import { createOrcaPaneSurface } from './orca-pane-surface'
-import { createPaintScheduler } from './orca-pane-paint'
+import { createPaintScheduler, refreshOrcaPanePaint } from './orca-pane-paint'
 import {
   bindOrcaPaneSession,
   clearSelectionOnGhostty,
@@ -41,8 +41,8 @@ export class OrcaPaneTerminal {
   readonly textarea: HTMLTextAreaElement
   readonly options: OrcaPaneAppearance
   readonly parser: ReturnType<typeof createOrcaPaneParser>
-  readonly engine: GhosttyTerminal
-  readonly linkProviders = new Set<ILinkProvider>()
+  private readonly engine: GhosttyTerminal
+  readonly linkProviders = new Set<OrcaLinkProvider>()
   private readonly renderer: ReturnType<typeof createOrcaPaneSurface>['renderer']
   private readonly measureRoot: HTMLElement
   private readonly dataListeners = new Set<(data: string) => void>()
@@ -73,10 +73,14 @@ export class OrcaPaneTerminal {
     this.cellWidth = surface.cellWidth
     this.cellHeight = surface.cellHeight
     this.parser = createOrcaPaneParser()
-    this.unbindInput = bindOrcaPaneSession(this, {
-      customKeyHandler: () => this.customKeyHandler,
-      onSelectionChange: () => notifySelectionListeners(this.selectionListeners)
-    })
+    this.unbindInput = bindOrcaPaneSession(
+      this,
+      {
+        customKeyHandler: () => this.customKeyHandler,
+        onSelectionChange: () => notifySelectionListeners(this.selectionListeners)
+      },
+      this.engine
+    )
   }
 
   get cols(): number {
@@ -88,17 +92,23 @@ export class OrcaPaneTerminal {
   get isAlternateScreen(): boolean {
     return this.engine.isAlternateScreen
   }
-  get buffer(): { active: IBuffer } {
+  get title(): string {
+    return this.engine.title
+  }
+  readViewportText(): string {
+    return this.engine.readViewportText()
+  }
+  get buffer(): { active: OrcaTerminalGrid } {
     return createOrcaPaneBuffer(this.engine, () => this.baseY)
   }
   get cursor(): { x: number; y: number } {
     return this.engine.cursor
   }
   get viewportY(): number {
-    return readScrollbar(...this.vt()).offset
+    return readScrollbar(this.engine).offset
   }
   get baseY(): number {
-    const bar = readScrollbar(...this.vt())
+    const bar = readScrollbar(this.engine)
     return Math.max(0, bar.total - bar.len)
   }
 
@@ -153,8 +163,11 @@ export class OrcaPaneTerminal {
   attachCustomKeyEventHandler(handler: (event: KeyboardEvent) => boolean): void {
     this.customKeyHandler = handler
   }
-  registerLinkProvider(provider: ILinkProvider): OrcaDisposable {
+  addLinkProvider(provider: OrcaLinkProvider): OrcaDisposable {
     return registerOrcaPaneLinkProvider(this.linkProviders, provider)
+  }
+  registerLinkProvider(provider: OrcaLinkProvider): OrcaDisposable {
+    return this.addLinkProvider(provider)
   }
   registerCharacterJoiner(_handler: (text: string) => number[][]): number {
     return 0
@@ -197,7 +210,7 @@ export class OrcaPaneTerminal {
     this.refresh()
   }
   refresh(_start?: number, _end?: number): void {
-    this.paintScheduler.refresh()
+    refreshOrcaPanePaint(this.paintScheduler, this.textarea)
   }
   focus(): void {
     this.textarea.focus()
@@ -235,7 +248,7 @@ export class OrcaPaneTerminal {
     this.scrollViewport('ROW', line)
   }
   private scrollViewport(tag: 'TOP' | 'BOTTOM' | 'ROW', value = 0): void {
-    scrollViewport(...this.vt(), tag, value)
+    scrollViewport(this.engine, tag, value)
     this.refresh()
   }
   encodeKey(event: KeyboardEvent): string {
@@ -297,9 +310,5 @@ export class OrcaPaneTerminal {
     this.primaryScreenWaiters.clear()
     this.renderer.dispose()
     this.engine.dispose()
-  }
-  private vt(): [ReturnType<GhosttyTerminal['hostHandle']>['host'], number] {
-    const handle = this.engine.hostHandle()
-    return [handle.host, handle.term]
   }
 }
