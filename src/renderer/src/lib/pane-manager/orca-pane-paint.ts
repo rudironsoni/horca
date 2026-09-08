@@ -79,7 +79,7 @@ export function refreshOrcaPanePaint(
   const active = typeof document === 'undefined' ? null : document.activeElement
   const otherPaneFocused =
     active instanceof HTMLTextAreaElement &&
-    active.classList.contains('xterm-helper-textarea') &&
+    active.classList.contains('orca-terminal-helper-textarea') &&
     active !== textarea
   if (otherPaneFocused) {
     scheduler.refreshBackground()

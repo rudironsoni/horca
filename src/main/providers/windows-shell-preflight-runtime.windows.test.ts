@@ -70,7 +70,7 @@ async function runPty(options: {
   timeoutMs?: number
 }): Promise<string> {
   const proc = pty.spawn(options.shellPath, options.shellArgs, {
-    name: 'xterm-256color',
+    name: 'xterm-ghostty',
     cols: 100,
     rows: 30,
     cwd: options.cwd,
@@ -193,7 +193,7 @@ describeWindows('Windows Codex shell preflight runtime', () => {
           ORCA_CODEX_LAUNCH_PREFLIGHT: preflight,
           ORCA_PREFLIGHT_MARKER: preflightMarker,
           ORCA_CODEX_MARKER: codexMarker,
-          TERM: 'xterm-256color'
+          TERM: 'xterm-ghostty'
         },
         input:
           "type -P codex > git-bash-codex-path\ncodex -e \"require('node:fs').writeFileSync(process.env.ORCA_CODEX_MARKER,'ran')\"\nexit\n",

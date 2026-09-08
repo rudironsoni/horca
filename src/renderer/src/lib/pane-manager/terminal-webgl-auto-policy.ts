@@ -87,8 +87,8 @@ export function getTerminalWebglAutoDecision(): TerminalWebglAutoDecision {
   }
 
   if (readRendererDisplayServer() === 'wayland') {
-    // Why: #5319 can wedge terminal input during xterm WebGL context creation
-    // on Linux Wayland before xterm reports a recoverable context-loss event.
+    // Why: #5319 can wedge terminal input during terminal WebGL context creation
+    // on Linux Wayland before terminal reports a recoverable context-loss event.
     cachedDecision = {
       allowWebgl: false,
       reason: 'linux-wayland',

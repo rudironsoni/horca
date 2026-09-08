@@ -52,10 +52,10 @@ function releaseMeasurableFitContinuations(pane: ManagedPane): void {
 
 // Reveal fit (minimize→restore, worktree foreground, window wake). resumeRendering
 // re-attaches WebGL, whose cell metrics briefly differ from the DOM renderer's, so
-// a raw fit can propose a one-column-off grid, reflow xterm, then snap back — and
-// xterm's wrap→unwrap is not a perfect inverse, so a diff-painting inline TUI
+// a raw fit can propose a one-column-off grid, reflow terminal, then snap back — and
+// terminal's wrap→unwrap is not a perfect inverse, so a diff-painting inline TUI
 // (grok, Codex) is left corrupted. So:
-//  - pixels changed while hidden → real resize: fit now (also keeps xterm ahead of
+//  - pixels changed while hidden → real resize: fit now (also keeps terminal ahead of
 //    the async {fit:false} PTY size reassert so it can't forward a stale grid);
 //  - pixels unchanged but grid diverged (a direct terminal.resize from snapshot /
 //    SSH-reattach, or a DPI change) → repair on a steady grid, so a sustained

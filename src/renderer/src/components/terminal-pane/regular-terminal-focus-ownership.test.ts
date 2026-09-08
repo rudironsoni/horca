@@ -17,7 +17,7 @@ function appendPane(): HTMLDivElement {
 
 function appendHelper(pane: HTMLElement): HTMLTextAreaElement {
   const helper = document.createElement('textarea')
-  helper.className = 'xterm-helper-textarea'
+  helper.className = 'orca-terminal-helper-textarea'
   pane.appendChild(helper)
   return helper
 }
@@ -475,7 +475,7 @@ describe('regular terminal focus ownership', () => {
     expect(document.activeElement).toBe(helper)
   })
 
-  it('resolves an owned active xterm helper textarea', () => {
+  it('resolves an owned active terminal helper textarea', () => {
     const pane = appendPane()
     const helper = appendHelper(pane)
     const otherPane = appendPane()

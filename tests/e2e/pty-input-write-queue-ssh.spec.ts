@@ -77,7 +77,7 @@ test.describe('PTY input write queue over SSH', () => {
   test.skip(!RUN_DOCKER_SSH, 'Set ORCA_E2E_SSH_DOCKER=1 to run Docker-backed SSH E2E.')
   test.skip(process.platform === 'win32', 'Docker SSH E2E uses POSIX ssh tooling.')
 
-  test('returns an xterm OSC query reply through the live SSH PTY', async ({
+  test('returns an terminal OSC query reply through the live SSH PTY', async ({
     orcaPage
   }, testInfo) => {
     test.slow()
@@ -160,7 +160,7 @@ test.describe('PTY input write queue over SSH', () => {
       await execInTerminal(
         orcaPage,
         ptyId,
-        `env HOME=${shellQuote(home)} XDG_CONFIG_HOME=${shellQuote(`${home}/.config`)} XDG_DATA_HOME=${shellQuote(`${home}/.local/share`)} TERM=xterm-256color /usr/local/bin/fish -l -i`
+        `env HOME=${shellQuote(home)} XDG_CONFIG_HOME=${shellQuote(`${home}/.config`)} XDG_DATA_HOME=${shellQuote(`${home}/.local/share`)} TERM=xterm-ghostty /usr/local/bin/fish -l -i`
       )
       await waitForTerminalOutput(orcaPage, prompt, 30_000, 80_000)
 

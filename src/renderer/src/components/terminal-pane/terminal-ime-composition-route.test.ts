@@ -104,7 +104,7 @@ describe('installTerminalImeCompositionRoute', () => {
     expect(harness.input).toHaveBeenCalledExactlyOnceWith('한')
   })
 
-  it('settles a session without forwarding bytes still pending xterm reconciliation', () => {
+  it('settles a session without forwarding bytes still pending terminal reconciliation', () => {
     const harness = createHarness()
     harness.start(1)
 
@@ -150,8 +150,8 @@ describe('installTerminalImeCompositionRoute', () => {
   })
 
   // A route that never saw the start cannot deliver the commit, so cancelling the event would
-  // suppress xterm's own triggerDataEvent with nothing standing in for it.
-  it('leaves an uncaptured session to xterm when installed mid-composition', () => {
+  // suppress terminal's own triggerDataEvent with nothing standing in for it.
+  it('leaves an uncaptured session to terminal when installed mid-composition', () => {
     const harness = createHarness()
 
     expect(harness.end(1, '한')).toBe(true)
@@ -184,12 +184,12 @@ describe('installTerminalImeCompositionRoute', () => {
     secondRoute.dispose()
   })
 
-  it('still suppresses xterm insertion for a captured session it deliberately drops', () => {
+  it('still suppresses terminal insertion for a captured session it deliberately drops', () => {
     const harness = createHarness()
     harness.start(1)
     harness.state.currentTransport = createTransport('pty-replacement')
 
-    // Owned, so xterm must stand down — dropping the commit is this route's decision.
+    // Owned, so terminal must stand down — dropping the commit is this route's decision.
     expect(harness.end(1, '한')).toBe(false)
     expect(harness.input).not.toHaveBeenCalled()
   })

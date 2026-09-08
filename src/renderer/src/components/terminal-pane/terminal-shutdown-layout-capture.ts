@@ -106,12 +106,12 @@ export function captureTerminalShutdownLayout({
     for (const pane of panes) {
       try {
         // Why: non-focused panes may have renderer-throttled PTY bytes queued;
-        // push them into xterm before taking the shutdown scrollback snapshot.
+        // push them into terminal before taking the shutdown scrollback snapshot.
         flushTerminalOutput(pane.terminal)
         const leafId = pane.leafId
         let scrollback = pane.terminal.options.scrollback ?? 10_000
         // Why serializeWithAbsoluteCursor: these buffers replay into fresh
-        // xterms on session restore, and SerializeAddon's relative cursor
+        // terminals on session restore, and SerializeAddon's relative cursor
         // restore lands one column short after a wrap-pending final row.
         let serialized = serializeWithAbsoluteCursor(pane.serializeController, pane.terminal, {
           scrollback

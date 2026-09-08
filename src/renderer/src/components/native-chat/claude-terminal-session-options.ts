@@ -40,7 +40,7 @@ function isClaudeHeaderRow(line: string): boolean {
   }
   // Why: panes under ~70 columns drop the version from the frame entirely, so
   // accept the frame corner as the alternative proof this is Claude's chrome.
-  // xterm serialization also drops cursor-positioning cells between the product
+  // terminal serialization also drops cursor-positioning cells between the product
   // name and version, producing `Claude Codev2.1.211`.
   return /\bClaude Code\s*v?\d+(?:\.\d+){1,2}\b/i.test(line) || line.startsWith(FRAME_TOP)
 }
@@ -92,7 +92,7 @@ function claudeModelDescriptorCell(lines: string[], headerIndex: number): string
       return cell
     }
   }
-  // xterm serialization can join the descriptor onto the version row itself.
+  // terminal serialization can join the descriptor onto the version row itself.
   const joined = frameCell((lines[headerIndex] ?? '').replace(/^.*?\bClaude Code\s*v?[\d.]*/i, ''))
   if (isModelDescriptorCell(joined)) {
     return joined

@@ -106,7 +106,7 @@ export const TerminalOverlaySlot = memo(function TerminalOverlaySlot({
         width: bodyRect.width,
         height: bodyRect.height
       }
-      // Why: ResizeObserver and xterm fit can otherwise amplify sub-pixel jitter forever.
+      // Why: ResizeObserver and terminal fit can otherwise amplify sub-pixel jitter forever.
       setMeasuredFallbackRect((prev) =>
         prev &&
         Math.abs(prev.top - next.top) < FALLBACK_RECT_MIN_CHANGE_PX &&

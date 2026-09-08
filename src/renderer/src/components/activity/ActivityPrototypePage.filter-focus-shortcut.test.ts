@@ -63,7 +63,7 @@ describe('activity filter focus shortcut', () => {
       classList: { contains: () => false }
     } as unknown as Element
     const terminalElement = {
-      classList: { contains: (className: string) => className === 'xterm-helper-textarea' }
+      classList: { contains: (className: string) => className === 'orca-terminal-helper-textarea' }
     } as unknown as Element
     const terminalPortalTarget = {
       contains: (target: Element) => target === terminalElement
@@ -165,7 +165,7 @@ describe('activity filter focus shortcut', () => {
 
   it('ignores shortcut handling while terminal-owned elements have focus', () => {
     const terminalTextarea = {
-      classList: { contains: (className: string) => className === 'xterm-helper-textarea' }
+      classList: { contains: (className: string) => className === 'orca-terminal-helper-textarea' }
     } as unknown as Element
     const portalChild = {
       classList: { contains: () => false }
@@ -177,7 +177,7 @@ describe('activity filter focus shortcut', () => {
       contains: (target: Element) => target === portalChild || target === terminalTextarea
     } as unknown as HTMLElement
     const hiddenWorkbenchTerminal = {
-      classList: { contains: (className: string) => className === 'xterm-helper-textarea' }
+      classList: { contains: (className: string) => className === 'orca-terminal-helper-textarea' }
     } as unknown as Element
     expect(shouldIgnoreActivityFilterFocusShortcutTarget(terminalTextarea, [portalTarget])).toBe(
       true

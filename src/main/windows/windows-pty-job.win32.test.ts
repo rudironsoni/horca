@@ -53,7 +53,7 @@ describeOnWindows('ConPTY job ownership', () => {
   }> {
     const nodePty = await import('node-pty')
     const proc = nodePty.spawn('cmd.exe', [], {
-      name: 'xterm-256color',
+      name: 'xterm-ghostty',
       cols: 80,
       rows: 30,
       cwd: process.cwd(),
@@ -145,7 +145,7 @@ describeOnWindows('ConPTY job ownership', () => {
     const nodePty = await import('node-pty')
     const marker = join(mkdtempSync(join(tmpdir(), 'orca-breakaway-')), 'marker.txt')
     const proc = nodePty.spawn('cmd.exe', [], {
-      name: 'xterm-256color',
+      name: 'xterm-ghostty',
       cols: 100,
       rows: 30,
       cwd: tmpdir(),

@@ -27,10 +27,10 @@ import type { ConnectPanePtySession } from './connect-pane-pty-session'
 
 export function installPtyInputForward(session: ConnectPanePtySession): void {
   session.forwardPtyInput = (data: string, wasUserInput = false): void => {
-    // Why: replaying recorded PTY bytes makes xterm auto-reply to embedded
+    // Why: replaying recorded PTY bytes makes terminal auto-reply to embedded
     // queries (DA1/DECRQM/OSC 10-11/CPR) via onData; those must not leak into
     // the shell, but keystrokes typed mid-restore must survive. Pointer input
-    // stays dropped even though xterm flags it as user input: replayed bytes can
+    // stays dropped even though terminal flags it as user input: replayed bytes can
     // leave mouse tracking armed until the guarded mode reset lands (a click
     // would print SGR fragments on the fresh prompt), and a wheel over a
     // replayed alt-screen frame becomes cursor keys that would recall history
@@ -76,7 +76,7 @@ export function installPtyInputForward(session: ConnectPanePtySession): void {
       // disabling the mode would permanently silence focus events on resume.
       return
     }
-    // Why: xterm answers CPR/DSR/DA queries natively through this same onData
+    // Why: terminal answers CPR/DSR/DA queries natively through this same onData
     // stream (mixed with keystrokes). Those replies are latency-critical — a
     // querying program reads them in raw mode with a short timeout — so send
     // them immediately, skipping the remote input debounce that would corrupt
@@ -99,7 +99,7 @@ export function installPtyInputForward(session: ConnectPanePtySession): void {
       return
     }
     const intent = session.pendingTerminalInputIntent
-    // Why: real xterm can deliver the terminal byte even when our DOM keydown
+    // Why: real terminal can deliver the terminal byte even when our DOM keydown
     // listener missed the press. Exact Ctrl+C/Escape bytes are still safe to
     // infer for local/remote acknowledged writes; SSH fire-and-forget remains
     // excluded because those transports do not expose sendInputAccepted.
@@ -251,8 +251,8 @@ export function installPtyInputForward(session: ConnectPanePtySession): void {
   })
 
   // Why: renderer resize forwarding is fire-and-forget. A visible pane can
-  // finish with xterm at the right grid while the PTY silently kept an older
-  // grid, so Codex keeps composing against stale columns. Fit first so xterm's
+  // finish with terminal at the right grid while the PTY silently kept an older
+  // grid, so Codex keeps composing against stale columns. Fit first so terminal's
   // normal onResize can send, then read applied PTY size and repair only drift.
   session.ptySizeReassertion = createPtySizeReassertion({
     isDisposed: () => session.disposed,
@@ -338,7 +338,7 @@ export function installPtyInputForward(session: ConnectPanePtySession): void {
   }
   session.scheduleForegroundGridDriftCheck = (): void => {
     // Why: mobile-owned PTYs intentionally keep a non-desktop grid; drift
-    // healing would refit xterm even if resize forwarding is later suppressed.
+    // healing would refit terminal even if resize forwarding is later suppressed.
     if (
       session.disposed ||
       !session.deps.isVisibleRef.current ||
@@ -362,7 +362,7 @@ export function installPtyInputForward(session: ConnectPanePtySession): void {
       ) {
         return
       }
-      // Why: xterm cell metrics can settle after the DOM box stops resizing, so
+      // Why: terminal cell metrics can settle after the DOM box stops resizing, so
       // ResizeObserver never fires even though FitAddon now proposes more cols.
       requestStablePaneFit(session.pane as ManagedPaneInternal, () =>
         session.ptySizeReassertion.request({ fit: false })
@@ -371,7 +371,7 @@ export function installPtyInputForward(session: ConnectPanePtySession): void {
   }
 
   // Why: observe the outer pane as the layout signal for both desktop drift
-  // healing and mobile take-back. Normal desktop panes compare xterm against
+  // healing and mobile take-back. Normal desktop panes compare terminal against
   // the PTY's applied size; mobile-fit panes only report desktop geometry so
   // the parked phone-sized PTY is not resized. See docs/mobile-fit-hold.md.
   session.pendingGeometryReportRaf = null

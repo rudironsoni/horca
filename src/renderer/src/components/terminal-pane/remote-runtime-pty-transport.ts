@@ -1423,7 +1423,7 @@ export function createRemoteRuntimePtyTransport(
       }
       return true
     } catch (error) {
-      // Why: stale-handle errors must retire the mirror (recoverable via next snapshot), not dead-end in a red xterm banner (#7718).
+      // Why: stale-handle errors must retire the mirror (recoverable via next snapshot), not dead-end in a red terminal banner (#7718).
       if (handle === targetHandle) {
         handleRemoteTerminalError(error)
       }
@@ -1665,7 +1665,7 @@ export function createRemoteRuntimePtyTransport(
     }
     if (isRemoteTerminalStaleMessage(message)) {
       if (tabId && leafId && worktreeId) {
-        // Why: reconnect can re-mint a pane handle while its host coordinates live; keep xterm state mounted while re-resolving.
+        // Why: reconnect can re-mint a pane handle while its host coordinates live; keep terminal state mounted while re-resolving.
         closeMultiplexedStream()
         scheduleResubscribeAfterTransportClose('require-replacement')
       } else {
@@ -2649,7 +2649,7 @@ export function createRemoteRuntimePtyTransport(
         sendViewportUpdate(cols, rows, true)
         return true
       }
-      // Why: xterm fit emits resize bursts on drag/layout-restore; remote runtimes only need the last viewport per frame.
+      // Why: terminal fit emits resize bursts on drag/layout-restore; remote runtimes only need the last viewport per frame.
       viewportBatcher.queue(cols, rows)
       return true
     },

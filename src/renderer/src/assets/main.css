@@ -622,24 +622,24 @@
 /* ── Editor-style scrollbar (matches Monaco) ────────── */
 
 .scrollbar-editor,
-.xterm .xterm-viewport,
+.orca-terminal-canvas .orca-terminal-viewport,
 .orca-terminal-canvas {
   scrollbar-width: thin;
   scrollbar-color: rgba(121, 121, 121, 0.4) transparent;
 }
 
 .scrollbar-editor::-webkit-scrollbar,
-.xterm .xterm-viewport::-webkit-scrollbar {
+.orca-terminal-canvas .orca-terminal-viewport::-webkit-scrollbar {
   width: 14px;
 }
 
 .scrollbar-editor::-webkit-scrollbar-track,
-.xterm .xterm-viewport::-webkit-scrollbar-track {
+.orca-terminal-canvas .orca-terminal-viewport::-webkit-scrollbar-track {
   background: transparent;
 }
 
 .scrollbar-editor::-webkit-scrollbar-thumb,
-.xterm .xterm-viewport::-webkit-scrollbar-thumb {
+.orca-terminal-canvas .orca-terminal-viewport::-webkit-scrollbar-thumb {
   background: rgba(121, 121, 121, 0.4);
   border: 3px solid transparent;
   border-radius: 7px;
@@ -647,7 +647,7 @@
 }
 
 .scrollbar-editor::-webkit-scrollbar-thumb:hover,
-.xterm .xterm-viewport::-webkit-scrollbar-thumb:hover {
+.orca-terminal-canvas .orca-terminal-viewport::-webkit-scrollbar-thumb:hover {
   background: rgba(121, 121, 121, 0.7);
   border: 3px solid transparent;
   background-clip: padding-box;
@@ -922,7 +922,7 @@ html.native-shell .app-layout {
 }
 
 /* Why: Electron drag regions swallow renderer pointer events. While regular
-   xterm owns focus, make the next top-chrome click observable so it can release
+   terminal owns focus, make the next top-chrome click observable so it can release
    terminal zoom ownership; after release these surfaces become draggable again. */
 :root[data-regular-terminal-input-focused] .titlebar,
 :root[data-regular-terminal-input-focused] .titlebar-left,

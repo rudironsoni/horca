@@ -240,7 +240,7 @@ async function commitSyllableAndSpace(session: CDPSession, page: Page): Promise<
  * The committing Enter chord as recorded from the real macOS 2-set Korean IME:
  * IME keydown (229) -> commit -> re-dispatched plain keydown (13) -> keyup,
  * delivered in one un-awaited burst. The real IME delivers all of this within
- * the same native key-processing turn, ahead of xterm's setTimeout(0) glyph
+ * the same native key-processing turn, ahead of terminal's setTimeout(0) glyph
  * flush; awaiting each CDP round-trip would let the flush win and hide the
  * race.
  */

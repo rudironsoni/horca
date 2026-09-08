@@ -741,7 +741,9 @@ test.describe('orchestration delivery to a cold-parked agent', () => {
     expect(afterReveal.tabId).toBe(tabId)
     expect(afterReveal.panes[0]?.ptyId).toBe(pane.ptyId)
     await expect(
-      orcaPage.locator(`[data-terminal-tab-id=${JSON.stringify(tabId)}] .xterm-screen`).first()
+      orcaPage
+        .locator(`[data-terminal-tab-id=${JSON.stringify(tabId)}] .orca-terminal-canvas`)
+        .first()
     ).toBeVisible()
     expect(new Set(pane.agent.readLedger().map((entry) => entry.pid))).toEqual(new Set([agentPid]))
 

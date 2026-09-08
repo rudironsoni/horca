@@ -30,7 +30,9 @@ export async function focusActiveTerminalInput(page: Page): Promise<void> {
           : null
     const manager = tabId ? window.__paneManagers?.get(tabId) : null
     const pane = manager?.getActivePane?.() ?? manager?.getPanes?.()[0] ?? null
-    const textarea = pane?.container.querySelector<HTMLTextAreaElement>('.xterm-helper-textarea')
+    const textarea = pane?.container.querySelector<HTMLTextAreaElement>(
+      '.orca-terminal-helper-textarea'
+    )
     if (!pane || !textarea) {
       throw new Error('Active terminal input is unavailable')
     }
@@ -251,7 +253,9 @@ export async function focusTerminalPaneByPtyId(page: Page, ptyId: string): Promi
           continue
         }
         manager.setActivePane?.(pane.id, { focus: true })
-        const textarea = pane.container.querySelector<HTMLTextAreaElement>('.xterm-helper-textarea')
+        const textarea = pane.container.querySelector<HTMLTextAreaElement>(
+          '.orca-terminal-helper-textarea'
+        )
         pane.terminal.focus()
         textarea?.focus()
         return

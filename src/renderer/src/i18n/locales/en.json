@@ -8587,7 +8587,7 @@
           "e0996d141a": "Auto tries WebGL, with DOM fallback for unsupported or risky renderers.",
           "7eaccc1424": "WebGL is always attempted for terminal panes.",
           "fe4acf36c6": "WebGL disabled; DOM renderer for max compatibility.",
-          "f07dfb4466": "Controls whether the terminal uses xterm.js WebGL rendering. Auto tries WebGL when the renderer is supported, with a conservative Linux fallback for software or unknown GPU renderers.",
+          "f07dfb4466": "Controls whether the terminal uses Ghostty WebGL rendering. Auto tries WebGL when the renderer is supported, with a conservative Linux fallback for software or unknown GPU renderers.",
           "72bc9334a0": "Terminal renderer behavior for live panes and new panes.",
           "2fba319f21": "Rendering",
           "cc8c5ca224": "Windows default",
@@ -8729,7 +8729,7 @@
           "cf37ff69f6": "Base",
           "8abdab9f7c": "Restart now",
           "907131d741": "Restarting…",
-          "605a35d600": "Not applied by the terminal renderer yet — xterm.js has no bold color slot. A saved value is preserved."
+          "605a35d600": "Not applied by the terminal renderer yet — Ghostty has no bold color slot. A saved value is preserved."
         },
         "UIZoomControl": {
           "c2c64b24d0": "Reset"
@@ -10438,7 +10438,7 @@
             "6cddc858ba": "webgl",
             "4b4e80d850": "acceleration",
             "db82cb13b0": "gpu",
-            "8f9f953de7": "Controls whether the terminal uses xterm.js WebGL rendering. Auto tries WebGL when the renderer is supported, with conservative fallback for software or unknown GPU renderers.",
+            "8f9f953de7": "Controls whether the terminal uses Ghostty WebGL rendering. Auto tries WebGL when the renderer is supported, with conservative fallback for software or unknown GPU renderers.",
             "13a2502dfc": "GPU Acceleration",
             "d5e6c7fab1": "font features",
             "a16224d16a": "calt",

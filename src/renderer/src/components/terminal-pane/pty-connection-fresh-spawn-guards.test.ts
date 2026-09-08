@@ -487,7 +487,7 @@ describe('connectPanePty', () => {
     }
     sendTerminalInputThroughPane(pane, 'input_under_flood\r')
     sendTerminalInputThroughPane(pane, '\x1b[?1;2c')
-    // A click on replayed scrollback that still has mouse tracking armed is user input to xterm, but must not reach the shell.
+    // A click on replayed scrollback that still has mouse tracking armed is user input to terminal, but must not reach the shell.
     for (const listener of userInputListeners) {
       listener()
     }

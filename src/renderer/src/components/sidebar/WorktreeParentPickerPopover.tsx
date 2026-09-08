@@ -313,7 +313,7 @@ export function WorktreeParentPickerPopover({
   }
 
   return (
-    // Why: modal traps focus (incl. post-menu xterm restore); non-modal loses search focus.
+    // Why: modal traps focus (incl. post-menu terminal restore); non-modal loses search focus.
     <Popover modal open={open} onOpenChange={onOpenChange}>
       <PopoverAnchor virtualRef={virtualAnchorRef} />
       <PopoverContent

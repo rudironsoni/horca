@@ -11,7 +11,7 @@ export type TerminalScrollIntent = {
   revision: number
 }
 
-// Keyed by stable leaf id, so a pin outlives the xterm instance that recorded
+// Keyed by stable leaf id, so a pin outlives the terminal instance that recorded
 // it (workspace switch, keyed remount). Unlike the WeakMap-keyed siblings in
 // terminal-scroll-intent.ts these hold a strong string key, so a leaf that is
 // gone for good must be released explicitly — see releaseTerminalScrollIntentKey.

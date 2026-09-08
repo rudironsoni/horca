@@ -20,7 +20,7 @@ import type { PtyPreconnectInputEntry } from './pty-preconnect-input-buffer'
 
 export type PtyPaneStartup = {
   command: string
-  /** Renderer-delivered startup input for callers that need xterm paste
+  /** Renderer-delivered startup input for callers that need terminal paste
    *  semantics before the submit Enter. */
   delivery?: 'terminal-paste'
   startupCommandDelivery?: StartupCommandDelivery

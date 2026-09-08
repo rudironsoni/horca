@@ -109,7 +109,7 @@ export function bindCaptureTransportOutputCallbacks(session: ConnectPanePtySessi
   // Why: hidden recovery state belongs to one PTY stream. Reattach/restart
   // can reuse the pane object for a different session before visibility.
   session.hiddenOutputRestorePtyId = null
-  // One recovery re-kick per xterm instance. Generation-aware cooldown and
+  // One recovery re-kick per terminal instance. Generation-aware cooldown and
   // window-cap retries keep a fresh-but-wedged replacement from fossilizing.
   session.certifiedDeadRestoreRecoveryRequested = false
   session.hiddenOutputRestoreGeneration = 0

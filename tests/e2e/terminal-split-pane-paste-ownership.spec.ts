@@ -156,7 +156,8 @@ test.describe('split terminal pane paste ownership', () => {
         }
         const dataTransfer = new DataTransfer()
         dataTransfer.setData('text/x-orca-file-path', pathValue)
-        const target = pane.container.querySelector('.xterm-screen, textarea') ?? pane.container
+        const target =
+          pane.container.querySelector('.orca-terminal-canvas, textarea') ?? pane.container
         for (const eventType of ['dragenter', 'dragover', 'drop']) {
           target.dispatchEvent(
             new DragEvent(eventType, {

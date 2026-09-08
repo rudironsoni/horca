@@ -7437,7 +7437,7 @@
           "e0996d141a": "Auto prueba WebGL, con respaldo DOM para renderizadores riesgosos o no compatibles.",
           "7eaccc1424": "Siempre se intenta WebGL para paneles de terminales.",
           "fe4acf36c6": "WebGL desactivado; renderizador DOM para máxima compatibilidad.",
-          "f07dfb4466": "Controla si el terminal usa el renderizado WebGL de xterm.js. Auto prueba WebGL cuando el renderizador es compatible, con una alternativa conservadora en Linux para renderizadores de GPU por software o desconocidos.",
+          "f07dfb4466": "Controla si el terminal usa el renderizado WebGL de Ghostty. Auto prueba WebGL cuando el renderizador es compatible, con una alternativa conservadora en Linux para renderizadores de GPU por software o desconocidos.",
           "72bc9334a0": "Comportamiento del renderizador del terminal para paneles activos y paneles nuevos.",
           "2fba319f21": "Renderizado",
           "cc8c5ca224": "Predeterminado de Windows",
@@ -7579,7 +7579,7 @@
           "cf37ff69f6": "Base",
           "8abdab9f7c": "Reiniciar ahora",
           "907131d741": "Reiniciando…",
-          "605a35d600": "Not applied by the terminal renderer yet — xterm.js has no bold color slot. A saved value is preserved."
+          "605a35d600": "Not applied by the terminal renderer yet — Ghostty has no bold color slot. A saved value is preserved."
         },
         "UIZoomControl": {
           "c2c64b24d0": "Restablecer"
@@ -9152,7 +9152,7 @@
             "6cddc858ba": "webgl",
             "4b4e80d850": "aceleración",
             "db82cb13b0": "GPU",
-            "8f9f953de7": "Controla si el terminal utiliza la representación WebGL de xterm.js. Auto prueba WebGL cuando el renderizador es compatible, con respaldo conservador para software o renderizadores de GPU desconocidos.",
+            "8f9f953de7": "Controla si el terminal utiliza la representación WebGL de Ghostty. Auto prueba WebGL cuando el renderizador es compatible, con respaldo conservador para software o renderizadores de GPU desconocidos.",
             "13a2502dfc": "Aceleración de GPU",
             "d5e6c7fab1": "características de fuente",
             "a16224d16a": "calt",
