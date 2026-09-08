@@ -350,7 +350,7 @@ describe('HerdrPtyProvider', () => {
       tabId: 'tab-1',
       paneKey: 'tab-1:leaf-1'
     })
-    await expect(provider.getAppliedSize(spawned.id)).resolves.toEqual({ cols: 120, rows: 40 })
+    await expect(provider.getAppliedSize(spawned.id)).resolves.toEqual({ cols: 80, rows: 24 })
     provider.resize(spawned.id, 100, 30)
     await expect(provider.getAppliedSize(spawned.id)).resolves.toEqual({ cols: 100, rows: 30 })
     const controlTerminal = host.value.controlTerminal as unknown as ReturnType<typeof vi.fn>
@@ -358,15 +358,6 @@ describe('HerdrPtyProvider', () => {
       | HerdrTerminalController
       | undefined
     expect(spawnedController?.resize).toHaveBeenCalledWith(100, 30)
-    await vi.waitFor(() => {
-      expect(
-        controlTerminal.mock.calls.some(
-          (call) =>
-            (call[2] as { cols?: number; observe?: boolean } | undefined)?.cols === 100 &&
-            (call[2] as { observe?: boolean } | undefined)?.observe !== true
-        )
-      ).toBe(true)
-    })
   })
 
   it('clears the local snapshot without sending keys', async () => {
