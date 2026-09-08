@@ -39,7 +39,7 @@ It still fails, three ways:
    for a **killed session**.
 3. **Wrong payload shape.** Recovery replays only the post-checkpoint delta
    `(acceptedSourceEndSu → receivedEndSu]`. The byte tail is a screen snapshot for a _fresh, empty_
-   xterm. Even a successful recovery returns roughly nothing in the common case, and the pane stays
+   terminal. Even a successful recovery returns roughly nothing in the common case, and the pane stays
    blank.
 
 These two mechanisms answer different questions. Recovery keeps main's model whole; the tail repaints
@@ -100,7 +100,7 @@ Why this is the tractable shape:
 that moment (the checkpoint's `deliveryToken`, `clientGeneration`, `ownerGeneration` and
 `ptyIncarnation` must match the live identity, `:124-128`); that `outputFlowControl` is granted on
 the reconnected session; and what a rotation implies for the _renderer_, which still remounts with an
-empty xterm and needs a screen, not a post-checkpoint delta. Recovery keeps main's model whole — it
+empty terminal and needs a screen, not a post-checkpoint delta. Recovery keeps main's model whole — it
 does not by itself repaint a fresh terminal, so the tail may still be wanted for the pane even once
 the model stops going stale.
 

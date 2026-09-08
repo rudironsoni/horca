@@ -177,7 +177,7 @@ async function waitForTerminalPaint(page: Page): Promise<void> {
 }
 
 async function terminalScreenshots(page: Page): Promise<Buffer[]> {
-  const screens = page.locator('.xterm-screen')
+  const screens = page.locator('.orca-terminal-canvas')
   const count = await screens.count()
   const screenshots: Buffer[] = []
   for (let index = 0; index < count; index += 1) {

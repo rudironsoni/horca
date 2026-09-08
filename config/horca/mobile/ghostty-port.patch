@@ -24,7 +24,7 @@ index 64f1081b73..9682d76351 100644
  │   ├── index.tsx          # Home screen — paired hosts list
  │   └── pair-scan.tsx      # QR code scanning screen
  ├── src/
--│   ├── terminal/          # Terminal WebView and xterm bridge
+-│   ├── terminal/          # Terminal WebView and terminal bridge
 +│   ├── terminal/          # Native Ghostty terminal state and RPC routing
  │   └── transport/         # WebSocket RPC client
  ├── scripts/
@@ -297,9 +297,9 @@ index 159028c978..65289a6825 100644
      "@noble/hashes": "1.8.0",
      "@orca/expo-two-way-audio": "file:./packages/expo-two-way-audio",
 -    "@react-native-async-storage/async-storage": "^2.2.0",
--    "@xterm/addon-unicode11": "0.10.0-beta.300",
--    "@xterm/addon-webgl": "0.20.0-beta.299",
--    "@xterm/xterm": "6.1.0-beta.303",
+-    "@terminal/addon-unicode11": "0.10.0-beta.300",
+-    "@terminal/addon-webgl": "0.20.0-beta.299",
+-    "@terminal/terminal": "6.1.0-beta.303",
 +    "@orca/libghostty-terminal": "file:./packages/libghostty-terminal",
 +    "@react-native-async-storage/async-storage": "2.2.0",
      "buffer": "^6.0.3",
@@ -18918,7 +18918,7 @@ index ef6bf0dc1b..0000000000
 -const outputPath = path.join(mobileRoot, 'src', 'terminal', 'terminal-webview-engine.generated.ts')
 -const target = 'chrome74'
 -
--const packages = ['@xterm/xterm', '@xterm/addon-unicode11', '@xterm/addon-webgl']
+-const packages = ['@terminal/terminal', '@terminal/addon-unicode11', '@terminal/addon-webgl']
 -
 -async function readPackageVersion(packageName) {
 -  // Why: a package.json module specifier must use '/' — path.join emits '\' on
@@ -18936,11 +18936,11 @@ index ef6bf0dc1b..0000000000
 -  const result = await esbuild.build({
 -    stdin: {
 -      contents: `
--        import { Terminal } from '@xterm/xterm'
--        import { Unicode11Addon } from '@xterm/addon-unicode11'
--        import { WebglAddon } from '@xterm/addon-webgl'
+-        import { Terminal } from '@terminal/terminal'
+-        import { Unicode11Addon } from '@terminal/addon-unicode11'
+-        import { WebglAddon } from '@terminal/addon-webgl'
 -
--        // Why: xterm reaches for these runtime APIs on the terminal-bringup path,
+-        // Why: terminal reaches for these runtime APIs on the terminal-bringup path,
 -        // and esbuild lowers syntax but not runtime APIs. Guarded shims let the
 -        // chrome74-syntax bundle actually run on old WebViews (the #7030 goal)
 -        // instead of throwing at construction and only surfacing the error overlay.
@@ -18952,7 +18952,7 @@ index ef6bf0dc1b..0000000000
 -          window.WeakRef.prototype.deref = function () { return this.__target }
 -        }
 -
--        // structuredClone (Chrome 98+): xterm clones its plain-data DEC-mode default
+-        // structuredClone (Chrome 98+): terminal clones its plain-data DEC-mode default
 -        // objects at Terminal construction; a JSON round-trip clones those correctly
 -        // (any undefined-valued keys drop, but every reader treats absent == undefined).
 -        if (typeof window.structuredClone === 'undefined') {
@@ -18991,7 +18991,7 @@ index ef6bf0dc1b..0000000000
 -async function main() {
 -  const [engineJs, rawEngineCss, ...versions] = await Promise.all([
 -    buildEngineJs(),
--    readFile(require.resolve('@xterm/xterm/css/xterm.css'), 'utf8'),
+-    readFile(require.resolve('@terminal/terminal/css/terminal.css'), 'utf8'),
 -    ...packages.map(readPackageVersion)
 -  ])
 -  // Why: the no-external-URL regression gate bans http(s):// anywhere in the
@@ -19023,7 +19023,7 @@ index f747ec59b2..1a2adf2e4b 100644
        // the legacy `lines` shape left the session screen in that loop forever.
        const viewport = request.params?.viewport as { cols?: number; rows?: number } | undefined
        // MOCK_TUI=1 arms SGR drag mouse tracking (1002/1006) inside the scrollback
--      // itself so every xterm re-init re-enters the mode - used by mouse/touch
+-      // itself so every terminal re-init re-enters the mode - used by mouse/touch
 +      // itself so every terminal reset re-enters the mode, used by mouse/touch
        // input repros (#8818).
        const tuiPreamble =
@@ -19607,7 +19607,7 @@ index 06174cd037..299c82f650 100644
  
    return (
      <View
--      // Why: inactive terminal WebViews stay mounted to preserve xterm state,
+-      // Why: inactive terminal WebViews stay mounted to preserve terminal state,
 -      // while touch and visibility are disabled until the tab is active again.
        pointerEvents={active ? 'auto' : 'none'}
        style={[
@@ -20609,7 +20609,7 @@ index 47b3d98209..618984b237 100644
      expect(unsubscribe).toHaveBeenCalledWith('terminal-2')
      expect(subscribe).toHaveBeenCalledWith('terminal-2')
      expect(leaseOnlyRef.current.has('terminal-2')).toBe(false)
--    // The lease-only stream carried no scrollback, so xterm is empty — a stale
+-    // The lease-only stream carried no scrollback, so terminal is empty — a stale
 +    // The lease-only stream carried no scrollback, so the terminal is empty.
      // initialized mark would drop the replacement snapshot and keep the tab blank.
      expect(initializedRef.current.has('terminal-2')).toBe(false)
@@ -20640,7 +20640,7 @@ index b5663b8dc8..989e74ca60 100644
        coveredHandleRef.current = handle
        forgetRearmState(handle)
        // Why: returning to terminal must accept the fresh scrollback snapshot;
--      // the stream was paused while chat covered output that xterm never saw.
+-      // the stream was paused while chat covered output that terminal never saw.
 +      // the stream was paused while chat covered output that the terminal never saw.
        args.initializedRef.current.delete(handle)
        // Why: covered chat needs the input-floor lease without paying to stream
@@ -20649,7 +20649,7 @@ index b5663b8dc8..989e74ca60 100644
        return
      }
      if (coveredHandleRef.current === handle || streamIsLeaseOnly) {
--      // Why clear `initialized`: a lease-only stream delivered no scrollback, so xterm
+-      // Why clear `initialized`: a lease-only stream delivered no scrollback, so terminal
 +      // Why clear `initialized`: a lease-only stream delivered no scrollback, so the terminal
        // holds nothing — a stale mark would drop the replacement snapshot and the
        // terminal would stay blank through the resubscribe.
@@ -20915,7 +20915,7 @@ index 7c58e84a3e..b33945e606 100644
 -      for (const terminalRef of terminalRefs.current.values()) {
 -        terminalRef.prepareForForegroundRecovery()
 -      }
--      // Why: iOS can resume a WKWebView with a blank xterm store and no web-ready; invalidate the latch so init waits for the pong.
+-      // Why: iOS can resume a WKWebView with a blank terminal store and no web-ready; invalidate the latch so init waits for the pong.
 -      const outcome = recoverActiveTerminalAfterForeground({
 -        activeHandleRef,
 -        terminalRefs,
@@ -21288,7 +21288,7 @@ index 333d472a30..e2c45b32fa 100644
              markNativeChatInputLeaseReady(handle)
              return
            }
--          // Why: keep the subscription as the input-floor lease but don't mutate covered xterm state; return-to-terminal resubscribes.
+-          // Why: keep the subscription as the input-floor lease but don't mutate covered terminal state; return-to-terminal resubscribes.
 +          // Keep the subscription as the input-floor lease without mutating the covered surface.
            if (
              nativeChatTerminalStream.isTerminalCoveredByNativeChat(
@@ -21331,7 +21331,7 @@ index 333d472a30..e2c45b32fa 100644
              }
 -            // Why: cold-start refit — init()'s fit can run against a transient scrollWidth, so re-fire against a settled DOM.
 -            scheduleDelayedAction(() => getTerminalRef(handle)?.resetZoom(), 200)
--            // Why: first subscribe has no viewport (xterm not loaded yet), so measure after init
+-            // Why: first subscribe has no viewport (terminal not loaded yet), so measure after init
 -            // and resubscribe so the server can phone-fit — bounded per handle so a
 -            // non-converging host degrades visibly instead of hot-looping (STA-3337).
 -            runTerminalViewportFitPass({
@@ -21364,7 +21364,7 @@ index 333d472a30..e2c45b32fa 100644
 +            void dataRef.writeText(data.chunk as string)
            } else if (data.type === 'resized') {
              updateTerminalCwdFromStreamEvent(handle, data, terminalCwdRef.current)
--            // Server resize: reinit xterm on a full-buffer snapshot (width reflow rewraps scrollback), else just resize geometry.
+-            // Server resize: reinit terminal on a full-buffer snapshot (width reflow rewraps scrollback), else just resize geometry.
 -            const viewport = viewportMeasuredRef.current ? viewportRef.current : null
 -            const [cols, rows] = viewportResubscribeBudgetRef.current.observeResize(
 -              handle,
@@ -21449,7 +21449,7 @@ index 56af08c630..a221d3db5b 100644
      readMarkdownTab,
      readFileTab
    } = scope
--  // Why: only store the ref; subscribe on web-ready to avoid the blank-terminal race (init queued before xterm.js loaded).
+-  // Why: only store the ref; subscribe on web-ready to avoid the blank-terminal race (init queued before Ghostty loaded).
 -  const setTerminalWebViewRef = useCallback((handle: string, ref: TerminalWebViewHandle | null) => {
 +  const setTerminalNativeRef = useCallback((handle: string, ref: TerminalViewRef | null) => {
      terminalDiagnosticsRef.current.webViewRef(handle, ref != null)
@@ -21478,7 +21478,7 @@ index 56af08c630..a221d3db5b 100644
          handle === activeHandleRef.current
        )
        if (wasAlreadyReady && initializedHandlesRef.current.has(handle)) {
--        // Why: WebView reloaded (hot reload / Android churn); old xterm buffer is gone, so resubscribe for a fresh scrollback.
+-        // Why: WebView reloaded (hot reload / Android churn); old terminal buffer is gone, so resubscribe for a fresh scrollback.
          unsubscribeTerminal(handle)
          initializedHandlesRef.current.delete(handle)
          if (handle === activeHandleRef.current) {
@@ -21688,7 +21688,7 @@ index 5173ac5bc8..c45833f731 100644
  const TEXT_SCALE_KEY = 'orca:terminalTextScale'
  
 -// Why: the mobile terminal fits the desktop's full column count to the phone
--// width with a CSS scale, so xterm's raw fontSize is cancelled out and can't
+-// width with a CSS scale, so terminal's raw fontSize is cancelled out and can't
 -// drive apparent size. Instead we persist a baseline zoom multiplier ("text
 -// size") that the WebView applies on top of the fit. Discrete presets keep the
 -// settings picker simple and bound the value to ones the zoom logic handles;
@@ -22066,7 +22066,7 @@ index d09c066124..0000000000
 -          }
 -          measureResolveRef.current = finish
 -          sendToWebView({ type: 'measure', containerHeight })
--          // Why: if the WebView doesn't respond within 2s (e.g., xterm
+-          // Why: if the WebView doesn't respond within 2s (e.g., terminal
 -          // failed to load), resolve null so the caller can disable
 -          // Fit to Phone rather than hanging indefinitely.
 -          timeout = setTimeout(() => {
@@ -22122,11 +22122,11 @@ index d09c066124..0000000000
 -        javaScriptEnabled
 -        scrollEnabled={false}
 -        // Why: Android parent gesture containers can intercept vertical drags
--        // before the injected xterm scroll router sees them.
+-        // before the injected terminal scroll router sees them.
 -        nestedScrollEnabled
 -        scalesPageToFit={false}
 -        // Why: Android WebView defaults textZoom to the system font scale, inflating
--        // xterm's DOM glyphs past its canvas-measured cell grid (#4579). iOS ignores it.
+-        // terminal's DOM glyphs past its canvas-measured cell grid (#4579). iOS ignores it.
 -        textZoom={100}
 -        onLoadStart={handleLoadStart}
 -        onMessage={handleMessage}
@@ -22151,7 +22151,7 @@ index 4dd7ae7a8a..483c773dc8 100644
    hostSupportsQueryReplyInput,
    subscribedTerminals
  }: MobileTerminalQueryReplyOptions): Promise<boolean> {
--  // Why: every subscribed mobile xterm suppresses main's responder, including
+-  // Why: every subscribed mobile terminal suppresses main's responder, including
 +  // Why: every subscribed mobile terminal suppresses main's responder, including
    // hidden panes, so ownership follows the subscription rather than focus.
    // Hosts without terminal.query-reply-input.v1 strip inputKind and would take
@@ -22164,7 +22164,7 @@ index c02f265fba..e7a8ed10b4 100644
    }
    const csiFinal = CSI_FINAL_SPECIAL_KEYS[key]
    if (csiFinal) {
--    // Why: xterm encodes unmodified F1-F4 as SS3 (ESC O P/S). Once a
+-    // Why: terminal encodes unmodified F1-F4 as SS3 (ESC O P/S). Once a
 +    // Ghostty encodes unmodified F1-F4 as SS3 (ESC O P/S). Once a
      // modifier is present it switches to the CSI 1;N form like arrows.
      if (SS3_BASE_SPECIAL_KEYS.has(key) && csiModifierParameter(modifiers) === 1) {
@@ -22176,7 +22176,7 @@ index d2cf51df3b..0000000000
 +++ /dev/null
 @@ -1,194 +0,0 @@
 -// @vitest-environment happy-dom
--import { Terminal, type ITerminalInitOnlyOptions, type ITerminalOptions } from '@xterm/xterm'
+-import { Terminal, type ITerminalInitOnlyOptions, type ITerminalOptions } from '@terminal/terminal'
 -import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 -import { MOBILE_TERMINAL_CARET_OPTIONS } from './terminal-webview-html'
 -
@@ -22189,8 +22189,8 @@ index d2cf51df3b..0000000000
 -
 -function cursorCoreService(terminal: Terminal): CursorCoreService {
 -  const core = (terminal as unknown as { _core?: { coreService?: CursorCoreService } })._core
--  expect(core, 'xterm private _core compatibility').toBeDefined()
--  expect(core?.coreService, 'xterm private coreService compatibility').toBeDefined()
+-  expect(core, 'terminal private _core compatibility').toBeDefined()
+-  expect(core?.coreService, 'terminal private coreService compatibility').toBeDefined()
 -  expect(typeof core?.coreService?.isCursorHidden).toBe('boolean')
 -  expect(typeof core?.coreService?.isCursorInitialized).toBe('boolean')
 -  return core!.coreService!
@@ -22296,7 +22296,7 @@ index d2cf51df3b..0000000000
 -  return new Promise((resolve) => terminal.write(data, resolve))
 -}
 -
--describe('xterm caret rendering oracle', () => {
+-describe('terminal caret rendering oracle', () => {
 -  beforeEach(() => {
 -    vi.stubGlobal(
 -      'OffscreenCanvas',
@@ -22328,15 +22328,15 @@ index d2cf51df3b..0000000000
 -      const coreService = cursorCoreService(terminal)
 -      expect({
 -        initialized: coreService.isCursorInitialized,
--        rendered: container.querySelector('.xterm-cursor') !== null
+-        rendered: container.querySelector('.orca-terminal-cursor') !== null
 -      }).toEqual({ initialized: true, rendered: true })
 -
 -      await write(terminal, '\x1b[?25l')
 -      terminal.refresh(0, terminal.rows - 1)
--      await vi.waitFor(() => expect(container.querySelector('.xterm-cursor')).toBeNull())
+-      await vi.waitFor(() => expect(container.querySelector('.orca-terminal-cursor')).toBeNull())
 -      expect({
 -        hidden: coreService.isCursorHidden,
--        rendered: container.querySelector('.xterm-cursor') !== null
+-        rendered: container.querySelector('.orca-terminal-cursor') !== null
 -      }).toEqual({ hidden: true, rendered: false })
 -    } finally {
 -      // Why: teardown only — an assertion here would mask the body failure and strand the container.
@@ -22344,7 +22344,7 @@ index d2cf51df3b..0000000000
 -      container.remove()
 -    }
 -
--    expect(container.querySelector('.xterm')).toBeNull()
+-    expect(container.querySelector('.orca-terminal-canvas')).toBeNull()
 -    const cleanup = listenerCleanup()
 -    expect(cleanup.added).toBeGreaterThan(0)
 -    expect(cleanup.removed).toBe(cleanup.added)
@@ -22359,7 +22359,7 @@ index d2cf51df3b..0000000000
 -      document.body.append(container)
 -      terminal.open(container)
 -      terminal.dispose()
--      expect(container.querySelector('.xterm')).toBeNull()
+-      expect(container.querySelector('.orca-terminal-canvas')).toBeNull()
 -      container.remove()
 -    }
 -
@@ -22670,7 +22670,7 @@ index 203db63bc6..0000000000
 @@ -1,213 +0,0 @@
 -import { readFileSync } from 'node:fs'
 -import { Script } from 'node:vm'
--import { Terminal } from '@xterm/xterm'
+-import { Terminal } from '@terminal/terminal'
 -import { describe, expect, it, vi } from 'vitest'
 -import { TERMINAL_KEYBOARD_AVOIDANCE_METRICS_JS } from './terminal-keyboard-avoidance-metrics-injected'
 -import { parseTerminalKeyboardAvoidanceMetrics } from './terminal-webview-contract'
@@ -22755,7 +22755,7 @@ index 203db63bc6..0000000000
 -    })
 -  })
 -
--  it('classifies real xterm text and styled whitespace by rendered visibility', async () => {
+-  it('classifies real terminal text and styled whitespace by rendered visibility', async () => {
 -    const cases = [
 -      { name: 'default spaces', data: '     ', expected: 0 },
 -      { name: 'text', data: 'footer', expected: 7 },
@@ -22779,7 +22779,7 @@ index 203db63bc6..0000000000
 -    }
 -  })
 -
--  it('tracks the real xterm viewport and alternate screen', async () => {
+-  it('tracks the real terminal viewport and alternate screen', async () => {
 -    const term = new Terminal({ cols: 10, rows: 4, scrollback: 100 })
 -    try {
 -      await write(term, 'header\r\n\r\n\r\n\r\nfooter')
@@ -22793,7 +22793,7 @@ index 203db63bc6..0000000000
 -    }
 -  })
 -
--  it('follows real xterm resize and reset state', async () => {
+-  it('follows real terminal resize and reset state', async () => {
 -    const term = new Terminal({ cols: 10, rows: 8 })
 -    try {
 -      await write(term, '\x1b[8;1Hfooter')
@@ -22807,7 +22807,7 @@ index 203db63bc6..0000000000
 -    }
 -  })
 -
--  it('keeps real xterm metrics compatible with old payloads', async () => {
+-  it('keeps real terminal metrics compatible with old payloads', async () => {
 -    const term = new Terminal({ cols: 10, rows: 8 })
 -    try {
 -      await write(term, '\x1b[8;1Hfooter\x1b[2;1H')
@@ -22823,7 +22823,7 @@ index 203db63bc6..0000000000
 -    }
 -  })
 -
--  it('releases real xterm metric observers across terminal lifecycles', async () => {
+-  it('releases real terminal metric observers across terminal lifecycles', async () => {
 -    for (let cycle = 0; cycle < 25; cycle += 1) {
 -      const term = new Terminal({ cols: 10, rows: 4 })
 -      let emissions = 0
@@ -22981,7 +22981,7 @@ index 0000000000..6a69049a70
 +type TerminalViewport = { cols: number; rows: number }
 +type ViewportCapability = 'unknown' | 'supported' | 'unsupported'
 +
-+// Why: match the xterm MIN_FIT_COLS/rows floor. A 0×0 layout pass must not
++// Why: match the terminal MIN_FIT_COLS/rows floor. A 0×0 layout pass must not
 +// shrink the PTY; the screenshot wrap at ~35 cols was a half-width surface.
 +export const MIN_TERMINAL_FIT_COLS = 20
 +export const MIN_TERMINAL_FIT_ROWS = 8
@@ -23033,7 +23033,7 @@ index 766c381ea2..0000000000
 +++ /dev/null
 @@ -1,134 +0,0 @@
 -// Plain-JS file-path-under-tap detection, injected verbatim into the terminal
--// WebView's xterm script (XTERM_HTML). It is interpolated with ${...}, so the
+-// WebView's terminal script (XTERM_HTML). It is interpolated with ${...}, so the
 -// regex backslashes here are single (the real runtime form) — not the doubled
 -// form a backtick template literal would otherwise require.
 -//
@@ -23690,7 +23690,7 @@ index 81ca306f3a..0000000000
 -    expect(hookSource).toContain("updateViewportCapabilityRef.current = 'unknown'")
 -  })
 -
--  it('reflows the local xterm scrollback after a successful updateViewport', () => {
+-  it('reflows the local terminal scrollback after a successful updateViewport', () => {
 -    // Why: updateViewport may only record an informational mobile viewport in
 -    // desktop mode. Reflow local scrollback only after the server says it
 -    // actually applied phone-fit to the PTY.
@@ -24230,7 +24230,7 @@ index 45b9a38c05..0000000000
 -  style?: StyleProp<ViewStyle>
 -  terminalTheme?: MobileTerminalTheme
 -  // Why: baseline zoom multiplier applied on top of fit-to-width scale; raw
--  // xterm fontSize alone cannot drive apparent size because fitting cancels it.
+-  // terminal fontSize alone cannot drive apparent size because fitting cancels it.
 -  textScale?: number
 -  onWebReady?: () => void
 -  onEngineError?: (message: string) => void
@@ -24249,7 +24249,7 @@ index 45b9a38c05..0000000000
 -    oscLinks?: TerminalOscLinkRange[]
 -  ) => void
 -  resize: (cols: number, rows: number) => void
--  // Why: reflow the local xterm buffer (scrollback included) to a new width
+-  // Why: reflow the local terminal buffer (scrollback included) to a new width
 -  // after a server-side PTY reflow, so older wrapped lines rewrap to match the
 -  // latest output. No-op on the alternate screen.
 -  reflow: (cols: number, rows: number) => void
@@ -24774,7 +24774,7 @@ index ac41592285..0000000000
 -  // (Chrome 98+) and supplies an Element without replaceChildren (Chrome 86+) —
 -  // the engine must evaluate on older WebViews via its own guarded runtime shims,
 -  // which are the linchpin of the old-WebView support (esbuild lowers syntax only).
--  it('exposes the xterm globals and installs the old-WebView runtime shims', () => {
+-  it('exposes the terminal globals and installs the old-WebView runtime shims', () => {
 -    const window: Record<string, unknown> = {}
 -    class ElementStub {}
 -    const context = {
@@ -24968,20 +24968,20 @@ index d6e733cdd7..0000000000
 -    transform-origin: top left;
 -    display: inline-block;
 -  }
--  .xterm { -webkit-user-select: none; user-select: none; font-variant-emoji: text; }
--  .xterm .xterm-viewport {
+-  .orca-terminal-canvas { -webkit-user-select: none; user-select: none; font-variant-emoji: text; }
+-  .orca-terminal-canvas .orca-terminal-viewport {
 -    overflow-y: hidden !important;
 -    scrollbar-width: none !important;
 -    -ms-overflow-style: none;
 -  }
--  .xterm .xterm-viewport::-webkit-scrollbar {
+-  .orca-terminal-canvas .orca-terminal-viewport::-webkit-scrollbar {
 -    display: none !important;
 -    width: 0 !important;
 -    height: 0 !important;
 -    background: transparent !important;
 -  }
--  .xterm .xterm-scrollable-element > .xterm-scrollbar,
--  .xterm .xterm-scrollbar {
+-  .orca-terminal-canvas .orca-terminal-scrollable-element > .orca-terminal-scrollbar,
+-  .orca-terminal-canvas .orca-terminal-scrollbar {
 -    display: none !important;
 -    width: 0 !important;
 -    opacity: 0 !important;
@@ -25215,9 +25215,9 @@ index 29cba25df3..0000000000
 -      return;
 -    }
 -    // Why: the rows we report become the PTY's actual row count after the
--    // server fits to viewport, and xterm renders exactly that many lines
+-    // server fits to viewport, and terminal renders exactly that many lines
 -    // anchored top-left of the WebView. Subtracting rows here would leave
--    // dead xterm-background space at the bottom of the container and make
+-    // dead orca-terminal-background space at the bottom of the container and make
 -    // the last PTY rows visually appear above an "invisible line." Any
 -    // safety margin between the prompt and the accessory bar must come
 -    // from RN layout (terminalFrame's flex bounds), not from undersizing
@@ -25344,7 +25344,7 @@ index 49cd3b4d84..0000000000
 -  if (window.Terminal) {
 -    notify({ type: 'web-ready' });
 -  } else {
--    reportEngineError('terminal engine missing', 'xterm failed to load', true);
+-    reportEngineError('terminal engine missing', 'terminal failed to load', true);
 -  }
 -})();
 -</script>
@@ -25368,7 +25368,7 @@ index 6f0685df87..0000000000
 -    var on = data.lastIndexOf(ESC + '[?1049h');
 -    // Why: SerializeAddon can include normal-buffer scrollback before the
 -    // active alternate-screen snapshot. Replaying both into a fresh mobile
--    // xterm duplicates TUI frames and can flatten SGR attributes.
+-    // terminal duplicates TUI frames and can flatten SGR attributes.
 -    return on > 0 ? data.slice(on) : data;
 -  }
 -
@@ -25487,13 +25487,13 @@ index 3b7e7f24cf..0000000000
 -      return ESC + '[<' + eventCode + ';' + cell.x + ';' + cell.y + 'M';
 -    }
 -    if (sgrMouseMode) {
--      // Why: xterm increments zero-based mouse cells before encoding reports.
+-      // Why: terminal increments zero-based mouse cells before encoding reports.
 -      var sgrCol = cell.col + 1;
 -      var sgrRow = cell.row + 1;
 -      if (!isSafeSgrMouseCoordinate(sgrCol) || !isSafeSgrMouseCoordinate(sgrRow)) return '';
 -      return ESC + '[<' + eventCode + ';' + sgrCol + ';' + sgrRow + 'M';
 -    }
--    // Why: xterm increments zero-based mouse cells before encoding reports.
+-    // Why: terminal increments zero-based mouse cells before encoding reports.
 -    var button = eventCode + 32;
 -    var col = cell.col + 1 + 32;
 -    var row = cell.row + 1 + 32;
@@ -25513,7 +25513,7 @@ index 3b7e7f24cf..0000000000
 -    var cell = viewportToMouseReportCell(clientX, clientY);
 -    if (!cell) return '';
 -    if (sgrMousePixelsMode) {
--      // Why: xterm 1016 keeps SGR syntax but reports raw zero-based pixel positions.
+-      // Why: terminal 1016 keeps SGR syntax but reports raw zero-based pixel positions.
 -      var pixelX = cell.x;
 -      var pixelY = cell.y;
 -      if (!isSafeSgrMouseCoordinate(pixelX) || !isSafeSgrMouseCoordinate(pixelY)) return '';
@@ -25522,7 +25522,7 @@ index 3b7e7f24cf..0000000000
 -      return pixelPress + ESC + '[<0;' + pixelX + ';' + pixelY + 'm';
 -    }
 -    if (sgrMouseMode) {
--      // Why: xterm increments zero-based mouse cells before encoding reports.
+-      // Why: terminal increments zero-based mouse cells before encoding reports.
 -      var sgrCol = cell.col + 1;
 -      var sgrRow = cell.row + 1;
 -      if (!isSafeSgrMouseCoordinate(sgrCol) || !isSafeSgrMouseCoordinate(sgrRow)) return '';
@@ -25577,7 +25577,7 @@ index 3b7e7f24cf..0000000000
 -    var mouseTrackingMode = getMouseTrackingMode();
 -    var alternateBufferActive = isAlternateBufferActive();
 -    if (isWheelMouseTrackingMode(mouseTrackingMode)) {
--      // Why: xterm sends wheel events to mouse-aware TUIs before considering
+-      // Why: terminal sends wheel events to mouse-aware TUIs before considering
 -      // scrollback, even if the app stays on the normal buffer.
 -      var mouseInput = buildMouseWheelScrollInput(lines, clientX, clientY);
 -      if (mouseInput) {
@@ -25592,7 +25592,7 @@ index 3b7e7f24cf..0000000000
 -      return;
 -    }
 -    if (alternateBufferActive) {
--      // Why: alternate-screen TUIs own their scroll state and xterm has no
+-      // Why: alternate-screen TUIs own their scroll state and terminal has no
 -      // scrollback there, so mobile scroll gestures must become terminal input.
 -      var input = buildTuiScrollInput(lines, clientX, clientY);
 -      if (input) notify({ type: 'terminal-input', bytes: input });
@@ -25633,7 +25633,7 @@ index 44ce1d3904..0000000000
 -  var currentScale = 1;
 -  // Why: userScale is transient pinch zoom (CSS) for smooth feedback DURING a
 -  // gesture only; it resets to 1 on release. The persistent "text size" is the
--  // real xterm fontSize (currentTextScale × BASE_FONT_PX), so changing it
+-  // real terminal fontSize (currentTextScale × BASE_FONT_PX), so changing it
 -  // reflows the grid: a bigger cell means fewer columns fit, and RN re-measures
 -  // and resizes the PTY (terminal.updateViewport) so the shell rewraps to the
 -  // new width. A finished pinch snaps to the nearest preset and reports it to RN.
@@ -25737,7 +25737,7 @@ index 44ce1d3904..0000000000
 -  }
 -
 -  // Why: width measurement strategy.
--  //   1. Prefer cellWidth × term.cols — this is what xterm's renderer uses
+-  //   1. Prefer cellWidth × term.cols — this is what terminal's renderer uses
 -  //      to lay out and is independent of buffer content. It's the "logical
 -  //      width" of the terminal grid.
 -  //   2. Fall back to term.element.scrollWidth — the actual rendered DOM
@@ -25841,7 +25841,7 @@ index 335407af51..0000000000
 -    // Why: term.select(col, row, length) takes a buffer-absolute row,
 -    // not a viewport-relative one. Subtracting viewportY here drifts the
 -    // selection by the scrollback height — handles render where the user
--    // pressed (their math is independent), but xterm highlights an
+-    // pressed (their math is independent), but terminal highlights an
 -    // off-screen scrollback region and copies the wrong text.
 -    var length;
 -    if (r.start.row === r.end.row) {
@@ -25861,7 +25861,7 @@ index 335407af51..0000000000
 -    stopEdgeScroll();
 -    if (term) {
 -      try { term.clearSelection(); } catch (e) {}
--      // Why: some xterm renderers cache cells and skip repaint on
+-      // Why: some terminal renderers cache cells and skip repaint on
 -      // clearSelection alone, leaving the previously-highlighted cells
 -      // visually selected. Force a full refresh so the selection layer
 -      // actually clears on screen.
@@ -26035,7 +26035,7 @@ index 48c05b6ad8..0000000000
 -  var edgeScrollClientY = 0;
 -
 -  // Eviction watchdog: linesEverWritten counts onLineFeed since last init.
--  // Once buffer is full, every onLineFeed evicts the top row in xterm and
+-  // Once buffer is full, every onLineFeed evicts the top row in terminal and
 -  // we mirror that by decrementing stored absolute rows.
 -  var linesEverWritten = 0;
 -
@@ -26103,9 +26103,9 @@ index de9db152fb..0000000000
 -      var applied = clampNormalScrollLines(lines);
 -      if (applied !== 0) {
 -        term.scrollLines(applied);
--        // Why: xterm's renderer is row-based. Buffer touch pixels and only
+-        // Why: terminal's renderer is row-based. Buffer touch pixels and only
 -        // commit whole rows so TUI canvas layers do not shimmer between
--        // fractional transforms and xterm repaints.
+-        // fractional transforms and terminal repaints.
 -        smoothScrollOffsetY += applied * effectiveCellH;
 -      }
 -      if (applied !== lines) smoothScrollOffsetY = 0;
@@ -26126,7 +26126,7 @@ index de9db152fb..0000000000
 -    pendingNormalScrollDeltaY += deltaY;
 -    if (normalScrollFrameId !== null) return true;
 -    // Why: dense terminal rows are expensive to repaint. Coalesce touchmove
--    // deltas into one xterm row-scroll per frame instead of repainting from
+-    // deltas into one terminal row-scroll per frame instead of repainting from
 -    // the input event stream.
 -    normalScrollFrameId = requestAnimationFrame(function() {
 -      normalScrollFrameId = null;
@@ -26534,20 +26534,20 @@ index b756bcb550..0000000000
 -
 -  // Why: intentional no-op. Mobile replays a live PTY snapshot then applies
 -  // live cursor-relative chunks from that same PTY; resizing only the WebView
--  // xterm changes cursor coordinates and makes TUI repaint chunks duplicate or
+-  // terminal changes cursor coordinates and makes TUI repaint chunks duplicate or
 -  // overlap. Kept as a no-op so its call sites stay legible.
 -  function adjustRowsForViewport() {}
 -
--  // Why: cold-start fit. After init() opens xterm, the renderer needs
+-  // Why: cold-start fit. After init() opens terminal, the renderer needs
 -  // several frames before cell dimensions are computed. Reading too early
 -  // gives cellWidth=0 (renderer service not ready) or scrollWidth=0 (DOM
 -  // not laid out), and computeFitScale returns 1 → no zoom.
 -  //
 -  // Gate: cellWidth × cols is the canonical "logical width" of the grid
--  // and reflects xterm's layout decision, independent of buffer content.
+-  // and reflects terminal's layout decision, independent of buffer content.
 -  // We commit when cellWidth becomes positive (renderer ready). Fallback:
 -  // if cellWidth never becomes available, gate on stable positive
--  // scrollWidth (xterm rendered something). Cap at 60 frames (~1s @60Hz)
+-  // scrollWidth (terminal rendered something). Cap at 60 frames (~1s @60Hz)
 -  // so a backgrounded WebView never spins forever.
 -  var FIT_RETRY_MAX_FRAMES = 60;
 -  var fitRetryToken = 0;
@@ -26591,7 +26591,7 @@ index b756bcb550..0000000000
 -    if (!term || !term.element) return;
 -    var preSnapScale = computeFitScale();
 -    currentScale = preSnapScale;
--    // Why: when scale is very close to 1 (e.g. 0.97 from xterm scrollbar
+-    // Why: when scale is very close to 1 (e.g. 0.97 from terminal scrollbar
 -    // sub-pixels) snap to 1 to avoid imperceptible shrinkage that prevents
 -    // a second applyFitScale from observing a "no-op needed" state.
 -    if (currentScale >= 0.95) currentScale = 1;
@@ -26673,7 +26673,7 @@ index 90dba7cbdb..0000000000
 -    };
 -    var replayData = normalizeInitialData(initialData);
 -    // Why: normalizeInitialData can discard pre-alt-screen bytes. Keep the
--    // mirrored modes aligned with exactly what this mobile xterm replays.
+-    // mirrored modes aligned with exactly what this mobile terminal replays.
 -    updateMouseModeFromData(replayData);
 -    activeAltScreenSnapshot = isAltScreenActive(replayData);
 -    initialOscLinks = Array.isArray(nextOscLinks) ? nextOscLinks : [];
@@ -26693,12 +26693,12 @@ index 90dba7cbdb..0000000000
 -      fontWeight: '300',
 -      fontWeightBold: '500',
 -      scrollback: 5000,
--      // Why: xterm suppresses parser-generated query replies when disableStdin
+-      // Why: terminal suppresses parser-generated query replies when disableStdin
 -      // is true. Native accepts only validated reply grammars from onData.
 -      disableStdin: false,
 -      cursorBlink: ${MOBILE_TERMINAL_CARET_OPTIONS.cursorBlink},
 -      cursorStyle: ${JSON.stringify(MOBILE_TERMINAL_CARET_OPTIONS.cursorStyle)},
--      // Native TextInput owns focus; initialize xterm's otherwise-gated main-buffer caret.
+-      // Native TextInput owns focus; initialize terminal's otherwise-gated main-buffer caret.
 -      showCursorImmediately: ${MOBILE_TERMINAL_CARET_OPTIONS.showCursorImmediately},
 -      // A full inactive cell remains visible under the terminal's phone-fit scale.
 -      cursorInactiveStyle: ${JSON.stringify(MOBILE_TERMINAL_CARET_OPTIONS.cursorInactiveStyle)},
@@ -26867,7 +26867,7 @@ index ae8ed85297..0000000000
 -    }
 -    var next = writeQueue[writeQueueHead];
 -    writeQueueHead++;
--    // Why: high-throughput terminals can enqueue faster than xterm parses;
+-    // Why: high-throughput terminals can enqueue faster than terminal parses;
 -    // compact consumed slots so drain work stays O(1) without retaining old chunks.
 -    if (writeQueueHead > 128 && writeQueueHead * 2 > writeQueue.length) {
 -      writeQueue = writeQueue.slice(writeQueueHead);
@@ -26912,7 +26912,7 @@ index ae8ed85297..0000000000
 -      return;
 -    }
 -    writesDraining = true;
--    // Why: xterm.write() parses asynchronously. Row adjustment/resizing must
+-    // Why: terminal.write() parses asynchronously. Row adjustment/resizing must
 -    // wait until replayed SGR attributes have landed in the buffer.
 -    term.write(next, function() {
 -      if (gen !== terminalGeneration) return;
@@ -27157,7 +27157,7 @@ index b32d7e6858..0000000000
 -    vi.restoreAllMocks()
 -  })
 -
--  it("keeps xterm's inactive cursor visible across replacement surfaces", () => {
+-  it("keeps terminal's inactive cursor visible across replacement surfaces", () => {
 -    dispatchInit(120, 'desktop')
 -    dispatchInit(51, 'phone-resize')
 -    dispatchInit(51, 'phone-scrollback')
@@ -27181,7 +27181,7 @@ index b32d7e6858..0000000000
 -
 -  it('commits only the newest surface when phone-fit init calls overlap', () => {
 -    // Why: restored terminals can receive desktop scrollback, a phone resize,
--    // and phone scrollback before any xterm replay callback has completed.
+-    // and phone scrollback before any terminal replay callback has completed.
 -    dispatchInit(120, 'desktop')
 -    animationFrames.shift()?.()
 -    dispatchInit(51, 'phone-resize')
@@ -27257,7 +27257,7 @@ index 54ee8d430a..0000000000
 -// with pointerType 'mouse' and NO touch events, while a finger raises
 -// pointerType 'touch' plus the touch events the document dispatcher owns. The
 -// capture-phase mousedown/click suppression in attachSurfaceEventHandlers stays:
--// it is what keeps xterm's own mouse handling inert (its onData output is
+-// it is what keeps terminal's own mouse handling inert (its onData output is
 -// dropped by the mobile bridge), and pointer events are unaffected by it.
 -export const TERMINAL_MOUSE_CLICK_DRAG_JS = `
 -  var mouseGesture = null;
@@ -27280,7 +27280,7 @@ index 54ee8d430a..0000000000
 -      return ESC + '[<' + sgrButton + ';' + cell.x + ';' + cell.y + sgrFinal;
 -    }
 -    if (sgrMouseMode) {
--      // Why: xterm increments zero-based mouse cells before encoding reports.
+-      // Why: terminal increments zero-based mouse cells before encoding reports.
 -      var sgrCol = cell.col + 1;
 -      var sgrRow = cell.row + 1;
 -      if (!isSafeSgrMouseCoordinate(sgrCol) || !isSafeSgrMouseCoordinate(sgrRow)) return '';
@@ -28169,7 +28169,7 @@ index a4ac34e580..0000000000
 -
 -  function attachTerminalQueryReplyBridge(term, gen) {
 -    // Why: parser replies require stdin enabled, but mobile input is owned by
--    // native controls. Keep xterm's textarea inert for touch/hardware keys.
+-    // native controls. Keep terminal's textarea inert for touch/hardware keys.
 -    try {
 -      term.attachCustomKeyEventHandler(function() { return false; });
 -      if (term.textarea) {
@@ -28327,7 +28327,7 @@ index 4e8add33f2..0000000000
 -}
 -
 -describe('mobile terminal query replies', () => {
--  it('forwards xterm-generated data only after initial replay drains', () => {
+-  it('forwards terminal-generated data only after initial replay drains', () => {
 -    const listenerIndex = XTERM_WEBVIEW_SOURCE.html.indexOf('term.onData(function(data)')
 -    const enableIndex = XTERM_WEBVIEW_SOURCE.html.indexOf(
 -      'attachTerminalQueryReplyBridge(term, gen)',
@@ -28480,7 +28480,7 @@ index ef704529e4..0000000000
 -// Closes over term / isAlternateBufferActive / applyFitScale /
 -// updateScrollIndicator / initRows defined in the host IIFE.
 -export const TERMINAL_REFLOW_JS = `
--  // Why: rewrap the local xterm buffer (scrollback included) to a new width
+-  // Why: rewrap the local terminal buffer (scrollback included) to a new width
 -  // after a server PTY reflow. Skip the alternate screen: those snapshots are
 -  // fully repainted by the PTY and a local resize there can drop SGR attributes
 -  // (see init's alt-screen handling), which shows as white text.
@@ -28756,10 +28756,10 @@ index 9218e5d6ad..0000000000
 -    expect(readyBlock).toContain('void p.finally')
 -  })
 -
--  it('hides xterm scrollbars and drives the mobile scroll indicator from committed rows', () => {
+-  it('hides terminal scrollbars and drives the mobile scroll indicator from committed rows', () => {
 -    expect(source).toContain('<div id="scroll-indicator"><div id="scroll-thumb"></div></div>')
--    expect(source).toContain('.xterm .xterm-viewport::-webkit-scrollbar')
--    expect(source).toContain('.xterm .xterm-scrollable-element > .xterm-scrollbar')
+-    expect(source).toContain('.orca-terminal-canvas .orca-terminal-viewport::-webkit-scrollbar')
+-    expect(source).toContain('.orca-terminal-canvas .orca-terminal-scrollable-element > .orca-terminal-scrollbar')
 -    expect(source).toContain('overflow-y: hidden !important;')
 -    expect(source).toContain('display: none !important;')
 -    expect(source).toContain('function updateScrollIndicator(reveal)')
@@ -28777,7 +28777,7 @@ index 9218e5d6ad..0000000000
 -    expect(updateTransformBlock).toContain(
 -      "surface.style.transform = 'translate(' + panX + 'px,' + panY + 'px) scale(' + getTotalScale() + ')';"
 -    )
--    expect(source).not.toContain("querySelector('.xterm-screen')")
+-    expect(source).not.toContain("querySelector('.orca-terminal-canvas')")
 -    expect(source).not.toContain('updateTerminalScreenTransform')
 -    expect(updateTransformBlock).not.toContain("getVisualPanY() + 'px) scale('")
 -    expect(updateTransformBlock).not.toContain('smoothScrollOffsetY')
@@ -28905,7 +28905,7 @@ index 0f7b1c9a21..0000000000
 +++ /dev/null
 @@ -1,49 +0,0 @@
 -export const TERMINAL_SURFACE_SWAP_JS = String.raw`
--  // Why: phone-fit startup can issue several init() calls before xterm finishes
+-  // Why: phone-fit startup can issue several init() calls before terminal finishes
 -  // replaying. Track the last painted surface separately from its replacement.
 -  var committedTerm = null;
 -  var committedSurface = surface;
@@ -29173,7 +29173,7 @@ index 13a81ef61a..0000000000
 -  return XTERM_HTML.slice(start, end)
 -}
 -
--// Minimal xterm stub: one scrollback line containing a URL, fixed 8x15 cells.
+-// Minimal terminal stub: one scrollback line containing a URL, fixed 8x15 cells.
 -function makeTerminal(lineRef: { current: string }, mouseTrackingMode = 'none') {
 -  return {
 -    cols: 80,
@@ -29195,7 +29195,7 @@ index 13a81ef61a..0000000000
 -            return null
 -          }
 -          return {
--            // Honor (trimRight, startCol, endCol) like real xterm so the
+-            // Honor (trimRight, startCol, endCol) like real terminal so the
 -            // cell→string-index conversion (cellColToStringIndex) resolves correctly.
 -            translateToString: (_trim?: boolean, start?: number, end?: number) =>
 -              text.slice(start ?? 0, end ?? text.length),
@@ -29526,7 +29526,7 @@ index d775237ddc..0000000000
 -}
 -
 -describe('TerminalWebView text zoom', () => {
--  it('pins textZoom to 100 so Android system font scale cannot inflate glyphs past xterm cell metrics', () => {
+-  it('pins textZoom to 100 so Android system font scale cannot inflate glyphs past terminal cell metrics', () => {
 -    const start = terminalWebViewSource.indexOf('<WebView')
 -    expect(start).toBeGreaterThanOrEqual(0)
 -    const end = terminalWebViewSource.indexOf('/>', start)
@@ -29535,7 +29535,7 @@ index d775237ddc..0000000000
 -    expect(webViewProps).toContain('textZoom={100}')
 -  })
 -
--  it('keeps the HTML source object stable so parent renders do not reload xterm', () => {
+-  it('keeps the HTML source object stable so parent renders do not reload terminal', () => {
 -    const start = terminalWebViewSource.indexOf('<WebView')
 -    expect(start).toBeGreaterThanOrEqual(0)
 -    const end = terminalWebViewSource.indexOf('/>', start)
@@ -29548,7 +29548,7 @@ index d775237ddc..0000000000
 -    expect(webViewProps).not.toContain('source={{ html: XTERM_HTML }}')
 -  })
 -
--  it('forces the Claude status dot to text presentation before xterm writes', () => {
+-  it('forces the Claude status dot to text presentation before terminal writes', () => {
 -    expect(terminalHtmlSource).toContain('font-variant-emoji: text')
 -    expect(terminalHtmlSource).toContain('var CLAUDE_STATUS_DOT = String.fromCharCode(0x23fa)')
 -    expect(terminalHtmlSource).toContain('TEXT_PRESENTATION_SELECTOR = String.fromCharCode(0xfe0e)')
@@ -29618,7 +29618,7 @@ index d775237ddc..0000000000
 -    expect(replay).toBeGreaterThan(unicode)
 -  })
 -
--  it('uses the bundled WebGL-capable xterm stack and platform-safe font fallbacks', () => {
+-  it('uses the bundled WebGL-capable terminal stack and platform-safe font fallbacks', () => {
 -    expect(terminalHtmlSource).not.toContain('cdn.jsdelivr.net')
 -    expect(terminalWebglRecoverySource).toContain('window.WebglAddon.WebglAddon')
 -    expect(terminalHtmlSource).toContain('function isIOSWebView()')
@@ -29826,7 +29826,7 @@ index c2d9beb478..0000000000
 -    return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
 -  }
 -
--  // Pick the xterm minimumContrastRatio floor from the composed terminal background.
+-  // Pick the terminal minimumContrastRatio floor from the composed terminal background.
 -  // Unparseable input defaults to the dark floor so agent output never stays invisible.
 -  function resolveTerminalContrastFloor(background) {
 -    var color = parseTerminalBackgroundRgba(background);
@@ -30172,7 +30172,7 @@ index f5d416d579..0000000000
 -  }
 -
 -  // Why: OSC 8 links can render as labels like "#1234"; the URI lives in
--  // xterm's internal link service, so every access is guarded and falls through.
+-  // terminal's internal link service, so every access is guarded and falls through.
 -  function oscLinkService() {
 -    try {
 -      var core = term && term._core;
@@ -30352,7 +30352,7 @@ index 8e4d27c234..0000000000
 +++ /dev/null
 @@ -1,62 +0,0 @@
 -// WebGL loss and visibility recovery injected into the terminal WebView IIFE.
--// It closes over term, terminalGeneration, theme state, and xterm's addon global.
+-// It closes over term, terminalGeneration, theme state, and terminal's addon global.
 -export const TERMINAL_WEBGL_RECOVERY_JS = `
 -  function refreshTerminalSurface() {
 -    if (!term) return;
@@ -30406,7 +30406,7 @@ index 8e4d27c234..0000000000
 -
 -  document.addEventListener('visibilitychange', function() {
 -    if (document.visibilityState !== 'visible') return;
--    // Why: iOS may restore the xterm model while discarding GPU pixels/theme
+-    // Why: iOS may restore the terminal model while discarding GPU pixels/theme
 -    // paint state, so visibility must rebuild the atlas and repaint every row.
 -    applyTerminalTheme(terminalThemeInput);
 -    try { if (webglAddon && webglAddon.clearTextureAtlas) webglAddon.clearTextureAtlas(); } catch (e) {}
@@ -30442,7 +30442,7 @@ index 8d2321e7c2..0000000000
 -    targetSurface.addEventListener('wheel', function(e) {
 -      if (dispatcherShouldBlockSurface()) return;
 -      if (!term) return;
--      // Why: xterm's own wheel handler scrolls its hidden viewport or emits
+-      // Why: terminal's own wheel handler scrolls its hidden viewport or emits
 -      // cursor keys through onData, which the mobile query-reply gate drops.
 -      // Claim the event so indirect pointers share the touch scroll router.
 -      e.preventDefault();
@@ -30745,7 +30745,7 @@ index 463b6218bb..0000000000
 -    expect(event.defaultPrevented).toBe(true)
 -  })
 -
--  it('claims the wheel so xterm does not double-apply it', () => {
+-  it('claims the wheel so terminal does not double-apply it', () => {
 -    buffer = { baseY: 20, type: 'normal', viewportY: 20 }
 -    boot()
 -

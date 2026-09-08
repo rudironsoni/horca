@@ -276,7 +276,7 @@ describe('TabsSlice', () => {
     })
   })
 
-  // Called on real user interaction (xterm onData keystroke or pointerdown) — the dismissal half of show-until-interact.
+  // Called on real user interaction (terminal onData keystroke or pointerdown) — the dismissal half of show-until-interact.
   describe('clearTerminalTabUnread', () => {
     it('removes the tab from unreadTerminalTabs', () => {
       const tabId = 'bell-tab-1'

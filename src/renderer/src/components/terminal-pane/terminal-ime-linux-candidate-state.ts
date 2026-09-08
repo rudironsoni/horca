@@ -1,11 +1,11 @@
-import type { XtermBypassEvent } from './xterm-bypass-policy'
+import type { TerminalBypassEvent } from './terminal-bypass-policy'
 
 type TerminalImeLinuxCandidateState = {
   /** Classifies an event before the state observes it. */
-  classifyKeyboardEvent: (event: XtermBypassEvent) => { candidateDigitGuardActive: boolean }
+  classifyKeyboardEvent: (event: TerminalBypassEvent) => { candidateDigitGuardActive: boolean }
   /** Advances the state after the caller consumes an event classification. */
   observeKeyboardEvent: (
-    event: XtermBypassEvent,
+    event: TerminalBypassEvent,
     classification: { candidateDigitGuardActive: boolean }
   ) => void
   /** Drops all candidate and physical-key state. */
@@ -56,7 +56,7 @@ function acquirePhysicalKeyTracker(
     }
   }
   const reset = (): void => pressedCodes.clear()
-  // Why: bubble-phase keyup cleanup runs after xterm's target handler, so the
+  // Why: bubble-phase keyup cleanup runs after terminal's target handler, so the
   // pane can still classify that release against the shared pressed-key set.
   eventTarget.addEventListener('keydown', observeKeyboardEvent)
   eventTarget.addEventListener('keyup', observeKeyboardEvent)
@@ -94,7 +94,7 @@ function releasePhysicalKeyTracker(
 }
 
 /** Returns whether an event is an unmodified lowercase Latin letter. */
-function isPlainAsciiLetterKey(event: XtermBypassEvent): boolean {
+function isPlainAsciiLetterKey(event: TerminalBypassEvent): boolean {
   return (
     ASCII_LOWERCASE_LETTER.test(event.key) &&
     !event.ctrlKey &&
@@ -105,7 +105,7 @@ function isPlainAsciiLetterKey(event: XtermBypassEvent): boolean {
 }
 
 /** Returns whether an event is an unmodified ASCII digit. */
-function isPlainAsciiDigitKey(event: XtermBypassEvent): boolean {
+function isPlainAsciiDigitKey(event: TerminalBypassEvent): boolean {
   return (
     ASCII_DIGIT.test(event.key) &&
     !event.ctrlKey &&

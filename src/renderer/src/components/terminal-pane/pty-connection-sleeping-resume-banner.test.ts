@@ -444,7 +444,7 @@ describe('connectPanePty', () => {
     expect(mockStoreState.sleepingAgentSessionsByPaneKey[paneKey]).toBeDefined()
   })
 
-  it('forwards one sidebar resume spawn without writing the restored banner through xterm', async () => {
+  it('forwards one sidebar resume spawn without writing the restored banner through terminal', async () => {
     const { connectPanePty } = await import('./pty-connection')
     const transport = createMockTransport('pty-1')
     transportFactoryQueue.push(transport)

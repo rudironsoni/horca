@@ -114,7 +114,7 @@ export function createTerminalKeyboardEventHandlers(context: EventContext) {
       return
     }
 
-    // The browser's focused xterm helper is the input owner. A split can retain
+    // The browser's focused terminal helper is the input owner. A split can retain
     // a stale manager activePaneId after focus moved, so repair it before any
     // shortcut policy reads pane-scoped host/agent state.
     const keyboardPane = synchronizeTerminalKeyboardPane(manager, e.target)
@@ -203,7 +203,7 @@ export function createTerminalKeyboardEventHandlers(context: EventContext) {
     }
 
     if (action.type === 'switchInputSource') {
-      // Why: the OS must receive its default action, while xterm must receive
+      // Why: the OS must receive its default action, while terminal must receive
       // none of the keydown, keypress, or keyup sequence.
       nativeOnlyShortcutTracker.armKeyDown(e)
       e.stopImmediatePropagation()

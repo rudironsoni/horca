@@ -67,7 +67,7 @@ export class OrcaRuntimeWithAttachRemoteTerminalSourceRangeConsumer extends Orca
   }
 
   /** Registered by terminal-RPC subscribe/multiplex streams: while a remote
-   *  view subscriber is attached its xterm answers queries with view
+   *  view subscriber is attached its terminal answers queries with view
    *  authority and the model responder must stay silent. Returns an
    *  idempotent release. */
   registerRemoteTerminalViewSubscriber(ptyId: string): () => void {
@@ -102,7 +102,7 @@ export class OrcaRuntimeWithAttachRemoteTerminalSourceRangeConsumer extends Orca
 
   isMobileTerminalQueryReplyAuthority(ptyId: string, clientId: string): boolean {
     // Why: a passive phone watching desktop-sized output must not race the
-    // desktop xterm. Mobile becomes reply authority only with the mobile floor.
+    // desktop terminal. Mobile becomes reply authority only with the mobile floor.
     if (this.getDriver(ptyId).kind !== 'mobile') {
       return false
     }

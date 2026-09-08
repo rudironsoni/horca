@@ -5,6 +5,7 @@ import {
 } from '../../providers/macos-tcc-login-shell'
 import type { WindowsShellSpawnAttempt } from '../../providers/windows-shell-fallback-chain'
 import { assignHostProcessToKillOnCloseJob } from '../../windows/windows-pty-job'
+import { PTY_TERM_NAME } from '../../../shared/pty-term-name'
 
 export type SpawnedDaemonPty = {
   process: pty.IPty
@@ -34,12 +35,12 @@ export function spawnNativeDaemonPty(args: {
       assignHostProcessToKillOnCloseJob()
     }
     const proc = pty.spawn(wrapped.file, wrapped.args, {
-      name: args.env.TERM ?? 'xterm-256color',
+      name: args.env.TERM ?? PTY_TERM_NAME,
       cols: args.cols,
       rows: args.rows,
       cwd,
       env: args.env,
-      // Why: bundled ConPTY has the wrap-marker behavior xterm expects.
+      // Why: bundled ConPTY has the wrap-marker behavior terminal expects.
       ...(process.platform === 'win32' ? { useConptyDll: true } : {})
     })
     reportsChildExitStatus = hostReportsChildExitStatus(wrapped.file)

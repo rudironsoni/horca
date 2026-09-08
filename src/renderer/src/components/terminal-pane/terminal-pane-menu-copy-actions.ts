@@ -13,7 +13,7 @@ export const copyTerminalPaneMenuSelection = async (pane: ManagedPane | null): P
     selection: pane.terminal.getSelection(),
     writeClipboardText: window.api.ui.writeTerminalClipboardText,
     // Why: Radix returns focus to the menu trigger (the pane container) on
-    // close, but xterm.js only accepts input when its own helper textarea is
+    // close, but Ghostty only accepts input when its own helper textarea is
     // focused. Without this, the user has to click the pane again before
     // typing works (see #592).
     focus: () => pane.terminal.focus()

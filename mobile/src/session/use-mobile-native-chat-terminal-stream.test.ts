@@ -153,7 +153,7 @@ describe('useMobileNativeChatTerminalStream', () => {
     expect(unsubscribe).toHaveBeenCalledWith('terminal-2')
     expect(subscribe).toHaveBeenCalledWith('terminal-2')
     expect(leaseOnlyRef.current.has('terminal-2')).toBe(false)
-    // The lease-only stream carried no scrollback, so xterm is empty — a stale
+    // The lease-only stream carried no scrollback, so terminal is empty — a stale
     // initialized mark would drop the replacement snapshot and keep the tab blank.
     expect(initializedRef.current.has('terminal-2')).toBe(false)
   })
