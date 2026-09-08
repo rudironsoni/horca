@@ -168,7 +168,7 @@ describe('schedulePaneRevealRepaint', () => {
     expect(secondManager.resetWebglTextureAtlases).toHaveBeenCalledTimes(1)
   })
 
-  it('reattaches a missing WebGL addon before repainting', () => {
+  it('repaints a Canvas2D pane without attaching a WebGL addon', () => {
     const pane = createPane()
     const manager = registerPaneManager(() => [pane])
     schedulePaneRevealRepaint(() => [pane])
@@ -176,7 +176,7 @@ describe('schedulePaneRevealRepaint', () => {
     flushFrame()
     flushFrame()
 
-    expect(pane.gpuRenderer).not.toBeNull()
+    expect(pane.gpuRenderer).toBeNull()
     expect(manager.resetWebglTextureAtlases).toHaveBeenCalledTimes(1)
     expect(pane.terminal.refresh).toHaveBeenCalled()
   })
@@ -270,18 +270,18 @@ describe('schedulePaneRevealRepaint', () => {
       expect(pane.terminal.refresh).toHaveBeenCalledWith(0, 23)
     })
 
-    it('still retries a missing WebGL attach on the settled frame', () => {
+    it('presents a Canvas2D pane on the settled frame without a WebGL addon', () => {
       const pane = createPane()
       schedulePaneRevealPresent(() => [pane])
 
       flushFrame()
       flushFrame()
 
-      expect(pane.gpuRenderer).not.toBeNull()
-      expect(pane.terminal.refresh).toHaveBeenCalled()
+      expect(pane.gpuRenderer).toBeNull()
+      expect(pane.terminal.refresh).toHaveBeenCalledWith(0, 23)
     })
 
-    it('reattaches a pane that lost WebGL while hidden when its tab is revealed', () => {
+    it('clears a context-loss latch and presents on Canvas2D when a tab is revealed', () => {
       const pane = createPane()
       pane.webglDisabledAfterContextLoss = true
       pane.webglContextLossTimestamps = [Date.now()]
@@ -291,9 +291,8 @@ describe('schedulePaneRevealRepaint', () => {
       flushFrame()
 
       expect(pane.webglDisabledAfterContextLoss).toBe(false)
-      expect(pane.gpuRenderer).not.toBeNull()
-      expect(pane.terminal.refresh).toHaveBeenCalledTimes(2)
-      expect(pane.terminal.refresh).toHaveBeenNthCalledWith(2, 0, 23)
+      expect(pane.gpuRenderer).toBeNull()
+      expect(pane.terminal.refresh).toHaveBeenCalledWith(0, 23)
     })
   })
 })
