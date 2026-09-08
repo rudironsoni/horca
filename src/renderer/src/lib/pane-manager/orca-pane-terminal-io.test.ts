@@ -1,5 +1,9 @@
-import { describe, expect, it, vi } from 'vitest'
-import { bindGhosttyKeyboardInput } from './orca-pane-terminal-io'
+// @vitest-environment happy-dom
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { GhosttyTerminal } from '../../../../ghostty-vt/ghostty-terminal'
+import { getGhosttyVtHostOrThrow } from '../../../../ghostty-vt/host-singleton'
+import { readScrollbar } from '../../../../ghostty-vt/ghostty-terminal-ops'
+import { bindGhosttyKeyboardInput, hitTestGhosttyHyperlink } from './orca-pane-terminal-io'
 
 function fakeElement(): {
   element: HTMLElement
@@ -56,5 +60,46 @@ describe('bindGhosttyKeyboardInput', () => {
     dispatch('keydown', { key: 'a', preventDefault: () => undefined } as KeyboardEvent)
     expect(encodeKey).not.toHaveBeenCalled()
     expect(input).not.toHaveBeenCalled()
+  })
+})
+
+describe('hitTestGhosttyHyperlink', () => {
+  let engine: GhosttyTerminal | undefined
+
+  afterEach(() => {
+    engine?.dispose()
+    engine = undefined
+  })
+
+  it('hits a visible OSC 8 cell after scrollback', () => {
+    const cellWidth = 8
+    const cellHeight = 16
+    engine = new GhosttyTerminal(getGhosttyVtHostOrThrow(), { cols: 20, rows: 4 })
+    engine.writePtyOutput(
+      `${'pad\n'.repeat(12)}\x1b]8;;https://example.com/scrolled\x07LINK\x1b]8;;\x07`
+    )
+    const bar = readScrollbar(engine)
+    expect(bar.offset).toBeGreaterThan(0)
+    expect(bar.total).toBeGreaterThan(bar.len)
+    const link = engine
+      .collectHyperlinkRanges()
+      .find((range) => range.uri === 'https://example.com/scrolled')
+    expect(link).toBeDefined()
+    const viewportRow = link!.row - bar.offset
+    expect(viewportRow).toBeGreaterThanOrEqual(0)
+    expect(viewportRow).toBeLessThan(engine.rows)
+    expect(viewportRow).not.toBe(link!.row)
+    const canvas = {
+      getBoundingClientRect: () => ({ left: 0, top: 0, width: 160, height: 64 })
+    } as HTMLCanvasElement
+    const uri = hitTestGhosttyHyperlink(
+      engine,
+      canvas,
+      cellWidth,
+      cellHeight,
+      link!.startCol * cellWidth + 1,
+      viewportRow * cellHeight + 1
+    )
+    expect(uri).toBe('https://example.com/scrolled')
   })
 })
