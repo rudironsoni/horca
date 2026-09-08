@@ -5,7 +5,7 @@ import {
 } from './pane-cursor-blink-suspension'
 import { safeFit } from './pane-tree-ops'
 import {
-  attachWebgl,
+  refreshPaneRenderer,
   clearTerminalWebglAttachBackoff,
   disposeWebgl,
   isPaneWebglContextLost,
@@ -42,7 +42,7 @@ export function setPaneGpuRenderingState(
     return
   }
   if (!pane.gpuRenderer) {
-    attachWebgl(pane)
+    refreshPaneRenderer(pane)
     safeFit(pane)
   }
 }
