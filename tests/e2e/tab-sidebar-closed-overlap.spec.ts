@@ -70,15 +70,18 @@ test.describe('Tab visibility with closed sidebar', () => {
 
     // Why: App.tsx's window-level Cmd+B handler calls `isEditableTarget`
     // (line ~582) and bails when focus is inside input/textarea/
-    // contenteditable so TipTap's bold keymap can run. xterm's
+    // contenteditable so TipTap's bold keymap can run. terminal's
     // helper-textarea is explicitly carved out of the carve-out, so the
     // fixture's default terminal-focused state is fine — but if a future
     // fixture change leaves focus on a rich input the keypress would
-    // silently no-op. Blur any non-xterm focused element defensively so
+    // silently no-op. Blur any non-terminal focused element defensively so
     // the chord reaches the toggleSidebar branch.
     await orcaPage.evaluate(() => {
       const active = document.activeElement
-      if (active instanceof HTMLElement && !active.classList.contains('xterm-helper-textarea')) {
+      if (
+        active instanceof HTMLElement &&
+        !active.classList.contains('orca-terminal-helper-textarea')
+      ) {
         active.blur()
       }
     })

@@ -10,7 +10,7 @@
  *
  * Interactive is mandatory: fish writes no history in non-interactive mode, so the
  * PTY and the typed line are the test, not scaffolding. DA1/CPR/OSC-11 probes are
- * answered here because no real xterm is attached — without them fish stalls ~10s
+ * answered here because no real terminal is attached — without them fish stalls ~10s
  * on its DA1 read sentinel before painting a prompt.
  */
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
@@ -75,7 +75,7 @@ describe('fish keeps per-worktree history under the session Orca names', () => {
 
       const session = fishHistorySessionName(WORKTREE_HASH)
       const term = nodePty.spawn(FISH.path as string, ['-l', '-i'], {
-        name: 'xterm-256color',
+        name: 'xterm-ghostty',
         cols: 120,
         rows: 30,
         cwd: home,
@@ -84,7 +84,7 @@ describe('fish keeps per-worktree history under the session Orca names', () => {
         env: {
           PATH: process.env.PATH ?? '/usr/bin:/bin',
           HOME: home,
-          TERM: 'xterm-256color',
+          TERM: 'xterm-ghostty',
           // LC_ALL wins over any LANG/LC_* a host might contribute, pinning fish's locale.
           LANG: 'en_US.UTF-8',
           LC_ALL: 'en_US.UTF-8',

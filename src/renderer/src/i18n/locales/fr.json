@@ -8278,7 +8278,7 @@
           "e0996d141a": "Auto tente WebGL, avec repli DOM pour les moteurs de rendu non pris en charge ou risqués.",
           "7eaccc1424": "WebGL est toujours tenté pour les volets de terminal.",
           "fe4acf36c6": "WebGL désactivé ; moteur de rendu DOM pour une compatibilité maximale.",
-          "f07dfb4466": "Contrôle si le terminal utilise le rendu WebGL xterm.js. Auto tente WebGL lorsque le moteur est pris en charge, avec repli Linux conservateur pour les rendus logiciels ou GPU inconnus.",
+          "f07dfb4466": "Contrôle si le terminal utilise le rendu WebGL Ghostty. Auto tente WebGL lorsque le moteur est pris en charge, avec repli Linux conservateur pour les rendus logiciels ou GPU inconnus.",
           "72bc9334a0": "Comportement du moteur de rendu du terminal pour les volets existants et les nouveaux volets.",
           "2fba319f21": "Rendu",
           "cc8c5ca224": "Défaut Windows",
@@ -8420,7 +8420,7 @@
           "cf37ff69f6": "Base",
           "8abdab9f7c": "Redémarrer maintenant",
           "907131d741": "Redémarrage…",
-          "605a35d600": "Non encore appliqué par le moteur de rendu du terminal — xterm.js n'a pas d'emplacement dédié aux couleurs en gras. Une valeur enregistrée est conservée."
+          "605a35d600": "Non encore appliqué par le moteur de rendu du terminal — Ghostty n'a pas d'emplacement dédié aux couleurs en gras. Une valeur enregistrée est conservée."
         },
         "UIZoomControl": {
           "c2c64b24d0": "Réinitialiser"
@@ -10016,7 +10016,7 @@
             "6cddc858ba": "WebGL",
             "4b4e80d850": "accélération",
             "db82cb13b0": "GPU",
-            "8f9f953de7": "Détermine si le terminal utilise le rendu WebGL de xterm.js. Auto essaie WebGL quand le moteur de rendu est pris en charge, avec repli prudent pour un rendu logiciel ou un GPU inconnu.",
+            "8f9f953de7": "Détermine si le terminal utilise le rendu WebGL de Ghostty. Auto essaie WebGL quand le moteur de rendu est pris en charge, avec repli prudent pour un rendu logiciel ou un GPU inconnu.",
             "13a2502dfc": "Accélération GPU",
             "d5e6c7fab1": "fonctionnalités de police",
             "a16224d16a": "calt",

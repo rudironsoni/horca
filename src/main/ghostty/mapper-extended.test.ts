@@ -49,7 +49,7 @@ describe('mapGhosttyToOrca — unfocused-split-opacity', () => {
 
 describe('mapGhosttyToOrca — scrollback-limit', () => {
   // Why: Ghostty's scrollback-limit is a byte budget (where 0 means unlimited),
-  // while xterm's scrollback is a row count (where 0 means disabled). The
+  // while terminal's scrollback is a row count (where 0 means disabled). The
   // units and sentinel values don't line up, so we treat the key as
   // unsupported rather than silently mis-applying it by orders of magnitude.
   it('marks scrollback-limit as unsupported', () => {
@@ -200,8 +200,8 @@ describe('mapGhosttyToOrca — cursor-text', () => {
 })
 
 describe('mapGhosttyToOrca — bold-color', () => {
-  // Why: xterm.js ITheme has no bold color slot (xtermjs/xterm.js#6032), so bold-color can never
-  // render; the importer must list it as unsupported rather than claim it was applied (#8595).
+  // Why: Ghostty has no bold color slot, so bold-color can never render;
+  // the importer must list it as unsupported rather than claim it was applied (#8595).
   it('reports valid bold-color as unsupported and does not apply it', () => {
     const result = mapGhosttyToOrca({ 'bold-color': '#ff0000' })
     expect(result.diff).toEqual({})

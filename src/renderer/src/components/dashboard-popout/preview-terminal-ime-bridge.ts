@@ -3,7 +3,7 @@ import { installTerminalImeCompositionTracker } from '@/components/terminal-pane
 import { installTerminalImeNativeTextForwarder } from '@/components/terminal-pane/terminal-ime-native-text-forwarder'
 
 export type PreviewImeBridge = {
-  /** True when the forwarder owns this keydown, so xterm must not encode it. */
+  /** True when the forwarder owns this keydown, so terminal must not encode it. */
   claimKeyEvent: (event: KeyboardEvent) => boolean
   dispose: () => void
 }
@@ -20,7 +20,7 @@ export type PreviewImeBridgeOptions = {
 /**
  * Native-text bridge for the preview terminal.
  *
- * Why: xterm's kitty encoder can encode+cancel a printable keydown before
+ * Why: terminal's kitty encoder can encode+cancel a printable keydown before
  * Chromium commits IME/native text, silently dropping the glyph. Mirrors
  * TerminalPane's forwarder, macOS-only like the pane's install.
  *

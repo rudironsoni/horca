@@ -40,7 +40,7 @@ describe('remote terminal renderer backpressure', () => {
     vi.unstubAllGlobals()
   })
 
-  it('withholds server credit until xterm consumes the output frame', async () => {
+  it('withholds server credit until terminal consumes the output frame', async () => {
     const { getRemoteRuntimeTerminalMultiplexer } =
       await import('./remote-runtime-terminal-multiplexer')
     const { takeCurrentTerminalDeliveryCredit } =

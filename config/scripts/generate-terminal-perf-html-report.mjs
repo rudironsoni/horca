@@ -33,7 +33,7 @@ const COUNT_METRICS = [
   // Why: parked-memory scenarios are table-only — heap/view counts have no
   // ms trend story, so they stay out of the charts.
   { key: 'heapUsedMB', label: 'Renderer JS heap (MB)' },
-  { key: 'liveTerminals', label: 'Live xterm instances' },
+  { key: 'liveTerminals', label: 'Live terminal instances' },
   { key: 'livePaneManagers', label: 'Live pane managers' }
 ]
 

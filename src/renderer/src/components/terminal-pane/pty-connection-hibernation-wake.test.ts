@@ -549,7 +549,7 @@ describe('connectPanePty', () => {
   })
 
   it('records hibernation activity from the core user-input signal, not synthetic onData replies', async () => {
-    // Regression: xterm auto-replies share the onData stream with typing; recording them as input made the planner see "input after done" and never hibernate.
+    // Regression: terminal auto-replies share the onData stream with typing; recording them as input made the planner see "input after done" and never hibernate.
     const { connectPanePty } = await import('./pty-connection')
     const transport = createMockTransport('pty-pane-2')
     transportFactoryQueue.push(transport)
@@ -590,7 +590,7 @@ describe('connectPanePty', () => {
   })
 
   it('falls back to onData hibernation recording when the core user-input signal is unavailable', async () => {
-    // If an xterm upgrade removes the internal signal, activity recording must degrade to the historical onData behavior — never to no tracking at all.
+    // If an terminal upgrade removes the internal signal, activity recording must degrade to the historical onData behavior — never to no tracking at all.
     const { connectPanePty } = await import('./pty-connection')
     const transport = createMockTransport('pty-pane-2')
     transportFactoryQueue.push(transport)
