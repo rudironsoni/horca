@@ -4,7 +4,7 @@ import type { TerminalLeafId } from '../../../../shared/stable-pane-id'
 import { getGhosttyVtHostOrThrow } from '../../../../ghostty-vt/host-singleton'
 import { createPaneDOM } from './pane-dom-creation'
 
-function stubCanvas(fillRects?: number[][]): CanvasRenderingContext2D {
+function stubCanvas(fillRects?: number[][], fillTexts?: string[]): CanvasRenderingContext2D {
   const ctx = {
     font: '',
     textBaseline: 'top',
@@ -21,7 +21,9 @@ function stubCanvas(fillRects?: number[][]): CanvasRenderingContext2D {
     fillRect: vi.fn((x: number, y: number, w: number, h: number) => {
       fillRects?.push([x, y, w, h])
     }),
-    fillText: vi.fn()
+    fillText: vi.fn((text: string) => {
+      fillTexts?.push(text)
+    })
   }
   return ctx as unknown as CanvasRenderingContext2D
 }
@@ -105,6 +107,33 @@ describe('createPaneDOM link tooltips', () => {
       requestAnimationFrame(() => resolve())
     })
     expect(fillStyles.some((style) => style.includes('221'))).toBe(true)
+    pane.terminal.dispose()
+  })
+
+  it('repaints viewport cells after a clean idle frame', async () => {
+    const fillTexts: string[] = []
+    HTMLCanvasElement.prototype.getContext = vi.fn(() => stubCanvas(undefined, fillTexts)) as never
+    const leafId = '11111111-1111-4111-8111-111111111111' as TerminalLeafId
+    const pane = createPaneDOM(
+      1,
+      leafId,
+      { linkOpenHint: () => 'open hint' },
+      { active: null } as never,
+      {} as never,
+      vi.fn(),
+      vi.fn()
+    )
+    pane.terminal.write('hello ghostty')
+    pane.terminal.refresh()
+    await new Promise<void>((resolve) => {
+      requestAnimationFrame(() => resolve())
+    })
+    fillTexts.length = 0
+    pane.terminal.refresh()
+    await new Promise<void>((resolve) => {
+      requestAnimationFrame(() => resolve())
+    })
+    expect(fillTexts.some((text) => text.includes('hello'))).toBe(true)
     pane.terminal.dispose()
   })
 
