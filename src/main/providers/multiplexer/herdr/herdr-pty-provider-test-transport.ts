@@ -107,8 +107,8 @@ export function transport(closeBeforeFrame = false, failMethod?: string) {
             encoding: 'ansi',
             width: options?.cols ?? 80,
             height: options?.rows ?? 24,
-            full: true,
-            bytes: ''
+            full: false,
+            bytes: Buffer.from('x'.repeat(64), 'utf8').toString('base64')
           })
         }
       }, 0)
