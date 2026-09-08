@@ -86,9 +86,7 @@ export class GhosttyRenderer {
     this.host.free(iterSlot, 4)
     let y = 0
     while (this.host.exports.ghostty_render_state_row_iterator_next(this.rowIter)) {
-      if (this.rowIsDirty()) {
-        this.drawRow(y)
-      }
+      this.drawRow(y)
       y += 1
     }
     drawRenderStateCursor(this.host, this.ctx, this.state, this.cellWidth, this.cellHeight)
@@ -200,18 +198,6 @@ export class GhosttyRenderer {
       x += 1
     }
     flush()
-  }
-
-  private rowIsDirty(): boolean {
-    const ptr = this.host.alloc(1)
-    const result = this.host.exports.ghostty_render_state_row_get(
-      this.rowIter,
-      this.host.enumValue('GhosttyRenderStateRowData', 'DIRTY'),
-      ptr
-    )
-    const dirty = result !== this.host.success || this.host.bytes()[ptr] !== 0
-    this.host.free(ptr, 1)
-    return dirty
   }
 
   private readStateU16(name: string): number {
