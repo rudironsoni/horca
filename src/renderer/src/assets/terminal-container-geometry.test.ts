@@ -15,4 +15,11 @@ describe('terminal container geometry', () => {
       /\.pane-link-tooltip\s*{[^}]*height:\s*var\(--orca-terminal-link-tooltip-height\);/s
     )
   })
+
+  it('hides the helper textarea as a sibling of the canvas', () => {
+    expect(terminalCss).toMatch(
+      /\.xterm-container\s*>\s*\.xterm-helper-textarea\s*{[^}]*position:\s*absolute;[^}]*opacity:\s*0;/s
+    )
+    expect(terminalCss).not.toMatch(/\.pane-manager-root \.xterm \.xterm-helper-textarea/)
+  })
 })
