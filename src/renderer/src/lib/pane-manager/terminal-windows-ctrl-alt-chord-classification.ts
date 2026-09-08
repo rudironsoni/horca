@@ -1,8 +1,8 @@
 import type { OrcaPaneTerminal as Terminal } from './orca-pane-terminal'
 
-// Why: xterm misclassifies Windows Ctrl+Alt chords as AltGr and drops the ones
+// Why: terminal misclassifies Windows Ctrl+Alt chords as AltGr and drops the ones
 // that never compose a keypress (#8734); repairing the classification lets
-// xterm's own protocol-aware key encoders emit the bytes.
+// terminal's own protocol-aware key encoders emit the bytes.
 type ThirdLevelShiftBrowserInfo = { isWindows?: boolean }
 
 type ThirdLevelShiftKeyboardEvent = Pick<KeyboardEvent, 'ctrlKey' | 'altKey' | 'metaKey'> & {
@@ -20,7 +20,7 @@ type TerminalWithThirdLevelShift = {
 
 /**
  * Returns whether a Windows Ctrl+Alt chord is genuine keyboard input rather
- * than AltGr composition, and must therefore reach xterm's key encoders.
+ * than AltGr composition, and must therefore reach terminal's key encoders.
  *
  * When a Ctrl+Alt keydown composes a printable character on the active
  * layout, Chromium replaces the Control+Alt modifiers with AltGraph
@@ -42,12 +42,12 @@ export function shouldRepairWindowsCtrlAltChords(userAgent: string): boolean {
 }
 
 /**
- * Narrow xterm's Windows third-level-shift classification so genuine
+ * Narrow terminal's Windows third-level-shift classification so genuine
  * Ctrl+Alt chords flow into its protocol-aware key encoders instead of
  * being dropped. Only ever flips a third-level verdict to false — AltGr,
  * macOS option handling, and every non-Windows path are untouched.
  *
- * Returns false when the internal seam is unavailable (e.g. after an xterm
+ * Returns false when the internal seam is unavailable (e.g. after an terminal
  * upgrade), degrading to the historical drop-the-chord behavior.
  */
 export function installWindowsCtrlAltChordRepair(
@@ -61,7 +61,7 @@ export function installWindowsCtrlAltChordRepair(
   const stockClassification = core?._isThirdLevelShift
   if (!core || typeof stockClassification !== 'function') {
     console.warn(
-      'xterm no longer exposes _core._isThirdLevelShift; Windows Ctrl+Alt chords will be dropped'
+      'terminal no longer exposes _core._isThirdLevelShift; Windows Ctrl+Alt chords will be dropped'
     )
     return false
   }

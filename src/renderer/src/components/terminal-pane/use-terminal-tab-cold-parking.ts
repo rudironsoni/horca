@@ -68,7 +68,7 @@ export function useTerminalTabColdParking(args: {
    *  a remount would orphan their live pty (same carve-out as portals). */
   isForceParked?: boolean
   /** Hidden-measuring startup probe from Terminal.tsx — the panes must stay
-   *  mounted for their first xterm fit, mirroring the worktree-level guard. */
+   *  mounted for their first terminal fit, mirroring the worktree-level guard. */
   shouldMeasureHiddenWorktree: boolean
   activityTerminalPortals: ActivityTerminalPortalTarget[]
   /** Tabs cold activation keeps unmounted — parked-equivalent for watcher

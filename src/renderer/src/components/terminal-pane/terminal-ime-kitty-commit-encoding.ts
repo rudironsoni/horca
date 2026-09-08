@@ -128,7 +128,7 @@ export function encodeImeReleaseForKitty(
   }
 ): string | null {
   // Why the current-flags gate: the app can pop kitty mode between commit and
-  // keyup (a TUI quitting on the pressed key). xterm suppresses releases the
+  // keyup (a TUI quitting on the pressed key). terminal suppresses releases the
   // moment `report_event_types` is gone — match it so the successor process
   // never receives CSI-u bytes it did not negotiate. The report itself still
   // encodes under the commit-time flags so the press/release pair stays
@@ -138,7 +138,7 @@ export function encodeImeReleaseForKitty(
   }
   // Why the key fallback: an input source can rewrite the keyup's `key`
   // ('Process' after a source switch mid-hold) while `code` still matches the
-  // press; xterm's evaluate finds no encodable key there and would silently
+  // press; terminal's evaluate finds no encodable key there and would silently
   // drop the release, leaving the app with the key held forever. The keyup's
   // own single-char `key` wins (Shift-up-first correctly reports unshifted).
   const releaseKey =

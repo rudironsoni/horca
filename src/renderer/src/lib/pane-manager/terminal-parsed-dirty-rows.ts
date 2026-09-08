@@ -1,12 +1,12 @@
 /**
- * The viewport row span xterm itself marked dirty while parsing the writes made
+ * The viewport row span terminal itself marked dirty while parsing the writes made
  * since the last reset.
  *
- * Why: xterm's InputHandler already tracks exactly which viewport rows a parse
+ * Why: terminal's InputHandler already tracks exactly which viewport rows a parse
  * touched and asks the terminal to repaint them (`onRequestRefreshRows`). Orca's
  * foreground settle re-issues that repaint so an in-place agent redraw is painted
  * now instead of a frame later. Re-issuing it as `0..rows-1` widened every
- * repaint to the whole grid — xterm's render debouncer unions ranges, so one
+ * repaint to the whole grid — terminal's render debouncer unions ranges, so one
  * full-grid request turns a five-row frame into a whole-viewport `_updateModel`
  * pass over every cell. Observing the parse's own dirty span keeps the repair
  * and drops the widening.
@@ -58,7 +58,7 @@ function attachTracker(terminal: object): ParsedDirtyRowTracker | null {
   try {
     const subscription = subscribe.call(inputHandler, (event) => {
       if (!event) {
-        // xterm asks for a whole-viewport repaint by firing `undefined`.
+        // terminal asks for a whole-viewport repaint by firing `undefined`.
         tracker.wholeViewport = true
         tracker.observed = true
         return
@@ -95,7 +95,7 @@ export function resetParsedDirtyRows(terminal: object): void {
 
 /**
  * The union of parse spans since the last reset, or `null` when the span is
- * unknown (unobservable terminal, no parse seen, or an xterm full-refresh
+ * unknown (unobservable terminal, no parse seen, or an terminal full-refresh
  * request) and the caller must repaint the whole viewport.
  */
 export function readParsedDirtyRowSpan(terminal: object): ParsedDirtyRowSpan | null {

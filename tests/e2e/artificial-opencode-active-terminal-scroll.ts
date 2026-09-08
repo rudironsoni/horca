@@ -47,12 +47,12 @@ export async function scrollActiveTerminalViewportElement(page: Page): Promise<v
       }
       return candidate
     })()
-    const viewport = pane.container.querySelector<HTMLElement>('.xterm-viewport')
+    const viewport = pane.container.querySelector<HTMLElement>('.orca-terminal-viewport')
     if (!viewport) {
       throw new Error('Active terminal viewport is unavailable')
     }
     // Why: Linux CI can drop wheel delivery entirely under PTY flood; changing
-    // the viewport scrollTop exercises xterm's DOM scroll synchronization.
+    // the viewport scrollTop exercises terminal's DOM scroll synchronization.
     viewport.scrollTop = Math.max(0, viewport.scrollTop - 1200)
     viewport.dispatchEvent(new Event('scroll', { bubbles: true }))
   })
@@ -78,7 +78,7 @@ export async function scrollActiveTerminalByApi(page: Page): Promise<void> {
       return candidate
     })()
     // Why: Linux/Xvfb can lose synthetic wheel/DOM scroll events under flood;
-    // xterm's public API keeps this probe about viewport responsiveness.
+    // terminal's public API keeps this probe about viewport responsiveness.
     const targetLine = Math.max(0, pane.terminal.buffer.active.viewportY - 20)
     pane.terminal.scrollToLine(targetLine)
   })
@@ -104,11 +104,11 @@ export async function dispatchActiveTerminalWheelEvent(page: Page): Promise<void
       return candidate
     })()
     // Why: CI can drop CDP wheel input while the active textarea is focused;
-    // dispatching on xterm's own surfaces still exercises its user scroll path.
+    // dispatching on terminal's own surfaces still exercises its user scroll path.
     const wheelTargets = [
-      pane.container.querySelector<HTMLElement>('.xterm'),
-      pane.container.querySelector<HTMLElement>('.xterm-viewport'),
-      pane.container.querySelector<HTMLElement>('.xterm-screen')
+      pane.container.querySelector<HTMLElement>('.orca-terminal-canvas'),
+      pane.container.querySelector<HTMLElement>('.orca-terminal-viewport'),
+      pane.container.querySelector<HTMLElement>('.orca-terminal-canvas')
     ].filter((target): target is HTMLElement => Boolean(target))
     if (wheelTargets.length === 0) {
       throw new Error('Active terminal wheel target is unavailable')
@@ -159,13 +159,13 @@ export async function scrollActiveTerminalToText(page: Page, text: string): Prom
     if (targetLine === null) {
       throw new Error(`Text not found in terminal buffer: ${searchText}`)
     }
-    // Why: after workspace restore, xterm's viewport can be several wrapped
+    // Why: after workspace restore, terminal's viewport can be several wrapped
     // rows away from the buffer line even when relative scroll events are
     // coalesced. Scroll to an absolute line and center the target for the
     // subsequent DOM-based visual assertion.
     const centeredLine = Math.max(0, targetLine - Math.floor(pane.terminal.rows / 2))
     pane.terminal.scrollToLine(centeredLine)
-    const viewport = pane.container.querySelector<HTMLElement>('.xterm-viewport')
+    const viewport = pane.container.querySelector<HTMLElement>('.orca-terminal-viewport')
     viewport?.dispatchEvent(new Event('scroll', { bubbles: true }))
     pane.terminal.focus()
   }, text)
@@ -192,7 +192,7 @@ export async function readActiveTerminalScrollState(
       }
       return candidate
     })()
-    const viewport = pane.container.querySelector<HTMLElement>('.xterm-viewport')
+    const viewport = pane.container.querySelector<HTMLElement>('.orca-terminal-viewport')
     return {
       viewportY: pane.terminal.buffer.active.viewportY,
       scrollTop: viewport?.scrollTop ?? null

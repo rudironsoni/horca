@@ -27,7 +27,7 @@ describe('createPtySizeReassertion', () => {
     expect(forwardResize).toHaveBeenCalledWith(82, 30)
   })
 
-  it('does not forward when the applied PTY size already matches xterm', async () => {
+  it('does not forward when the applied PTY size already matches terminal', async () => {
     const forwardResize = vi.fn()
     const reassertion = createPtySizeReassertion({
       isDisposed: () => false,
@@ -46,7 +46,7 @@ describe('createPtySizeReassertion', () => {
     expect(forwardResize).not.toHaveBeenCalled()
   })
 
-  it('fits and reads xterm dimensions before reading the applied PTY size', async () => {
+  it('fits and reads terminal dimensions before reading the applied PTY size', async () => {
     const calls: string[] = []
     const reassertion = createPtySizeReassertion({
       isDisposed: () => false,
@@ -75,7 +75,7 @@ describe('createPtySizeReassertion', () => {
     expect(calls).toEqual(['fit', 'measure', 'read-applied', 'measure'])
   })
 
-  it('does not duplicate the resize when fit already triggered xterm onResize', async () => {
+  it('does not duplicate the resize when fit already triggered terminal onResize', async () => {
     const forwardResize = vi.fn()
     const reassertion = createPtySizeReassertion({
       isDisposed: () => false,
@@ -220,8 +220,8 @@ describe('createPtySizeReassertion', () => {
     expect(forwardResize).not.toHaveBeenCalledWith(100, 40)
   })
 
-  it('suppresses a stale forward when xterm was refit while the read was in flight', async () => {
-    // Regression: a reveal-time fit (or snapshot-restore xterm resize) changes
+  it('suppresses a stale forward when terminal was refit while the read was in flight', async () => {
+    // Regression: a reveal-time fit (or snapshot-restore terminal resize) changes
     // the grid after the target was captured, with no second request() to
     // guard it. The resolved callback must not resize the PTY back to the
     // pre-reveal grid.

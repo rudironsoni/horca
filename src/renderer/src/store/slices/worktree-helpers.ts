@@ -313,7 +313,7 @@ export type WorktreeSlice = {
   /**
    * Health-driven remount of one terminal tab: bumps the tab's generation so
    * TerminalPane unmounts, detaches (preserving a live PTY), and remounts with
-   * a fresh xterm that reattaches and replays. Used by terminal-pane-recovery
+   * a fresh terminal that reattaches and replays. Used by terminal-pane-recovery
    * when a pane's write pipeline is certified dead or its input is
    * undeliverable while the PTY is alive.
    *

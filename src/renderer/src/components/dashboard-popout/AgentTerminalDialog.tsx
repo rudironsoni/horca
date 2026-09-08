@@ -119,10 +119,10 @@ export function AgentTerminalDialog({
           // it inside the header row instead so it centers with the title.
           showCloseButton={false}
           // Why: Esc must reach the agent (interrupt) when typing in the
-          // terminal, not dismiss the dialog; xterm has already consumed the
+          // terminal, not dismiss the dialog; terminal has already consumed the
           // keystroke by the time Radix sees it. Click-outside still closes.
           onEscapeKeyDown={(e) => {
-            if (e.target instanceof HTMLElement && e.target.closest('.xterm')) {
+            if (e.target instanceof HTMLElement && e.target.closest('.orca-terminal-canvas')) {
               e.preventDefault()
             }
           }}
@@ -166,7 +166,7 @@ export function AgentTerminalPanel({
       if (
         event.key === 'Escape' &&
         !event.defaultPrevented &&
-        !(event.target instanceof HTMLElement && event.target.closest('.xterm'))
+        !(event.target instanceof HTMLElement && event.target.closest('.orca-terminal-canvas'))
       ) {
         onOpenChange(false)
       }

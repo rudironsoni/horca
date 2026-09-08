@@ -8,7 +8,7 @@ import {
  * Replays a recorded IME DOM trace against the live terminal one event at a time, sampling the
  * preedit overlay after every composition event.
  *
- * Each event costs a CDP round-trip. That is deliberate: it lets xterm's deferred composition
+ * Each event costs a CDP round-trip. That is deliberate: it lets terminal's deferred composition
  * timers and the renderer's layout run between events the way they do under a real IME, so a
  * per-event geometry sample measures an overlay that has actually been positioned.
  */
@@ -77,13 +77,15 @@ async function dispatchRecordedEvents(
   recorded: readonly RecordedImeDomEvent[]
 ): Promise<void> {
   await page.evaluate((events: RecordedImeDomEvent[]) => {
-    const textarea = document.querySelector<HTMLTextAreaElement>('.xterm-helper-textarea:focus')
+    const textarea = document.querySelector<HTMLTextAreaElement>(
+      '.orca-terminal-helper-textarea:focus'
+    )
     if (!textarea) {
-      throw new Error('xterm helper textarea is not focused')
+      throw new Error('terminal helper textarea is not focused')
     }
     for (const event of events) {
       // The recorded value/selection is what the recorder observed *during* this event, so it has
-      // to be in place before dispatch. xterm reads `textarea.value` inside its own handlers rather
+      // to be in place before dispatch. terminal reads `textarea.value` inside its own handlers rather
       // than off the event, so applying it afterwards hands every handler the previous event's
       // state.
       if (event.value !== undefined) {
@@ -132,13 +134,13 @@ async function dispatchRecordedEvents(
  *
  * Chromium dispatches a commit's `compositionend` and the `input` carrying the committed text
  * inside one task. The replay's per-event round-trip inserts a task boundary the IME never
- * produced, and xterm arms a deferred finalizer on `compositionend` that reads the textarea when it
+ * produced, and terminal arms a deferred finalizer on `compositionend` that reads the textarea when it
  * runs — so a boundary there lets the finalizer settle the commit against a textarea the committed
  * text has not reached yet. On IBus, whose `compositionend` is empty and whose text arrives only in
  * the following `insertText`, that swallowed every syllable and made a working build look broken.
  *
  * Only the commit tail is fused. Composition updates keep their own round-trip, which is what lets
- * xterm's deferred overlay positioning run before each geometry sample.
+ * terminal's deferred overlay positioning run before each geometry sample.
  */
 function nextRecordedEventGroup(
   dom: readonly RecordedImeDomEvent[],

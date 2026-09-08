@@ -11,13 +11,13 @@ type HangulOverlayTerminal = {
   }
 }
 
-// Why: xterm draws an open syllable from its own CompositionHelper, which iPad
+// Why: terminal draws an open syllable from its own CompositionHelper, which iPad
 // Hangul never reaches — it fires no composition events. Korean users expect to
-// watch `하` become `한`, so Orca drives xterm's `.composition-view` itself.
+// watch `하` become `한`, so Orca drives terminal's `.composition-view` itself.
 //
-// Cell metrics come from the public `.xterm-screen` bounds (xterm sizes that
+// Cell metrics come from the public `.orca-terminal-canvas` bounds (terminal sizes that
 // element to cols x rows cells) rather than `_core._renderService.dimensions`,
-// matching `terminal-ime-candidate-anchor.ts` — an xterm bump cannot silently
+// matching `terminal-ime-candidate-anchor.ts` — an terminal bump cannot silently
 // move the overlay off the cursor.
 
 /**
@@ -28,7 +28,7 @@ export function createTerminalIosHangulPreeditRenderer(
   terminal: HangulOverlayTerminal
 ): (text: string) => void {
   const view = terminal.element?.querySelector<HTMLElement>('.composition-view')
-  const screen = terminal.element?.querySelector<HTMLElement>('.xterm-screen')
+  const screen = terminal.element?.querySelector<HTMLElement>('.orca-terminal-canvas')
   if (!view || !screen) {
     return () => undefined
   }

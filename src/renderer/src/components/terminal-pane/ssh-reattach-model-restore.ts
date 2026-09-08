@@ -35,7 +35,7 @@ export async function resolveSshReattachModelSnapshotWithTimeout<T>(
 /**
  * Which payload paints an SSH reattach (C1 SSH-parking design gate). Only
  * main's headless model is trusted: a 'renderer'-sourced snapshot serializes a
- * mounted xterm, which no longer exists once the pane parked — anything but a
+ * mounted terminal, which no longer exists once the pane parked — anything but a
  * non-empty headless snapshot degrades to the relay replay, never a blank paint.
  * Emptiness is judged on the composed CONTENT (scrollback + screen): an
  * alt-screen snapshot can carry all content in scrollbackAnsi with an empty

@@ -442,7 +442,7 @@ describe('connectPanePty', () => {
     expect(pane.terminal.options.ignoreBracketedPasteMode).toBe(false)
   })
 
-  it('infers captured Ctrl+C even when xterm emits an enhanced keyboard sequence', async () => {
+  it('infers captured Ctrl+C even when terminal emits an enhanced keyboard sequence', async () => {
     const { connectPanePty } = await import('./pty-connection')
     const transport = createMockTransport()
     transportFactoryQueue.push(transport)

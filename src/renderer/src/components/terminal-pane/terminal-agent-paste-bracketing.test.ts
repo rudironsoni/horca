@@ -160,7 +160,7 @@ describe('resolveProtectedMultilinePasteOptionsForPane', () => {
 
 describe('leading-newline paste into a remote agent pane', () => {
   // Regression: a mac client on a remote Windows host pasted a block starting with "\n".
-  // ConPTY never forwarded DECSET 2004, so xterm rewrote the newline to CR and codex
+  // ConPTY never forwarded DECSET 2004, so terminal rewrote the newline to CR and codex
   // submitted the draft parked in its composer.
   const PASTED = '\nRemember: At the end of the day, we want the best possible code.'
 

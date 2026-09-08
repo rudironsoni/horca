@@ -160,7 +160,7 @@ describe('AgentTerminalPreview clipboard routes', () => {
   const writeTerminalClipboardText = vi.fn(async () => {})
   const performNativeSelectionAction = vi.fn()
 
-  /** Focuses a stand-in for xterm's helper textarea inside the preview container. */
+  /** Focuses a stand-in for terminal's helper textarea inside the preview container. */
   const focusInsidePreview = (container: HTMLElement, tagName = 'input'): HTMLElement => {
     const host = container.querySelector<HTMLElement>('.origin-bottom-left')!
     const focusTarget = document.createElement(tagName)
@@ -219,7 +219,7 @@ describe('AgentTerminalPreview clipboard routes', () => {
       claimed = dispatchAppMenuPasteEvent()
     })
 
-    // The claim is what keeps App-level paste out of xterm's hidden textarea.
+    // The claim is what keeps App-level paste out of terminal's hidden textarea.
     expect(claimed).toBe(true)
     await waitFor(() => expect(terminal.paste).toHaveBeenCalledWith('clip-text'))
     expect(input).toHaveBeenCalledWith('pty-1', 'clip-text')
@@ -261,7 +261,7 @@ describe('AgentTerminalPreview clipboard routes', () => {
     const terminal = terminalHarness.instances[0]!
     terminal.selectionText = 'selected text'
     const focusTarget = focusInsidePreview(view.container, 'textarea')
-    focusTarget.className = 'xterm-helper-textarea'
+    focusTarget.className = 'orca-terminal-helper-textarea'
 
     let selectAllClaimed = false
     let copyClaimed = false

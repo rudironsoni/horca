@@ -44,7 +44,7 @@ export function installPtyResizeGeometry(session: ConnectPanePtySession): void {
     const fitOverride = getFitOverrideForPty(currentPtyId)
     if (!fitOverride) {
       if (session.pane.terminal.cols > 0 && session.pane.terminal.rows > 0) {
-        // Why: record the local grid before a later remote hold parks xterm;
+        // Why: record the local grid before a later remote hold parks terminal;
         // the first real window/split resize can then claim immediately.
         session.lastObservedDesktopGrid = {
           cols: session.pane.terminal.cols,
@@ -83,7 +83,7 @@ export function installPtyResizeGeometry(session: ConnectPanePtySession): void {
         })
       ) {
         // Why: a focused, visible layout change is genuine activity; release
-        // the park and update xterm before claiming so the owner does not keep
+        // the park and update terminal before claiming so the owner does not keep
         // rendering the prior owner's stale grid.
         session.suppressViewportClaimTerminalResize = true
         try {
@@ -125,7 +125,7 @@ export function installPtyResizeGeometry(session: ConnectPanePtySession): void {
   // Why: pane.terminalHost is created later in pane-lifecycle's
   // attachWebgl/initial-fit path; pane.container is always present at the
   // moment connectPanePty runs (it's the .pane element). Both report the
-  // same layout signal — when the outer pane resizes, the inner xterm
+  // same layout signal — when the outer pane resizes, the inner terminal
   // container resizes too — so this is the safe element to observe.
   if (session.geometryReportObserver && session.pane.container instanceof Element) {
     session.geometryReportObserver.observe(session.pane.container)
@@ -133,11 +133,11 @@ export function installPtyResizeGeometry(session: ConnectPanePtySession): void {
 
   // Why: the deferred-rAF fit can spawn the PTY at a stale width when the pane's
   // real (e.g. split/narrower) layout has not settled by the first frame — the
-  // PTY is born at the wide window width while xterm later reflows to the pane
+  // PTY is born at the wide window width while terminal later reflows to the pane
   // width. The corrective onResize is then dropped (isRendererPtyResizeAuthoritative()
   // is false mid-mount), pinning process.stdout.columns forever and garbling
   // TUIs. The reconcile re-fits across frames until the grid settles and forces
-  // the PTY to xterm's dimensions; the spawn-time sync is authoritative by
+  // the PTY to terminal's dimensions; the spawn-time sync is authoritative by
   // definition so it bypasses the visibility gate (but not the mobile-fit
   // override, which legitimately parks the PTY at phone dims). See
   // pty-size-reconcile.ts for the convergence loop.
@@ -176,7 +176,7 @@ export function installPtyResizeGeometry(session: ConnectPanePtySession): void {
       // Why: confirm the PTY actually applied the size we forwarded before the
       // reconcile hands off. transport.resize is fire-and-forget for daemon/SSH
       // PTYs, so the loop can otherwise settle on a size the PTY dropped, leaving
-      // it pinned wide while xterm shows narrow — the mount-time desync. Skip
+      // it pinned wide while terminal shows narrow — the mount-time desync. Skip
       // remote-runtime PTYs (separate viewport channel; pty:getSize never tracks
       // them) so they fall back to the grid-stable handoff.
       getAppliedSize: isRemoteRuntimePtyId(ptyId) ? undefined : () => window.api.pty.getSize(ptyId),
@@ -217,7 +217,7 @@ export function installPtyResizeGeometry(session: ConnectPanePtySession): void {
     if (!setupSplitDirection) {
       return true
     }
-    // Why: the setup split reparents the main pane before its xterm grid
+    // Why: the setup split reparents the main pane before its terminal grid
     // necessarily reflects the new flex geometry; wait for both to agree.
     return isSetupSplitGeometryReady(session.pane, session.manager, setupSplitDirection)
   }

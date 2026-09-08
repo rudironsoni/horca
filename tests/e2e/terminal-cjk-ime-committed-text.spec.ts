@@ -79,7 +79,7 @@ const SUBSTITUTION_SHAPES: readonly {
   dispatch: (session: CDPSession, keystroke: SubstitutedKeystroke) => Promise<void>
 }[] = [
   {
-    // Green, and honest about its limits: xterm's own key handler emits `event.key`, so this shape
+    // Green, and honest about its limits: terminal's own key handler emits `event.key`, so this shape
     // survives with or without a forwarder and would have passed throughout the regression. It
     // guards the frameworks that do rewrite `key`; it is not the regression guard.
     name: 'the keydown already carries the substituted glyph',

@@ -36,7 +36,7 @@ describe('extractPartialEscapeTail', () => {
   })
 
   it('treats CAN/SUB as aborting an in-progress escape back to ground', () => {
-    // CAN (0x18) / SUB (0x1a) abort the sequence in xterm's VT500 parser.
+    // CAN (0x18) / SUB (0x1a) abort the sequence in terminal's VT500 parser.
     // esc state:
     expect(extractPartialEscapeTail('\x1b\x18')).toBe('') // ESC CAN
     expect(extractPartialEscapeTail('\x1b\x1a')).toBe('') // ESC SUB
@@ -64,7 +64,7 @@ describe('extractPartialEscapeTail', () => {
 
   it('starts the new sequence at the second ESC inside OSC/DCS', () => {
     // ESC ESC in oscEsc/stringEsc: the second ESC opens its own sequence at itself, not one
-    // byte earlier — matching xterm, and required for the fold to agree at that boundary.
+    // byte earlier — matching terminal, and required for the fold to agree at that boundary.
     expect(extractPartialEscapeTail('\x1b] \x1b\x1b^')).toBe('\x1b^')
     expect(extractPartialEscapeTail('\x1bPq\x1b\x1b[3')).toBe('\x1b[3')
     expect(extractPartialEscapeTail('\x1b]0;t\x1b\x1b')).toBe('\x1b')

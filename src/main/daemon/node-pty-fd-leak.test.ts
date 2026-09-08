@@ -26,7 +26,7 @@ function getExistingSpawnHelper(): string {
 
 async function spawnExitingPty(index: number): Promise<void> {
   const proc = pty.spawn('/bin/sh', ['-c', 'exit 0'], {
-    name: 'xterm-256color',
+    name: 'xterm-ghostty',
     cols: 80,
     rows: 24,
     cwd: process.cwd(),
@@ -72,7 +72,7 @@ describeOnDarwin('node-pty macOS spawn fd handling', () => {
       for (let i = 0; i < 20; i++) {
         expect(() =>
           pty.spawn('/bin/sh', ['-c', 'exit 0'], {
-            name: 'xterm-256color',
+            name: 'xterm-ghostty',
             cols: 80,
             rows: 24,
             cwd: process.cwd(),
@@ -128,7 +128,7 @@ describeOnLinux('node-pty Linux forkpty fd handling', () => {
       for (let i = 0; i < 3; i++) {
         terms.push(
           pty.spawn('/bin/sh', ['-c', 'sleep 30'], {
-            name: 'xterm-256color',
+            name: 'xterm-ghostty',
             cols: 80,
             rows: 24,
             cwd: process.cwd(),
@@ -154,7 +154,7 @@ describeOnLinux('node-pty Linux forkpty fd handling', () => {
 
   it('does not hand an earlier pty master to a later pty child', async () => {
     const first = pty.spawn('/bin/sh', ['-c', 'sleep 30'], {
-      name: 'xterm-256color',
+      name: 'xterm-ghostty',
       cols: 80,
       rows: 24,
       cwd: process.cwd(),
@@ -167,7 +167,7 @@ describeOnLinux('node-pty Linux forkpty fd handling', () => {
         '/bin/sh',
         ['-c', `IFS= read -r _; printf '${LISTING_READY}\\n'; ls -l /proc/self/fd; exit 0`],
         {
-          name: 'xterm-256color',
+          name: 'xterm-ghostty',
           cols: 200,
           rows: 24,
           cwd: process.cwd(),

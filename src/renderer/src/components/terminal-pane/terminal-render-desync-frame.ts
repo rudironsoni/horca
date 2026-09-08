@@ -99,7 +99,7 @@ export function reachRenderInternals(terminal: unknown): SentinelRenderInternals
       canvas: renderer._canvas,
       cellWidth: cell.width,
       cellHeight: cell.height,
-      // xterm packs colors as RRGGBBAA; compare against the active theme so
+      // terminal packs colors as RRGGBBAA; compare against the active theme so
       // light terminals do not make every background pixel look like glyph ink.
       backgroundRgb: [
         backgroundRgba >>> 24,

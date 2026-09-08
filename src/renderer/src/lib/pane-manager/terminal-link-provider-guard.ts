@@ -13,7 +13,7 @@ type TerminalWithLinkProviders = {
  * Wrap a link provider so a synchronous throw inside `provideLinks` is reported
  * as "no links" instead of escaping to `window.onerror`.
  *
- * Why: xterm's web-links `LinkComputer._getWindowedLineStrings` can raise
+ * Why: terminal's web-links `LinkComputer._getWindowedLineStrings` can raise
  * `RangeError: Invalid array length` while scanning a pathological wrapped line
  * (e.g. agent CLI output with very wide/control-mangled buffers). That throw
  * propagates out of the synchronously-invoked provider and wedges the renderer,
@@ -52,13 +52,13 @@ export function guardLinkProvider(
 
 /**
  * Patch `terminal.registerLinkProvider` so every provider registered afterward
- * — including xterm addons' internal providers loaded via `loadAddon` (notably
+ * — including terminal addons' internal providers loaded via `loadAddon` (notably
  * the web-links `LinkComputer`) — is wrapped by {@link guardLinkProvider}.
  * Must run before any `loadAddon`/`registerLinkProvider` call for the terminal.
  */
 export function installGuardedLinkProviderRegistration(terminal: TerminalWithLinkProviders): void {
   // Why: never let the guard itself break pane creation if a Terminal stub or a
-  // future xterm build lacks registerLinkProvider.
+  // future terminal build lacks registerLinkProvider.
   if (typeof terminal.registerLinkProvider !== 'function') {
     return
   }

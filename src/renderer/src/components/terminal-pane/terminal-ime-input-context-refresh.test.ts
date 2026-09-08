@@ -12,7 +12,7 @@ describe('refreshTerminalImeInputContext', () => {
 
   function appendHelper(): HTMLTextAreaElement {
     const helper = document.createElement('textarea')
-    helper.className = 'xterm-helper-textarea'
+    helper.className = 'orca-terminal-helper-textarea'
     document.body.appendChild(helper)
     return helper
   }

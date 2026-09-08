@@ -73,7 +73,7 @@ export type TerminalTab = {
   color: string | null
   /** Pinned tabs survive "close others"; host-persisted for remote servers. */
   isPinned?: boolean
-  /** Per-tab view preference (terminal xterm vs native chat); host-persisted so
+  /** Per-tab view preference (terminal terminal vs native chat); host-persisted so
    *  paired clients converge. Optional: older persisted tabs default to 'terminal'. */
   viewMode?: 'terminal' | 'chat'
   sortOrder: number

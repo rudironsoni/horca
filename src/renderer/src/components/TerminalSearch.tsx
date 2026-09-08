@@ -33,11 +33,11 @@ export default function TerminalSearch({
   const [regex, setRegex] = useState(false)
   const requestQuery = getFindRequestQuery(query)
 
-  // Why: the default xterm SearchAddon highlights blend into common
+  // Why: the default terminal SearchAddon highlights blend into common
   // terminal backgrounds (see orca#612). Providing explicit decoration
   // colors gives all matches a visible yellow background and the
   // current match a brighter orange, matching the contrast VS Code and
-  // iTerm2 use for terminal search. xterm requires #RRGGBB format for
+  // iTerm2 use for terminal search. terminal requires #RRGGBB format for
   // the background colors.
   const findNext = useCallback(() => {
     if (searchController && requestQuery) {

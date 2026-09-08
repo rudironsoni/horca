@@ -50,7 +50,7 @@ export function installMainWindowShortcutRouting(args: {
     const isIndexJump = action.type === 'jumpToWorktreeIndex' || action.type === 'jumpToTabIndex'
     if (isIndexJump && isAutoRepeat) {
       // Contain held-key repeats in main — every renderer index path skips e.repeat, so yielding a
-      // repeat would leak a raw key to xterm/DOM, and re-firing the jump is never what a hold means.
+      // repeat would leak a raw key to terminal/DOM, and re-firing the jump is never what a hold means.
       event.preventDefault()
       return true
     }

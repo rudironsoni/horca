@@ -2,7 +2,7 @@ type TerminalOutputAckTarget = object
 
 const inFlightAckCompletions = new WeakMap<TerminalOutputAckTarget, Set<() => void>>()
 
-/** Tracks credits after submission to xterm so pane disposal can treat its
+/** Tracks credits after submission to terminal so pane disposal can treat its
  * unparsed write buffer as discarded instead of leaking main's ACK window. */
 export function registerTerminalOutputAckCredits(
   terminal: TerminalOutputAckTarget,

@@ -83,9 +83,9 @@ describe('useTerminalFontZoom', () => {
     expect(mocks.dispatchZoomLevelChanged).not.toHaveBeenCalled()
   })
 
-  it('applies terminal font zoom while the xterm helper textarea owns focus', () => {
+  it('applies terminal font zoom while the terminal helper textarea owns focus', () => {
     const helper = document.createElement('textarea')
-    helper.className = 'xterm-helper-textarea'
+    helper.className = 'orca-terminal-helper-textarea'
     const { listener, terminal } = useMountedTerminalFontZoom(helper)
 
     listener('in')
@@ -99,7 +99,7 @@ describe('useTerminalFontZoom', () => {
     const inactiveContainer = document.createElement('div')
     const activeContainer = document.createElement('div')
     const focusedHelper = document.createElement('textarea')
-    focusedHelper.className = 'xterm-helper-textarea'
+    focusedHelper.className = 'orca-terminal-helper-textarea'
     document.body.append(inactiveContainer, activeContainer)
     activeContainer.appendChild(focusedHelper)
     focusedHelper.focus()

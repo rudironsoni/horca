@@ -97,7 +97,7 @@ function resolveTerminalWheelCellHeight(terminal: TerminalWheelTarget): number |
   if (typeof terminal.element?.querySelector !== 'function') {
     return undefined
   }
-  const screen = terminal.element?.querySelector<HTMLElement>('.xterm-screen')
+  const screen = terminal.element?.querySelector<HTMLElement>('.orca-terminal-canvas')
   const rect = screen?.getBoundingClientRect()
   if (!rect || rect.height <= 0 || terminal.rows <= 0) {
     return undefined
@@ -178,7 +178,7 @@ function queueTerminalTuiWheelReports(
   }
 
   state.drainScheduled = true
-  // Why: dispatch after xterm returns from the original wheel handler, but do
+  // Why: dispatch after terminal returns from the original wheel handler, but do
   // not frame-cap reports; fullscreen TUIs need the full wheel distance.
   queueMicrotask(() => {
     drainTerminalTuiWheelReports(state, terminal)
@@ -204,7 +204,7 @@ export function attachTerminalMouseWheelMultiplier(
       return true
     }
 
-    // Why: xterm dampens small pixel deltas before emitting mouse reports;
+    // Why: terminal dampens small pixel deltas before emitting mouse reports;
     // line-mode replays let fullscreen TUIs receive one report per resolved row.
     const reportCount = resolveTerminalTuiMouseWheelReportCount(
       event,
