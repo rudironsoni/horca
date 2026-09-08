@@ -3,7 +3,7 @@ import {
   firstTerminalLeafId,
   herdrSplitDirection
 } from '../../../../shared/horca/herdr-session-identity'
-import type { LayoutDescription } from '@herdr/sdk'
+import type { LayoutDescription } from '@rudironsoni/herdr-ts-sdk'
 import type { Option } from 'effect'
 import type { HerdrHostTransport, HerdrPane, HerdrSessionSnapshot } from './herdr-runtime-contract'
 import { reportPaneTokens } from './herdr-sdk-ops'

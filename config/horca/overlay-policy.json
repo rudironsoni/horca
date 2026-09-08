@@ -125,23 +125,23 @@
     {
       "path": "package.json",
       "subsystem": "herdr-sdk-client",
-      "reason": "Depend on the vendored @herdr/sdk tarball for the Herdr overlay",
+      "reason": "Depend on the vendored @rudironsoni/herdr-ts-sdk tarball for the Herdr overlay",
       "upstreamPr": null,
-      "dropWhen": "Upstream adopts @herdr/sdk or Horca stops using Herdr"
+      "dropWhen": "Upstream adopts @rudironsoni/herdr-ts-sdk or Horca stops using Herdr"
     },
     {
       "path": "pnpm-lock.yaml",
       "subsystem": "herdr-sdk-client",
-      "reason": "Lock the vendored @herdr/sdk tarball and Effect graph",
+      "reason": "Lock the vendored @rudironsoni/herdr-ts-sdk tarball and Effect graph",
       "upstreamPr": null,
-      "dropWhen": "Upstream adopts @herdr/sdk or Horca stops using Herdr"
+      "dropWhen": "Upstream adopts @rudironsoni/herdr-ts-sdk or Horca stops using Herdr"
     },
     {
       "path": "pnpm-workspace.yaml",
       "subsystem": "herdr-sdk-client",
       "reason": "Disable msgpackr-extract native builds required by the SDK graph",
       "upstreamPr": null,
-      "dropWhen": "Upstream adopts @herdr/sdk or Horca stops using Herdr"
+      "dropWhen": "Upstream adopts @rudironsoni/herdr-ts-sdk or Horca stops using Herdr"
     },
     {
       "path": "src/main/ssh/ssh-connection.ts",
