@@ -14,6 +14,10 @@ import {
 import { localProvider } from './registry'
 import { clearProviderPtyState } from './state-cleanup'
 import { providerSnapshotRequiredPtys } from '../delivery/visibility-state'
+import {
+  recordHiddenRendererPtyDataDrop,
+  shouldDropHiddenRendererPtyData
+} from '../../pty-hidden-delivery-gate'
 import type { PtyIpcSession } from '../session'
 
 export function bindProviderListeners(session: PtyIpcSession): void {
@@ -71,6 +75,16 @@ export function bindProviderListeners(session: PtyIpcSession): void {
     localProvider.onData((payload) => {
       if (payload.syntheticSideEffects) {
         session.runtime?.ingestSyntheticTitleFrame(payload.id, payload.data)
+        if (shouldDropHiddenRendererPtyData(payload.id, session.getSettings?.())) {
+          const drop = recordHiddenRendererPtyDataDrop(payload.id, payload.data.length)
+          if (drop.shouldEmitRestoreMarker) {
+            session.sendModelRestoreNeededMarker(
+              payload.id,
+              'hidden-drop',
+              session.runtime?.getPtyOutputSequence(payload.id)
+            )
+          }
+        }
         return
       }
       const rawLength = payload.sequenceChars ?? payload.data.length
