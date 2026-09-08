@@ -14,7 +14,7 @@ import {
 } from './preview-terminal-shortcuts'
 
 /**
- * Installs the preview terminal's ONE custom key handler (xterm allows a single
+ * Installs the preview terminal's ONE custom key handler (terminal allows a single
  * attachCustomKeyEventHandler) covering copy/paste chords, the IME native-text
  * bypass, and the full pane shortcut policy. On macOS plain Cmd+V is left to
  * the Edit-menu accelerator, which reaches this window as an app-menu paste —
@@ -231,12 +231,12 @@ export function installPreviewTerminalKeyHandler(args: {
         }
         return consumeEvent(event)
       case 'switchInputSource':
-        // Why: the OS owns this chord — block xterm without preventing the default.
+        // Why: the OS owns this chord — block terminal without preventing the default.
         nativeOnlyShortcutTracker.armKeyDown(event)
         event.stopImmediatePropagation()
         return false
       // Why: pane-scoped chords have no target in a preview dialog. Swallow them
-      // — a pane never sends these bytes to the shell, and xterm would encode
+      // — a pane never sends these bytes to the shell, and terminal would encode
       // e.g. Ctrl+Shift+D as a bare Ctrl+D. Listed one by one rather than under a
       // `default` so a newly added action has to be classified here, not
       // silently swallowed.

@@ -99,7 +99,7 @@ async function dispatchRepeatedConversion(
 test.describe('Terminal IME exact-byte forwarding', () => {
   test.skip(process.platform !== 'linux', 'Linux composition order is covered by this suite')
 
-  test('replays the observed IBus Hangul mixed-input order through xterm and the PTY', async ({
+  test('replays the observed IBus Hangul mixed-input order through terminal and the PTY', async ({
     orcaPage,
     testRepoPath
   }, testInfo) => {

@@ -64,7 +64,7 @@ export function createPtySizeReassertion(options: PtySizeReassertionOptions): Pt
       if (pending) {
         return
       }
-      // Why: a reveal fit or snapshot-restore resize can change xterm while the
+      // Why: a reveal fit or snapshot-restore resize can change terminal while the
       // applied-size read is in flight without queuing a request; forwarding the
       // captured target would resize the PTY back to the pre-reveal grid, so
       // re-run against the fresh grid instead.

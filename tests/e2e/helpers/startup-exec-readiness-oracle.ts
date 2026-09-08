@@ -250,7 +250,7 @@ export async function expectStartupExecRecovery(
   )
 
   const inputMarker = `STA4067_FIRST_INPUT_${runId}`
-  const textarea = page.locator('.xterm-helper-textarea:visible').first()
+  const textarea = page.locator('.orca-terminal-helper-textarea:visible').first()
   await textarea.focus()
   await page.keyboard.type(markerCommand(inputMarker))
   await page.keyboard.press('Enter')

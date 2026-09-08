@@ -16,6 +16,7 @@ import {
   expandWindowsEnvironmentVariables,
   expandWindowsPathEnvironmentVariables
 } from '../../../shared/windows-environment-expansion'
+import { PTY_TERM_NAME } from '../../../shared/pty-term-name'
 import type { TuiAgent } from '../../../shared/tui-agent'
 import type { PtySubprocessOptions } from '../pty-subprocess'
 
@@ -134,7 +135,7 @@ function removeInheritedDevAgentHookEndpoint(
 export function createDaemonPtyEnvironment(opts: PtySubprocessOptions): Record<string, string> {
   const env: Record<string, string> = {
     ...mergeGitConfigEnvProtocol(stripInheritedBuildModeEnv(process.env), opts.env),
-    TERM: 'xterm-256color',
+    TERM: PTY_TERM_NAME,
     COLORTERM: 'truecolor',
     TERM_PROGRAM: 'Orca',
     TERM_PROGRAM_VERSION: process.env.ORCA_APP_VERSION ?? '0.0.0-dev',

@@ -23,7 +23,7 @@ import { waitForPtyShellEcho } from './terminal-pty-readiness'
  * switching to another worktree and returning, until the user scrolls the
  * terminal a little.
  *
- * xterm's Linkifier only re-runs link providers on mousemove when the hovered
+ * terminal's Linkifier only re-runs link providers on mousemove when the hovered
  * buffer cell changes vs its `_lastBufferCell` cache. Hiding the surface fires
  * mouseleave (clearing the current link) but leaves that cache, so returning
  * the pointer to the same cell short-circuits and the link is never
@@ -64,9 +64,9 @@ async function locateHoverProbe(page: Page, needle: string): Promise<HoverProbe>
     if (!hit) {
       throw new Error('link text not visible in terminal viewport')
     }
-    const screen = terminal.element?.querySelector<HTMLElement>('.xterm-screen')
+    const screen = terminal.element?.querySelector<HTMLElement>('.orca-terminal-canvas')
     if (!screen) {
-      throw new Error('xterm-screen element unavailable')
+      throw new Error('orca-terminal-canvas element unavailable')
     }
     // Aim at the middle of the link text so the pointer lands squarely inside
     // the link range regardless of rounding.
@@ -87,9 +87,9 @@ async function hoverAndReadActiveLinkText(page: Page, probe: HoverProbe): Promis
   await page.evaluate(({ col, row, tabId }) => {
     const manager = window.__paneManagers?.get(tabId)
     const pane = manager?.getActivePane?.() ?? manager?.getPanes?.()[0] ?? null
-    const screen = pane?.terminal.element?.querySelector<HTMLElement>('.xterm-screen')
+    const screen = pane?.terminal.element?.querySelector<HTMLElement>('.orca-terminal-canvas')
     if (!pane || !screen) {
-      throw new Error('xterm-screen element unavailable')
+      throw new Error('orca-terminal-canvas element unavailable')
     }
     const rect = screen.getBoundingClientRect()
     const clientX = rect.left + (col + 0.5) * (rect.width / pane.terminal.cols)
@@ -119,7 +119,7 @@ async function readTerminalCursor(page: Page, tabId: string): Promise<string | n
   return page.evaluate((tabId) => {
     const manager = window.__paneManagers?.get(tabId)
     const pane = manager?.getActivePane?.() ?? manager?.getPanes?.()[0] ?? null
-    const screen = pane?.terminal.element?.querySelector<HTMLElement>('.xterm-screen')
+    const screen = pane?.terminal.element?.querySelector<HTMLElement>('.orca-terminal-canvas')
     return screen ? getComputedStyle(screen).cursor : null
   }, tabId)
 }
@@ -136,9 +136,9 @@ async function activateHoveredLink(page: Page, probe: HoverProbe): Promise<void>
   await page.evaluate(({ col, row, tabId }) => {
     const manager = window.__paneManagers?.get(tabId)
     const pane = manager?.getActivePane?.() ?? manager?.getPanes?.()[0] ?? null
-    const screen = pane?.terminal.element?.querySelector<HTMLElement>('.xterm-screen')
+    const screen = pane?.terminal.element?.querySelector<HTMLElement>('.orca-terminal-canvas')
     if (!pane || !screen) {
-      throw new Error('xterm-screen element unavailable')
+      throw new Error('orca-terminal-canvas element unavailable')
     }
     const rect = screen.getBoundingClientRect()
     const clientX = rect.left + (col + 0.5) * (rect.width / pane.terminal.cols)
@@ -173,7 +173,7 @@ async function dispatchScreenMouseLeave(page: Page, tabId: string): Promise<void
   await page.evaluate((tabId) => {
     const manager = window.__paneManagers?.get(tabId)
     const pane = manager?.getActivePane?.() ?? manager?.getPanes?.()[0] ?? null
-    const screen = pane?.terminal.element?.querySelector<HTMLElement>('.xterm-screen')
+    const screen = pane?.terminal.element?.querySelector<HTMLElement>('.orca-terminal-canvas')
     // Mimics the pointer leaving as the surface hides on a worktree switch:
     // clears the linkifier's current link but keeps its cell cache.
     screen?.dispatchEvent(new MouseEvent('mouseleave', { bubbles: false, cancelable: true }))
@@ -238,7 +238,7 @@ async function assertLinkRecoversAfterReturn(
     .toContain(args.expectContains)
 
   // The pointer cursor is the user-visible hover affordance; currentLink is
-  // also checked above because it is the backing state xterm requires to click.
+  // also checked above because it is the backing state terminal requires to click.
   await expect.poll(() => readTerminalCursor(page, probe.tabId)).toBe('pointer')
   return probe
 }

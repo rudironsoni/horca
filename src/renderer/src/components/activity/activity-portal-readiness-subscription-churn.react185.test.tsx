@@ -40,7 +40,9 @@ function buildNeverReadyRoot(target: HTMLElement, tabId: string = TAB_ID): void 
     const pane = document.createElement('div')
     pane.dataset.leafId = leafId
     pane.setAttribute('data-pty-id', `pty-${leafId}`)
-    pane.appendChild(Object.assign(document.createElement('div'), { className: 'xterm-screen' }))
+    pane.appendChild(
+      Object.assign(document.createElement('div'), { className: 'orca-terminal-canvas' })
+    )
     Object.defineProperty(pane, 'getClientRects', { value: () => [{}], configurable: true })
     tabRoot.appendChild(pane)
   }

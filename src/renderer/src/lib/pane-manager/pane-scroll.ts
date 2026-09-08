@@ -261,7 +261,7 @@ function safeScrollCall(fn: () => void): boolean {
     fn()
     return true
   } catch (err) {
-    // Why: xterm's renderer can null out internal dimensions during WebGL
+    // Why: terminal's renderer can null out internal dimensions during WebGL
     // teardown, throwing "Cannot read properties of undefined (reading
     // 'dimensions')". Tolerate that; surface anything else.
     if (err instanceof TypeError && /dimensions/.test(err.message)) {

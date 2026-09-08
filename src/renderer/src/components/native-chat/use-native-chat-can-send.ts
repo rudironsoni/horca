@@ -6,7 +6,7 @@ import { deriveNativeChatCanSend } from './native-chat-send-eligibility'
  * Track the mobile presence-lock for this chat pane's live pty and derive the
  * composer's `canSend` (R8). The driver Map lives outside React for perf, so we
  * subscribe to its change events and re-read on each flip. A pty held by a
- * mobile client guards desktop sends exactly as it guards xterm input.
+ * mobile client guards desktop sends exactly as it guards terminal input.
  */
 export function useNativeChatCanSend(ptyId: string | null): boolean {
   const [driverTick, setDriverTick] = useState(0)

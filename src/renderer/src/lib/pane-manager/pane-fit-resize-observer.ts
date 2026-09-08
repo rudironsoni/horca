@@ -90,7 +90,7 @@ export function requestStablePaneFit(pane: StableFitPane, onSettled?: () => void
     stableFitCallbacks.delete(pane)
     return
   }
-  // Why: keep xterm fit work off the divider pointermove hot path and let
+  // Why: keep terminal fit work off the divider pointermove hot path and let
   // the browser coalesce drag-driven size changes the same way Superset does.
   //
   // Windows can report a short-lived one-column anchor/scrollbar wobble when

@@ -6,8 +6,8 @@
  * resize.
  *
  * Mechanism: on reveal, noteVisibilityResume() requests a PTY size readback
- * that captures xterm's pre-reveal grid as the resize target
- * (pty-size-reassertion.ts). The reveal fit then refits xterm and resizes the
+ * that captures terminal's pre-reveal grid as the resize target
+ * (pty-size-reassertion.ts). The reveal fit then refits terminal and resizes the
  * PTY while that read is in flight, with no follow-up request queued.
  * Instrumented traces show this stale-capture interleaving on EVERY reveal;
  * correctness then hinges solely on the applied-size read being processed
@@ -62,7 +62,7 @@ type StaleResizeReproWindow = Window & {
 }
 
 type GridSnapshot = {
-  xterm: { cols: number; rows: number } | null
+  terminal: { cols: number; rows: number } | null
   applied: { cols: number; rows: number } | null
 }
 
@@ -89,7 +89,7 @@ function bottomBarTuiScript(runId: string): string {
   // desync and masks the bug the field reports hit while idle.
   //
   // The bar is illustrative, NOT the assertion target: this spec asserts on
-  // pty:getSize converging to xterm's grid. Do not assert on the bar's printed
+  // pty:getSize converging to terminal's grid. Do not assert on the bar's printed
   // cols — Node's `process.stdout.on('resize')` is unreliable under Windows
   // ConPTY (no SIGWINCH; a long-lived process can miss the notification while
   // the OS PTY is in fact resized), so a bar-content check flakes there even
@@ -111,18 +111,18 @@ function bottomBarTuiScript(runId: string): string {
 async function readGridSnapshot(page: Page, ptyId: string): Promise<GridSnapshot> {
   return page.evaluate(async (ptyId) => {
     const win = window as StaleResizeReproWindow
-    let xterm: { cols: number; rows: number } | null = null
+    let terminal: { cols: number; rows: number } | null = null
     for (const manager of win.__paneManagers?.values() ?? []) {
       for (const pane of manager.getPanes?.() ?? []) {
         if (pane.container?.dataset?.ptyId === ptyId) {
-          xterm = { cols: pane.terminal?.cols ?? 0, rows: pane.terminal?.rows ?? 0 }
+          terminal = { cols: pane.terminal?.cols ?? 0, rows: pane.terminal?.rows ?? 0 }
         }
       }
     }
     // Why: the delay seam only affects the product's own readback wiring in
     // pty-connection, so probing window.api.pty.getSize directly stays fast.
     const applied = (await window.api?.pty?.getSize?.(ptyId)) ?? null
-    return { xterm, applied }
+    return { terminal, applied }
   }, ptyId)
 }
 
@@ -141,12 +141,12 @@ async function closeRightSidebarAndFeatureTips(page: Page): Promise<void> {
 
 function gridsConverged(snapshot: GridSnapshot): boolean {
   return (
-    snapshot.xterm !== null &&
+    snapshot.terminal !== null &&
     snapshot.applied !== null &&
-    snapshot.xterm.cols > 0 &&
-    snapshot.xterm.rows > 0 &&
-    snapshot.applied.cols === snapshot.xterm.cols &&
-    snapshot.applied.rows === snapshot.xterm.rows
+    snapshot.terminal.cols > 0 &&
+    snapshot.terminal.rows > 0 &&
+    snapshot.applied.cols === snapshot.terminal.cols &&
+    snapshot.applied.rows === snapshot.terminal.rows
   )
 }
 
@@ -195,7 +195,7 @@ async function driveHiddenResizeRevealCycles(args: CycleDriverArgs): Promise<Cyc
   await expect
     .poll(() => readGridSnapshot(page, ptyId).then(gridsConverged), {
       timeout: 15_000,
-      message: `${label}: applied PTY size should match xterm before cycling`
+      message: `${label}: applied PTY size should match terminal before cycling`
     })
     .toBe(true)
 
@@ -208,7 +208,7 @@ async function driveHiddenResizeRevealCycles(args: CycleDriverArgs): Promise<Cyc
     await switchToWorktree(page, firstWorktreeId)
     await expect.poll(() => getActiveWorktreeId(page), { timeout: 10_000 }).toBe(firstWorktreeId)
     // Why: the field shape — the window changes while the idle TUI worktree
-    // is hidden; hidden xterm refits drop their PTY forwards
+    // is hidden; hidden terminal refits drop their PTY forwards
     // (isRendererPtyResizeAuthoritative), so the reveal-time readback is the
     // sole owner of the correction.
     viewportIndex = (viewportIndex + 1) % VIEWPORTS.length
@@ -223,13 +223,13 @@ async function driveHiddenResizeRevealCycles(args: CycleDriverArgs): Promise<Cyc
     // for the wrong grid in that window); record every desynced sample.
     for (let sample = 0; sample < 20; sample += 1) {
       const snapshot = await readGridSnapshot(page, ptyId)
-      if (!gridsConverged(snapshot) && snapshot.xterm !== null && snapshot.applied !== null) {
+      if (!gridsConverged(snapshot) && snapshot.terminal !== null && snapshot.applied !== null) {
         args.onRevealSample?.({ cycle, snapshot })
       }
       await page.waitForTimeout(10)
     }
 
-    let lastSnapshot: GridSnapshot = { xterm: null, applied: null }
+    let lastSnapshot: GridSnapshot = { terminal: null, applied: null }
     const deadline = Date.now() + CONVERGE_TIMEOUT_MS
     let converged = false
     while (Date.now() < deadline) {
@@ -270,7 +270,7 @@ test.describe('Terminal reveal stale PTY resize repro', () => {
     })
     expect(
       failures,
-      `PTY applied size stayed desynced from xterm after reveal: ${JSON.stringify(failures)}`
+      `PTY applied size stayed desynced from terminal after reveal: ${JSON.stringify(failures)}`
     ).toEqual([])
   })
 
@@ -294,11 +294,11 @@ test.describe('Terminal reveal stale PTY resize repro', () => {
     }
     expect(
       staleSamples,
-      `PTY applied size diverged from xterm after reveal (stale resize fired): ${JSON.stringify(staleSamples)}`
+      `PTY applied size diverged from terminal after reveal (stale resize fired): ${JSON.stringify(staleSamples)}`
     ).toEqual([])
     expect(
       failures,
-      `PTY stayed desynced from xterm after reveal: ${JSON.stringify(failures)}`
+      `PTY stayed desynced from terminal after reveal: ${JSON.stringify(failures)}`
     ).toEqual([])
   })
 })

@@ -52,7 +52,7 @@ export function handleActivityFilterFocusShortcut({
     return false
   }
   event.preventDefault()
-  // Why: hidden workspace xterms can retain focus behind Activity; stop the chord before xterm forwards it to a local/SSH PTY.
+  // Why: hidden workspace terminals can retain focus behind Activity; stop the chord before terminal forwards it to a local/SSH PTY.
   event.stopPropagation()
   event.stopImmediatePropagation()
   input.focus()

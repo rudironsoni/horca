@@ -279,7 +279,7 @@ export function DictationController() {
   stopDictationRef.current = () => void stopDictation()
 
   // Toggle mode: use IPC from main process (before-input-event intercepts
-  // the keyDown so Cmd+E doesn't reach xterm or trigger system shortcuts).
+  // the keyDown so Cmd+E doesn't reach terminal or trigger system shortcuts).
   useEffect(() => {
     const mode = settings?.voice?.dictationMode ?? 'toggle'
     if (mode !== 'toggle') {

@@ -99,7 +99,7 @@ export function useMobileSessionLifecycle(scope: MobileSessionTabReconciliationM
       for (const terminalRef of terminalRefs.current.values()) {
         terminalRef.prepareForForegroundRecovery()
       }
-      // Why: iOS can resume a WKWebView with a blank xterm store and no web-ready; invalidate the latch so init waits for the pong.
+      // Why: iOS can resume a WKWebView with a blank terminal store and no web-ready; invalidate the latch so init waits for the pong.
       const outcome = recoverActiveTerminalAfterForeground({
         activeHandleRef,
         terminalRefs,

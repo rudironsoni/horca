@@ -27,8 +27,8 @@ import {
   shouldPreventDefaultTerminalImeCandidateKey,
   shouldSuppressTerminalImeKeyboardEvent,
   type XtermImeKeyboardOptions
-} from './xterm-bypass-policy'
-import { event } from './xterm-bypass-event-fixture'
+} from './terminal-bypass-policy'
+import { event } from './terminal-bypass-event-fixture'
 
 type ImeHarness = {
   tracker: TerminalImeCompositionTracker

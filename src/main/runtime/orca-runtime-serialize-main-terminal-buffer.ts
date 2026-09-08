@@ -59,7 +59,7 @@ export class OrcaRuntimeWithSerializeMainTerminalBuffer extends OrcaRuntimeWithA
       return headlessSnapshot
     }
     // Why: hidden-output recovery is initiated by the desktop renderer. If the
-    // runtime has not built headless state yet, the mounted xterm is still the
+    // runtime has not built headless state yet, the mounted terminal is still the
     // best available state and avoids a false "snapshot unavailable" result.
     const rendererSnapshot = await this.serializeRendererTerminalBuffer(ptyId, opts)
     return rendererSnapshot ?? this.serializeProviderTerminalBuffer(ptyId, opts)
@@ -71,7 +71,7 @@ export class OrcaRuntimeWithSerializeMainTerminalBuffer extends OrcaRuntimeWithA
       throw new Error('terminal_not_found')
     }
     // Why: clear is a terminal UI action (Cmd+K on desktop), not shell input.
-    // Route through the controller so renderer-owned xterm buffers, daemon
+    // Route through the controller so renderer-owned terminal buffers, daemon
     // sessions, and SSH relay sessions all drop scrollback before the next
     // mobile snapshot.
     await this.ptyController?.clearBuffer?.(leaf.ptyId)
@@ -86,7 +86,7 @@ export class OrcaRuntimeWithSerializeMainTerminalBuffer extends OrcaRuntimeWithA
   // Why: a width reflow on a normal-buffer PTY must re-stream the full
   // scrollback to mobile so it rewraps at the new cols, but alternate-screen
   // TUIs (vim, Claude Code) own their repaint and have no scrollback — for
-  // those the mobile client just resizes xterm geometry and consumes the
+  // those the mobile client just resizes terminal geometry and consumes the
   // TUI's own redraw, so the resize re-stream must be skipped. Provider state
   // covers restored PTYs whose main-side emulator is only a partial suffix.
   isTerminalAlternateScreen(ptyId: string): boolean {
@@ -102,7 +102,7 @@ export class OrcaRuntimeWithSerializeMainTerminalBuffer extends OrcaRuntimeWithA
 
   // Why: daemon-backed PTYs that the runtime adopted after an Orca relaunch
   // start with a fresh headless emulator that has zero scrollback, even though
-  // the daemon's on-disk checkpoint and the desktop xterm both contain the
+  // the daemon's on-disk checkpoint and the desktop terminal both contain the
   // full prior history. Without this hydration, mobile subscribers see only
   // the bare current prompt because serializeHeadlessTerminalBuffer always
   // wins over the renderer-path fallback. Seeding the emulator with the

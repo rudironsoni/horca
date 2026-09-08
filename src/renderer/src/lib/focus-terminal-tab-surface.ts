@@ -28,7 +28,7 @@ function focusTerminalHelper(helper: HTMLElement, options: FocusTerminalTabSurfa
   }
   helper.focus()
   if (options.refreshImeContext) {
-    // Why: a CSS-hidden, long-lived xterm can retain a stale macOS native text
+    // Why: a CSS-hidden, long-lived terminal can retain a stale macOS native text
     // input context even after DOM focus returns; blur/refocus rebuilds it.
     refreshTerminalImeInputContext(helper, {
       onRefocusSkipped: options.onImeRefocusSkipped
@@ -56,8 +56,8 @@ function canUseSinglePaneStaleLeafFallback(tabId: string, leafId: string): boole
 
 function queryFocusSurface(scope: string): HTMLElement | null {
   return (
-    (document.querySelector(`${scope} .xterm-helper-textarea`) as HTMLElement | null) ??
-    (document.querySelector(`${scope} canvas.xterm`) as HTMLElement | null)
+    (document.querySelector(`${scope} .orca-terminal-helper-textarea`) as HTMLElement | null) ??
+    (document.querySelector(`${scope} canvas.orca-terminal-canvas`) as HTMLElement | null)
   )
 }
 
@@ -72,7 +72,7 @@ export function focusTerminalTabSurface(
     const secondFrameId = requestAnimationFrame(() => {
       pendingFocusFrameIds = pendingFocusFrameIds.filter((frameId) => frameId !== secondFrameId)
       // Why: this can be queued before inline tab rename mounts. If it runs
-      // afterward, focusing xterm blurs the rename input and commits it closed.
+      // afterward, focusing terminal blurs the rename input and commits it closed.
       if (document.querySelector('[data-tab-rename-input="true"]')) {
         return
       }
@@ -99,7 +99,7 @@ export function focusTerminalTabSurface(
         // Why: old single-pane remounts could remint the leaf id. Only recover
         // after the tab layout no longer expects the requested leaf.
         const tabScopedHelpers = document.querySelectorAll(
-          `${tabScope} ${UNCOVERED_TERMINAL_LEAF_SELECTOR} .xterm-helper-textarea, ${tabScope} ${UNCOVERED_TERMINAL_LEAF_SELECTOR} canvas.xterm`
+          `${tabScope} ${UNCOVERED_TERMINAL_LEAF_SELECTOR} .orca-terminal-helper-textarea, ${tabScope} ${UNCOVERED_TERMINAL_LEAF_SELECTOR} canvas.orca-terminal-canvas`
         )
         if (tabScopedHelpers.length === 1) {
           const fallback = tabScopedHelpers.item(0) as HTMLElement | null

@@ -1,4 +1,4 @@
-// Why this module exists: xterm's public onData stream mixes real keystrokes
+// Why this module exists: terminal's public onData stream mixes real keystrokes
 // with the parser's synthetic replies to terminal queries a program embedded in
 // its output (CPR/DSR cursor + device-status reports, DA device attributes,
 // DECRPM mode reports, window/cell pixel-size reports, OSC 10/11 color reports,
@@ -13,7 +13,7 @@
 const ESC = String.fromCharCode(0x1b)
 
 // Built via new RegExp from \u-escaped strings so no literal control
-// characters appear in the source. // Final bytes of xterm's own query-reply grammars:
+// characters appear in the source. // Final bytes of terminal's own query-reply grammars:
 //   R  — CPR / DECXCPR cursor position report (answer to CSI 6n / CSI ? 6n)
 //   n  — DSR device status report (answer to CSI 5n → CSI 0n)
 //   c  — DA1/DA2/DA3 device attributes (answer to CSI c / CSI > c / CSI = c)
@@ -21,7 +21,7 @@ const ESC = String.fromCharCode(0x1b)
 //   y  — DECRPM mode report (answer to CSI ? Ps $ p), body ends "$y"
 //   u  — kitty keyboard flags report (answer to CSI ? u), carries "?"
 /* oxlint-disable no-control-regex -- grammars match terminal ESC/BEL sequences by definition */
-// Known accepted collision: xterm.js encodes MODIFIED F3 (Shift/Ctrl/Alt+F3) as
+// Known accepted collision: Ghostty encodes MODIFIED F3 (Shift/Ctrl/Alt+F3) as
 // `CSI 1 ; <mod> R`, which is indistinguishable from a CPR report (a classic
 // VT ambiguity). Such a keystroke is sent immediately and shares the bounded reply
 // budget, so a pathological reply flood can shed it. It is also held behind a deferred
@@ -42,7 +42,7 @@ const KITTY_FLAGS_PREFIX_RE = new RegExp('^\\u001b\\[\\?[0-9]+u')
 const OSC_RESPONSE_PREFIX_RE = new RegExp(
   '^\\u001b\\][0-9]+;[^\\u0007\\u001b]*(?:\\u0007|\\u001b\\\\)'
 )
-// DCS-framed reports xterm emits: DECRQSS "ESC P 1 $ r Pt ST" / "ESC P 0 $ r ST"
+// DCS-framed reports terminal emits: DECRQSS "ESC P 1 $ r Pt ST" / "ESC P 0 $ r ST"
 // (vim queries cursor style this way) and XTVERSION "ESC P > | text ST".
 const DCS_RESPONSE_PREFIX_RE = new RegExp(
   '^\\u001bP(?:[01]\\$r[^\\u001b]*|>\\|[^\\u001b]*)\\u001b\\\\'
@@ -79,7 +79,7 @@ function terminalQueryReplyEnd(data: string, start: number): number {
 }
 
 /**
- * True when `data` (from xterm.onData) is a synthetic reply the emulator
+ * True when `data` (from terminal.onData) is a synthetic reply the emulator
  * generated in response to a query — not something the user typed. These are
  * latency-critical and must bypass input coalescing on the remote transport.
  *

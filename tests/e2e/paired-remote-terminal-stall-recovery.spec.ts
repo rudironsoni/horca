@@ -402,7 +402,7 @@ test('restarts one ACK-starved paired terminal stream without replacing its PTY 
       }
       gate.hold([target])
     }, terminal)
-    const textarea = client.page.locator('.xterm-helper-textarea:visible').first()
+    const textarea = client.page.locator('.orca-terminal-helper-textarea:visible').first()
     await textarea.focus()
     await client.page.keyboard.type('GO')
     await client.page.keyboard.press('Enter')
@@ -520,7 +520,7 @@ test('restarts one ACK-starved paired terminal stream without replacing its PTY 
       .toContain(`LIVE:${liveMarker}`)
     const restoredTerminalScreenshot = await orcaPage
       .locator(
-        `[data-terminal-tab-id="${hostPane.tabId}"] .pane[data-pane-id="${hostPane.paneId}"] .xterm-screen`
+        `[data-terminal-tab-id="${hostPane.tabId}"] .pane[data-pane-id="${hostPane.paneId}"] .orca-terminal-canvas`
       )
       .screenshot({ animations: 'disabled' })
     await testInfo.attach('host-terminal-after-create-restore', {

@@ -72,8 +72,9 @@ export async function collectRendererDiagnostics(page) {
         const manager = tabId ? window.__paneManagers?.get(tabId) : null
         const activePane = manager?.getActivePane?.() ?? null
         const paneDiagnostics = (manager?.getPanes?.() ?? []).map((pane) => {
-          const xtermElement = pane.container?.querySelector?.('.xterm') ?? pane.terminal?.element
-          const viewport = pane.container?.querySelector?.('.xterm-viewport') ?? null
+          const terminalElement =
+            pane.container?.querySelector?.('.orca-terminal-canvas') ?? pane.terminal?.element
+          const viewport = pane.container?.querySelector?.('.orca-terminal-viewport') ?? null
           const buffer = pane.terminal?.buffer?.active ?? null
           return {
             paneId: pane.id ?? null,
@@ -93,7 +94,7 @@ export async function collectRendererDiagnostics(page) {
             containerConnected: pane.container?.isConnected ?? null,
             containerRect: rectFor(pane.container),
             containerStyle: styleFor(pane.container),
-            xtermRect: rectFor(xtermElement),
+            terminalRect: rectFor(terminalElement),
             viewportRect: rectFor(viewport),
             viewportScroll: viewport
               ? {

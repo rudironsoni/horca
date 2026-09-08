@@ -137,7 +137,7 @@ describe('maybePushMode2031Flip', () => {
   })
 })
 describe('applyTerminalAppearance theme assignment', () => {
-  // xterm rebuilds the palette on any new theme-object identity (wiping OSC color mutations), so the assignment must be value-gated.
+  // terminal rebuilds the palette on any new theme-object identity (wiping OSC color mutations), so the assignment must be value-gated.
   // Measurable by default: metric options (fontSize/fontFamily/…) only land on
   // panes that can measure; unmeasurable panes defer them until fit/reveal.
   function makePane(id: number, overrides?: { measurable?: boolean }): ManagedPane {
@@ -188,7 +188,7 @@ describe('applyTerminalAppearance theme assignment', () => {
 
     apply(pane, { ...settings, terminalFontSize: settings.terminalFontSize + 2 })
 
-    // Identity-stable theme means xterm never re-runs _setTheme, so a TUI's modifyColors mutation survives the font tweak.
+    // Identity-stable theme means terminal never re-runs _setTheme, so a TUI's modifyColors mutation survives the font tweak.
     expect(pane.terminal.options.theme).toBe(firstTheme)
     expect(pane.terminal.options.fontSize).toBe(settings.terminalFontSize + 2)
   })
@@ -218,7 +218,7 @@ describe('applyTerminalAppearance theme assignment', () => {
 
   // #7934: contrast correction rescues invisible white text on light backgrounds but over-corrects on dark;
   // gate by the composed theme's background luminance (either theme slot can hold either kind of theme).
-  it('keeps xterm contrast correction on light themes', () => {
+  it('keeps terminal contrast correction on light themes', () => {
     const pane = makePane(1)
     const settings = getDefaultSettings('/tmp')
 
@@ -288,7 +288,7 @@ describe('applyTerminalAppearance theme assignment', () => {
     expect(pane.terminal.options.minimumContrastRatio).toBe(1)
   })
 
-  it('clamps an out-of-range user setting before it reaches xterm', () => {
+  it('clamps an out-of-range user setting before it reaches terminal', () => {
     const pane = makePane(1)
     const settings = getDefaultSettings('/tmp')
 
@@ -308,7 +308,7 @@ describe('applyTerminalAppearance theme assignment', () => {
     expect(pane.terminal.options.minimumContrastRatio).toBe(3)
   })
 
-  it('skips the minimumContrastRatio write on a no-op re-apply (preserves xterm contrast cache)', () => {
+  it('skips the minimumContrastRatio write on a no-op re-apply (preserves terminal contrast cache)', () => {
     const pane = makePane(1)
     let writes = 0
     let stored: number | undefined
@@ -328,12 +328,12 @@ describe('applyTerminalAppearance theme assignment', () => {
 
     apply(pane, { ...settings, theme: 'dark' })
 
-    // The value-gate must not rewrite an unchanged ratio — each write clears xterm's contrast cache.
+    // The value-gate must not rewrite an unchanged ratio — each write clears terminal's contrast cache.
     expect(writes).toBe(writesAfterFirst)
   })
 
   it('defers metric options on an unmeasurable pane and lands them on the next fit', () => {
-    // A metric write makes xterm clear, resize and full-refresh; on a pane with
+    // A metric write makes terminal clear, resize and full-refresh; on a pane with
     // no usable box that repaint is wasted and the cols/rows re-fit that must
     // follow it cannot run. The write waits for a measurable pane.
     let measurable = false
@@ -397,7 +397,7 @@ describe('applyTerminalAppearance theme assignment', () => {
     measurable = true
     safeFit(pane)
 
-    // Latest wins, exactly one write: intermediate hidden values never touch xterm.
+    // Latest wins, exactly one write: intermediate hidden values never touch terminal.
     expect(writes).toEqual([21])
   })
 })

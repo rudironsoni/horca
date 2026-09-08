@@ -1,8 +1,8 @@
-// OSC 52 — "Manipulate Selection Data". xterm.js does not implement this
+// OSC 52 — "Manipulate Selection Data". Ghostty does not implement this
 // handler itself; applications register it to let TUIs (Zellij, tmux, Neovim,
 // fzf, Grok) copy to the host clipboard over SSH or through the PTY.
 //
-// Wire format (xterm.js strips the leading `\x1b]52;` and trailing BEL/ST
+// Wire format (Ghostty strips the leading `\x1b]52;` and trailing BEL/ST
 // before handing us the payload string):
 //
 //     Pc ; Pd
@@ -64,7 +64,7 @@ export function resolveOsc52ClipboardGate(input: {
   // Why drop during replay: reattach and cold-restore re-write recorded PTY bytes through the same
   // parser, so a stale `\e]52;c;…` would overwrite whatever the user has copied since. No fresh intent.
   //
-  // Known over-suppression: the flag is read when xterm parses, not when the bytes were queued, and
+  // Known over-suppression: the flag is read when terminal parses, not when the bytes were queued, and
   // the replay path drains queued live bytes before engaging the guard (pty-connection.ts, "drain any
   // queued background bytes BEFORE the replay paint"). A copy issued in the same tick as a reattach
   // is therefore dropped silently. Fixing it means tagging chunks at queue time; a lost copy the user
@@ -82,7 +82,7 @@ export function resolveOsc52ClipboardGate(input: {
   }
 }
 
-/** Composes the gate with the request handler into an xterm OSC handler.
+/** Composes the gate with the request handler into an terminal OSC handler.
  *  Extracted so the wiring is covered too, not just the gate in isolation. */
 export function createOsc52OscHandler(deps: {
   getSettingEnabled: () => boolean | null | undefined
@@ -94,7 +94,7 @@ export function createOsc52OscHandler(deps: {
   // Why coalesce: each sequence is only ~15 bytes, so one hostile chunk can fire a
   // million parser callbacks — each a main-process clipboard write. Only the last of
   // a microtask's worth is observable, so keep that and drop the rest. This bounds a
-  // flood to roughly one write per xterm parse yield, not to one write overall.
+  // flood to roughly one write per terminal parse yield, not to one write overall.
   let pendingText: string | null = null
   let flushScheduled = false
   const writeCoalesced = (text: string): Promise<void> => {
@@ -177,7 +177,7 @@ export function parseOsc52(data: string): Osc52ParseResult {
     return { kind: 'query' }
   }
 
-  // Why guard size: xterm's own parser caps OSC payloads at ~10 MB; we cap
+  // Why guard size: terminal's own parser caps OSC payloads at ~10 MB; we cap
   // tighter because a legitimate clipboard write is rarely more than a
   // screenful and any multi-MB payload is almost certainly a bug or abuse.
   if (payload.length > MAX_OSC52_BASE64_CHARS) {
@@ -190,7 +190,7 @@ export function parseOsc52(data: string): Osc52ParseResult {
   }
   // Why reject empty: this is XTerm's "clear the selection", which we decline to
   // honor — with the gate default-on, any PTY could blank the clipboard for free.
-  // (A truncated sequence never lands here; xterm only calls us on parse success.)
+  // (A truncated sequence never lands here; terminal only calls us on parse success.)
   if (decoded === '') {
     return { kind: 'invalid', reason: 'empty payload' }
   }
