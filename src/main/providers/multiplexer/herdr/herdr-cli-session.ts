@@ -116,30 +116,33 @@ export class HerdrCliSessionManager {
 
   async ensureSession(sessionName: string): Promise<void> {
     await ensureStockHerdrSession(this.sessionPromises, sessionName, {
-      listSessions: () => this.listSessions(),
+      listSessions: () => this.listSessions(sessionName),
       startServer: (name) => this.startServer(name),
       timeoutMs: this.options.timeoutMs,
-      socketReady: async (name) =>
-        existsSync(
-          herdrSessionSocketPath(
-            herdrConfigHomeForSession(name, herdrServerEnvironment(undefined, name)),
-            name
-          )
-        )
+      socketReady: async (name) => existsSync(this.sessionSocket(name))
     })
   }
 
-  private async listSessions(): Promise<HerdrListedSession[]> {
-    const configHome = herdrConfigHomeForSession(
-      DEFAULT_HERDR_SESSION_NAME,
-      herdrServerEnvironment(undefined, DEFAULT_HERDR_SESSION_NAME)
+  private sessionSocket(sessionName: string): string {
+    return herdrSessionSocketPath(
+      herdrConfigHomeForSession(sessionName, herdrServerEnvironment(undefined, sessionName)),
+      sessionName
     )
-    const sock = herdrSessionSocketPath(configHome, DEFAULT_HERDR_SESSION_NAME)
+  }
+
+  private async listSessions(sessionName: string): Promise<HerdrListedSession[]> {
+    const sock = this.sessionSocket(sessionName)
     if (!existsSync(sock)) {
       return []
     }
     try {
-      return parseHerdrSessionList(await this.run(['session', 'list', '--json']))
+      return parseHerdrSessionList(
+        await this.runCli(
+          ['--session', sessionName, 'session', 'list', '--json'],
+          undefined,
+          sessionName
+        )
+      )
     } catch {
       try {
         unlinkSync(sock)
@@ -151,10 +154,7 @@ export class HerdrCliSessionManager {
   }
 
   private async startServer(sessionName: string): Promise<void> {
-    const staleSocket = herdrSessionSocketPath(
-      herdrConfigHomeForSession(sessionName, herdrServerEnvironment(undefined, sessionName)),
-      sessionName
-    )
+    const staleSocket = this.sessionSocket(sessionName)
     try {
       unlinkSync(staleSocket)
     } catch {
@@ -170,10 +170,14 @@ export class HerdrCliSessionManager {
     await startDetachedHerdrCommand(command, this.options.wslDistro)
   }
 
-  private async runCli(args: string[], input?: string): Promise<string> {
+  private async runCli(
+    args: string[],
+    input?: string,
+    sessionName = DEFAULT_HERDR_SESSION_NAME
+  ): Promise<string> {
     const command = await this.options.commandFor(args)
     const spec = herdrHostProcessSpec(
-      { ...command, env: herdrServerEnvironment(command.env) },
+      { ...command, env: herdrServerEnvironment(command.env, sessionName) },
       this.options.wslDistro
     )
     const result = await runProcess({
