@@ -79,11 +79,18 @@ describe('HerdrSdkHost terminal control', () => {
     const longHome =
       '/private/var/folders/t6/jmkhfw452wx9x27cvtj03qmh0000gq/T/orca-e2e-userdata-abcdefgh/home'
     const previousHome = process.env.HOME
+    const previousXdg = process.env.XDG_CONFIG_HOME
     process.env.HOME = longHome
+    delete process.env.XDG_CONFIG_HOME
     try {
       transport.controlTerminal('horca', 'w1:p1', { cols: 80, rows: 24 })
     } finally {
       process.env.HOME = previousHome
+      if (previousXdg === undefined) {
+        delete process.env.XDG_CONFIG_HOME
+      } else {
+        process.env.XDG_CONFIG_HOME = previousXdg
+      }
     }
     const env = spawnProcessMock.mock.calls[0]?.[0]?.env as NodeJS.ProcessEnv | undefined
     expect(env?.XDG_CONFIG_HOME).toMatch(/^\/tmp\/\.horca-h-/)
@@ -202,7 +209,8 @@ describe('HerdrCliSessionManager CLI env', () => {
         args,
         env: {
           HOME: '/private/var/folders/t6/jmkhfw452wx9x27cvtj03qmh0000gq/T/orca-e2e-userdata-abcdefgh/home',
-          PATH: '/bin'
+          PATH: '/bin',
+          XDG_CONFIG_HOME: ''
         }
       })
     })
