@@ -109,6 +109,9 @@ export const TerminalOverlaySlot = memo(function TerminalOverlaySlot({
       onFocusOwningGroup={onFocusOwningGroup}
     >
       {terminalPane}
+      {/* The chat/terminal toggle now lives in the pane header's action cluster
+          (TerminalPaneHeaderOverlay), beside split/close — not as a separate
+          floating overlay. */}
     </RetainedPaneHost>
   )
 })
