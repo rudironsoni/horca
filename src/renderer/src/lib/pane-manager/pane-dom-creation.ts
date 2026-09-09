@@ -25,6 +25,8 @@ export function createPaneDOM(
 
   const terminalHost = document.createElement('div')
   terminalHost.className = 'orca-terminal-container'
+  terminalHost.style.width = '100%'
+  terminalHost.style.height = '100%'
   container.appendChild(terminalHost)
 
   const userOpts = options.terminalOptions?.(id) ?? {}

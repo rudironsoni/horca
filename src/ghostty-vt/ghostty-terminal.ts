@@ -202,6 +202,10 @@ export class GhosttyTerminal {
     )
   }
 
+  get isDisposed(): boolean {
+    return this.disposed
+  }
+
   dispose(): void {
     if (this.disposed) {
       return
