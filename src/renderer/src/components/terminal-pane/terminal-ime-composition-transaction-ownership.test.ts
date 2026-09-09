@@ -2,8 +2,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   installTerminalImeNativeTextForwarder,
-  XTERM_COMPOSITION_TRANSACTION_ACCEPTED_EVENT,
-  XTERM_COMPOSITION_TRANSACTION_SETTLED_EVENT
+  TERMINAL_COMPOSITION_TRANSACTION_ACCEPTED_EVENT,
+  TERMINAL_COMPOSITION_TRANSACTION_SETTLED_EVENT
 } from './terminal-ime-native-text-forwarder'
 
 function wonKeydown(): {
@@ -54,7 +54,7 @@ describe('terminal composition transaction ownership', () => {
     element.addEventListener('input', downstream, true)
 
     textarea.dispatchEvent(
-      new CustomEvent(XTERM_COMPOSITION_TRANSACTION_ACCEPTED_EVENT, { bubbles: true })
+      new CustomEvent(TERMINAL_COMPOSITION_TRANSACTION_ACCEPTED_EVENT, { bubbles: true })
     )
     for (const [value, data] of [
       ['한`', '`'],
@@ -70,7 +70,7 @@ describe('terminal composition transaction ownership', () => {
     expect(textarea.value).toBe('한`₩')
 
     textarea.dispatchEvent(
-      new CustomEvent(XTERM_COMPOSITION_TRANSACTION_SETTLED_EVENT, { bubbles: true })
+      new CustomEvent(TERMINAL_COMPOSITION_TRANSACTION_SETTLED_EVENT, { bubbles: true })
     )
     expect(forwarder.claimKeyEvent(wonKeydown())).toBe(true)
     textarea.value = '`'
@@ -107,13 +107,13 @@ describe('terminal composition transaction ownership', () => {
 
     for (let index = 0; index < 2; index++) {
       textarea.dispatchEvent(
-        new CustomEvent(XTERM_COMPOSITION_TRANSACTION_ACCEPTED_EVENT, { bubbles: true })
+        new CustomEvent(TERMINAL_COMPOSITION_TRANSACTION_ACCEPTED_EVENT, { bubbles: true })
       )
       expect(forwarder.claimKeyEvent(wonKeydown())).toBe(true)
       dispatchInsertText(textarea)
     }
     textarea.dispatchEvent(
-      new CustomEvent(XTERM_COMPOSITION_TRANSACTION_SETTLED_EVENT, { bubbles: true })
+      new CustomEvent(TERMINAL_COMPOSITION_TRANSACTION_SETTLED_EVENT, { bubbles: true })
     )
     expect(forwarder.claimKeyEvent(wonKeydown())).toBe(true)
     dispatchInsertText(textarea)
@@ -130,7 +130,7 @@ describe('terminal composition transaction ownership', () => {
     })
 
     textarea.dispatchEvent(
-      new CustomEvent(XTERM_COMPOSITION_TRANSACTION_ACCEPTED_EVENT, { bubbles: true })
+      new CustomEvent(TERMINAL_COMPOSITION_TRANSACTION_ACCEPTED_EVENT, { bubbles: true })
     )
     expect(forwarder.claimKeyEvent(wonKeydown())).toBe(true)
     textarea.dispatchEvent(new FocusEvent('blur'))
@@ -139,7 +139,7 @@ describe('terminal composition transaction ownership', () => {
     expect(sendInput).toHaveBeenCalledExactlyOnceWith('`')
 
     textarea.dispatchEvent(
-      new CustomEvent(XTERM_COMPOSITION_TRANSACTION_ACCEPTED_EVENT, { bubbles: true })
+      new CustomEvent(TERMINAL_COMPOSITION_TRANSACTION_ACCEPTED_EVENT, { bubbles: true })
     )
     expect(forwarder.claimKeyEvent(wonKeydown())).toBe(true)
     element.remove()
