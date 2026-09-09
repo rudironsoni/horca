@@ -109,3 +109,31 @@ export function flushWaiters(active: boolean, waiters: Set<() => void>): void {
     waiter()
   }
 }
+
+export function schedulePrimaryScreenCallback(
+  isAlternateScreen: boolean,
+  waiters: Set<() => void>,
+  callback: () => void
+): OrcaDisposable {
+  let cancelled = false
+  const run = (): void => {
+    if (!cancelled) {
+      callback()
+    }
+  }
+  if (isAlternateScreen) {
+    waiters.add(run)
+    return {
+      dispose: () => {
+        cancelled = true
+        waiters.delete(run)
+      }
+    }
+  }
+  queueMicrotask(run)
+  return {
+    dispose: () => {
+      cancelled = true
+    }
+  }
+}
