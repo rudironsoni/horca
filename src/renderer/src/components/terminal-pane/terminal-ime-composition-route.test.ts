@@ -4,8 +4,8 @@ import type { PtyTransport } from './pty-transport'
 import {
   hasPendingTerminalImeComposition,
   installTerminalImeCompositionRoute,
-  XTERM_COMPOSITION_SESSION_END_EVENT,
-  XTERM_COMPOSITION_SESSION_START_EVENT
+  TERMINAL_COMPOSITION_SESSION_END_EVENT,
+  TERMINAL_COMPOSITION_SESSION_START_EVENT
 } from './terminal-ime-composition-route'
 
 function createTransport(ptyId: string | null): PtyTransport {
@@ -43,9 +43,9 @@ function createHarness(ptyId = 'pty-original') {
     getCurrentTransport: () => state.currentTransport
   })
   const start = (id: number) =>
-    element.dispatchEvent(sessionEvent(XTERM_COMPOSITION_SESSION_START_EVENT, id))
+    element.dispatchEvent(sessionEvent(TERMINAL_COMPOSITION_SESSION_START_EVENT, id))
   const end = (id: number, data: string) =>
-    element.dispatchEvent(sessionEvent(XTERM_COMPOSITION_SESSION_END_EVENT, id, data))
+    element.dispatchEvent(sessionEvent(TERMINAL_COMPOSITION_SESSION_END_EVENT, id, data))
   return { element, original, state, input, route, start, end }
 }
 
@@ -108,7 +108,9 @@ describe('installTerminalImeCompositionRoute', () => {
     const harness = createHarness()
     harness.start(1)
 
-    harness.element.dispatchEvent(sessionEvent(XTERM_COMPOSITION_SESSION_END_EVENT, 1, '앙', true))
+    harness.element.dispatchEvent(
+      sessionEvent(TERMINAL_COMPOSITION_SESSION_END_EVENT, 1, '앙', true)
+    )
 
     expect(harness.input).not.toHaveBeenCalled()
     expect(hasPendingTerminalImeComposition(harness.element)).toBe(false)
@@ -171,14 +173,14 @@ describe('installTerminalImeCompositionRoute', () => {
       })
     const firstRoute = install()
 
-    element.dispatchEvent(sessionEvent(XTERM_COMPOSITION_SESSION_START_EVENT, 1))
+    element.dispatchEvent(sessionEvent(TERMINAL_COMPOSITION_SESSION_START_EVENT, 1))
     // Reconnect/effect re-run swaps the route while the preedit is still open.
     firstRoute.dispose()
     const secondRoute = install()
 
-    expect(element.dispatchEvent(sessionEvent(XTERM_COMPOSITION_SESSION_END_EVENT, 1, '한'))).toBe(
-      true
-    )
+    expect(
+      element.dispatchEvent(sessionEvent(TERMINAL_COMPOSITION_SESSION_END_EVENT, 1, '한'))
+    ).toBe(true)
     expect(input).not.toHaveBeenCalled()
 
     secondRoute.dispose()
@@ -211,7 +213,7 @@ describe('installTerminalImeCompositionRoute', () => {
       getCurrentTransport: () => secondTransport
     })
 
-    element.dispatchEvent(sessionEvent(XTERM_COMPOSITION_SESSION_START_EVENT, 1))
+    element.dispatchEvent(sessionEvent(TERMINAL_COMPOSITION_SESSION_START_EVENT, 1))
     firstRoute.dispose()
     expect(hasPendingTerminalImeComposition(element)).toBe(true)
 
