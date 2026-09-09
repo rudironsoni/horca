@@ -27,6 +27,7 @@ export class GhosttyRenderer {
   private cellHeight: number
   private fontFamily: string
   private preedit = ''
+  private disposed = false
 
   constructor(host: GhosttyVtHost, canvas: HTMLCanvasElement, options: GhosttyRendererOptions) {
     this.host = host
@@ -54,6 +55,9 @@ export class GhosttyRenderer {
   }
 
   draw(terminal: GhosttyTerminal, dpr = 1): void {
+    if (this.disposed || terminal.isDisposed) {
+      return
+    }
     this.host.exports.ghostty_render_state_begin_update(this.state)
     this.host.check(
       this.host.exports.ghostty_render_state_update(this.state, ghosttyVt(terminal).term),
@@ -108,6 +112,10 @@ export class GhosttyRenderer {
   }
 
   dispose(): void {
+    if (this.disposed) {
+      return
+    }
+    this.disposed = true
     this.host.exports.ghostty_render_state_row_cells_free(this.cells)
     this.host.exports.ghostty_render_state_row_iterator_free(this.rowIter)
     this.host.exports.ghostty_render_state_free(this.state)

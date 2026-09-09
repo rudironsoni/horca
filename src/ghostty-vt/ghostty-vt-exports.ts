@@ -108,7 +108,8 @@ export type WasmExports = {
     encoder: number,
     event: number,
     buf: number,
-    bufLen: number
+    bufLen: number,
+    outLen: number
   ) => number
   ghostty_key_event_new: (allocator: number, out: number) => number
   ghostty_key_event_free: (event: number) => void
