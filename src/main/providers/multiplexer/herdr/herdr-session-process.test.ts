@@ -22,7 +22,8 @@ describe('stock Herdr session process', () => {
       {
         PATH: '/bin',
         HOME: '/private/var/folders/t6/jmkhfw452wx9x27cvtj03qmh0000gq/T/orca-e2e-userdata-abcdefgh/home',
-        ORCA_E2E_HOME_DIR: ''
+        ORCA_E2E_HOME_DIR: '',
+        XDG_CONFIG_HOME: ''
       },
       'horca'
     )
@@ -30,7 +31,8 @@ describe('stock Herdr session process', () => {
       {
         PATH: '/bin',
         HOME: '/private/var/folders/t6/jmkhfw452wx9x27cvtj03qmh0000gq/T/orca-e2e-userdata-ijklmnop/home',
-        ORCA_E2E_HOME_DIR: ''
+        ORCA_E2E_HOME_DIR: '',
+        XDG_CONFIG_HOME: ''
       },
       'horca'
     )
