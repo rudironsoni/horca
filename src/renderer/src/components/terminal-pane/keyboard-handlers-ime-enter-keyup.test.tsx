@@ -6,7 +6,7 @@ import type { PtyTransport } from './pty-transport'
 import { useTerminalKeyboardShortcuts } from './keyboard-handlers'
 import {
   installTerminalImeCompositionRoute,
-  XTERM_COMPOSITION_SESSION_START_EVENT
+  TERMINAL_COMPOSITION_SESSION_START_EVENT
 } from './terminal-ime-composition-route'
 
 type KeyboardHandlersDeps = Parameters<typeof useTerminalKeyboardShortcuts>[0]
@@ -117,7 +117,7 @@ function createHarness(options: { staleActivePane?: boolean } = {}): {
     terminalInput,
     startComposition: () => {
       terminalElement.dispatchEvent(
-        new CustomEvent(XTERM_COMPOSITION_SESSION_START_EVENT, {
+        new CustomEvent(TERMINAL_COMPOSITION_SESSION_START_EVENT, {
           detail: { id: 1 }
         })
       )

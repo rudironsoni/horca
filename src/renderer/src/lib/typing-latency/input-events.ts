@@ -1,6 +1,6 @@
 import {
   readTerminalImeCompositionSessionDetail,
-  XTERM_COMPOSITION_SESSION_END_EVENT
+  TERMINAL_COMPOSITION_SESSION_END_EVENT
 } from '@/components/terminal-pane/terminal-ime-composition-route'
 import { isImeOwnedKeyboardEvent } from '@/lib/ime-composition-keyboard-event'
 
@@ -53,15 +53,15 @@ export function installTypingLatencyInputEvents(
   }
 
   target.addEventListener('keydown', onKeydown, { capture: true })
-  target.addEventListener(XTERM_COMPOSITION_SESSION_END_EVENT, onCompositionSessionEnd, {
+  target.addEventListener(TERMINAL_COMPOSITION_SESSION_END_EVENT, onCompositionSessionEnd, {
     capture: true
   })
-  target.addEventListener(XTERM_COMPOSITION_SESSION_END_EVENT, settleCompositionSessionEnd)
+  target.addEventListener(TERMINAL_COMPOSITION_SESSION_END_EVENT, settleCompositionSessionEnd)
   return () => {
     target.removeEventListener('keydown', onKeydown, { capture: true })
-    target.removeEventListener(XTERM_COMPOSITION_SESSION_END_EVENT, onCompositionSessionEnd, {
+    target.removeEventListener(TERMINAL_COMPOSITION_SESSION_END_EVENT, onCompositionSessionEnd, {
       capture: true
     })
-    target.removeEventListener(XTERM_COMPOSITION_SESSION_END_EVENT, settleCompositionSessionEnd)
+    target.removeEventListener(TERMINAL_COMPOSITION_SESSION_END_EVENT, settleCompositionSessionEnd)
   }
 }
