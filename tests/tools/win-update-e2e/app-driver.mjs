@@ -28,8 +28,8 @@ const SORTABLE_TAB = '[data-testid="sortable-tab"]'
 // Why: the layout mounts hidden duplicate panes; only the visible one is the
 // live terminal, so target `:visible` to avoid focusing/measuring a hidden copy.
 const TERMINAL_SURFACE_VISIBLE = '[data-terminal-tab-id]:visible'
-const XTERM_CONTAINER_VISIBLE = '.orca-terminal-canvas:visible'
-const XTERM_INPUT = '.orca-terminal-helper-textarea'
+const TERMINAL_CONTAINER_VISIBLE = '.orca-terminal-canvas:visible'
+const TERMINAL_INPUT = '.orca-terminal-helper-textarea'
 const RESTRICTED_E2E_ENV_KEYS = new Set([
   'HOME',
   'USERPROFILE',
@@ -221,7 +221,7 @@ export async function waitForTerminalReady(page, timeoutMs = 60_000, terminalTab
     : TERMINAL_SURFACE_VISIBLE
   const surface = page.locator(selector).first()
   await surface.waitFor({ state: 'visible', timeout: timeoutMs })
-  await surface.locator(XTERM_CONTAINER_VISIBLE).first().waitFor({
+  await surface.locator(TERMINAL_CONTAINER_VISIBLE).first().waitFor({
     state: 'visible',
     timeout: timeoutMs
   })
@@ -408,7 +408,7 @@ export async function focusActiveTerminal(page, terminalTabId = null) {
   await (terminalTabId ? click : click.catch(() => {}))
   // Scope the helper textarea to the visible surface so focus can't land on a
   // hidden duplicate pane's textarea (which would silently swallow keystrokes).
-  const input = surface.locator(XTERM_INPUT).last()
+  const input = surface.locator(TERMINAL_INPUT).last()
   const focus = input.focus()
   await (terminalTabId ? focus : focus.catch(() => {}))
   return input
