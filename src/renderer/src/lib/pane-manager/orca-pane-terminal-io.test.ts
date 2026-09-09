@@ -3,7 +3,11 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { GhosttyTerminal } from '../../../../ghostty-vt/ghostty-terminal'
 import { getGhosttyVtHostOrThrow } from '../../../../ghostty-vt/host-singleton'
 import { readScrollbar } from '../../../../ghostty-vt/ghostty-terminal-ops'
-import { bindGhosttyKeyboardInput, hitTestGhosttyHyperlink } from './orca-pane-terminal-io'
+import {
+  bindGhosttyKeyboardInput,
+  encodeGhosttyKey,
+  hitTestGhosttyHyperlink
+} from './orca-pane-terminal-io'
 
 function fakeElement(): {
   element: HTMLElement
@@ -29,6 +33,43 @@ function fakeElement(): {
     }
   }
 }
+
+describe('encodeGhosttyKey', () => {
+  let engine: GhosttyTerminal | undefined
+
+  afterEach(() => {
+    engine?.dispose()
+    engine = undefined
+  })
+
+  it('encodes the full control surface through Ghostty', () => {
+    engine = new GhosttyTerminal(getGhosttyVtHostOrThrow(), { cols: 20, rows: 4 })
+    const seq = (partial: Partial<KeyboardEvent>) =>
+      encodeGhosttyKey(engine!, {
+        type: 'keydown',
+        key: '',
+        code: '',
+        ctrlKey: false,
+        metaKey: false,
+        altKey: false,
+        shiftKey: false,
+        repeat: false,
+        ...partial
+      } as KeyboardEvent)
+    const codes = (text: string) => [...text].map((ch) => ch.charCodeAt(0))
+    const has = (text: string, byte: number) => codes(text).includes(byte)
+    expect(has(seq({ key: 'Backspace', code: 'Backspace' }), 0x7f)).toBe(true)
+    expect(has(seq({ key: 'c', code: 'KeyC', ctrlKey: true }), 0x03)).toBe(true)
+    expect(has(seq({ key: 'd', code: 'KeyD', ctrlKey: true }), 0x04)).toBe(true)
+    expect(has(seq({ key: 'z', code: 'KeyZ', ctrlKey: true }), 0x1a)).toBe(true)
+    expect(seq({ key: 'Escape', code: 'Escape' })).toBe(String.fromCharCode(0x1b))
+    expect(seq({ key: 'Tab', code: 'Tab' })).toBe('\t')
+    expect(has(seq({ key: 'Enter', code: 'Enter' }), 0x0d)).toBe(true)
+    expect(codes(seq({ key: 'ArrowUp', code: 'ArrowUp' }))[0]).toBe(0x1b)
+    expect(codes(seq({ key: 'ArrowDown', code: 'ArrowDown' }))[0]).toBe(0x1b)
+    expect(codes(seq({ key: 'Delete', code: 'Delete' }))[0]).toBe(0x1b)
+  })
+})
 
 describe('bindGhosttyKeyboardInput', () => {
   it('encodes and sends a key when the Orca policy handler returns true', () => {
