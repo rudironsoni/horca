@@ -69,5 +69,8 @@ export function measureCellSize(appearance: OrcaPaneAppearance): { width: number
   }
   ctx.font = `${appearance.fontSize}px ${appearance.fontFamily}`
   const width = ctx.measureText('M').width
-  return { width: Math.max(6, width), height }
+  return {
+    width: Math.min(appearance.fontSize, Math.max(6, width || appearance.fontSize * 0.6)),
+    height
+  }
 }
