@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { XTERM_COMPOSITION_SESSION_END_EVENT } from '@/components/terminal-pane/terminal-ime-composition-route'
+import { TERMINAL_COMPOSITION_SESSION_END_EVENT } from '@/components/terminal-pane/terminal-ime-composition-route'
 import { afterEach, describe, expect, it } from 'vitest'
 import { installTypingLatencyInputEvents, type TypingInputSignal } from './input-events'
 
@@ -9,7 +9,7 @@ function keydown(init: KeyboardEventInit): void {
 
 function sessionEnd(data: string, dataPendingReconciliation = false): void {
   window.dispatchEvent(
-    new CustomEvent(XTERM_COMPOSITION_SESSION_END_EVENT, {
+    new CustomEvent(TERMINAL_COMPOSITION_SESSION_END_EVENT, {
       detail: { id: 1, data, dataPendingReconciliation }
     })
   )
@@ -85,7 +85,7 @@ describe('installTypingLatencyInputEvents', () => {
 
     const dispatchSessionEnd = (): void => {
       terminalElement.dispatchEvent(
-        new CustomEvent(XTERM_COMPOSITION_SESSION_END_EVENT, {
+        new CustomEvent(TERMINAL_COMPOSITION_SESSION_END_EVENT, {
           bubbles: true,
           cancelable: true,
           detail: { id: 1, data: '한' }
@@ -94,7 +94,7 @@ describe('installTypingLatencyInputEvents', () => {
     }
     dispatchSessionEnd()
 
-    terminalElement.addEventListener(XTERM_COMPOSITION_SESSION_END_EVENT, (event) =>
+    terminalElement.addEventListener(TERMINAL_COMPOSITION_SESSION_END_EVENT, (event) =>
       event.preventDefault()
     )
     dispatchSessionEnd()

@@ -71,9 +71,9 @@ export type ImeNativeTextKeyEvent = {
   getModifierState?: (key: string) => boolean
 }
 
-export const XTERM_COMPOSITION_TRANSACTION_ACCEPTED_EVENT =
+export const TERMINAL_COMPOSITION_TRANSACTION_ACCEPTED_EVENT =
   'terminal-composition-transaction-accepted'
-export const XTERM_COMPOSITION_TRANSACTION_SETTLED_EVENT =
+export const TERMINAL_COMPOSITION_TRANSACTION_SETTLED_EVENT =
   'terminal-composition-transaction-settled'
 
 export type TerminalImeNativeTextForwarder = IDisposable & {
@@ -376,12 +376,12 @@ export function installTerminalImeNativeTextForwarder(args: {
   }
 
   terminalElement.addEventListener(
-    XTERM_COMPOSITION_TRANSACTION_ACCEPTED_EVENT,
+    TERMINAL_COMPOSITION_TRANSACTION_ACCEPTED_EVENT,
     markCompositionTransactionAccepted,
     true
   )
   terminalElement.addEventListener(
-    XTERM_COMPOSITION_TRANSACTION_SETTLED_EVENT,
+    TERMINAL_COMPOSITION_TRANSACTION_SETTLED_EVENT,
     markCompositionTransactionSettled,
     true
   )
@@ -393,12 +393,12 @@ export function installTerminalImeNativeTextForwarder(args: {
     dispose: () => {
       cancelPending()
       terminalElement.removeEventListener(
-        XTERM_COMPOSITION_TRANSACTION_ACCEPTED_EVENT,
+        TERMINAL_COMPOSITION_TRANSACTION_ACCEPTED_EVENT,
         markCompositionTransactionAccepted,
         true
       )
       terminalElement.removeEventListener(
-        XTERM_COMPOSITION_TRANSACTION_SETTLED_EVENT,
+        TERMINAL_COMPOSITION_TRANSACTION_SETTLED_EVENT,
         markCompositionTransactionSettled,
         true
       )
