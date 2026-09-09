@@ -10,14 +10,41 @@ const policy = JSON.parse(
 const upstreamRef = process.env.HORCA_UPSTREAM_REF || policy.upstreamRef
 
 function runGit(args, { allowNoMatches = false } = {}) {
-  const result = spawnSync('git', args, { cwd: repoRoot, encoding: 'utf8' })
+  const result = spawnSync('git', args, {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    maxBuffer: 64 * 1024 * 1024
+  })
   if (allowNoMatches && result.status === 1) {
-    return ''
+    return result.stdout.trim()
   }
   if (result.status !== 0) {
-    throw new Error(result.stderr.trim() || `git ${args.join(' ')} failed`)
+    throw new Error(result.stderr.trim() || result.error?.message || `git ${args.join(' ')} failed`)
   }
   return result.stdout.trim()
+}
+
+function diffUnifiedHunks(paths) {
+  if (paths.length === 0) {
+    return ''
+  }
+  const chunkSize = 40
+  const chunks = []
+  for (let index = 0; index < paths.length; index += chunkSize) {
+    chunks.push(
+      runGit(
+        [
+          'diff',
+          '--unified=0',
+          `${upstreamRef}...HEAD`,
+          '--',
+          ...paths.slice(index, index + chunkSize)
+        ],
+        { allowNoMatches: true }
+      )
+    )
+  }
+  return chunks.filter(Boolean).join('\n')
 }
 
 function matchesPath(path, exactPaths, prefixes) {
@@ -36,6 +63,14 @@ function isDenied(path) {
   )
 }
 
+function overlayForPath(path) {
+  if (overlaysByPath.has(path)) {
+    return overlaysByPath.get(path)
+  }
+  const prefixes = policy.overlayPrefixes ?? []
+  return prefixes.find((entry) => path.startsWith(entry.prefix)) ?? null
+}
+
 const failures = []
 const overlaysByPath = new Map()
 for (const overlay of policy.overlays) {
@@ -48,6 +83,14 @@ for (const overlay of policy.overlays) {
     failures.push(`Duplicate overlay entry: ${overlay.path}`)
   }
   overlaysByPath.set(overlay.path, overlay)
+}
+
+for (const overlay of policy.overlayPrefixes ?? []) {
+  for (const field of ['prefix', 'subsystem', 'reason', 'dropWhen']) {
+    if (typeof overlay[field] !== 'string' || overlay[field].trim() === '') {
+      failures.push(`Overlay prefix entry is missing ${field}: ${JSON.stringify(overlay)}`)
+    }
+  }
 }
 
 const changes = runGit(['diff', '--name-status', `${upstreamRef}...HEAD`])
@@ -89,6 +132,11 @@ for (const change of changes) {
     continue
   }
   if (change.status === 'D') {
+    const overlay = overlayForPath(change.path)
+    if (overlay) {
+      activeOverlayPaths.add(change.path)
+      continue
+    }
     deletedUpstreamFiles += 1
     failures.push(`Deleted upstream file: ${change.path}`)
     continue
@@ -115,12 +163,12 @@ for (const change of changes) {
     highChurnOverlays += 1
   }
 
-  if (isDenied(change.path)) {
+  const overlay = overlayForPath(change.path)
+  if (isDenied(change.path) && !overlay) {
     deniedOverlays += 1
     failures.push(`Denied upstream overlay: ${change.path}`)
   }
 
-  const overlay = overlaysByPath.get(change.path)
   if (!overlay) {
     unjustifiedOverlays += 1
     failures.push(`Unregistered upstream overlay: ${change.path}`)
@@ -141,10 +189,7 @@ for (const path of staleOverlays) {
 const upstreamOverlayPaths = changes
   .filter((change) => !isForkOnly(change.path))
   .map((change) => change.path)
-const upstreamDiff =
-  upstreamOverlayPaths.length === 0
-    ? ''
-    : runGit(['diff', '--unified=0', `${upstreamRef}...HEAD`, '--', ...upstreamOverlayPaths])
+const upstreamDiff = diffUnifiedHunks(upstreamOverlayPaths)
 const modifiedUpstreamHunks = upstreamDiff
   .split('\n')
   .filter((line) => line.startsWith('@@ ')).length

@@ -16,6 +16,12 @@ test('does not git-apply the Horca mobile lockfile against upstream', () => {
   assert.match(lockfileText, /expo@57\.0\.18/)
   assert.equal(lockfileText.includes('@xmldom/xmldom@0.8.13'), false)
   assert.equal(lockfileText.includes('@xmldom/xmldom@0.9.10'), false)
+  const packageJson = JSON.parse(readFileSync(resolve(dir, 'package.json'), 'utf8'))
+  assert.equal(packageJson.name, 'horca-mobile')
+  assert.equal(
+    packageJson.dependencies['@orca/libghostty-terminal'],
+    'file:./packages/libghostty-terminal'
+  )
 })
 
 test('treats Ghostty WebView removals as path deletes, not content hunks', () => {
