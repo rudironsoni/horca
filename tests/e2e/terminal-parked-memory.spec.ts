@@ -395,7 +395,7 @@ const RETENTION_TAB_COUNT = 4
 const RETENTION_FILL_LINE_COUNT = 12_000
 const RETENTION_SCROLLBACK_ROWS = 25_000
 // Why 12: terminal packs each cell as 3 uint32s in the BufferLine typed array.
-const XTERM_BYTES_PER_CELL = 12
+const TERMINAL_BYTES_PER_CELL = 12
 // Why 40: this staging measures ~87 MB of retained buffer, so half of that is a
 // floor that fails loudly if the fill silently stops producing scrollback.
 const MIN_STAGED_BUFFER_MB = 40
@@ -465,7 +465,7 @@ async function readRetentionMemorySample(page: Page): Promise<RetentionMemorySam
   const buffers = await readRetainedTerminalBufferCells(page)
   return {
     buffers,
-    bufferMb: (buffers.cells * XTERM_BYTES_PER_CELL) / (1024 * 1024),
+    bufferMb: (buffers.cells * TERMINAL_BYTES_PER_CELL) / (1024 * 1024),
     heapUsedMb: metrics.heapUsedMB,
     rendererMb: await readRendererResidentMb(page),
     livePaneManagers: metrics.livePaneManagers

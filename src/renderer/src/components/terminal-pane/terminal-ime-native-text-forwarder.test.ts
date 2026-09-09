@@ -2,8 +2,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   installTerminalImeNativeTextForwarder,
-  XTERM_COMPOSITION_TRANSACTION_ACCEPTED_EVENT,
-  XTERM_COMPOSITION_TRANSACTION_SETTLED_EVENT,
+  TERMINAL_COMPOSITION_TRANSACTION_ACCEPTED_EVENT,
+  TERMINAL_COMPOSITION_TRANSACTION_SETTLED_EVENT,
   type ImeNativeTextKeyEvent
 } from './terminal-ime-native-text-forwarder'
 
@@ -337,7 +337,7 @@ describe('installTerminalImeNativeTextForwarder', () => {
       const { forwarder, sendInput } = install()
       forwarder.claimKeyEvent(keyEvent({ key: ',' }))
       element.dispatchEvent(
-        new CustomEvent(XTERM_COMPOSITION_TRANSACTION_ACCEPTED_EVENT, { bubbles: true })
+        new CustomEvent(TERMINAL_COMPOSITION_TRANSACTION_ACCEPTED_EVENT, { bubbles: true })
       )
       dispatchInsertText(textarea, '，')
       expect(sendInput).not.toHaveBeenCalled()
@@ -346,10 +346,10 @@ describe('installTerminalImeNativeTextForwarder', () => {
     it('resumes forwarding once the transaction settles', () => {
       const { forwarder, sendInput } = install()
       element.dispatchEvent(
-        new CustomEvent(XTERM_COMPOSITION_TRANSACTION_ACCEPTED_EVENT, { bubbles: true })
+        new CustomEvent(TERMINAL_COMPOSITION_TRANSACTION_ACCEPTED_EVENT, { bubbles: true })
       )
       element.dispatchEvent(
-        new CustomEvent(XTERM_COMPOSITION_TRANSACTION_SETTLED_EVENT, { bubbles: true })
+        new CustomEvent(TERMINAL_COMPOSITION_TRANSACTION_SETTLED_EVENT, { bubbles: true })
       )
       forwarder.claimKeyEvent(keyEvent({ key: ',' }))
       dispatchInsertText(textarea, '，')
