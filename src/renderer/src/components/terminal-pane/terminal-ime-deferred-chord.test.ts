@@ -7,7 +7,7 @@ import {
   createTerminalImeDeferredChordSender,
   TERMINAL_IME_DEFERRED_CHORD_ABANDON_MS
 } from './terminal-ime-deferred-chord'
-import { XTERM_COMPOSITION_SESSION_END_EVENT } from './terminal-ime-composition-route'
+import { TERMINAL_COMPOSITION_SESSION_END_EVENT } from './terminal-ime-composition-route'
 
 describe('createTerminalImeDeferredChordSender', () => {
   beforeEach(() => {
@@ -44,7 +44,7 @@ describe('createTerminalImeDeferredChordSender', () => {
     expect(removeEventListener).toHaveBeenCalledTimes(4)
 
     el.dispatchEvent(new Event('compositionend'))
-    el.dispatchEvent(new CustomEvent(XTERM_COMPOSITION_SESSION_END_EVENT))
+    el.dispatchEvent(new CustomEvent(TERMINAL_COMPOSITION_SESSION_END_EVENT))
     vi.runAllTimers()
     expect(first).not.toHaveBeenCalled()
     expect(second).not.toHaveBeenCalled()
