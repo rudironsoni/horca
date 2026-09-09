@@ -102,11 +102,10 @@ export function bindGhosttyKeyboardInput(pane: {
     event.preventDefault()
     pane.input(seq)
   }
-  pane.element.addEventListener('keydown', onKey)
-  pane.element.addEventListener('keyup', onKey)
+  const surface = pane.element.parentElement ?? pane.element
+  surface.addEventListener('keydown', onKey)
   return () => {
-    pane.element.removeEventListener('keydown', onKey)
-    pane.element.removeEventListener('keyup', onKey)
+    surface.removeEventListener('keydown', onKey)
   }
 }
 
@@ -170,6 +169,7 @@ export function bindGhosttyPointerInput(
   engine: GhosttyTerminal
 ): () => void {
   const send = (event: MouseEvent): void => {
+    pane.textarea?.focus()
     if (!engine.mouseTracking) {
       const before = engine.readSelection()
       const rect = pane.element.getBoundingClientRect()

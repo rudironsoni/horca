@@ -11,6 +11,9 @@ import type { GhosttyTerminal } from './ghostty-terminal'
 import { ghosttyVt } from './ghostty-vt-access'
 
 export function encodeKey(engine: GhosttyTerminal, event: KeyboardEvent): string {
+  if (engine.isDisposed) {
+    return ''
+  }
   const { host, term } = ghosttyVt(engine)
   return encodeBrowserKey(host, term, event)
 }
@@ -36,6 +39,9 @@ export function encodeMouse(
     rows: number
   }
 ): string {
+  if (engine.isDisposed) {
+    return ''
+  }
   const { host, term } = ghosttyVt(engine)
   return encodeBrowserMouse(host, term, event, surface)
 }
