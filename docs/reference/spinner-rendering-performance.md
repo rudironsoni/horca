@@ -68,7 +68,7 @@ those CPU windows. No samples are discarded.
 Typing is measured separately using the existing paced terminal-typing probe:
 64 keys at 113 ms cadence, twice per variant, after two seconds of warmup with
 status traffic. Status updates arrive in groups of up to eight every 200 ms.
-Keys pass through the DOM, real PTY, and xterm. A sidecar timestamps arrival at
+Keys pass through the DOM, real PTY, and Ghostty. A sidecar timestamps arrival at
 the PTY, and a bounded terminal-buffer scan observes each echo. Missing input
 or echoes fail the benchmark. Echo measurements include the 10 ms scan interval;
 they do not measure native display presentation. Native animation traces also
