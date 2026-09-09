@@ -54,7 +54,7 @@ describe('createPaneDOM link tooltips', () => {
     pane.terminal.dispose()
   })
 
-  it('constructs an Orca Ghostty canvas terminal, not terminal', () => {
+  it('constructs an Orca Ghostty canvas terminal', () => {
     const leafId = '11111111-1111-4111-8111-111111111111' as TerminalLeafId
     const pane = createPaneDOM(
       1,
@@ -71,6 +71,25 @@ describe('createPaneDOM link tooltips', () => {
     expect(pane.terminal.element.tagName).toBe('CANVAS')
     expect(pane.terminal.textarea.className).toBe('orca-terminal-helper-textarea')
     expect(pane.terminal.serialize()).toContain('hello ghostty')
+    pane.terminal.dispose()
+  })
+
+  it('focuses the helper textarea when the canvas is clicked', () => {
+    const leafId = '11111111-1111-4111-8111-111111111111' as TerminalLeafId
+    const pane = createPaneDOM(
+      1,
+      leafId,
+      { linkOpenHint: () => 'open hint' },
+      { active: null } as never,
+      {} as never,
+      vi.fn(),
+      vi.fn()
+    )
+    document.body.appendChild(pane.container)
+    pane.terminal.element.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true }))
+    expect(document.activeElement).toBe(pane.terminal.textarea)
+    expect(pane.terminal.element.tabIndex).toBe(-1)
+    pane.container.remove()
     pane.terminal.dispose()
   })
 

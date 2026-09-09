@@ -15,25 +15,14 @@ import {
   createOrcaPaneParser,
   flushWaiters,
   notifyTitleListeners,
-  noopDisposable,
   orcaPaneModes,
+  schedulePrimaryScreenCallback,
   trackListener
 } from './orca-pane-buffer'
 import { registerOrcaPaneLinkProvider } from './orca-pane-links'
 import { createOrcaPaneSurface } from './orca-pane-surface'
 import { createPaintScheduler, refreshOrcaPanePaint } from './orca-pane-paint'
-import {
-  bindOrcaPaneSession,
-  clearSelectionOnGhostty,
-  encodeGhosttyKey,
-  encodeGhosttyMouse,
-  findGhosttyNext,
-  findGhosttyPrevious,
-  hitTestGhosttyHyperlink,
-  notifySelectionListeners,
-  pasteIntoGhostty,
-  selectAllOnGhostty
-} from './orca-pane-terminal-io'
+import * as paneIo from './orca-pane-terminal-io'
 
 export type { OrcaPaneAppearance } from './orca-pane-appearance'
 export class OrcaPaneTerminal {
@@ -73,11 +62,11 @@ export class OrcaPaneTerminal {
     this.cellWidth = surface.cellWidth
     this.cellHeight = surface.cellHeight
     this.parser = createOrcaPaneParser()
-    this.unbindInput = bindOrcaPaneSession(
+    this.unbindInput = paneIo.bindOrcaPaneSession(
       this,
       {
         customKeyHandler: () => this.customKeyHandler,
-        onSelectionChange: () => notifySelectionListeners(this.selectionListeners)
+        onSelectionChange: () => paneIo.notifySelectionListeners(this.selectionListeners)
       },
       this.engine
     )
@@ -111,7 +100,6 @@ export class OrcaPaneTerminal {
     const bar = readScrollbar(this.engine)
     return Math.max(0, bar.total - bar.len)
   }
-
   write(data: string | Uint8Array, onDone?: () => void): void {
     const text = typeof data === 'string' ? data : new TextDecoder().decode(data)
     const title = this.engine.title
@@ -121,7 +109,6 @@ export class OrcaPaneTerminal {
     flushWaiters(this.isAlternateScreen, this.primaryScreenWaiters)
     onDone?.()
   }
-
   get modes(): ReturnType<typeof orcaPaneModes> {
     return orcaPaneModes(this.engine)
   }
@@ -219,21 +206,21 @@ export class OrcaPaneTerminal {
     this.textarea.blur()
   }
   clearSelection(): void {
-    clearSelectionOnGhostty(this.engine)
+    paneIo.clearSelectionOnGhostty(this.engine)
     this.refresh()
-    notifySelectionListeners(this.selectionListeners)
+    paneIo.notifySelectionListeners(this.selectionListeners)
   }
   setPreedit(text: string): void {
     this.renderer.setPreedit(text)
     this.paintScheduler.flush()
   }
   selectAll(): void {
-    selectAllOnGhostty(this.engine)
+    paneIo.selectAllOnGhostty(this.engine)
     this.refresh()
-    notifySelectionListeners(this.selectionListeners)
+    paneIo.notifySelectionListeners(this.selectionListeners)
   }
   paste(text: string): void {
-    this.input(pasteIntoGhostty(this.engine, text))
+    this.input(paneIo.pasteIntoGhostty(this.engine, text))
   }
   getSelection(): string {
     return this.engine.readSelection()
@@ -252,11 +239,11 @@ export class OrcaPaneTerminal {
     this.refresh()
   }
   encodeKey(event: KeyboardEvent): string {
-    return encodeGhosttyKey(this.engine, event)
+    return paneIo.encodeGhosttyKey(this.engine, event)
   }
   encodeMouse(event: MouseEvent): string {
     const rect = this.element.getBoundingClientRect()
-    return encodeGhosttyMouse(this.engine, event, {
+    return paneIo.encodeGhosttyMouse(this.engine, event, {
       left: rect.left,
       top: rect.top,
       cellWidth: this.cellWidth,
@@ -266,10 +253,10 @@ export class OrcaPaneTerminal {
     })
   }
   findNext(query: string, _options?: { caseSensitive?: boolean; regex?: boolean }): boolean {
-    return this.findHit(findGhosttyNext(this.engine, query))
+    return this.findHit(paneIo.findGhosttyNext(this.engine, query))
   }
   findPrevious(query: string, _options?: { caseSensitive?: boolean; regex?: boolean }): boolean {
-    return this.findHit(findGhosttyPrevious(this.engine, query))
+    return this.findHit(paneIo.findGhosttyPrevious(this.engine, query))
   }
   private findHit(hit: boolean): boolean {
     if (hit) {
@@ -281,12 +268,11 @@ export class OrcaPaneTerminal {
     return this.engine.readVt()
   }
   whenPrimaryScreen(callback: () => void): OrcaDisposable {
-    if (!this.isAlternateScreen) {
-      callback()
-      return noopDisposable()
-    }
-    this.primaryScreenWaiters.add(callback)
-    return { dispose: () => this.primaryScreenWaiters.delete(callback) }
+    return schedulePrimaryScreenCallback(
+      this.isAlternateScreen,
+      this.primaryScreenWaiters,
+      callback
+    )
   }
   applyMetrics(): void {
     const cells = measureCellSize(this.options)
@@ -295,7 +281,7 @@ export class OrcaPaneTerminal {
     this.resize(this.cols, this.rows)
   }
   hyperlinkAt(clientX: number, clientY: number): string | null {
-    return hitTestGhosttyHyperlink(
+    return paneIo.hitTestGhosttyHyperlink(
       this.engine,
       this.element,
       this.cellWidth,
