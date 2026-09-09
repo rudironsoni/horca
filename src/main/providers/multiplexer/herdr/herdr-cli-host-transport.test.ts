@@ -1,4 +1,6 @@
 import { EventEmitter } from 'node:events'
+import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   HerdrCliSessionManager,
@@ -196,6 +198,48 @@ describe('HerdrSdkHost terminal control', () => {
 })
 
 describe('HerdrCliSessionManager CLI env', () => {
+  it('does not restart a named session whose socket is already live', async () => {
+    const home = mkdtempSync(join('/tmp', 'orca-h-'))
+    const configHome = join(home, '.config')
+    const sessionName = 'ot-test'
+    const previousHome = process.env.HOME
+    const previousXdg = process.env.XDG_CONFIG_HOME
+    process.env.HOME = home
+    process.env.XDG_CONFIG_HOME = configHome
+    mkdirSync(join(configHome, 'herdr', 'sessions', sessionName), { recursive: true })
+    writeFileSync(join(configHome, 'herdr', 'sessions', sessionName, 'herdr.sock'), '')
+    runProcessMock.mockResolvedValue({
+      code: 0,
+      stdout: JSON.stringify({ sessions: [{ name: sessionName, running: true }] }),
+      stderr: '',
+      timedOut: false
+    })
+    const manager = new HerdrCliSessionManager({
+      commandFor: (args) => ({
+        file: '/mock/herdr',
+        args,
+        env: { HOME: home, PATH: '/bin', XDG_CONFIG_HOME: configHome }
+      })
+    })
+    try {
+      await manager.ensureSession(sessionName)
+      expect(spawnProcessMock).not.toHaveBeenCalled()
+      expect(runProcessMock.mock.calls[0]?.[0]).toEqual(
+        expect.objectContaining({
+          args: ['--session', sessionName, 'session', 'list', '--json']
+        })
+      )
+    } finally {
+      process.env.HOME = previousHome
+      if (previousXdg === undefined) {
+        delete process.env.XDG_CONFIG_HOME
+      } else {
+        process.env.XDG_CONFIG_HOME = previousXdg
+      }
+      rmSync(home, { recursive: true, force: true })
+    }
+  })
+
   it('lists sessions with the relocated herdr config home', async () => {
     runProcessMock.mockResolvedValue({
       code: 0,
