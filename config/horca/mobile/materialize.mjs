@@ -15,6 +15,14 @@ const downstreamFiles = [
     destination: join(mobileOutput, 'plugins', 'ios-scene-lifecycle.js')
   },
   {
+    source: join(import.meta.dirname, 'package.json'),
+    destination: join(mobileOutput, 'package.json')
+  },
+  {
+    source: join(import.meta.dirname, 'pnpm-workspace.yaml'),
+    destination: join(mobileOutput, 'pnpm-workspace.yaml')
+  },
+  {
     source: join(import.meta.dirname, 'pnpm-lock.yaml'),
     destination: join(mobileOutput, 'pnpm-lock.yaml')
   }
@@ -48,10 +56,6 @@ if (dirname(outputRoot) !== join(repoRoot, 'out') || !outputRoot.endsWith(`${sep
 rmSync(outputRoot, { recursive: true, force: true })
 copyTracked('mobile')
 copyTracked('src/shared')
-for (const file of downstreamFiles) {
-  mkdirSync(dirname(file.destination), { recursive: true })
-  cpSync(file.source, file.destination)
-}
 for (const patch of downstreamPatches) {
   const deletedPaths = deletedPathsFromPatch(readFileSync(patch, 'utf8'))
   // Full-file deletes and the lockfile cannot match drifting upstream content.
@@ -71,11 +75,19 @@ for (const patch of downstreamPatches) {
       '-p1',
       `--directory=${applyDirectory}`,
       '--exclude=*pnpm-lock.yaml',
+      '--exclude=mobile/package.json',
+      '--exclude=mobile/pnpm-workspace.yaml',
+      `--exclude=${join(applyDirectory, 'mobile/package.json')}`,
+      `--exclude=${join(applyDirectory, 'mobile/pnpm-workspace.yaml')}`,
       ...deletedPaths.map((path) => `--exclude=${join(applyDirectory, path)}`),
       patch
     ],
     { cwd: repoRoot, stdio: 'inherit', maxBuffer: 64 * 1024 * 1024 }
   )
+}
+for (const file of downstreamFiles) {
+  mkdirSync(dirname(file.destination), { recursive: true })
+  cpSync(file.source, file.destination)
 }
 
 console.log(`Materialized Horca mobile at ${relative(repoRoot, mobileOutput)}`)
