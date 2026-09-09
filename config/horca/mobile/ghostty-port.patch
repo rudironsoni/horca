@@ -20985,25 +20985,27 @@ index f33d081f2c..93f984bec6 100644
        }
        if (client && created !== '1' && !isFloatingWorkspaceRoute) {
 diff --git a/mobile/src/session/use-mobile-session-terminal-input.ts b/mobile/src/session/use-mobile-session-terminal-input.ts
-index 02906099e7..27ce2268dc 100644
+index 3f6e417e23..e5bb48fc83 100644
 --- a/mobile/src/session/use-mobile-session-terminal-input.ts
 +++ b/mobile/src/session/use-mobile-session-terminal-input.ts
-@@ -1,4 +1,6 @@
+@@ -1,5 +1,6 @@
+ import { reportWorkerTerminalUserInput } from '../terminal/worker-terminal-takeover-report'
  import { useCallback } from 'react'
 +import type { TerminalInputEvent } from '@orca/libghostty-terminal'
-+import { isTerminalQueryReply } from '../../../src/shared/terminal-query-reply'
+ import { isTerminalSendRpcAccepted } from '../terminal/terminal-send-rpc-response'
  import {
    clearTerminalLiveInputFocusTimer,
-   scheduleTerminalLiveInputFocus
-@@ -10,7 +12,6 @@ import {
+@@ -11,8 +12,8 @@ import {
+   TERMINAL_INPUT_SEND_OPTIONS
  } from '../terminal/terminal-send-request'
  import { countTerminalGestureInputSequences } from '../terminal/terminal-gesture-input'
++import { isTerminalQueryReply } from '../../../src/shared/terminal-query-reply'
  import {
 -  isGestureMouseTrackingMode,
    TERMINAL_GESTURE_INPUT_BUCKET_CAPACITY,
    TERMINAL_GESTURE_INPUT_FLUSH_DELAY_MS,
    TERMINAL_GESTURE_INPUT_MAX_PENDING_SEQUENCES,
-@@ -26,7 +27,6 @@ export function useMobileSessionTerminalInput(scope: MobileSessionFileActionsMod
+@@ -28,7 +29,6 @@ export function useMobileSessionTerminalInput(scope: MobileSessionFileActionsMod
      connState,
      toggleTerminalLiveInput,
      activeHandle,
@@ -21011,7 +21013,7 @@ index 02906099e7..27ce2268dc 100644
      terminalGestureInputBucketsRef,
      terminalGestureInputQueuesRef,
      terminalGestureInputInFlightRef,
-@@ -35,6 +35,7 @@ export function useMobileSessionTerminalInput(scope: MobileSessionFileActionsMod
+@@ -37,6 +37,7 @@ export function useMobileSessionTerminalInput(scope: MobileSessionFileActionsMod
      connStateRef,
      liveInputRef,
      liveInputFocusTimerRef,
@@ -21019,7 +21021,7 @@ index 02906099e7..27ce2268dc 100644
      terminalUnsubsRef,
      activeHandleRef,
      activeSessionTabTypeRef,
-@@ -187,20 +188,29 @@ export function useMobileSessionTerminalInput(scope: MobileSessionFileActionsMod
+@@ -192,20 +193,29 @@ export function useMobileSessionTerminalInput(scope: MobileSessionFileActionsMod
    )
  
    const handleTerminalInput = useCallback(
@@ -21054,7 +21056,7 @@ index 02906099e7..27ce2268dc 100644
          return
        }
        if (!allowTerminalGestureInput(handle, sequenceCount)) {
-@@ -227,7 +237,7 @@ export function useMobileSessionTerminalInput(scope: MobileSessionFileActionsMod
+@@ -232,7 +242,7 @@ export function useMobileSessionTerminalInput(scope: MobileSessionFileActionsMod
      if (!client) {
        return
      }
@@ -21564,10 +21566,13 @@ index 56af08c630..a221d3db5b 100644
  }
  
 diff --git a/mobile/src/session/use-mobile-terminal-paste.ts b/mobile/src/session/use-mobile-terminal-paste.ts
-index 57ea720c4c..31257f8da7 100644
+index 3680fa2e50..31257f8da7 100644
 --- a/mobile/src/session/use-mobile-terminal-paste.ts
 +++ b/mobile/src/session/use-mobile-terminal-paste.ts
-@@ -2,11 +2,9 @@ import { useCallback, type RefObject } from 'react'
+@@ -1,14 +1,10 @@
+-import { reportWorkerTerminalUserInput } from '../terminal/worker-terminal-takeover-report'
+ import { useCallback, type RefObject } from 'react'
+-import { isTerminalSendRpcAccepted } from '../terminal/terminal-send-rpc-response'
  import * as Clipboard from 'expo-clipboard'
  import { File as FsFile, Paths } from 'expo-file-system'
  import { ImageManipulator, SaveFormat } from 'expo-image-manipulator'
@@ -21579,7 +21584,7 @@ index 57ea720c4c..31257f8da7 100644
    prepareMobileClipboardImageBase64,
    saveMobileClipboardImageAsTempFile,
    type MobileClipboardImageResizer
-@@ -57,18 +55,6 @@ const resizeMobileClipboardImage: MobileClipboardImageResizer = async (source, t
+@@ -59,18 +55,6 @@ const resizeMobileClipboardImage: MobileClipboardImageResizer = async (source, t
    }
  }
  
@@ -21598,7 +21603,7 @@ index 57ea720c4c..31257f8da7 100644
  type UseMobileTerminalPasteOptions = {
    readonly activeHandle: string | null
    readonly activeHandleRef: RefObject<string | null>
-@@ -78,12 +64,11 @@ type UseMobileTerminalPasteOptions = {
+@@ -80,12 +64,11 @@ type UseMobileTerminalPasteOptions = {
    readonly clientRef: RefObject<RpcClient | null>
    readonly connState: ConnectionState
    readonly connStateRef: RefObject<ConnectionState>
@@ -21612,7 +21617,7 @@ index 57ea720c4c..31257f8da7 100644
    readonly refreshCanPaste: () => void
    readonly showToast: (message: string, durationMs?: number) => void
  }
-@@ -97,12 +82,11 @@ export function useMobileTerminalPaste({
+@@ -99,12 +82,11 @@ export function useMobileTerminalPaste({
    clientRef,
    connState,
    connStateRef,
@@ -21626,7 +21631,7 @@ index 57ea720c4c..31257f8da7 100644
    refreshCanPaste,
    showToast
  }: UseMobileTerminalPasteOptions): () => Promise<void> {
-@@ -115,10 +99,7 @@ export function useMobileTerminalPaste({
+@@ -117,10 +99,7 @@ export function useMobileTerminalPaste({
        const text = await Clipboard.getStringAsync()
        let payload: string | null = null
        if (text.length > 0) {
@@ -21638,7 +21643,7 @@ index 57ea720c4c..31257f8da7 100644
        } else {
          const image = await Clipboard.getImageAsync({ format: 'png' })
          if (!image) {
-@@ -130,7 +111,7 @@ export function useMobileTerminalPaste({
+@@ -132,7 +111,7 @@ export function useMobileTerminalPaste({
          const imagePath = await saveMobileClipboardImageAsTempFile(client, base64, {
            connectionId
          })
@@ -21647,11 +21652,11 @@ index 57ea720c4c..31257f8da7 100644
        }
  
        const wrappedBytes = new TextEncoder().encode(payload).byteLength
-@@ -155,14 +136,9 @@ export function useMobileTerminalPaste({
+@@ -157,16 +136,8 @@ export function useMobileTerminalPaste({
        ) {
          return
        }
--      await currentClient.sendRequest('terminal.send', {
+-      const response = await currentClient.sendRequest('terminal.send', {
 -        terminal: targetHandle,
 -        text: payload,
 -        enter: false,
@@ -21659,13 +21664,14 @@ index 57ea720c4c..31257f8da7 100644
 -          ? { client: { id: deviceTokenRef.current, type: 'mobile' as const } }
 -          : {})
 -      })
+-      if (isTerminalSendRpcAccepted(response)) {
+-        reportWorkerTerminalUserInput(currentClient, targetHandle)
 +      if (!(await pasteTerminalText(targetHandle, payload))) {
 +        return
-+      }
+       }
        onSuccess()
        refreshCanPaste()
-     } catch (e) {
-@@ -188,12 +164,11 @@ export function useMobileTerminalPaste({
+@@ -193,12 +164,11 @@ export function useMobileTerminalPaste({
      clientRef,
      connState,
      connStateRef,
