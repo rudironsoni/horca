@@ -25,7 +25,7 @@ describe('packaged Horca asar probes', () => {
       'horca-packaged-electron-profile',
       'setPath(`userData`, root)',
       'Could not resolve herdr target for spawn',
-      'is incompatible with SDK protocols',
+      'is incompatible with SDK protocol',
       'terminal-backends.json'
     ].join('\n'),
     renderer: 'data-horca-settings data-horca-product-name'
