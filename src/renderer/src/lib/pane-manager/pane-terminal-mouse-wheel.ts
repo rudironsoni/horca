@@ -16,7 +16,7 @@ export {
 } from './pane-terminal-tui-wheel-reports'
 export type { TerminalTuiMouseWheelDistanceState } from './pane-terminal-tui-wheel-reports'
 
-const XTERM_MOUSE_REPORTING_CLASS = 'enable-mouse-events'
+const TERMINAL_MOUSE_REPORTING_CLASS = 'enable-mouse-events'
 const REPLAYED_WHEEL_EVENT_PROPERTY = '__orcaReplayedTerminalWheelEvent'
 const DOM_DELTA_LINE = 1
 
@@ -111,7 +111,7 @@ export function shouldMultiplyTerminalMouseWheel(
 ): boolean {
   if (
     isReplayedWheelEvent(event) ||
-    !terminalElement?.classList.contains(XTERM_MOUSE_REPORTING_CLASS) ||
+    !terminalElement?.classList.contains(TERMINAL_MOUSE_REPORTING_CLASS) ||
     event.deltaY === 0 ||
     event.shiftKey
   ) {
