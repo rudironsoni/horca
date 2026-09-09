@@ -1,7 +1,7 @@
 import {
   capturePendingTerminalImeCompositionSessions,
   hasPendingTerminalImeComposition,
-  XTERM_COMPOSITION_SESSION_END_EVENT
+  TERMINAL_COMPOSITION_SESSION_END_EVENT
 } from './terminal-ime-composition-route'
 
 export const TERMINAL_IME_DEFERRED_NEWLINE_FALLBACK_MS = 200
@@ -44,7 +44,7 @@ export function sendTerminalInputAfterComposition(
     done = true
     terminalElement.removeEventListener('compositionend', onCompositionEnd)
     terminalElement.removeEventListener(
-      XTERM_COMPOSITION_SESSION_END_EVENT,
+      TERMINAL_COMPOSITION_SESSION_END_EVENT,
       onCompositionSessionEnd
     )
     if (fallbackTimer !== undefined) {
@@ -69,7 +69,7 @@ export function sendTerminalInputAfterComposition(
   const onCompositionEnd = (): void => finishAfterPendingComposition()
   const onCompositionSessionEnd = (): void => finishAfterPendingComposition()
   terminalElement.addEventListener('compositionend', onCompositionEnd)
-  terminalElement.addEventListener(XTERM_COMPOSITION_SESSION_END_EVENT, onCompositionSessionEnd)
+  terminalElement.addEventListener(TERMINAL_COMPOSITION_SESSION_END_EVENT, onCompositionSessionEnd)
   const fallbackTimer = fallbackMs === null ? undefined : window.setTimeout(finish, fallbackMs)
 
   return stopWaiting

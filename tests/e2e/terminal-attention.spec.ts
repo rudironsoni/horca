@@ -416,14 +416,14 @@ test.describe('Terminal attention', () => {
             // (and dropped on the floor, since nothing was listening). Install
             // the spy now to observe only post-reset output.
             const recorded: string[] = []
-            ;(window as unknown as { __XTERM_ONDATA_SPY__: string[] }).__XTERM_ONDATA_SPY__ =
+            ;(window as unknown as { __TERMINAL_ONDATA_SPY__: string[] }).__TERMINAL_ONDATA_SPY__ =
               recorded
             const disposer = pane.terminal.onData((data) => {
               recorded.push(data)
             })
             ;(
-              window as unknown as { __XTERM_ONDATA_DISPOSE__?: () => void }
-            ).__XTERM_ONDATA_DISPOSE__ = () => disposer.dispose()
+              window as unknown as { __TERMINAL_ONDATA_DISPOSE__?: () => void }
+            ).__TERMINAL_ONDATA_DISPOSE__ = () => disposer.dispose()
             resolve()
           })
         }),
@@ -462,8 +462,8 @@ test.describe('Terminal attention', () => {
       // shell-startup BELs.
       const emittedFromXterm = await orcaPage.evaluate(
         () =>
-          (window as unknown as { __XTERM_ONDATA_SPY__: string[] | undefined })
-            .__XTERM_ONDATA_SPY__ ?? []
+          (window as unknown as { __TERMINAL_ONDATA_SPY__: string[] | undefined })
+            .__TERMINAL_ONDATA_SPY__ ?? []
       )
       // Join before matching: individual chunks could split an escape
       // across onData calls (unlikely but possible — e.g. if terminal
@@ -476,12 +476,12 @@ test.describe('Terminal attention', () => {
       // failed.
       await orcaPage.evaluate(() => {
         const w = window as unknown as {
-          __XTERM_ONDATA_DISPOSE__?: () => void
-          __XTERM_ONDATA_SPY__?: string[]
+          __TERMINAL_ONDATA_DISPOSE__?: () => void
+          __TERMINAL_ONDATA_SPY__?: string[]
         }
-        w.__XTERM_ONDATA_DISPOSE__?.()
-        delete w.__XTERM_ONDATA_DISPOSE__
-        delete w.__XTERM_ONDATA_SPY__
+        w.__TERMINAL_ONDATA_DISPOSE__?.()
+        delete w.__TERMINAL_ONDATA_DISPOSE__
+        delete w.__TERMINAL_ONDATA_SPY__
       })
     }
   })
