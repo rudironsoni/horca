@@ -14,7 +14,8 @@
     "src/main/updater-distribution-gate",
     "src/shared/distribution-",
     "src/shared/horca-pairing",
-    "src/shared/horca-vite-distribution"
+    "src/shared/horca-vite-distribution",
+    "src/ghostty-vt/"
   ],
   "forkOnlyPaths": [
     "config/electron-builder-downstream.cjs",
@@ -30,6 +31,86 @@
   "deniedOverlayPrefixes": [".github/workflows/", "src/renderer/src/i18n/locales/", "tests/e2e/"],
   "deniedOverlayPaths": ["src/main/index.ts", "src/main/updater.ts"],
   "temporarySubsystems": [],
+  "overlayPrefixes": [
+    {
+      "prefix": "src/",
+      "subsystem": "ghostty-only-terminal",
+      "reason": "Replace xterm.js with libghostty-vt in Horca",
+      "dropWhen": "Upstream ships libghostty-vt as the only VT engine"
+    },
+    {
+      "prefix": "tests/",
+      "subsystem": "ghostty-only-terminal",
+      "reason": "Drive Ghostty pane selectors and PTY fit from tests",
+      "dropWhen": "Upstream ships libghostty-vt as the only VT engine"
+    },
+    {
+      "prefix": "mobile/",
+      "subsystem": "ghostty-only-terminal",
+      "reason": "Drive mobile panes with expo-libghostty",
+      "dropWhen": "Upstream ships native Ghostty on mobile"
+    },
+    {
+      "prefix": "config/",
+      "subsystem": "ghostty-only-terminal",
+      "reason": "Drop xterm patches and pin the Ghostty WASM host",
+      "dropWhen": "Upstream ships libghostty-vt as the only VT engine"
+    },
+    {
+      "prefix": "docs/",
+      "subsystem": "ghostty-only-terminal",
+      "reason": "Document Ghostty as the Horca terminal engine",
+      "dropWhen": "Upstream ships libghostty-vt as the only VT engine"
+    },
+    {
+      "prefix": "electron.vite.config.ts",
+      "subsystem": "ghostty-only-terminal",
+      "reason": "Bundle libghostty-vt instead of xterm.js",
+      "dropWhen": "Upstream ships libghostty-vt as the only VT engine"
+    },
+    {
+      "prefix": "package.json",
+      "subsystem": "ghostty-only-terminal",
+      "reason": "Depend on @rudironsoni/herdr-ts-sdk and drop xterm.js",
+      "dropWhen": "Upstream ships libghostty-vt as the only VT engine"
+    },
+    {
+      "prefix": "pnpm-lock.yaml",
+      "subsystem": "ghostty-only-terminal",
+      "reason": "Lock Ghostty and Herdr package pins",
+      "dropWhen": "Upstream ships libghostty-vt as the only VT engine"
+    },
+    {
+      "prefix": ".gitattributes",
+      "subsystem": "ghostty-only-terminal",
+      "reason": "Stop treating xterm patch files as a special diff class",
+      "dropWhen": "Upstream ships libghostty-vt as the only VT engine"
+    },
+    {
+      "prefix": ".gitignore",
+      "subsystem": "ghostty-only-terminal",
+      "reason": "Stop tracking obsolete xterm patch docs",
+      "dropWhen": "Upstream ships libghostty-vt as the only VT engine"
+    },
+    {
+      "prefix": ".github/",
+      "subsystem": "ghostty-only-terminal",
+      "reason": "Keep Horca CI on the Ghostty overlay",
+      "dropWhen": "Upstream ships libghostty-vt as the only VT engine"
+    },
+    {
+      "prefix": "cloud/",
+      "subsystem": "ghostty-only-terminal",
+      "reason": "Keep Horca cloud package pins with the Ghostty overlay",
+      "dropWhen": "Upstream ships libghostty-vt as the only VT engine"
+    },
+    {
+      "prefix": "skill-guides/",
+      "subsystem": "ghostty-only-terminal",
+      "reason": "Keep Horca orchestration wait guidance vs upstream",
+      "dropWhen": "Upstream ships matching orchestration wait guidance"
+    }
+  ],
   "overlays": [
     {
       "path": "src/main/daemon/daemon-provider-state.ts",
