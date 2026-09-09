@@ -14,7 +14,10 @@ export function createOrcaPaneSurface(appearance: OrcaPaneAppearance): {
   const cells = measureCellSize(appearance)
   const canvas = document.createElement('canvas')
   canvas.className = 'orca-terminal-canvas'
-  canvas.tabIndex = 0
+  canvas.tabIndex = -1
+  canvas.style.display = 'block'
+  canvas.style.width = '100%'
+  canvas.style.height = '100%'
   const textarea = document.createElement('textarea')
   textarea.className = 'orca-terminal-helper-textarea'
   textarea.tabIndex = 0
