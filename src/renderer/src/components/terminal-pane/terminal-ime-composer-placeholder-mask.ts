@@ -3,8 +3,8 @@ import type { OrcaPaneTerminal as Terminal } from '../../lib/pane-manager/orca-p
 import { hasTerminalComposerPlaceholder } from '../../../../shared/terminal-composer-draft'
 import { readTerminalCursorLineContext } from '../../../../shared/terminal-cursor-line-context'
 import {
-  XTERM_COMPOSITION_SESSION_END_EVENT,
-  XTERM_COMPOSITION_SESSION_START_EVENT
+  TERMINAL_COMPOSITION_SESSION_END_EVENT,
+  TERMINAL_COMPOSITION_SESSION_START_EVENT
 } from './terminal-ime-composition-route'
 
 export const TERMINAL_IME_COMPOSER_PLACEHOLDER_CLASS = 'orca-ime-composer-placeholder'
@@ -55,8 +55,8 @@ export function installTerminalImeComposerPlaceholderMask(terminal: Terminal): I
     syncPlaceholderOwnership()
   }
 
-  element.addEventListener(XTERM_COMPOSITION_SESSION_START_EVENT, handleSessionStart)
-  element.addEventListener(XTERM_COMPOSITION_SESSION_END_EVENT, handleSessionEnd)
+  element.addEventListener(TERMINAL_COMPOSITION_SESSION_START_EVENT, handleSessionStart)
+  element.addEventListener(TERMINAL_COMPOSITION_SESSION_END_EVENT, handleSessionEnd)
   element.addEventListener('blur', handleBlur, true)
   const renderDisposable = terminal.onRender(() => {
     if (activeSessionId !== null) {
@@ -68,8 +68,8 @@ export function installTerminalImeComposerPlaceholderMask(terminal: Terminal): I
     dispose: () => {
       activeSessionId = null
       element.classList.remove(TERMINAL_IME_COMPOSER_PLACEHOLDER_CLASS)
-      element.removeEventListener(XTERM_COMPOSITION_SESSION_START_EVENT, handleSessionStart)
-      element.removeEventListener(XTERM_COMPOSITION_SESSION_END_EVENT, handleSessionEnd)
+      element.removeEventListener(TERMINAL_COMPOSITION_SESSION_START_EVENT, handleSessionStart)
+      element.removeEventListener(TERMINAL_COMPOSITION_SESSION_END_EVENT, handleSessionEnd)
       element.removeEventListener('blur', handleBlur, true)
       renderDisposable.dispose()
     }
