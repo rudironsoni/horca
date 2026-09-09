@@ -11,8 +11,8 @@ import type { PaneManager } from '@/lib/pane-manager/pane-manager'
 import type { PtyTransport } from './pty-transport'
 import {
   installTerminalImeCompositionRoute,
-  XTERM_COMPOSITION_SESSION_END_EVENT,
-  XTERM_COMPOSITION_SESSION_START_EVENT
+  TERMINAL_COMPOSITION_SESSION_END_EVENT,
+  TERMINAL_COMPOSITION_SESSION_START_EVENT
 } from './terminal-ime-composition-route'
 import { TERMINAL_IME_DEFERRED_CHORD_ABANDON_MS } from './terminal-ime-deferred-chord'
 import { useTerminalKeyboardShortcuts } from './keyboard-handlers'
@@ -34,7 +34,7 @@ function keyboardEvent(
 /** Live registrations on the terminal element, so a deferral that never disposes is visible. */
 function trackCompositionListeners(element: HTMLElement): () => number {
   const live = new Set<EventListenerOrEventListenerObject>()
-  const watched = new Set(['compositionend', XTERM_COMPOSITION_SESSION_END_EVENT])
+  const watched = new Set(['compositionend', TERMINAL_COMPOSITION_SESSION_END_EVENT])
   const { addEventListener, removeEventListener } = element
   element.addEventListener = function (type, listener, options): void {
     if (watched.has(type) && listener) {
@@ -138,12 +138,12 @@ function createHarness(): {
     deferralListenerCount,
     startComposition: () => {
       terminalElement.dispatchEvent(
-        new CustomEvent(XTERM_COMPOSITION_SESSION_START_EVENT, { detail: { id: 1 } })
+        new CustomEvent(TERMINAL_COMPOSITION_SESSION_START_EVENT, { detail: { id: 1 } })
       )
     },
     endComposition: (data: string) => {
       terminalElement.dispatchEvent(
-        new CustomEvent(XTERM_COMPOSITION_SESSION_END_EVENT, {
+        new CustomEvent(TERMINAL_COMPOSITION_SESSION_END_EVENT, {
           cancelable: true,
           detail: { id: 1, data }
         })
