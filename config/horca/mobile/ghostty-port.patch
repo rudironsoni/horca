@@ -51,18 +51,19 @@ index 9080cdedcf..da70dc9752 100644
          // and edge-back from revealing the router error page.
          router.replace({ pathname: '/pair-confirm', params: { code } })
        }
-diff --git a/mobile/app/about.tsx b/mobile/app/about.tsx
-index 70a1effa44..64789b95f5 100644
---- a/mobile/app/about.tsx
-+++ b/mobile/app/about.tsx
-@@ -51,7 +51,7 @@ export default function AboutScreen() {
- 
+diff --git a/mobile/src/settings/about-screen.tsx b/mobile/src/settings/about-screen.tsx
+index 3212343fee..ea5b8e5344 100644
+--- a/mobile/src/settings/about-screen.tsx
++++ b/mobile/src/settings/about-screen.tsx
+@@ -54,7 +54,7 @@ export default function AboutScreen({
+
        <View style={styles.brand}>
          <OrcaLogo size={28} />
 -        <Text style={styles.brandName}>Orca</Text>
 +        <Text style={styles.brandName}>Horca</Text>
          <Text style={styles.brandSub}>Open-source agent IDE for 100x builders</Text>
        </View>
+ 
  
 diff --git a/mobile/app/mobile-onboarding.tsx b/mobile/app/mobile-onboarding.tsx
 index 50957a465f..32e2bdf538 100644
