@@ -9,7 +9,7 @@ import type {
   SessionSnapshot,
   Tab,
   Workspace
-} from '@rudironsoni/herdr-ts-sdk'
+} from '@herdr/sdk'
 import type { Effect } from 'effect'
 
 export const SUPPORTED_HERDR_PROTOCOLS = [22] as const

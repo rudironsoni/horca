@@ -1,4 +1,4 @@
-import type { PaneMoveInputEncoded } from '@rudironsoni/herdr-ts-sdk'
+import type { PaneMoveInputEncoded } from '@herdr/sdk'
 import type { PtyProcessInfo, PtyProviderBufferSnapshot } from '../../types'
 import type { HerdrAgentStatus, HerdrHostTransport, HerdrPane } from './herdr-runtime-contract'
 import type {
