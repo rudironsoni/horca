@@ -15,8 +15,8 @@ const BUNDLED_MAIN_DEPENDENCIES = new Set([
   // Why: Windows NSIS deploys app.asar before external resources; bootstrap must
   // not race the later resources/node_modules copy.
   'zod',
-  // Why: @rudironsoni/herdr-ts-sdk is ESM-only; CJS main cannot require() it from node_modules.
-  '@rudironsoni/herdr-ts-sdk',
+  // Why: @herdr/sdk is ESM-only; CJS main cannot require() it from node_modules.
+  '@herdr/sdk',
   'effect',
   '@effect/platform-node-shared'
 ])
