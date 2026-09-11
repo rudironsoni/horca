@@ -1,4 +1,4 @@
-import type { HerdrEvent, IHerdrSdk } from '@rudironsoni/herdr-ts-sdk'
+import type { HerdrEvent, IHerdrSdk } from '@herdr/sdk'
 import { Effect } from 'effect'
 import { vi } from 'vitest'
 import type { HerdrHostTransport, HerdrSdkClient } from './herdr-runtime-contract'
