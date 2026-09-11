@@ -1,0 +1,23 @@
+name: 'Horca: Dispatch Sync Candidate'
+
+on:
+  push:
+    branches: [cursor/dispatch-horca-sync-1454]
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  dispatch:
+    if: github.repository == 'rudironsoni/horca'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Dispatch Horca Sync Upstream
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run horca_sync.yml --repo "$GITHUB_REPOSITORY" --ref main \
+            -f candidate_ref=maintenance/rebase-94c2f96ea46e
