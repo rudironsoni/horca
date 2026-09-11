@@ -1,6 +1,6 @@
 import { Option } from 'effect'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { HerdrEvent } from '@rudironsoni/herdr-ts-sdk'
+import type { HerdrEvent } from '@herdr/sdk'
 import {
   emitHerdrPaneOscTitle,
   readHerdrPaneUpdatedTitle,
