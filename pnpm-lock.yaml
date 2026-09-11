@@ -129,15 +129,15 @@ importers:
       '@floating-ui/dom':
         specifier: 1.7.6
         version: 1.7.6
+      '@herdr/sdk':
+        specifier: file:config/horca/vendor/herdr-sdk-0.9.0.tgz
+        version: file:config/horca/vendor/herdr-sdk-0.9.0.tgz
       '@linear/sdk':
         specifier: ^82.1.0
         version: 82.1.0(graphql@16.14.2)
       '@parcel/watcher':
         specifier: ^2.5.6
         version: 2.5.6
-      '@rudironsoni/herdr-ts-sdk':
-        specifier: file:config/horca/vendor/rudironsoni-herdr-ts-sdk-0.10.0.tgz
-        version: file:config/horca/vendor/rudironsoni-herdr-ts-sdk-0.10.0.tgz
       agent-browser:
         specifier: ~0.27.0
         version: 0.27.0
@@ -976,6 +976,11 @@ packages:
     resolution: {integrity: sha512-mB9oAsNCm9aM3/SOv4YtBMqZbYj10R7dkq8byBqxGY/ncFwhf2oQzMV+LCRlWoDSEBJ3COiR1yeDvMtsoOsuFQ==}
     peerDependencies:
       graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
+
+  '@herdr/sdk@file:config/horca/vendor/herdr-sdk-0.9.0.tgz':
+    resolution: {integrity: sha512-lyoZ6t8vEat00JdA9+091KdqRg7aSMxGzqcjgyQyU3iCvSiEIhpc8abSOuU9+GJJAs/YTEoj4LW8a2oWPq9/jg==, tarball: file:config/horca/vendor/herdr-sdk-0.9.0.tgz}
+    version: 0.9.0
+    engines: {node: '>=20'}
 
   '@hono/node-server@2.1.0':
     resolution: {integrity: sha512-XovyyCCnBzW+zKu+z/zq8hwNs4KOR5rEMAOxo2f40Q5xoOI37IMm6MIg2COOUtUApo0i6850MTBKH2u4QLGIqg==}
@@ -2645,11 +2650,6 @@ packages:
 
   '@rolldown/pluginutils@1.0.0-rc.3':
     resolution: {integrity: sha512-eybk3TjzzzV97Dlj5c+XrBFW57eTNhzod66y9HrBlzJ6NsCrWCp/2kaPS3K9wJmurBC0Tdw4yPjXKZqlznim3Q==}
-
-  '@rudironsoni/herdr-ts-sdk@file:config/horca/vendor/rudironsoni-herdr-ts-sdk-0.10.0.tgz':
-    resolution: {integrity: sha512-aoDVLY41xqmAQHZlHMTg2jt5+0DspcHbW4NXgZoceTw90ZgtBaLwcNycNaG8crrJiim8oQJeLrHWmOU7Ru8nEQ==, tarball: file:config/horca/vendor/rudironsoni-herdr-ts-sdk-0.10.0.tgz}
-    version: 0.10.0
-    engines: {node: '>=20'}
 
   '@sanity/diff-match-patch@3.2.0':
     resolution: {integrity: sha512-4hPADs0qUThFZkBK/crnfKKHg71qkRowfktBljH2UIxGHHTxIzt8g8fBiXItyCjxkuNy+zpYOdRMifQNv8+Yww==}
@@ -7557,6 +7557,15 @@ snapshots:
     dependencies:
       graphql: 16.14.2
 
+  '@herdr/sdk@file:config/horca/vendor/herdr-sdk-0.9.0.tgz':
+    dependencies:
+      '@effect/platform-node-shared': 4.0.0-beta.105(effect@4.0.0-beta.105)
+      ajv: 8.20.0
+      effect: 4.0.0-beta.105
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
   '@hono/node-server@2.1.0(hono@4.13.0)':
     dependencies:
       hono: 4.13.0
@@ -9013,15 +9022,6 @@ snapshots:
   '@rolldown/pluginutils@1.0.0-beta.53': {}
 
   '@rolldown/pluginutils@1.0.0-rc.3': {}
-
-  '@rudironsoni/herdr-ts-sdk@file:config/horca/vendor/rudironsoni-herdr-ts-sdk-0.10.0.tgz':
-    dependencies:
-      '@effect/platform-node-shared': 4.0.0-beta.105(effect@4.0.0-beta.105)
-      ajv: 8.20.0
-      effect: 4.0.0-beta.105
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
 
   '@sanity/diff-match-patch@3.2.0': {}
 
