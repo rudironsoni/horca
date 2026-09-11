@@ -1,4 +1,4 @@
-import type { EventSubscriptionSpecEncoded } from '@rudironsoni/herdr-ts-sdk'
+import type { EventSubscriptionSpecEncoded } from '@herdr/sdk'
 import { runKeyedSerializedOperation } from '../../../cli/keyed-promise-queue'
 import type { HerdrHostTransport, HerdrSessionSnapshot } from './herdr-runtime-contract'
 import {
