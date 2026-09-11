@@ -173,6 +173,17 @@ describe('GhosttyTerminal', () => {
     expect(second?.isWrapped).toBe(true)
   })
 
+  it('keeps requested scrollback lines instead of the 10KiB Ghostty default', () => {
+    terminal = new GhosttyTerminal(getGhosttyVtHost(), {
+      cols: 80,
+      rows: 24,
+      scrollbackLines: 5000
+    })
+    terminal.writePtyOutput('TOP\r\n')
+    terminal.writePtyOutput('filler\r\n'.repeat(2000))
+    expect(terminal.totalRows).toBeGreaterThan(2000)
+  })
+
   it('scrolls the viewport to bottom without a result code', () => {
     terminal = new GhosttyTerminal(getGhosttyVtHost(), { cols: 80, rows: 8 })
     terminal.writePtyOutput(`${'line\n'.repeat(20)}tail`)
