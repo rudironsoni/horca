@@ -1,8 +1,13 @@
 import assert from 'node:assert/strict'
-import { existsSync, readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
+import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join, resolve } from 'node:path'
 import test from 'node:test'
 import { deletedPathsFromPatch } from './ghostty-port-patch.mjs'
+import {
+  HORCA_MOBILE_ANDROID_PACKAGE,
+  retargetGoogleServicesPackage
+} from './retarget-google-services-package.mjs'
 
 const dir = import.meta.dirname
 const patch = readFileSync(resolve(dir, 'ghostty-port.patch'), 'utf8')
@@ -21,6 +26,38 @@ test('does not git-apply the Horca mobile lockfile against upstream', () => {
   assert.equal(
     packageJson.dependencies['@orca/libghostty-terminal'],
     'file:./packages/libghostty-terminal'
+  )
+})
+
+test('rewrites google-services android package_name to Horca', () => {
+  const source = readFileSync(
+    resolve(dir, '..', '..', '..', 'mobile', 'google-services.json'),
+    'utf8'
+  )
+  assert.equal(
+    JSON.parse(source).client[0].client_info.android_client_info.package_name,
+    'com.stably.orca.mobile'
+  )
+  const tempDir = mkdtempSync(join(tmpdir(), 'horca-google-services-'))
+  const filePath = join(tempDir, 'google-services.json')
+  writeFileSync(filePath, source)
+  const packages = retargetGoogleServicesPackage(filePath)
+  assert.deepEqual(packages, [HORCA_MOBILE_ANDROID_PACKAGE])
+  const rewritten = JSON.parse(readFileSync(filePath, 'utf8'))
+  assert.equal(
+    rewritten.client[0].client_info.android_client_info.package_name,
+    HORCA_MOBILE_ANDROID_PACKAGE
+  )
+  assert.equal(JSON.stringify(rewritten).includes('com.stably.orca.mobile'), false)
+})
+
+test('rejects google-services files with no android client', () => {
+  const tempDir = mkdtempSync(join(tmpdir(), 'horca-google-services-'))
+  const filePath = join(tempDir, 'google-services.json')
+  writeFileSync(filePath, JSON.stringify({ project_info: {}, client: [] }))
+  assert.throws(
+    () => retargetGoogleServicesPackage(filePath),
+    /No android client package_name found/
   )
 })
 
