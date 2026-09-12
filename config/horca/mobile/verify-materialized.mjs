@@ -67,6 +67,15 @@ if (
 if (packageJson.name !== 'horca-mobile') {
   throw new Error('Materialized Horca mobile package name is incorrect')
 }
+const googleServices = JSON.parse(readFileSync(resolve(mobileRoot, 'google-services.json'), 'utf8'))
+const googleServicesPackages = (googleServices.client ?? []).map(
+  (client) => client?.client_info?.android_client_info?.package_name
+)
+if (!googleServicesPackages.includes(expoConfig.android.package)) {
+  throw new Error(
+    `Materialized google-services.json has no client for ${expoConfig.android.package}`
+  )
+}
 if (!expoConfig.plugins?.includes('./plugins/ios-scene-lifecycle.js')) {
   throw new Error('Materialized Horca mobile does not enable the iOS scene lifecycle')
 }
