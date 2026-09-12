@@ -3,6 +3,7 @@ import { execFileSync } from 'node:child_process'
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, unlinkSync } from 'node:fs'
 import { dirname, join, relative, resolve, sep } from 'node:path'
 import { deletedPathsFromPatch } from './ghostty-port-patch.mjs'
+import { retargetGoogleServicesPackage } from './retarget-google-services-package.mjs'
 
 const repoRoot = resolve(import.meta.dirname, '..', '..', '..')
 const outputRoot = join(repoRoot, 'out', 'horca-mobile')
@@ -89,5 +90,6 @@ for (const file of downstreamFiles) {
   mkdirSync(dirname(file.destination), { recursive: true })
   cpSync(file.source, file.destination)
 }
+retargetGoogleServicesPackage(join(mobileOutput, 'google-services.json'))
 
 console.log(`Materialized Horca mobile at ${relative(repoRoot, mobileOutput)}`)
