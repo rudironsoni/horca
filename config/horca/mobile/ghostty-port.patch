@@ -33,16 +33,16 @@ diff --git a/mobile/app/_layout.tsx b/mobile/app/_layout.tsx
 index 9080cdedcf..da70dc9752 100644
 --- a/mobile/app/_layout.tsx
 +++ b/mobile/app/_layout.tsx
-@@ -44,7 +44,7 @@ export default function RootLayout() {
-     void recoverMobileRelayPairing()
-   }, [])
+@@ -70,7 +70,7 @@ export default function RootLayout() {
+   useEffect(() => startPushTokenSync(), [])
+   useEffect(() => startAndroidForegroundPushPresentation(), [])
  
 -  // Why: route `orca://pair?...` deep links to the confirm screen so
 +  // Why: route `horca://pair?...` deep links to the confirm screen so
    // the same pairing flow runs whether the link arrived via QR scan,
    // paste, AirDrop, Messages, or `xcrun simctl openurl`. getInitialURL
    // covers cold-start (link tapped while app was closed); the listener
-@@ -54,7 +54,7 @@ export default function RootLayout() {
+@@ -80,7 +80,7 @@ export default function RootLayout() {
        const code = extractPairingCodeFromUrl(url)
        if (code) {
          // Why: Android camera launches can leave Expo Router's unmatched
@@ -169,10 +169,11 @@ index d5a420cc74..6709c5923a 100644
        "permissions": ["RECORD_AUDIO", "MODIFY_AUDIO_SETTINGS"],
 -      "package": "com.stably.orca.mobile",
 +      "package": "com.rudironsoni.horca.mobile",
-@@ -80,3 +73,4 @@
+@@ -81,4 +74,5 @@
      "plugins": [
        "expo-router",
 +      "./plugins/ios-scene-lifecycle.js",
+       "expo-notifications",
        "./plugins/android-respect-rotation-lock.js",
 @@ -90,25 +84,27 @@
        [
