@@ -24,6 +24,8 @@ Never open an upstream pull request from Horca `main`. It contains Horca identit
 
 The App is the only permanent actor that can bypass the non-fast-forward rule on `main`. The `horca-maintenance` environment stores `HORCA_APP_ID` and `HORCA_APP_PRIVATE_KEY`. It must not require a reviewer because sync is autonomous.
 
+Overlay commits are authored and committed as Rudimar Ronsoni (`rudimar@outlook.com`). Horca Maintenance is not the git author; rewritten commits record it once as `Co-authored-by: Horca Maintenance <horca-maintenance@users.noreply.github.com>`.
+
 If rebase fails, `main` stays unchanged. The workflow keeps the partial candidate branch, uploads the conflict paths and range-diff, and creates or updates one `sync-conflict` issue.
 
 ## Feature branch rebase
