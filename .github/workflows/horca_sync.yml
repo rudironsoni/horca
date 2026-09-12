@@ -108,11 +108,14 @@ jobs:
         run: |
           candidate_branch="maintenance/rebase-${UPSTREAM_SHA:0:12}"
           echo "candidate_branch=$candidate_branch" >> "$GITHUB_OUTPUT"
-          git config user.name 'Horca Maintenance'
-          git config user.email 'horca-maintenance@users.noreply.github.com'
+          git config user.name 'Rudimar Ronsoni'
+          git config user.email 'rudimar@outlook.com'
           git config commit.gpgsign false
+          identity_script="$RUNNER_TEMP/ensure-horca-commit-identity.mjs"
+          cp config/horca/scripts/ensure-horca-commit-identity.mjs "$identity_script"
           git switch --detach "$OLD_MAIN"
-          if ! git rebase --onto upstream/main "$OLD_BASE"; then
+          if ! git rebase --onto upstream/main "$OLD_BASE" \
+            --exec "node $identity_script"; then
             git diff --name-only --diff-filter=U > "$RUNNER_TEMP/sync-conflicts.txt"
             git rev-parse REBASE_HEAD > "$RUNNER_TEMP/failed-commit.txt"
             partial_sha=$(git rev-parse HEAD)
