@@ -52,19 +52,45 @@ export type WasmExports = {
   ghostty_snapshot_decoder_free: (decoder: number) => void
   ghostty_render_state_new: (allocator: number, out: number) => number
   ghostty_render_state_free: (state: number) => void
-  ghostty_render_state_begin_update: (state: number) => number
+  ghostty_render_state_begin_update: (state: number, term: number) => number
   ghostty_render_state_end_update: (state: number) => number
   ghostty_render_state_update: (state: number, term: number) => number
   ghostty_render_state_clean: (state: number) => number
   ghostty_render_state_get: (state: number, data: number, out: number) => number
+  ghostty_render_state_get_multi: (
+    state: number,
+    keys: number,
+    outs: number,
+    count: number,
+    outCount: number
+  ) => number
   ghostty_render_state_row_iterator_new: (allocator: number, out: number) => number
   ghostty_render_state_row_iterator_free: (iterator: number) => void
   ghostty_render_state_row_iterator_next: (iterator: number) => number
+  ghostty_render_state_row_iterator_next_dirty: (iterator: number, outY: number) => number
   ghostty_render_state_row_get: (iterator: number, data: number, out: number) => number
   ghostty_render_state_row_cells_new: (allocator: number, out: number) => number
   ghostty_render_state_row_cells_free: (cells: number) => void
   ghostty_render_state_row_cells_next: (cells: number) => number
   ghostty_render_state_row_cells_get: (cells: number, data: number, out: number) => number
+  ghostty_render_state_row_cells_get_multi: (
+    cells: number,
+    keys: number,
+    outs: number,
+    count: number,
+    outCount: number
+  ) => number
+  ghostty_color_palette_default: (out: number) => void
+  ghostty_color_palette_generate: (
+    base: number,
+    skip: number,
+    bg: number,
+    fg: number,
+    harmonious: number,
+    out: number
+  ) => void
+  ghostty_color_parse: (value: number, len: number, out: number) => number
+  ghostty_color_perceived_luminance: (color: number) => number
   ghostty_terminal_grid_ref: (term: number, point: number, out: number) => number
   ghostty_grid_ref_hyperlink_uri: (
     ref: number,
