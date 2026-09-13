@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict'
-import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdtempSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import test from 'node:test'
-import { deletedPathsFromPatch } from './ghostty-port-patch.mjs'
+import { deletedPathsFromPatch, removeLegacyWebviewTerminalFiles } from './ghostty-port-patch.mjs'
 import {
   HORCA_MOBILE_ANDROID_PACKAGE,
   retargetGoogleServicesPackage
@@ -67,4 +67,18 @@ test('treats Ghostty WebView removals as path deletes, not content hunks', () =>
   assert.equal(deleted.has('mobile/src/terminal/terminal-webview-theme-injected.test.ts'), true)
   assert.equal(deleted.has('mobile/src/terminal/terminal-webview-payload-hash.test.ts'), true)
   assert.equal(deleted.has('mobile/pnpm-lock.yaml'), false)
+})
+
+test('drops leftover upstream WebView files the patch does not yet delete', () => {
+  const tempDir = mkdtempSync(join(tmpdir(), 'horca-webview-leftover-'))
+  const htmlDir = join(tempDir, 'terminal-webview-html')
+  mkdirSync(htmlDir)
+  const leftover = join(htmlDir, 'write-queue.test.ts')
+  writeFileSync(leftover, 'export {}\n')
+  writeFileSync(join(tempDir, 'terminal-state.ts'), 'export {}\n')
+  const removed = removeLegacyWebviewTerminalFiles(tempDir)
+  assert.equal(removed.includes(htmlDir), true)
+  assert.equal(existsSync(htmlDir), false)
+  assert.equal(existsSync(leftover), false)
+  assert.equal(existsSync(join(tempDir, 'terminal-state.ts')), true)
 })
