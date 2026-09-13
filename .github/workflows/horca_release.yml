@@ -173,17 +173,24 @@ jobs:
        (needs.validation.result == 'success' && needs.macos.result == 'success' &&
         (needs.windows.result == 'success' || needs.windows.result == 'skipped')))
     runs-on: ubuntu-latest
+    environment: horca-maintenance
     outputs:
       channel: ${{ needs.metadata.outputs.channel }}
       sha: ${{ needs.metadata.outputs.sha }}
       tag: ${{ needs.metadata.outputs.tag }}
       version: ${{ needs.metadata.outputs.version }}
     steps:
+      - name: Create maintenance token
+        id: app
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.HORCA_APP_ID }}
+          private-key: ${{ secrets.HORCA_APP_PRIVATE_KEY }}
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           ref: ${{ needs.metadata.outputs.sha }}
           fetch-depth: 0
-          token: ${{ secrets.FORK_SYNC_PAT }}
+          token: ${{ steps.app.outputs.token }}
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         if: needs.metadata.outputs.published != 'true'
         with:
@@ -208,7 +215,7 @@ jobs:
       - name: Publish immutable source tag and release
         if: needs.metadata.outputs.published != 'true'
         env:
-          GH_TOKEN: ${{ secrets.FORK_SYNC_PAT }}
+          GH_TOKEN: ${{ steps.app.outputs.token }}
           TAG: ${{ needs.metadata.outputs.tag }}
           VERSION: ${{ needs.metadata.outputs.version }}
           SHA: ${{ needs.metadata.outputs.sha }}
