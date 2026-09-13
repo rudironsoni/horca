@@ -47,6 +47,21 @@ describe('Horca sync workflow', () => {
     expect(inspectStep.run).toContain('git merge-base --is-ancestor upstream/main "$candidate_sha"')
   })
 
+  it('continues known lockfile, deletion, and tldts rebase stops', () => {
+    const rebaseStep = workflow.jobs.candidate.steps.find(
+      (step) => step.name === 'Rebase patch stack'
+    )
+
+    expect(rebaseStep.run).toContain(
+      'cp config/horca/scripts/continue-sync-rebase.mjs "$continue_script"'
+    )
+    expect(rebaseStep.run).toContain(
+      'while [ -d .git/rebase-merge ] || [ -d .git/rebase-apply ]; do'
+    )
+    expect(rebaseStep.run).toContain('if ! node "$continue_script"; then')
+    expect(rebaseStep.run).not.toContain('corepack enable')
+  })
+
   it('uses the maintenance App for branches that contain workflow changes', () => {
     const candidateJob = workflow.jobs.candidate
     const tokenStep = candidateJob.steps.find((step) => step.name === 'Create maintenance token')
@@ -75,19 +90,6 @@ describe('Horca sync workflow', () => {
       "git config user.email 'horca-maintenance@users.noreply.github.com'"
     )
   })
-
-  it('regenerates lockfile-only rebase conflicts before reporting', () => {
-    const rebaseStep = workflow.jobs.candidate.steps.find(
-      (step) => step.name === 'Rebase patch stack'
-    )
-
-    expect(rebaseStep.run).toContain(
-      'while [ "$(git diff --name-only --diff-filter=U)" = "pnpm-lock.yaml" ]; do'
-    )
-    expect(rebaseStep.run).toContain('git checkout --ours -- pnpm-lock.yaml')
-    expect(rebaseStep.run).toContain('pnpm install --lockfile-only --ignore-scripts')
-    expect(rebaseStep.run).toContain('GIT_EDITOR=true git rebase --continue && break')
-  })
 })
 
 describe('Horca changed-code quality gate', () => {
@@ -104,14 +106,15 @@ describe('Horca changed-code quality gate', () => {
 
   it('keeps the casting scan exported and omits it from the Horca gate', () => {
     expect(OXLINT_SCANS.some((scan) => scan.label === CASTING_SCAN_LABEL)).toBe(true)
-    expect(shouldSkipCastingScan({})).toBe(false)
+    expect(shouldSkipCastingScan({})).toBe(true)
+    expect(shouldSkipCastingScan({ [HORCA_SKIP_CASTING_SCAN_ENV]: '0' })).toBe(false)
     expect(shouldSkipCastingScan({ [HORCA_SKIP_CASTING_SCAN_ENV]: '1' })).toBe(true)
-    expect(oxlintScansForGate({}).some((scan) => scan.label === CASTING_SCAN_LABEL)).toBe(true)
+    expect(oxlintScansForGate({}).some((scan) => scan.label === CASTING_SCAN_LABEL)).toBe(false)
     expect(
-      oxlintScansForGate({ [HORCA_SKIP_CASTING_SCAN_ENV]: '1' }).some(
+      oxlintScansForGate({ [HORCA_SKIP_CASTING_SCAN_ENV]: '0' }).some(
         (scan) => scan.label === CASTING_SCAN_LABEL
       )
-    ).toBe(false)
+    ).toBe(true)
   })
 })
 
