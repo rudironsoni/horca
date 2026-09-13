@@ -20,6 +20,7 @@ import {
   trackListener
 } from './orca-pane-buffer'
 import { registerOrcaPaneLinkProvider } from './orca-pane-links'
+import { applyOrcaPaneRendererMetrics } from './orca-pane-ghostty-appearance'
 import { createOrcaPaneSurface } from './orca-pane-surface'
 import { createPaintScheduler, refreshOrcaPanePaint } from './orca-pane-paint'
 import * as paneIo from './orca-pane-terminal-io'
@@ -70,6 +71,7 @@ export class OrcaPaneTerminal {
       },
       this.engine
     )
+    surface.bindRefresh(() => this.refresh())
   }
 
   get cols(): number {
@@ -278,6 +280,7 @@ export class OrcaPaneTerminal {
     const cells = measureCellSize(this.options)
     this.cellWidth = cells.width
     this.cellHeight = cells.height
+    applyOrcaPaneRendererMetrics(this.renderer, this.options, cells)
     this.resize(this.cols, this.rows)
   }
   hyperlinkAt(clientX: number, clientY: number): string | null {

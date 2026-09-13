@@ -1,3 +1,4 @@
+import { applyGhosttyViewAttributes } from '../../ghostty-vt/ghostty-color-theme'
 import { HeadlessVtQueryParser } from '../../ghostty-vt/headless-vt-query-parser'
 import { GhosttyTerminal } from '../../ghostty-vt/ghostty-terminal'
 import type { TerminalCursorContext } from '../../shared/terminal-composer-draft'
@@ -90,6 +91,7 @@ export class HeadlessEmulator {
 
   applyPushedViewAttributes(attributes: TerminalViewAttributes): void {
     this.pushedCursorHidden = attributes.cursorStyle === 'bar' && attributes.cursorBlink === false
+    applyGhosttyViewAttributes(this.terminal, attributes)
     this.viewAttributeResponder?.clearColorOverrides()
   }
 

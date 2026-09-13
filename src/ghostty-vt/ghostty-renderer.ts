@@ -1,20 +1,34 @@
 import type { GhosttyTerminal } from './ghostty-terminal'
 import { ghosttyVt } from './ghostty-vt-access'
 import { drawPreeditOverlay } from './ghostty-preedit'
-import { drawRenderStateCursor, readCellStyle } from './ghostty-renderer-paint'
+import { drawRenderStateCursor } from './ghostty-renderer-paint'
+import type { ThemeRgb } from './ghostty-css-color'
+import { rgbToCss } from './ghostty-css-color'
+import {
+  paintGhosttyRenderRow,
+  UTF8_CAP,
+  type GhosttyRowPaintTarget
+} from './ghostty-renderer-cells'
+import {
+  bindRenderRowIterator,
+  isRenderDirty,
+  readRenderColors,
+  readRenderDirty,
+  readRenderStateU16,
+  type GhosttyRendererScratch
+} from './ghostty-renderer-state'
 import type { GhosttyVtHost } from './wasm-host'
 
-function cssRgb(rgb: [number, number, number]): string
-function cssRgb(rgb: [number, number, number] | null): string | null
-function cssRgb(rgb: [number, number, number] | null): string | null {
-  return rgb ? `rgb(${rgb[0]} ${rgb[1]} ${rgb[2]})` : null
-}
-
-export type GhosttyRendererOptions = {
+export type GhosttyRendererMetrics = {
   cellWidth: number
   cellHeight: number
   fontFamily: string
+  fontSize: number
+  fontWeight?: string | number
+  fontWeightBold?: string | number
 }
+
+export type GhosttyRendererOptions = GhosttyRendererMetrics
 
 export class GhosttyRenderer {
   private readonly host: GhosttyVtHost
@@ -26,8 +40,19 @@ export class GhosttyRenderer {
   private cellWidth: number
   private cellHeight: number
   private fontFamily: string
+  private fontSize: number
+  private fontWeight: string
+  private fontWeightBold: string
+  private glyphBaseline = 0
+  private backgroundAlpha = 1
+  private selectionBg: ThemeRgb | null = null
+  private selectionFg: ThemeRgb | null = null
+  private blinkVisible = true
+  private lastBlinkDrawn = true
+  private forceFull = true
   private preedit = ''
   private disposed = false
+  private readonly scratch: GhosttyRendererScratch
 
   constructor(host: GhosttyVtHost, canvas: HTMLCanvasElement, options: GhosttyRendererOptions) {
     this.host = host
@@ -40,6 +65,9 @@ export class GhosttyRenderer {
     this.cellWidth = options.cellWidth
     this.cellHeight = options.cellHeight
     this.fontFamily = options.fontFamily
+    this.fontSize = options.fontSize
+    this.fontWeight = String(options.fontWeight ?? '400')
+    this.fontWeightBold = String(options.fontWeightBold ?? '700')
     const stateSlot = host.allocOpaque()
     host.check(host.exports.ghostty_render_state_new(0, stateSlot), 'render_state_new')
     this.state = host.takeOpaque(stateSlot)
@@ -52,63 +80,138 @@ export class GhosttyRenderer {
     host.check(host.exports.ghostty_render_state_row_cells_new(0, cellsSlot), 'row_cells_new')
     this.cells = host.takeOpaque(cellsSlot)
     host.freeOpaque(cellsSlot)
+    this.scratch = {
+      dirty: host.alloc(4),
+      y: host.alloc(2),
+      iter: host.alloc(4),
+      cells: host.alloc(4),
+      colors: host.alloc(host.structSize('GhosttyRenderStateColors')),
+      selected: host.alloc(1),
+      bg: host.alloc(3),
+      fg: host.alloc(3),
+      style: host.alloc(host.structSize('GhosttyStyle')),
+      raw: host.alloc(8),
+      utf8: host.alloc(host.structSize('GhosttyBuffer')),
+      utf8Storage: host.alloc(UTF8_CAP)
+    }
+  }
+
+  setMetrics(metrics: GhosttyRendererMetrics): void {
+    this.cellWidth = metrics.cellWidth
+    this.cellHeight = metrics.cellHeight
+    this.fontFamily = metrics.fontFamily
+    this.fontSize = metrics.fontSize
+    if (metrics.fontWeight !== undefined) {
+      this.fontWeight = String(metrics.fontWeight)
+    }
+    if (metrics.fontWeightBold !== undefined) {
+      this.fontWeightBold = String(metrics.fontWeightBold)
+    }
+    this.forceFull = true
+  }
+
+  setBackgroundAlpha(alpha: number): void {
+    this.backgroundAlpha = Math.min(1, Math.max(0, alpha))
+    this.forceFull = true
+  }
+
+  setSelectionColors(background: ThemeRgb | null, foreground: ThemeRgb | null): void {
+    this.selectionBg = background
+    this.selectionFg = foreground
+    this.forceFull = true
+  }
+
+  setBlinkVisible(visible: boolean): void {
+    this.blinkVisible = visible
+  }
+
+  setPreedit(text: string): void {
+    this.preedit = text
+  }
+
+  invalidate(): void {
+    this.forceFull = true
   }
 
   draw(terminal: GhosttyTerminal, dpr = 1): void {
     if (this.disposed || terminal.isDisposed) {
       return
     }
-    this.host.exports.ghostty_render_state_begin_update(this.state)
-    this.host.check(
-      this.host.exports.ghostty_render_state_update(this.state, ghosttyVt(terminal).term),
+    const { host } = this
+    host.check(
+      host.exports.ghostty_render_state_update(this.state, ghosttyVt(terminal).term),
       'render_state_update'
     )
-    const cols = this.readStateU16('COLS')
-    const rows = this.readStateU16('ROWS')
-    const width = Math.max(1, Math.floor(cols * this.cellWidth * dpr))
-    const height = Math.max(1, Math.floor(rows * this.cellHeight * dpr))
-    if (this.canvas.width !== width || this.canvas.height !== height) {
+    const dirty = readRenderDirty(host, this.state, this.scratch)
+    const colors = readRenderColors(host, this.state, this.scratch)
+    const cols = readRenderStateU16(host, this.state, this.scratch, 'COLS')
+    const rows = readRenderStateU16(host, this.state, this.scratch, 'ROWS')
+    const cssWidth = cols * this.cellWidth
+    const cssHeight = rows * this.cellHeight
+    const width = Math.max(1, Math.floor(cssWidth * dpr))
+    const height = Math.max(1, Math.floor(cssHeight * dpr))
+    const resized = this.canvas.width !== width || this.canvas.height !== height
+    this.canvas.style.width = `${cssWidth}px`
+    this.canvas.style.height = `${cssHeight}px`
+    if (resized) {
       this.canvas.width = width
       this.canvas.height = height
+      this.forceFull = true
+    }
+    const blinkChanged = this.blinkVisible !== this.lastBlinkDrawn
+    const full = isRenderDirty(host, dirty, 'FULL')
+    const none = isRenderDirty(host, dirty, 'FALSE')
+    if (none && !this.forceFull && !blinkChanged && !resized) {
+      return
     }
     this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-    this.ctx.fillStyle = '#000000'
-    this.ctx.fillRect(0, 0, cols * this.cellWidth, rows * this.cellHeight)
-    this.ctx.font = `${this.cellHeight * 0.8}px ${this.fontFamily}`
-    this.ctx.textBaseline = 'top'
-    const iterSlot = this.host.alloc(4)
-    this.host.writeU32(iterSlot, this.rowIter)
-    this.host.check(
-      this.host.exports.ghostty_render_state_get(
-        this.state,
-        this.host.enumValue('GhosttyRenderStateData', 'ROW_ITERATOR'),
-        iterSlot
-      ),
-      'ROW_ITERATOR'
-    )
-    this.rowIter = this.host.readU32(iterSlot)
-    this.host.free(iterSlot, 4)
-    let y = 0
-    while (this.host.exports.ghostty_render_state_row_iterator_next(this.rowIter)) {
-      this.drawRow(y)
-      y += 1
+    this.refreshGlyphBaseline()
+    const defaultFont = this.cellFont(false, false)
+    this.ctx.font = defaultFont
+    this.ctx.textBaseline = 'alphabetic'
+    if (full || this.forceFull) {
+      this.ctx.fillStyle = rgbToCss(colors.background, this.backgroundAlpha)
+      this.ctx.fillRect(0, 0, cssWidth, cssHeight)
     }
-    drawRenderStateCursor(this.host, this.ctx, this.state, this.cellWidth, this.cellHeight)
-    drawPreeditOverlay(
-      this.host,
+    this.rowIter = bindRenderRowIterator(host, this.state, this.scratch, this.rowIter)
+    const rowTarget = this.rowTarget()
+    if (full || this.forceFull) {
+      let y = 0
+      while (host.exports.ghostty_render_state_row_iterator_next(this.rowIter)) {
+        this.cells = paintGhosttyRenderRow(rowTarget, y, colors)
+        y += 1
+      }
+    } else {
+      while (
+        host.exports.ghostty_render_state_row_iterator_next_dirty(this.rowIter, this.scratch.y)
+      ) {
+        const y = host.view().getUint16(this.scratch.y, true)
+        this.cells = paintGhosttyRenderRow(rowTarget, y, colors)
+      }
+    }
+    drawRenderStateCursor(
+      host,
       this.ctx,
+      this.state,
+      this.cellWidth,
+      this.cellHeight,
+      { cursor: colors.cursor, foreground: colors.foreground },
+      this.blinkVisible
+    )
+    drawPreeditOverlay(
+      this.ctx,
+      host,
       this.state,
       this.preedit,
       this.cellWidth,
       this.cellHeight,
-      this.fontFamily
+      defaultFont,
+      this.glyphBaseline,
+      colors
     )
-    this.host.exports.ghostty_render_state_end_update(this.state)
-    this.host.exports.ghostty_render_state_clean(this.state)
-  }
-
-  setPreedit(text: string): void {
-    this.preedit = text
+    host.exports.ghostty_render_state_clean(this.state)
+    this.forceFull = false
+    this.lastBlinkDrawn = this.blinkVisible
   }
 
   dispose(): void {
@@ -116,168 +219,52 @@ export class GhosttyRenderer {
       return
     }
     this.disposed = true
-    this.host.exports.ghostty_render_state_row_cells_free(this.cells)
-    this.host.exports.ghostty_render_state_row_iterator_free(this.rowIter)
-    this.host.exports.ghostty_render_state_free(this.state)
+    const { host, scratch } = this
+    host.free(scratch.dirty, 4)
+    host.free(scratch.y, 2)
+    host.free(scratch.iter, 4)
+    host.free(scratch.cells, 4)
+    host.free(scratch.colors, host.structSize('GhosttyRenderStateColors'))
+    host.free(scratch.selected, 1)
+    host.free(scratch.bg, 3)
+    host.free(scratch.fg, 3)
+    host.free(scratch.style, host.structSize('GhosttyStyle'))
+    host.free(scratch.raw, 8)
+    host.free(scratch.utf8, host.structSize('GhosttyBuffer'))
+    host.free(scratch.utf8Storage, UTF8_CAP)
+    host.exports.ghostty_render_state_row_cells_free(this.cells)
+    host.exports.ghostty_render_state_row_iterator_free(this.rowIter)
+    host.exports.ghostty_render_state_free(this.state)
   }
 
-  private drawRow(y: number): void {
-    const cellsSlot = this.host.alloc(4)
-    this.host.writeU32(cellsSlot, this.cells)
-    this.host.check(
-      this.host.exports.ghostty_render_state_row_get(
-        this.rowIter,
-        this.host.enumValue('GhosttyRenderStateRowData', 'CELLS'),
-        cellsSlot
-      ),
-      'ROW CELLS'
-    )
-    this.cells = this.host.readU32(cellsSlot)
-    this.host.free(cellsSlot, 4)
-    let x = 0
-    let runStart = 0
-    let runText = ''
-    let runFg = ''
-    let runBg: string | null = null
-    let runFont = ''
-    let runUnderline = false
-    let runStrike = false
-    const py = y * this.cellHeight
-    const flush = (): void => {
-      if (!runText) {
-        return
-      }
-      const px = runStart * this.cellWidth
-      const width = runText.length * this.cellWidth
-      if (runBg && runBg !== 'rgb(0 0 0)') {
-        this.ctx.fillStyle = runBg
-        this.ctx.fillRect(px, py, width, this.cellHeight)
-      }
-      this.ctx.font = runFont
-      this.ctx.fillStyle = runFg
-      this.ctx.fillText(runText, px, py)
-      this.ctx.strokeStyle = runFg
-      this.ctx.lineWidth = 1
-      if (runUnderline) {
-        this.ctx.beginPath()
-        this.ctx.moveTo(px, py + this.cellHeight - 1)
-        this.ctx.lineTo(px + width, py + this.cellHeight - 1)
-        this.ctx.stroke()
-      }
-      if (runStrike) {
-        this.ctx.beginPath()
-        this.ctx.moveTo(px, py + this.cellHeight / 2)
-        this.ctx.lineTo(px + width, py + this.cellHeight / 2)
-        this.ctx.stroke()
-      }
-      runText = ''
+  private rowTarget(): GhosttyRowPaintTarget {
+    return {
+      host: this.host,
+      ctx: this.ctx,
+      cells: this.cells,
+      rowIter: this.rowIter,
+      scratch: this.scratch,
+      cellWidth: this.cellWidth,
+      cellHeight: this.cellHeight,
+      glyphBaseline: this.glyphBaseline,
+      backgroundAlpha: this.backgroundAlpha,
+      selectionBg: this.selectionBg,
+      selectionFg: this.selectionFg,
+      cellFont: (italic, bold) => this.cellFont(italic, bold)
     }
-    while (this.host.exports.ghostty_render_state_row_cells_next(this.cells)) {
-      const selected = this.readCellFlag('SELECTED')
-      const bg = this.readCellRgb('BG_COLOR')
-      const fg = this.readCellRgb('FG_COLOR')
-      const bgCss = selected ? cssRgb(fg ?? [221, 221, 221]) : cssRgb(bg)
-      const fgCss = selected ? cssRgb(bg ?? [0, 0, 0]) : cssRgb(fg ?? [221, 221, 221])
-      const style = readCellStyle(this.host, this.cells)
-      const grapheme = style.invisible ? ' ' : this.readCellUtf8() || ' '
-      const italic = style.italic ? 'italic ' : ''
-      const bold = style.bold ? 'bold ' : ''
-      const font = `${italic}${bold}${this.cellHeight * 0.8}px ${this.fontFamily}`
-      if (
-        runText &&
-        (fgCss !== runFg ||
-          bgCss !== runBg ||
-          font !== runFont ||
-          style.underline !== runUnderline ||
-          style.strikethrough !== runStrike)
-      ) {
-        flush()
-        runStart = x
-      }
-      if (!runText) {
-        runStart = x
-        runFg = fgCss
-        runBg = bgCss
-        runFont = font
-        runUnderline = style.underline
-        runStrike = style.strikethrough
-      }
-      runText += grapheme
-      x += 1
-    }
-    flush()
   }
 
-  private readStateU16(name: string): number {
-    const ptr = this.host.alloc(2)
-    this.host.check(
-      this.host.exports.ghostty_render_state_get(
-        this.state,
-        this.host.enumValue('GhosttyRenderStateData', name),
-        ptr
-      ),
-      `render ${name}`
-    )
-    const value = this.host.view().getUint16(ptr, true)
-    this.host.free(ptr, 2)
-    return value
+  private cellFont(italic: boolean, bold: boolean): string {
+    const italicPrefix = italic ? 'italic ' : ''
+    const weight = bold ? this.fontWeightBold : this.fontWeight
+    return `${italicPrefix}${weight} ${this.fontSize}px ${this.fontFamily}`
   }
 
-  private readCellFlag(name: string): boolean {
-    const ptr = this.host.alloc(1)
-    const result = this.host.exports.ghostty_render_state_row_cells_get(
-      this.cells,
-      this.host.enumValue('GhosttyRenderStateRowCellsData', name),
-      ptr
-    )
-    const value = result === this.host.success && this.host.bytes()[ptr] !== 0
-    this.host.free(ptr, 1)
-    return value
-  }
-
-  private readCellRgb(name: string): [number, number, number] | null {
-    const size = this.host.structSize('GhosttyColorRgb')
-    const ptr = this.host.alloc(size)
-    const result = this.host.exports.ghostty_render_state_row_cells_get(
-      this.cells,
-      this.host.enumValue('GhosttyRenderStateRowCellsData', name),
-      ptr
-    )
-    if (result !== this.host.success) {
-      this.host.free(ptr, size)
-      return null
-    }
-    const bytes = this.host.bytes()
-    const rgb: [number, number, number] = [
-      bytes[ptr] ?? 0,
-      bytes[ptr + 1] ?? 0,
-      bytes[ptr + 2] ?? 0
-    ]
-    this.host.free(ptr, size)
-    return rgb
-  }
-
-  private readCellUtf8(): string {
-    const bufSize = this.host.structSize('GhosttyBuffer')
-    const buf = this.host.alloc(bufSize)
-    const storage = this.host.alloc(32)
-    this.host.writeU32(buf, storage)
-    this.host.writeU32(buf + 4, 32)
-    this.host.writeU32(buf + 8, 0)
-    const result = this.host.exports.ghostty_render_state_row_cells_get(
-      this.cells,
-      this.host.enumValue('GhosttyRenderStateRowCellsData', 'GRAPHEMES_UTF8'),
-      buf
-    )
-    if (result !== this.host.success) {
-      this.host.free(buf, bufSize)
-      this.host.free(storage, 32)
-      return ''
-    }
-    const len = this.host.readU32(buf + 8)
-    const text = new TextDecoder().decode(this.host.bytes().subarray(storage, storage + len))
-    this.host.free(buf, bufSize)
-    this.host.free(storage, 32)
-    return text
+  private refreshGlyphBaseline(): void {
+    this.ctx.font = this.cellFont(false, false)
+    const metrics = this.ctx.measureText('M')
+    const ascent = metrics.actualBoundingBoxAscent || this.fontSize * 0.8
+    const descent = metrics.actualBoundingBoxDescent || this.fontSize * 0.2
+    this.glyphBaseline = (this.cellHeight - (ascent + descent)) / 2 + ascent
   }
 }
