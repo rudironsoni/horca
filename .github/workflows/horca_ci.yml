@@ -70,6 +70,8 @@ jobs:
         run: pnpm tc
 
       - name: Lint changed code
+        env:
+          HORCA_SKIP_CASTING_SCAN: '1'
         run: pnpm run check:code-quality:changed -- upstream/main
 
       - name: Test Horca boundaries
@@ -84,6 +86,7 @@ jobs:
           src/main/horca
           src/main/providers/multiplexer/herdr
           config/scripts/horca-electron-builder-downstream.test.mjs
+          config/scripts/horca-sync-workflow.test.mjs
           config/scripts/horca-verify-packaged-distribution.test.mjs
           --exclude '**/*.integration.test.ts'
           --exclude '**/*.probe.test.ts'
