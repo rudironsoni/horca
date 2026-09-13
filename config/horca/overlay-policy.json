@@ -197,6 +197,13 @@
       "dropWhen": "Upstream exposes a supported distribution build input"
     },
     {
+      "path": "config/scripts/check-changed-code-quality.mjs",
+      "subsystem": "horca-overlay-lint",
+      "reason": "Skip the upstream type-assertion scan until overlay files satisfy assertionStyle never",
+      "upstreamPr": null,
+      "dropWhen": "Overlay TypeScript satisfies typescript/consistent-type-assertions assertionStyle never"
+    },
+    {
       "path": "electron.vite.config.ts",
       "subsystem": "horca-distribution-identity",
       "reason": "Define the compile-time distribution identity",
