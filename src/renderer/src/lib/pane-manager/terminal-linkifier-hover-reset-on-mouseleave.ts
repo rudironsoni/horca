@@ -1,12 +1,13 @@
 import type { OrcaDisposable as IDisposable } from '../../../../shared/orca-terminal-surface'
 import type { OrcaPaneTerminal as Terminal } from './orca-pane-terminal'
 import { resetTerminalLinkifierHoverState } from './terminal-linkifier-hover-reset'
+import { queryOrcaTerminalCanvas } from './orca-terminal-canvas-element'
 
 export function installTerminalLinkifierHoverResetOnMouseLeave(
   terminal: Terminal,
   linkTooltip?: HTMLElement
 ): IDisposable {
-  const screen = terminal.element?.querySelector<HTMLElement>('.orca-terminal-canvas')
+  const screen = queryOrcaTerminalCanvas(terminal.element)
   if (!screen) {
     return { dispose: () => undefined }
   }
