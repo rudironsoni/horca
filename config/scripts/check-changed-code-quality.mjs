@@ -11,6 +11,8 @@ const ROOT_CODE_QUALITY_IGNORED_PREFIXES = ['cloud/']
 const CASTING_RULE = 'typescript/consistent-type-assertions'
 const CASTING_DISABLE_PATTERN =
   /\/[/*]\s*(?:oxlint|eslint)-disable(?:-next-line|-line)?\s[^\n]*typescript\/consistent-type-assertions/
+export const CASTING_SCAN_LABEL = 'casting code quality'
+export const HORCA_SKIP_CASTING_SCAN_ENV = 'HORCA_SKIP_CASTING_SCAN'
 export const OXLINT_SCANS = [
   {
     // Why: no --config, so Oxlint keeps discovering nested configs. Pinning the root
@@ -19,7 +21,7 @@ export const OXLINT_SCANS = [
     args: ['--report-unused-disable-directives-severity', 'warn']
   },
   {
-    label: 'casting code quality',
+    label: CASTING_SCAN_LABEL,
     args: ['--config', 'config/oxlint-code-quality-casting.json']
   },
   {
@@ -37,6 +39,17 @@ export const OXLINT_SCANS = [
     args: ['--config', 'config/oxlint-design-system.json']
   }
 ]
+
+export function shouldSkipCastingScan(env = process.env) {
+  return env[HORCA_SKIP_CASTING_SCAN_ENV] === '1'
+}
+
+export function oxlintScansForGate(env = process.env) {
+  if (!shouldSkipCastingScan(env)) {
+    return OXLINT_SCANS
+  }
+  return OXLINT_SCANS.filter((scan) => scan.label !== CASTING_SCAN_LABEL)
+}
 
 const SUPPRESSED_REACT_DOCTOR_DIAGNOSTICS = new Map([
   [
@@ -396,8 +409,9 @@ export function main(
 
   const baseBlocks = collectBaseLineBlocks(root, comparisonBase)
 
+  const skipCastingScan = shouldSkipCastingScan()
   let failures = 0
-  for (const scan of OXLINT_SCANS) {
+  for (const scan of oxlintScansForGate()) {
     const diagnostics = runOxlintScan(root, scan, files).filter(
       (diagnostic) =>
         !isSuppressedDiagnostic(diagnostic, root) &&
@@ -413,14 +427,19 @@ export function main(
     )
   }
 
-  const missingSafety = findCastingDirectivesMissingSafety(root, rangesByFile)
-  for (const diagnostic of missingSafety) {
-    printDiagnostic(diagnostic, root)
+  if (skipCastingScan) {
+    console.log(`${CASTING_SCAN_LABEL}: skipped (${HORCA_SKIP_CASTING_SCAN_ENV}=1).`)
+    console.log(`casting SAFETY: rationale: skipped (${HORCA_SKIP_CASTING_SCAN_ENV}=1).`)
+  } else {
+    const missingSafety = findCastingDirectivesMissingSafety(root, rangesByFile)
+    for (const diagnostic of missingSafety) {
+      printDiagnostic(diagnostic, root)
+    }
+    failures += missingSafety.length
+    console.log(
+      `casting SAFETY: rationale: ${missingSafety.length} new finding(s) across ${files.length} changed file(s).`
+    )
   }
-  failures += missingSafety.length
-  console.log(
-    `casting SAFETY: rationale: ${missingSafety.length} new finding(s) across ${files.length} changed file(s).`
-  )
 
   if (failures > 0) {
     console.error(
