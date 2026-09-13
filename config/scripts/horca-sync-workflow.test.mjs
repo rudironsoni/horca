@@ -93,13 +93,34 @@ describe('Horca sync workflow', () => {
 })
 
 describe('Horca release workflow', () => {
+  const releaseWorkflow = readFileSync('.github/workflows/horca_release.yml', 'utf8')
+  const release = parse(releaseWorkflow)
+
   it('installs both mac CPU variants before packaging DMGs', () => {
-    const release = parse(readFileSync('.github/workflows/horca_release.yml', 'utf8'))
     const macosInstall = release.jobs.macos.steps.find(
       (step) => typeof step.run === 'string' && step.run.includes('pnpm install')
     )
 
     expect(macosInstall.run).toBe('pnpm install:release')
+  })
+
+  it('publishes with the Horca Maintenance app instead of a personal PAT', () => {
+    const { publish } = release.jobs
+    const appStep = publish.steps.find((step) => step.name === 'Create maintenance token')
+    const checkout = publish.steps.find(
+      (step) => typeof step.uses === 'string' && step.uses.startsWith('actions/checkout@')
+    )
+    const publishStep = publish.steps.find(
+      (step) => step.name === 'Publish immutable source tag and release'
+    )
+
+    expect(publish.environment).toBe('horca-maintenance')
+    expect(appStep.id).toBe('app')
+    expect(appStep.uses).toContain('actions/create-github-app-token@')
+    expect(appStep.with['app-id']).toBe('${{ secrets.HORCA_APP_ID }}')
+    expect(checkout.with.token).toBe('${{ steps.app.outputs.token }}')
+    expect(publishStep.env.GH_TOKEN).toBe('${{ steps.app.outputs.token }}')
+    expect(releaseWorkflow).not.toContain('FORK_SYNC_PAT')
   })
 })
 
