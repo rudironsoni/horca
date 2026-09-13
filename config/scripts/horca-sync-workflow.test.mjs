@@ -92,6 +92,17 @@ describe('Horca sync workflow', () => {
   })
 })
 
+describe('Horca release workflow', () => {
+  it('installs both mac CPU variants before packaging DMGs', () => {
+    const release = parse(readFileSync('.github/workflows/horca_release.yml', 'utf8'))
+    const macosInstall = release.jobs.macos.steps.find(
+      (step) => typeof step.run === 'string' && step.run.includes('pnpm install')
+    )
+
+    expect(macosInstall.run).toBe('pnpm install:release')
+  })
+})
+
 describe('Horca changed-code quality gate', () => {
   it('skips the upstream type-assertion scan against the overlay', () => {
     const lintStep = ciWorkflow.jobs.verify.steps.find((step) => step.name === 'Lint changed code')
