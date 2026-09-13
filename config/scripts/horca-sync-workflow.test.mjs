@@ -11,8 +11,16 @@ import {
   ensureHorcaCoauthorTrailer,
   rewriteHeadHorcaCommitIdentity
 } from '../horca/scripts/ensure-horca-commit-identity.mjs'
+import {
+  CASTING_SCAN_LABEL,
+  HORCA_SKIP_CASTING_SCAN_ENV,
+  OXLINT_SCANS,
+  oxlintScansForGate,
+  shouldSkipCastingScan
+} from './check-changed-code-quality.mjs'
 
 const workflow = parse(readFileSync('.github/workflows/horca_sync.yml', 'utf8'))
+const ciWorkflow = parse(readFileSync('.github/workflows/horca_ci.yml', 'utf8'))
 const tempDirs = []
 
 afterEach(() => {
@@ -79,6 +87,31 @@ describe('Horca sync workflow', () => {
     expect(rebaseStep.run).toContain('git checkout --ours -- pnpm-lock.yaml')
     expect(rebaseStep.run).toContain('pnpm install --lockfile-only --ignore-scripts')
     expect(rebaseStep.run).toContain('GIT_EDITOR=true git rebase --continue && break')
+  })
+})
+
+describe('Horca changed-code quality gate', () => {
+  it('skips the upstream type-assertion scan against the overlay', () => {
+    const lintStep = ciWorkflow.jobs.verify.steps.find((step) => step.name === 'Lint changed code')
+    const boundaryStep = ciWorkflow.jobs.verify.steps.find(
+      (step) => step.name === 'Test Horca boundaries'
+    )
+
+    expect(lintStep.env[HORCA_SKIP_CASTING_SCAN_ENV]).toBe('1')
+    expect(lintStep.run).toContain('check:code-quality:changed')
+    expect(boundaryStep.run).toContain('config/scripts/horca-sync-workflow.test.mjs')
+  })
+
+  it('keeps the casting scan exported and omits it from the Horca gate', () => {
+    expect(OXLINT_SCANS.some((scan) => scan.label === CASTING_SCAN_LABEL)).toBe(true)
+    expect(shouldSkipCastingScan({})).toBe(false)
+    expect(shouldSkipCastingScan({ [HORCA_SKIP_CASTING_SCAN_ENV]: '1' })).toBe(true)
+    expect(oxlintScansForGate({}).some((scan) => scan.label === CASTING_SCAN_LABEL)).toBe(true)
+    expect(
+      oxlintScansForGate({ [HORCA_SKIP_CASTING_SCAN_ENV]: '1' }).some(
+        (scan) => scan.label === CASTING_SCAN_LABEL
+      )
+    ).toBe(false)
   })
 })
 
