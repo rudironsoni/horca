@@ -5,6 +5,7 @@ import {
   resolveTerminalWheelDirection
 } from './pane-terminal-tui-wheel-reports'
 import type { TerminalTuiMouseWheelDistanceState } from './pane-terminal-tui-wheel-reports'
+import { queryOrcaTerminalCanvas } from './orca-terminal-canvas-element'
 
 export {
   TERMINAL_TUI_MOUSE_WHEEL_MULTIPLIER,
@@ -94,10 +95,7 @@ function cloneWheelReportEvent(event: WheelEvent): WheelEvent {
 }
 
 function resolveTerminalWheelCellHeight(terminal: TerminalWheelTarget): number | undefined {
-  if (typeof terminal.element?.querySelector !== 'function') {
-    return undefined
-  }
-  const screen = terminal.element?.querySelector<HTMLElement>('.orca-terminal-canvas')
+  const screen = queryOrcaTerminalCanvas(terminal.element)
   const rect = screen?.getBoundingClientRect()
   if (!rect || rect.height <= 0 || terminal.rows <= 0) {
     return undefined
