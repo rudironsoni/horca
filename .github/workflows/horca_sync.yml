@@ -116,15 +116,26 @@ jobs:
           git switch --detach "$OLD_MAIN"
           if ! git rebase --onto upstream/main "$OLD_BASE" \
             --exec "node $identity_script"; then
-            git diff --name-only --diff-filter=U > "$RUNNER_TEMP/sync-conflicts.txt"
-            git rev-parse REBASE_HEAD > "$RUNNER_TEMP/failed-commit.txt"
-            partial_sha=$(git rev-parse HEAD)
-            git range-diff "$OLD_BASE..$OLD_MAIN" "upstream/main..$partial_sha" \
-              > "$RUNNER_TEMP/partial-range-diff.txt" || true
-            git rebase --abort
-            git branch -f "$candidate_branch" "$partial_sha"
-            git push --force-with-lease origin "$candidate_branch"
-            exit 1
+            while [ "$(git diff --name-only --diff-filter=U)" = "pnpm-lock.yaml" ]; do
+              git checkout --ours -- pnpm-lock.yaml
+              corepack enable
+              if ! pnpm install --lockfile-only --ignore-scripts; then
+                break
+              fi
+              git add pnpm-lock.yaml
+              GIT_EDITOR=true git rebase --continue && break
+            done
+            if [ -d .git/rebase-merge ] || [ -d .git/rebase-apply ]; then
+              git diff --name-only --diff-filter=U > "$RUNNER_TEMP/sync-conflicts.txt"
+              git rev-parse REBASE_HEAD > "$RUNNER_TEMP/failed-commit.txt"
+              partial_sha=$(git rev-parse HEAD)
+              git range-diff "$OLD_BASE..$OLD_MAIN" "upstream/main..$partial_sha" \
+                > "$RUNNER_TEMP/partial-range-diff.txt" || true
+              git rebase --abort
+              git branch -f "$candidate_branch" "$partial_sha"
+              git push --force-with-lease origin "$candidate_branch"
+              exit 1
+            fi
           fi
           candidate_sha=$(git rev-parse HEAD)
           git branch -f "$candidate_branch" "$candidate_sha"
