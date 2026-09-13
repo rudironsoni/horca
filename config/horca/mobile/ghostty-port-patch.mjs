@@ -1,3 +1,6 @@
+import { existsSync, readdirSync, rmSync } from 'node:fs'
+import { join } from 'node:path'
+
 export function deletedPathsFromPatch(text) {
   const paths = []
   for (const block of text.split(/(?=^diff --git )/m)) {
@@ -13,4 +16,23 @@ export function deletedPathsFromPatch(text) {
     paths.push(match[1])
   }
   return paths
+}
+
+export function removeLegacyWebviewTerminalFiles(terminalRoot) {
+  if (!existsSync(terminalRoot)) {
+    return []
+  }
+  const removed = []
+  for (const entry of readdirSync(terminalRoot, { withFileTypes: true })) {
+    const path = join(terminalRoot, entry.name)
+    if (/webview/i.test(entry.name)) {
+      rmSync(path, { recursive: true, force: true })
+      removed.push(path)
+      continue
+    }
+    if (entry.isDirectory()) {
+      removed.push(...removeLegacyWebviewTerminalFiles(path))
+    }
+  }
+  return removed
 }
