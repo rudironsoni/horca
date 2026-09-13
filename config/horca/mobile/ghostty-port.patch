@@ -21721,20 +21721,17 @@ index 90affafa53..43f06d7446 100644
          }
          if (pendingGitHubProjectViewSelection) {
 diff --git a/mobile/src/tasks/mobile-tasks-refactor-parity.test.ts b/mobile/src/tasks/mobile-tasks-refactor-parity.test.ts
-index 8d35398c3d..50a8143bf9 100644
 --- a/mobile/src/tasks/mobile-tasks-refactor-parity.test.ts
 +++ b/mobile/src/tasks/mobile-tasks-refactor-parity.test.ts
-@@ -18,9 +18,9 @@ const hash = (parts: string[] | string): string =>
- 
- const PRE_REFACTOR_SCREEN_HOOKS = '42174315a76c475d09dcb7209af4481f01258c4c9dc012127ff07a893d8cd291'
- const PRE_REFACTOR_DIFF_HOOKS = '93c7189b32bed8456cc51814fffa8ce80cf62011ef968a9d53ddec2b9686f58f'
--const PRE_REFACTOR_STATEMENTS = '9323fbee7c3806f37de42578ba73ce659c786c0ed5f8b6bcbc321b201ca50a73'
-+const PRE_REFACTOR_STATEMENTS = '277edfa73889fa056aa1196dad54422083e2d93ae4a946d6e81957556fa37263'
- const PRE_REFACTOR_DECLARATIONS = 'cff54172af17a877789be1479c2eb6ca97d83c3e31dd831cd59395962f2b4c4a'
--const PRE_REFACTOR_SEMANTICS = '5219d210d6f274e9ce2716a37c4c6fc4860a736a80f059ab6e89da6123043263'
-+const PRE_REFACTOR_SEMANTICS = '4be55238e088714f7cfd553b7191c70ac1a4353494f94bfac2d99f6c4425d826'
- const PRE_REFACTOR_STYLES = '1db6af69c791d9963928541ad5310942fcbda6d984b422c90b6eb92b6816579a'
- const PRE_REFACTOR_RENDER_TREE = '2111145136b1e4fbca150d4792d735a90e992488e9934cfc1a8b8f3be981f39f'
+@@ -20,7 +20,7 @@ const EXPECTED_SCREEN_HOOKS = '25c9a72805e48caa9c6758d14a128fea1bdc6cfdea3e4e39a7f0026c5933c8d7'
+ const EXPECTED_DIFF_HOOKS = '93c7189b32bed8456cc51814fffa8ce80cf62011ef968a9d53ddec2b9686f58f'
+-const EXPECTED_STATEMENTS = '1413f6e843f7a7ae849767b26b25d5eafc7fffda1fc37f283fbd883d9d8a4bda'
++const EXPECTED_STATEMENTS = 'f5c913a8e8d4914e53a6102a1dbb1ca53bd95c37af1ae07834bbaedeb3fba6ff'
+ const EXPECTED_DECLARATIONS = '6ad0397123e59fc1047a14049c86ff31d81723673a7a7f5c41677471aec58415'
+-const EXPECTED_SEMANTICS = '4758ba019e4ff7cadd7ee02338719fa4fc4e1443e34cc290842819cfa1a70181'
++const EXPECTED_SEMANTICS = 'dee35aed34ded78b156db26dd0d6cc9efc9b511fad506e691fbd235f37a8172c'
+ const EXPECTED_STYLES = '1db6af69c791d9963928541ad5310942fcbda6d984b422c90b6eb92b6816579a'
+ const EXPECTED_RENDER_TREE = '2111145136b1e4fbca150d4792d735a90e992488e9934cfc1a8b8f3be981f39f'
  
 diff --git a/mobile/src/tasks/use-mobile-tasks-project-loading-actions.tsx b/mobile/src/tasks/use-mobile-tasks-project-loading-actions.tsx
 index 221134e46e..085d88404b 100644
