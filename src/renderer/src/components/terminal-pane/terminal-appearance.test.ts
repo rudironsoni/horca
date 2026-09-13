@@ -144,7 +144,7 @@ describe('applyTerminalAppearance theme assignment', () => {
     const measurable = overrides?.measurable ?? true
     return {
       id,
-      terminal: { options: {}, cols: 80, rows: 24 },
+      terminal: { options: {}, cols: 80, rows: 24, applyMetrics: vi.fn() },
       container: {
         dataset: {},
         getBoundingClientRect: () => ({ width: measurable ? 800 : 0, height: measurable ? 600 : 0 })
@@ -339,7 +339,7 @@ describe('applyTerminalAppearance theme assignment', () => {
     let measurable = false
     const pane = {
       id: 1,
-      terminal: { options: {}, cols: 80, rows: 24 },
+      terminal: { options: {}, cols: 80, rows: 24, applyMetrics: vi.fn() },
       container: {
         dataset: {},
         getBoundingClientRect: () => ({ width: measurable ? 800 : 0, height: measurable ? 600 : 0 })
@@ -379,7 +379,7 @@ describe('applyTerminalAppearance theme assignment', () => {
     })
     const pane = {
       id: 1,
-      terminal: { options, cols: 80, rows: 24 },
+      terminal: { options, cols: 80, rows: 24, applyMetrics: vi.fn() },
       container: {
         dataset: {},
         getBoundingClientRect: () => ({ width: measurable ? 800 : 0, height: measurable ? 600 : 0 })

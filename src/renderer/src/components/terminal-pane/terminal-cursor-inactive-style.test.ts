@@ -12,7 +12,8 @@ describe('terminal inactive cursor style', () => {
     const terminal = {
       options,
       cols: 80,
-      rows: 24
+      rows: 24,
+      applyMetrics: vi.fn()
     } as unknown as ManagedPane['terminal']
     const pane = { id: 1, terminal } as ManagedPane
     const manager = {
