@@ -21721,17 +21721,27 @@ index 90affafa53..43f06d7446 100644
          }
          if (pendingGitHubProjectViewSelection) {
 diff --git a/mobile/src/tasks/mobile-tasks-refactor-parity.test.ts b/mobile/src/tasks/mobile-tasks-refactor-parity.test.ts
+index 111b119db..dce594e5a 100644
 --- a/mobile/src/tasks/mobile-tasks-refactor-parity.test.ts
 +++ b/mobile/src/tasks/mobile-tasks-refactor-parity.test.ts
-@@ -20,7 +20,7 @@ const EXPECTED_SCREEN_HOOKS = '25c9a72805e48caa9c6758d14a128fea1bdc6cfdea3e4e39a7f0026c5933c8d7'
- const EXPECTED_DIFF_HOOKS = '93c7189b32bed8456cc51814fffa8ce80cf62011ef968a9d53ddec2b9686f58f'
--const EXPECTED_STATEMENTS = '1413f6e843f7a7ae849767b26b25d5eafc7fffda1fc37f283fbd883d9d8a4bda'
-+const EXPECTED_STATEMENTS = 'f5c913a8e8d4914e53a6102a1dbb1ca53bd95c37af1ae07834bbaedeb3fba6ff'
- const EXPECTED_DECLARATIONS = '6ad0397123e59fc1047a14049c86ff31d81723673a7a7f5c41677471aec58415'
--const EXPECTED_SEMANTICS = '4758ba019e4ff7cadd7ee02338719fa4fc4e1443e34cc290842819cfa1a70181'
-+const EXPECTED_SEMANTICS = 'dee35aed34ded78b156db26dd0d6cc9efc9b511fad506e691fbd235f37a8172c'
- const EXPECTED_STYLES = '1db6af69c791d9963928541ad5310942fcbda6d984b422c90b6eb92b6816579a'
- const EXPECTED_RENDER_TREE = '2111145136b1e4fbca150d4792d735a90e992488e9934cfc1a8b8f3be981f39f'
+@@ -17,13 +17,13 @@ const hash = (parts: string[] | string): string =>
+     .digest('hex')
+ 
+ // Bound settings requests change source signatures; their behavior is covered by settings-read-operations.test.ts.
+-const SETTINGS_RPC_SCREEN_HOOKS = 'fb2d873e06001fbae7cee78d079b3df9dc2eedb56ab2f03c7ffb431bc8666191'
++const SETTINGS_RPC_SCREEN_HOOKS = '554e721be29acb61882474f052dd74043de175798ecd42764bd4730d709f6232'
+ const PRE_REFACTOR_DIFF_HOOKS = '93c7189b32bed8456cc51814fffa8ce80cf62011ef968a9d53ddec2b9686f58f'
+-const SETTINGS_RPC_STATEMENTS = '1c99d6382f74c37c0ff896dfa634fb503c9fe8062e2280328d0b82f79f658fdb'
++const SETTINGS_RPC_STATEMENTS = '5528fd323e3618bd06f143615f3d51b763b7597c9087fe54d1be4d18ea6629ec'
+ const MAIN_REBASED_DECLARATIONS = '6ad0397123e59fc1047a14049c86ff31d81723673a7a7f5c41677471aec58415'
+-const SETTINGS_RPC_SEMANTICS = '2431b1c07dfe9a9c94f5d3f4e91415ed99bd9e1bce3794f8bd5f094a29134d77'
++const SETTINGS_RPC_SEMANTICS = '4c5dada66ee2c1ad7ff61cbf12cf489df617fbcb8de9533ba239c7119e5c74a3'
+ const PRE_REFACTOR_STYLES = '1db6af69c791d9963928541ad5310942fcbda6d984b422c90b6eb92b6816579a'
+-const PRE_REFACTOR_RENDER_TREE = '2111145136b1e4fbca150d4792d735a90e992488e9934cfc1a8b8f3be981f39f'
++const PRE_REFACTOR_RENDER_TREE = '4314337b247e4fe86ce82636fe5d157a28013be00458b332043d31fcd26ce578'
+ 
+ describe('Mobile Tasks refactor parity', () => {
+   it('preserves recursively flattened hook and dependency order', () => {
  
 diff --git a/mobile/src/tasks/use-mobile-tasks-project-loading-actions.tsx b/mobile/src/tasks/use-mobile-tasks-project-loading-actions.tsx
 index 221134e46e..085d88404b 100644
