@@ -92,7 +92,10 @@ jobs:
           --exclude '**/*.probe.test.ts'
 
       - name: Test Horca release metadata
-        run: node --test config/horca/scripts/prepare-release.test.mjs
+        run: >-
+          node --test
+          config/horca/scripts/prepare-release.test.mjs
+          config/horca/scripts/continue-sync-rebase.test.mjs
 
       - name: Build downstream distribution
         if: inputs.full == true
