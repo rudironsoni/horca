@@ -1,13 +1,11 @@
 import type { Terminal } from '../../../../shared/orca-terminal-surface'
+import { resolveOrcaTerminalScreen } from '@/lib/pane-manager/orca-terminal-canvas-element'
 
 export function getTerminalBufferPositionForMouseEvent(
   terminal: Terminal,
   event: MouseEvent
 ): { x: number; y: number } | null {
-  const screenElement =
-    terminal.element?.querySelector('.orca-terminal-canvas') ??
-    terminal.element?.querySelector('.orca-terminal-canvas') ??
-    terminal.element
+  const screenElement = resolveOrcaTerminalScreen(terminal.element)
   if (!screenElement || terminal.cols <= 0 || terminal.rows <= 0) {
     return null
   }
