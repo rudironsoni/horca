@@ -13,6 +13,7 @@ const CASTING_DISABLE_PATTERN =
   /\/[/*]\s*(?:oxlint|eslint)-disable(?:-next-line|-line)?\s[^\n]*typescript\/consistent-type-assertions/
 export const CASTING_SCAN_LABEL = 'casting code quality'
 export const HORCA_SKIP_CASTING_SCAN_ENV = 'HORCA_SKIP_CASTING_SCAN'
+export const HORCA_OVERLAY_LINT_SUBSYSTEM = 'horca-overlay-lint'
 export const OXLINT_SCANS = [
   {
     // Why: no --config, so Oxlint keeps discovering nested configs. Pinning the root
@@ -40,8 +41,26 @@ export const OXLINT_SCANS = [
   }
 ]
 
-export function shouldSkipCastingScan(env = process.env) {
-  return env[HORCA_SKIP_CASTING_SCAN_ENV] === '1'
+export function overlayPolicySkipsCastingScan(root = process.cwd()) {
+  const policyPath = path.join(root, 'config/horca/overlay-policy.json')
+  if (!existsSync(policyPath)) {
+    return false
+  }
+  try {
+    const policy = JSON.parse(readFileSync(policyPath, 'utf8'))
+    return (policy.overlays ?? []).some(
+      (overlay) => overlay.subsystem === HORCA_OVERLAY_LINT_SUBSYSTEM
+    )
+  } catch {
+    return false
+  }
+}
+
+export function shouldSkipCastingScan(env = process.env, root = process.cwd()) {
+  if (env[HORCA_SKIP_CASTING_SCAN_ENV] === '0') {
+    return false
+  }
+  return env[HORCA_SKIP_CASTING_SCAN_ENV] === '1' || overlayPolicySkipsCastingScan(root)
 }
 
 export function oxlintScansForGate(env = process.env) {
@@ -428,8 +447,8 @@ export function main(
   }
 
   if (skipCastingScan) {
-    console.log(`${CASTING_SCAN_LABEL}: skipped (${HORCA_SKIP_CASTING_SCAN_ENV}=1).`)
-    console.log(`casting SAFETY: rationale: skipped (${HORCA_SKIP_CASTING_SCAN_ENV}=1).`)
+    console.log(`${CASTING_SCAN_LABEL}: skipped (Horca overlay lint policy).`)
+    console.log('casting SAFETY: rationale: skipped (Horca overlay lint policy).')
   } else {
     const missingSafety = findCastingDirectivesMissingSafety(root, rangesByFile)
     for (const diagnostic of missingSafety) {
