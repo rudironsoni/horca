@@ -14,6 +14,7 @@ export class GhosttyVtHost {
   readonly exports: WasmExports
   readonly layout: TypeLayout
   readonly success: number
+  readonly noValue: number
   readonly writePtyTableIndex: number
   private readonly writePtyByUserdata = new Map<number, WritePtyCallback>()
   private nextUserdata = 1
@@ -26,6 +27,7 @@ export class GhosttyVtHost {
     this.exports = instance.exports as unknown as WasmExports
     this.layout = parseTypeLayout(this.readCString(this.exports.ghostty_type_json()))
     this.success = enumValue(this.layout, 'GhosttyResult', 'SUCCESS')
+    this.noValue = enumValue(this.layout, 'GhosttyResult', 'NO_VALUE')
     const tramp = new WebAssembly.Instance(new WebAssembly.Module(trampolineWasm), {
       env: {
         write_pty: (_term: number, userdata: number, data: number, len: number) => {

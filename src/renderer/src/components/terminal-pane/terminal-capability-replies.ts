@@ -6,6 +6,7 @@ import {
   type TerminalOscColorQuerySlot
 } from '../../../../shared/terminal-osc-color-reply'
 import { guardParserHandler } from './terminal-parser-handler-guard'
+import { resolveOrcaTerminalScreen } from '@/lib/pane-manager/orca-terminal-canvas-element'
 
 export const DEFAULT_DA1_RESPONSE = '\x1b[?1;2c'
 export const CONPTY_DA1_RESPONSE = '\x1b[?61;4c'
@@ -25,14 +26,7 @@ function isPrimaryDeviceAttributesQuery(params: (number | number[])[]): boolean 
 function getTerminalScreenElement(
   terminal: Pick<Terminal, 'element'>
 ): Pick<HTMLElement, 'getBoundingClientRect'> | null {
-  if (typeof terminal.element?.querySelector !== 'function') {
-    return null
-  }
-  return (
-    terminal.element.querySelector('.orca-terminal-canvas') ??
-    terminal.element.querySelector('.orca-terminal-canvas') ??
-    terminal.element
-  )
+  return resolveOrcaTerminalScreen(terminal.element)
 }
 
 function measureCellPixels(
