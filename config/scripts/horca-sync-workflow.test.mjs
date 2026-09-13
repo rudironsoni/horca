@@ -67,6 +67,19 @@ describe('Horca sync workflow', () => {
       "git config user.email 'horca-maintenance@users.noreply.github.com'"
     )
   })
+
+  it('regenerates lockfile-only rebase conflicts before reporting', () => {
+    const rebaseStep = workflow.jobs.candidate.steps.find(
+      (step) => step.name === 'Rebase patch stack'
+    )
+
+    expect(rebaseStep.run).toContain(
+      'while [ "$(git diff --name-only --diff-filter=U)" = "pnpm-lock.yaml" ]; do'
+    )
+    expect(rebaseStep.run).toContain('git checkout --ours -- pnpm-lock.yaml')
+    expect(rebaseStep.run).toContain('pnpm install --lockfile-only --ignore-scripts')
+    expect(rebaseStep.run).toContain('GIT_EDITOR=true git rebase --continue && break')
+  })
 })
 
 describe('Horca overlay commit identity', () => {
