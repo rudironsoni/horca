@@ -25,6 +25,13 @@ describe('GhosttyTerminal', () => {
     expect(GHOSTTY_VT_REVISION).toBe('492300cad104195411d12217dd22f1cd05f31376')
   })
 
+  it('exports two-argument render-state update and dirty-row APIs', () => {
+    const host = getGhosttyVtHost()
+    expect(host.exports.ghostty_render_state_begin_update.length).toBe(2)
+    expect(host.exports.ghostty_render_state_update.length).toBe(2)
+    expect(host.exports.ghostty_render_state_row_iterator_next_dirty.length).toBe(2)
+  })
+
   it('writes VT bytes and reads Ghostty viewport text', () => {
     terminal = new GhosttyTerminal(getGhosttyVtHost(), { cols: 80, rows: 24 })
     terminal.writePtyOutput('hello world')
