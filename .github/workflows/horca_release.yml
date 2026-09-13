@@ -77,7 +77,8 @@ jobs:
         with:
           node-version-file: package.json
           cache: pnpm
-      - run: pnpm install --frozen-lockfile
+      - name: Install release native variants
+        run: pnpm install:release
       - name: Verify signing inputs
         run: node config/scripts/verify-macos-release-env.mjs
         env:
