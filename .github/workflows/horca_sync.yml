@@ -112,18 +112,16 @@ jobs:
           git config user.email 'rudimar@outlook.com'
           git config commit.gpgsign false
           identity_script="$RUNNER_TEMP/ensure-horca-commit-identity.mjs"
+          continue_script="$RUNNER_TEMP/continue-sync-rebase.mjs"
           cp config/horca/scripts/ensure-horca-commit-identity.mjs "$identity_script"
+          cp config/horca/scripts/continue-sync-rebase.mjs "$continue_script"
           git switch --detach "$OLD_MAIN"
           if ! git rebase --onto upstream/main "$OLD_BASE" \
             --exec "node $identity_script"; then
-            while [ "$(git diff --name-only --diff-filter=U)" = "pnpm-lock.yaml" ]; do
-              git checkout --ours -- pnpm-lock.yaml
-              corepack enable
-              if ! pnpm install --lockfile-only --ignore-scripts; then
+            while [ -d .git/rebase-merge ] || [ -d .git/rebase-apply ]; do
+              if ! node "$continue_script"; then
                 break
               fi
-              git add pnpm-lock.yaml
-              GIT_EDITOR=true git rebase --continue && break
             done
             if [ -d .git/rebase-merge ] || [ -d .git/rebase-apply ]; then
               git diff --name-only --diff-filter=U > "$RUNNER_TEMP/sync-conflicts.txt"
