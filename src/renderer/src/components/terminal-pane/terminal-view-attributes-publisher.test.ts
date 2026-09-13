@@ -140,7 +140,7 @@ describe('applyTerminalAppearance publication', () => {
   function makePane(id: number): ManagedPane {
     return {
       id,
-      terminal: { options: {}, cols: 80, rows: 24 }
+      terminal: { options: {}, cols: 80, rows: 24, applyMetrics: vi.fn() }
     } as unknown as ManagedPane
   }
 
