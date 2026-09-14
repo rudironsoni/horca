@@ -123,7 +123,7 @@ const MAIN_RENDERER_PRESSURE_TARGET_CHARS = 2 * 1024 * 1024
 // CI headroom while still failing changes that make typing visibly sluggish.
 // Why: Canvas2D plus macOS IME `input` commit is slower than the old terminal
 // WebGL path that this 75ms budget was written against.
-const MAX_MEDIAN_KEY_LATENCY_MS = 250
+const MAX_MEDIAN_KEY_LATENCY_MS = 75
 const MAX_WORST_KEY_LATENCY_MS = 350
 // Why: under injected multi-pane load, the worst *single* key echo lands behind
 // whichever synthetic flush it collides with, so on a CPU-starved OSS shard it

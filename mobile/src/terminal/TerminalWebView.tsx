@@ -1,6 +1,12 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef } from 'react'
-import { TerminalView, type TerminalTheme, type TerminalViewRef } from '@orca/libghostty-terminal'
+import type { TerminalTheme, TerminalViewRef } from 'expo-libghostty'
 import type { RuntimeMobileTerminalTheme } from '../../../src/shared/runtime-types'
+import {
+  fileTapFromNativeEvent,
+  selectionFromNativeEvent,
+  urlFromNativeEvent
+} from './expo-libghostty-interaction'
+import { ExpoLibghosttyPaneView, expoLibghosttySurfaceProps } from './expo-libghostty-surface-props'
 import type { TerminalWebViewHandle, TerminalWebViewProps } from './terminal-webview-contract'
 import { createTerminalWriteCoalescer } from './terminal-write-coalescer'
 
@@ -40,7 +46,22 @@ export type { TerminalWebViewHandle } from './terminal-webview-contract'
 
 export const TerminalWebView = forwardRef<TerminalWebViewHandle, TerminalWebViewProps>(
   function TerminalWebView(
-    { style, terminalTheme, textScale = 1, onWebReady, onTerminalInput },
+    {
+      style,
+      terminalTheme,
+      textScale = 1,
+      surfaceVisible = true,
+      onWebReady,
+      onTerminalInput,
+      onHaptic,
+      onGridResize,
+      onSelectionMode,
+      onSelectionCopy,
+      onSelectionEvicted,
+      onTerminalTap,
+      onFileTap,
+      onOpenUrl
+    },
     ref
   ) {
     const nativeRef = useRef<TerminalViewRef>(null)
@@ -70,9 +91,13 @@ export const TerminalWebView = forwardRef<TerminalWebViewHandle, TerminalWebView
       [onTerminalInput]
     )
 
-    const handleResize = useCallback((event: { nativeEvent: { cols: number; rows: number } }) => {
-      sizeRef.current = { cols: event.nativeEvent.cols, rows: event.nativeEvent.rows }
-    }, [])
+    const handleResize = useCallback(
+      (event: { nativeEvent: { cols: number; rows: number } }) => {
+        sizeRef.current = { cols: event.nativeEvent.cols, rows: event.nativeEvent.rows }
+        onGridResize?.(event.nativeEvent.cols, event.nativeEvent.rows)
+      },
+      [onGridResize]
+    )
 
     useImperativeHandle(
       ref,
@@ -108,13 +133,21 @@ export const TerminalWebView = forwardRef<TerminalWebViewHandle, TerminalWebView
     )
 
     return (
-      <TerminalView
+      <ExpoLibghosttyPaneView
         ref={nativeRef}
         style={style}
-        fontSize={14 * textScale}
+        fontSize={8 * textScale}
         theme={mapTheme(terminalTheme)}
         onInput={handleInput}
         onResize={handleResize}
+        onBell={() => onHaptic?.('success')}
+        onSelectionChange={(event) =>
+          selectionFromNativeEvent(event, onSelectionMode, onSelectionCopy, onSelectionEvicted)
+        }
+        onUrl={(event) => urlFromNativeEvent(event, onOpenUrl)}
+        onFilePath={(event) => fileTapFromNativeEvent(event, onFileTap)}
+        onTap={onTerminalTap}
+        {...expoLibghosttySurfaceProps(surfaceVisible)}
       />
     )
   }

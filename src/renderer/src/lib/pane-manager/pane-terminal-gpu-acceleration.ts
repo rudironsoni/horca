@@ -36,12 +36,13 @@ export function applyTerminalGpuAcceleration(
     }
     if (
       pane.gpuRenderingEnabled &&
-      !pane.gpuRenderer &&
       !pane.webglAttachmentDeferred &&
       !pane.webglDisabledAfterContextLoss
     ) {
       refreshPaneRenderer(pane)
-      safeFit(pane)
+      if (modeChanged) {
+        safeFit(pane)
+      }
     }
   }
 }
