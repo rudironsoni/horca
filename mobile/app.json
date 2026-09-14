@@ -1,12 +1,12 @@
 {
   "expo": {
-    "name": "Orca",
-    "slug": "orca-mobile",
+    "name": "Horca",
+    "slug": "horca-mobile",
     "version": "0.0.48",
     "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
-    "scheme": "orca",
+    "scheme": "horca",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
@@ -15,7 +15,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.stably.orca.mobile",
+      "bundleIdentifier": "com.rudironsoni.horca.mobile",
       "buildNumber": "1",
       "infoPlist": {
         "NSLocalNetworkUsageDescription": "Orca connects to the desktop app on your LAN.",
@@ -74,7 +74,7 @@
       "usesCleartextTraffic": true,
       "allowBackup": false,
       "permissions": ["RECORD_AUDIO", "MODIFY_AUDIO_SETTINGS"],
-      "package": "com.stably.orca.mobile",
+      "package": "com.rudironsoni.horca.mobile",
       "versionCode": 16,
       "googleServicesFile": "./google-services.json"
     },
@@ -82,6 +82,7 @@
       "expo-router",
       "expo-notifications",
       "./plugins/android-respect-rotation-lock.js",
+      "./plugins/ios-scene-lifecycle.js",
       [
         "expo-splash-screen",
         {
@@ -92,15 +93,15 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow Orca to use the camera for QR code scanning.",
-          "microphonePermission": "Allow Orca to use your microphone for voice dictation sent to your paired desktop for transcription.",
+          "cameraPermission": "Allow Horca to use the camera for QR code scanning.",
+          "microphonePermission": "Allow Horca to use your microphone for voice dictation sent to your paired desktop for transcription.",
           "recordAudioAndroid": false
         }
       ],
       [
         "expo-image-picker",
         {
-          "photosPermission": "Allow Orca to attach photos from your library to a terminal session on your paired desktop."
+          "photosPermission": "Allow Horca to attach photos from your library to a terminal session on your paired desktop."
         }
       ],
       [

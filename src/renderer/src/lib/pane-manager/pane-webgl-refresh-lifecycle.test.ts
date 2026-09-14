@@ -75,7 +75,7 @@ describe('pane WebGL refresh lifecycle', () => {
 
     disposeWebgl(pane, { refreshDimensions: true })
 
-    expect(pane.gpuRenderer).toBeNull()
+    expect(pane.gpuRenderer).not.toBeNull()
     expect(pane.pendingWebglRefreshRafId).toBe(29)
   })
 
@@ -99,39 +99,32 @@ describe('pane WebGL refresh lifecycle', () => {
     expect(pane.terminal.refresh).toHaveBeenCalledTimes(1)
   })
 
-  it('actively releases the terminal WebGL context before disposing the addon', () => {
+  it('releases the Ghostty GPU context without dropping the pane wrapper', () => {
     const loseContext = vi.fn()
-    const canvas = { width: 120, height: 40 }
     const dispose = vi.fn()
     const pane = createPane({
       gpuRenderer: {
         dispose,
-        _renderer: {
-          _gl: {
-            getExtension: vi.fn(() => ({ loseContext }))
-          },
-          _canvas: canvas
-        }
-      } as never
+        loseContext
+      }
     })
 
     disposeWebgl(pane)
 
     expect(loseContext).toHaveBeenCalledTimes(1)
     expect(dispose).toHaveBeenCalledTimes(1)
-    expect(canvas).toEqual({ width: 0, height: 0 })
-    expect(pane.gpuRenderer).toBeNull()
+    expect(pane.gpuRenderer).not.toBeNull()
   })
 
   it('disposes WebGL when rendering is suspended', () => {
     const dispose = vi.fn()
-    const pane = createPane({ gpuRenderer: { dispose } as never })
+    const pane = createPane({ gpuRenderer: { dispose } })
 
     suspendPaneRendering([pane])
 
     expect(pane.webglAttachmentDeferred).toBe(true)
     expect(dispose).toHaveBeenCalledTimes(1)
-    expect(pane.gpuRenderer).toBeNull()
+    expect(pane.gpuRenderer).not.toBeNull()
   })
 
   it('cancels a pending WebGL refresh when the pane is disposed', () => {
