@@ -38,7 +38,7 @@ function mapTheme(theme?: RuntimeMobileTerminalTheme): TerminalTheme | undefined
       colors.brightMagenta,
       colors.brightCyan,
       colors.brightWhite
-    ]
+    ].map((value) => value ?? null)
   }
 }
 
