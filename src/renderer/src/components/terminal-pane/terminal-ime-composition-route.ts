@@ -2,8 +2,8 @@ import type { OrcaDisposable as IDisposable } from '../../../../shared/orca-term
 import type { OrcaPaneTerminal as Terminal } from '../../lib/pane-manager/orca-pane-terminal'
 import type { PtyTransport } from './pty-transport'
 
-export const XTERM_COMPOSITION_SESSION_START_EVENT = 'terminal-composition-session-start'
-export const XTERM_COMPOSITION_SESSION_END_EVENT = 'terminal-composition-session-end'
+export const TERMINAL_COMPOSITION_SESSION_START_EVENT = 'terminal-composition-session-start'
+export const TERMINAL_COMPOSITION_SESSION_END_EVENT = 'terminal-composition-session-end'
 
 export type TerminalImeCompositionSessionDetail = {
   id: number

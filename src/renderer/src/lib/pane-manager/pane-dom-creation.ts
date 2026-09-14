@@ -25,11 +25,14 @@ export function createPaneDOM(
 
   const terminalHost = document.createElement('div')
   terminalHost.className = 'orca-terminal-container'
+  terminalHost.style.width = '100%'
+  terminalHost.style.height = '100%'
   container.appendChild(terminalHost)
 
   const userOpts = options.terminalOptions?.(id) ?? {}
   const terminal = new OrcaPaneTerminal(terminalHost, userOpts)
   terminalHost.appendChild(terminal.element)
+  terminalHost.appendChild(terminal.textarea)
 
   let linkTooltipHoverToken = 0
   const linkTooltip = document.createElement('div')
@@ -126,7 +129,12 @@ export function createPaneDOM(
     },
     unicode11Addon: null,
     webLinksAddon: null,
-    gpuRenderer: null,
+    gpuRenderer: {
+      dispose: () => terminal.loseGpuContext(),
+      loseContext: () => terminal.loseGpuContext(),
+      clearTextureAtlas: () => terminal.invalidateGpuAtlas(),
+      isContextLost: () => terminal.isGpuContextLost()
+    },
     ligaturesAddon: null,
     panePointerDownHandler,
     paneMouseEnterHandler,

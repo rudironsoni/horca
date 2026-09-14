@@ -15,7 +15,7 @@ import {
   onTerminalScrollIntentBufferRebuildComplete
 } from './terminal-scroll-intent-rebuild'
 
-const XTERM_SCROLL_INTENT_POINTER_TARGET_CLASSES = [
+const TERMINAL_SCROLL_INTENT_POINTER_TARGET_CLASSES = [
   'orca-terminal-viewport',
   'orca-terminal-scrollbar',
   'orca-terminal-slider'
@@ -28,7 +28,7 @@ function isTerminalScrollIntentPointerTarget(target: EventTarget | null): target
     return false
   }
   // terminal's custom scrollbar uses separate thumb/track nodes from the viewport.
-  return target.closest(XTERM_SCROLL_INTENT_POINTER_TARGET_SELECTOR) !== null
+  return target.closest(TERMINAL_SCROLL_INTENT_POINTER_TARGET_SELECTOR) !== null
 }
 
 type TerminalWithOnData = {

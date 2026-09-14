@@ -24,7 +24,7 @@ const DOM_DELTA_LINE = 1
 type TerminalWheelTarget = {
   element: HTMLElement
   rows: number
-  modes: { mouseTrackingMode?: 'none' | 'vt200' | 'any' | boolean | string }
+  modes: { mouseTrackingMode?: boolean | string }
   attachCustomWheelEventHandler?: (handler: (event: WheelEvent) => boolean) => void
 }
 
@@ -95,10 +95,7 @@ function cloneWheelReportEvent(event: WheelEvent): WheelEvent {
 }
 
 function resolveTerminalWheelCellHeight(terminal: TerminalWheelTarget): number | undefined {
-  if (typeof terminal.element?.querySelector !== 'function') {
-    return undefined
-  }
-  const screen = terminal.element?.querySelector<HTMLElement>('.orca-terminal-canvas')
+  const screen = queryOrcaTerminalCanvas(terminal.element)
   const rect = screen?.getBoundingClientRect()
   if (!rect || rect.height <= 0 || terminal.rows <= 0) {
     return undefined

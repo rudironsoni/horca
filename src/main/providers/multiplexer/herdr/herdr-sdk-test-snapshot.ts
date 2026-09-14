@@ -1,4 +1,4 @@
-import { HerdrSplitRatio, type LayoutDescription } from '@rudironsoni/herdr-ts-sdk'
+import { HerdrSplitRatio, type LayoutDescription } from '@herdr/sdk'
 import { Option } from 'effect'
 import type {
   HerdrPane,

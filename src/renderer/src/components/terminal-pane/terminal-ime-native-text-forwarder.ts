@@ -71,9 +71,9 @@ export type ImeNativeTextKeyEvent = {
   getModifierState?: (key: string) => boolean
 }
 
-export const XTERM_COMPOSITION_TRANSACTION_ACCEPTED_EVENT =
+export const TERMINAL_COMPOSITION_TRANSACTION_ACCEPTED_EVENT =
   'terminal-composition-transaction-accepted'
-export const XTERM_COMPOSITION_TRANSACTION_SETTLED_EVENT =
+export const TERMINAL_COMPOSITION_TRANSACTION_SETTLED_EVENT =
   'terminal-composition-transaction-settled'
 
 export type TerminalImeNativeTextForwarder = IDisposable & {

@@ -62,8 +62,6 @@ export function TerminalPaneView({
 
   return (
     <View
-      // Why: inactive terminal WebViews stay mounted to preserve terminal state,
-      // while touch and visibility are disabled until the tab is active again.
       pointerEvents={active ? 'auto' : 'none'}
       style={[
         styles.terminalPane,

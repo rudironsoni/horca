@@ -26,14 +26,7 @@ function isPrimaryDeviceAttributesQuery(params: (number | number[])[]): boolean 
 function getTerminalScreenElement(
   terminal: Pick<Terminal, 'element'>
 ): Pick<HTMLElement, 'getBoundingClientRect'> | null {
-  if (typeof terminal.element?.querySelector !== 'function') {
-    return null
-  }
-  return (
-    terminal.element.querySelector('.orca-terminal-canvas') ??
-    terminal.element.querySelector('.orca-terminal-canvas') ??
-    terminal.element
-  )
+  return resolveOrcaTerminalScreen(terminal.element)
 }
 
 function measureCellPixels(

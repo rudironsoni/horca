@@ -7,7 +7,7 @@ export function installTerminalLinkifierHoverResetOnMouseLeave(
   terminal: Terminal,
   linkTooltip?: HTMLElement
 ): IDisposable {
-  const screen = terminal.element?.querySelector<HTMLElement>('.orca-terminal-canvas')
+  const screen = queryOrcaTerminalCanvas(terminal.element)
   if (!screen) {
     return { dispose: () => undefined }
   }

@@ -176,7 +176,7 @@ describe('schedulePaneRevealRepaint', () => {
     flushFrame()
     flushFrame()
 
-    expect(pane.gpuRenderer).not.toBeNull()
+    expect(pane.gpuRenderer).toBeNull()
     expect(manager.resetWebglTextureAtlases).toHaveBeenCalledTimes(1)
     expect(pane.terminal.refresh).toHaveBeenCalled()
   })
@@ -277,8 +277,8 @@ describe('schedulePaneRevealRepaint', () => {
       flushFrame()
       flushFrame()
 
-      expect(pane.gpuRenderer).not.toBeNull()
-      expect(pane.terminal.refresh).toHaveBeenCalled()
+      expect(pane.gpuRenderer).toBeNull()
+      expect(pane.terminal.refresh).toHaveBeenCalledWith(0, 23)
     })
 
     it('clears a context-loss latch and presents on Canvas2D when a tab is revealed', () => {
@@ -291,9 +291,8 @@ describe('schedulePaneRevealRepaint', () => {
       flushFrame()
 
       expect(pane.webglDisabledAfterContextLoss).toBe(false)
-      expect(pane.gpuRenderer).not.toBeNull()
-      expect(pane.terminal.refresh).toHaveBeenCalledTimes(2)
-      expect(pane.terminal.refresh).toHaveBeenNthCalledWith(2, 0, 23)
+      expect(pane.gpuRenderer).toBeNull()
+      expect(pane.terminal.refresh).toHaveBeenCalledWith(0, 23)
     })
   })
 })

@@ -4,7 +4,7 @@ import type { TerminalLeafId } from '../../../../shared/stable-pane-id'
 import { getGhosttyVtHostOrThrow } from '../../../../ghostty-vt/host-singleton'
 import { createPaneDOM } from './pane-dom-creation'
 
-function stubCanvas(fillRects?: number[][]): CanvasRenderingContext2D {
+function stubCanvas(fillRects?: number[][], fillTexts?: string[]): CanvasRenderingContext2D {
   const ctx = {
     font: '',
     textBaseline: 'top',
@@ -21,7 +21,9 @@ function stubCanvas(fillRects?: number[][]): CanvasRenderingContext2D {
     fillRect: vi.fn((x: number, y: number, w: number, h: number) => {
       fillRects?.push([x, y, w, h])
     }),
-    fillText: vi.fn()
+    fillText: vi.fn((text: string) => {
+      fillTexts?.push(text)
+    })
   }
   return ctx as unknown as CanvasRenderingContext2D
 }
@@ -52,7 +54,7 @@ describe('createPaneDOM link tooltips', () => {
     pane.terminal.dispose()
   })
 
-  it('constructs an Orca Ghostty canvas terminal, not terminal', () => {
+  it('constructs an Orca Ghostty canvas terminal', () => {
     const leafId = '11111111-1111-4111-8111-111111111111' as TerminalLeafId
     const pane = createPaneDOM(
       1,
@@ -72,7 +74,26 @@ describe('createPaneDOM link tooltips', () => {
     pane.terminal.dispose()
   })
 
-  it('paints selected cells from Ghostty render-state', () => {
+  it('focuses the helper textarea when the canvas is clicked', () => {
+    const leafId = '11111111-1111-4111-8111-111111111111' as TerminalLeafId
+    const pane = createPaneDOM(
+      1,
+      leafId,
+      { linkOpenHint: () => 'open hint' },
+      { active: null } as never,
+      {} as never,
+      vi.fn(),
+      vi.fn()
+    )
+    document.body.appendChild(pane.container)
+    pane.terminal.element.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true }))
+    expect(document.activeElement).toBe(pane.terminal.textarea)
+    expect(pane.terminal.element.tabIndex).toBe(-1)
+    pane.container.remove()
+    pane.terminal.dispose()
+  })
+
+  it('paints selected cells from Ghostty render-state', async () => {
     const fillStyles: string[] = []
     HTMLCanvasElement.prototype.getContext = vi.fn(() => {
       const ctx = stubCanvas()
@@ -101,11 +122,41 @@ describe('createPaneDOM link tooltips', () => {
     pane.terminal.write('hello ghostty')
     pane.terminal.selectAll()
     pane.terminal.refresh()
+    await new Promise<void>((resolve) => {
+      requestAnimationFrame(() => resolve())
+    })
     expect(fillStyles.some((style) => style.includes('221'))).toBe(true)
     pane.terminal.dispose()
   })
 
-  it('paints the Ghostty render-state cursor after writing', () => {
+  it('repaints viewport cells after a clean idle frame', async () => {
+    const fillTexts: string[] = []
+    HTMLCanvasElement.prototype.getContext = vi.fn(() => stubCanvas(undefined, fillTexts)) as never
+    const leafId = '11111111-1111-4111-8111-111111111111' as TerminalLeafId
+    const pane = createPaneDOM(
+      1,
+      leafId,
+      { linkOpenHint: () => 'open hint' },
+      { active: null } as never,
+      {} as never,
+      vi.fn(),
+      vi.fn()
+    )
+    pane.terminal.write('hello ghostty')
+    pane.terminal.refresh()
+    await new Promise<void>((resolve) => {
+      requestAnimationFrame(() => resolve())
+    })
+    fillTexts.length = 0
+    pane.terminal.refresh()
+    await new Promise<void>((resolve) => {
+      requestAnimationFrame(() => resolve())
+    })
+    expect(fillTexts.some((text) => text.includes('hello'))).toBe(true)
+    pane.terminal.dispose()
+  })
+
+  it('paints the Ghostty render-state cursor after writing', async () => {
     const fillRects: number[][] = []
     HTMLCanvasElement.prototype.getContext = vi.fn(() => stubCanvas(fillRects)) as never
     const leafId = '11111111-1111-4111-8111-111111111111' as TerminalLeafId
@@ -120,6 +171,9 @@ describe('createPaneDOM link tooltips', () => {
     )
     pane.terminal.write('A')
     pane.terminal.refresh()
+    await new Promise<void>((resolve) => {
+      requestAnimationFrame(() => resolve())
+    })
     const cursor = fillRects.find(
       (rect) => rect[1] === 0 && rect[2] > 0 && rect[2] < 40 && rect[3] > 0
     )

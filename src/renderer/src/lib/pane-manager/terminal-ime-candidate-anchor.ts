@@ -1,25 +1,3 @@
-type ImeCandidateTerminal = {
-  element?: HTMLElement
-  textarea?: HTMLTextAreaElement
-  cols: number
-  rows: number
-  buffer?: {
-    active: {
-      cursorX: number
-      cursorY: number
-      baseY: number
-      getLine: (y: number) =>
-        | {
-            length: number
-            translateToString: (trimRight?: boolean, startCol?: number, endCol?: number) => string
-            getCell: (
-              column: number
-            ) => { getChars: () => string; getWidth: () => number } | undefined
-          }
-        | undefined
-    }
-  }
-}
 import { resolveCursorAgentImeAnchor, type TerminalImeAnchor } from './terminal-ime-anchor'
 import { queryOrcaTerminalCanvas } from './orca-terminal-canvas-element'
 
@@ -85,7 +63,7 @@ export function installTerminalImeCandidateAnchor(
   if (!terminal.element || !terminal.textarea) {
     return null
   }
-  const screenElement = terminal.element.querySelector<HTMLElement>('.orca-terminal-canvas')
+  const screenElement = queryOrcaTerminalCanvas(terminal.element)
   const compositionView = terminal.element.querySelector<HTMLElement>('.composition-view')
   const textarea = terminal.textarea
   let metrics: ImeAnchorCellMetrics | null = null

@@ -270,19 +270,8 @@ export async function getTerminalContentForPtyId(
   ptyId: string,
   charLimit = 12_000
 ): Promise<string> {
-  return page.evaluate(
-    ({ ptyId, charLimit }) => {
-      for (const manager of window.__paneManagers?.values() ?? []) {
-        for (const pane of manager.getPanes?.() ?? []) {
-          if (pane.container?.dataset?.ptyId === ptyId) {
-            return (pane.serializeController?.serialize?.() ?? '').slice(-charLimit)
-          }
-        }
-      }
-      return ''
-    },
-    { ptyId, charLimit }
-  )
+  const match = (await readPaneTexts(page)).find((pane) => pane.ptyId === ptyId)
+  return (match?.text ?? '').slice(-charLimit)
 }
 
 export async function waitForTerminalOutputForPtyId(

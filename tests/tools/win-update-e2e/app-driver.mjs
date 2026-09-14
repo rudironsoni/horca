@@ -28,8 +28,8 @@ const SORTABLE_TAB = '[data-testid="sortable-tab"]'
 // Why: the layout mounts hidden duplicate panes; only the visible one is the
 // live terminal, so target `:visible` to avoid focusing/measuring a hidden copy.
 const TERMINAL_SURFACE_VISIBLE = '[data-terminal-tab-id]:visible'
-const XTERM_CONTAINER_VISIBLE = '.orca-terminal-canvas:visible'
-const XTERM_INPUT = '.orca-terminal-helper-textarea'
+const TERMINAL_CONTAINER_VISIBLE = '.orca-terminal-canvas:visible'
+const TERMINAL_INPUT = '.orca-terminal-helper-textarea'
 const RESTRICTED_E2E_ENV_KEYS = new Set([
   'HOME',
   'USERPROFILE',
