@@ -9,7 +9,8 @@ import type {
 
 export function createOrcaPaneBuffer(
   engine: GhosttyTerminal,
-  baseY: () => number
+  baseY: () => number,
+  viewportY: () => number
 ): { active: OrcaTerminalGrid } {
   return {
     get active(): OrcaTerminalGrid {
@@ -21,7 +22,7 @@ export function createOrcaPaneBuffer(
         cursorY: cursor.y,
         baseY: origin,
         length: origin + engine.rows,
-        viewportY: origin,
+        viewportY: viewportY(),
         type: engine.isAlternateScreen ? 'alternate' : 'normal',
         getLine: (y: number): OrcaTerminalLine | undefined => {
           const line = readGridLine(engine, y)
