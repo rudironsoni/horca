@@ -122,6 +122,18 @@ describe('Horca release workflow', () => {
     expect(publishStep.env.GH_TOKEN).toBe('${{ steps.app.outputs.token }}')
     expect(releaseWorkflow).not.toContain('FORK_SYNC_PAT')
   })
+
+  it('confirms Homebrew when the tap is already at or ahead of the release', () => {
+    const { tap } = release.jobs
+    const checkout = tap.steps.find(
+      (step) => typeof step.uses === 'string' && step.uses.startsWith('actions/checkout@')
+    )
+    const confirm = tap.steps.find((step) => step.name === 'Confirm Homebrew channel')
+
+    expect(checkout.with['persist-credentials']).toBe(false)
+    expect(confirm.run).toContain('config/horca/scripts/prepare-release.mjs tap-has')
+    expect(confirm.run).not.toContain('grep -q')
+  })
 })
 
 describe('Horca changed-code quality gate', () => {
