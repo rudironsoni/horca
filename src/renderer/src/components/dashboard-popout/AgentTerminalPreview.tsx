@@ -23,6 +23,7 @@ import { createPreviewGridClaim } from './preview-grid-claim'
 import { createPreviewBoxFit } from './preview-terminal-box-fit'
 import { installPreviewTerminalAppMenuClipboard } from './preview-terminal-app-menu-clipboard'
 import { installPreviewTerminalRightClickPaste } from './preview-terminal-right-click-paste'
+import { installTerminalNativeCopyGutterTrim } from '@/components/terminal-pane/terminal-native-copy-gutter'
 import { isWindowsUserAgent } from '@/components/terminal-pane/pane-helpers'
 import type { TerminalPreviewDataPayload } from '../../../../shared/terminal-preview'
 
@@ -103,6 +104,7 @@ export function AgentTerminalPreview({
     let offData: (() => void) | null = null
     let imeBridge: PreviewImeBridge | null = null
     let disposeKeyHandler: (() => void) | null = null
+    let disposeNativeCopyGutterTrim: (() => void) | null = null
     // Why: mirrors the pane's tracker — the policy needs the flags the TUI
     // negotiated, and this preview parses the same output stream the pane does.
     const kittyKeyboardModes = new TerminalKittyKeyboardModeTracker()
@@ -207,6 +209,13 @@ export function AgentTerminalPreview({
       })
     }
 
+    const installNativeCopyGutterTrim = (): void => {
+      if (!terminal) {
+        return
+      }
+      disposeNativeCopyGutterTrim = installTerminalNativeCopyGutterTrim(terminal).dispose
+    }
+
     const installInputRouting = (): void => {
       if (!terminal) {
         return
@@ -238,6 +247,7 @@ export function AgentTerminalPreview({
           clamp(snap.rows ?? FALLBACK_ROWS, 2, 200)
         )
         terminalRef.current = terminal
+        installNativeCopyGutterTrim()
         installInputRouting()
         installImeNativeTextBridge()
         installKeyHandler()
@@ -301,6 +311,8 @@ export function AgentTerminalPreview({
         disposeImeNativeTextBridge()
         disposeKeyHandler?.()
         disposeKeyHandler = null
+        disposeNativeCopyGutterTrim?.()
+        disposeNativeCopyGutterTrim = null
         terminal?.dispose()
         terminal = null
         terminalRef.current = null
@@ -358,6 +370,7 @@ export function AgentTerminalPreview({
       offData?.()
       disposeImeNativeTextBridge()
       disposeKeyHandler?.()
+      disposeNativeCopyGutterTrim?.()
       void window.api.terminalPreview.unsubscribe(ptyId)
       terminal?.dispose()
       terminalRef.current = null

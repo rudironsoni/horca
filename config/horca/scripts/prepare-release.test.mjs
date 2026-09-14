@@ -4,7 +4,13 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { spawnSync } from 'node:child_process'
 import test from 'node:test'
-import { parseStableVersion, selectReleaseCore } from './prepare-release.mjs'
+import {
+  caskVersionFromRuby,
+  highestReleasedHorcaCore,
+  parseStableVersion,
+  selectReleaseCore,
+  tapHasReachedRequestedVersion
+} from './prepare-release.mjs'
 
 const script = new URL('./prepare-release.mjs', import.meta.url).pathname
 
@@ -13,6 +19,33 @@ test('uses the latest Orca stable release as the Horca core', () => {
   assert.equal(parseStableVersion('v1.4.178-rc.2'), null)
   assert.equal(selectReleaseCore('1.4.178-rc.2', 'v1.4.193'), '1.4.193')
   assert.equal(selectReleaseCore('1.4.178-rc.2', null), '1.4.178')
+  assert.equal(selectReleaseCore('1.4.210', 'v1.4.201'), '1.4.210')
+  assert.equal(selectReleaseCore('1.4.197', 'v1.4.201', '1.4.202'), '1.4.202')
+  assert.equal(
+    highestReleasedHorcaCore(['v1.4.201-horca.4', 'v1.4.202-horca.2', 'v1.4.201-horca-beta.9']),
+    '1.4.202'
+  )
+})
+
+test('treats a newer Homebrew cask as already confirming the requested release', () => {
+  const cask = 'cask "horca" do\n  version "1.4.202-horca.2"\nend\n'
+  assert.equal(caskVersionFromRuby(cask), '1.4.202-horca.2')
+  assert.equal(tapHasReachedRequestedVersion('1.4.202-horca.2', '1.4.202-horca.2'), true)
+  assert.equal(tapHasReachedRequestedVersion('1.4.202-horca.2', '1.4.201-horca.4'), true)
+  assert.equal(tapHasReachedRequestedVersion('1.4.202-horca.2', '1.4.202-horca.3'), false)
+  assert.equal(tapHasReachedRequestedVersion('1.4.201-horca.4', '1.4.202-horca.2'), false)
+
+  const reached = spawnSync(process.execPath, [script, 'tap-has', '1.4.201-horca.4'], {
+    encoding: 'utf8',
+    input: 'cask "horca" do\n  version "1.4.202-horca.2"\nend\n'
+  })
+  assert.equal(reached.status, 0, reached.stderr)
+
+  const missing = spawnSync(process.execPath, [script, 'tap-has', '1.4.202-horca.3'], {
+    encoding: 'utf8',
+    input: 'cask "horca" do\n  version "1.4.202-horca.2"\nend\n'
+  })
+  assert.equal(missing.status, 1)
 })
 
 test('writes a verifiable beta release manifest', () => {
