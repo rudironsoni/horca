@@ -12,17 +12,18 @@ describe('terminal write coalescer boundaries', () => {
     vi.useRealTimers()
   })
 
-  it('drops buffered pre-snapshot writes on init', () => {
+  it('drops buffered trailing writes on init so they cannot follow the snapshot', () => {
     vi.useFakeTimers()
     const delivered: string[] = []
     const coalescer = createTerminalWriteCoalescer((data) => {
       delivered.push(data)
     })
-    coalescer.write('stale')
+    coalescer.write('lead')
+    coalescer.write('stale-pending')
     coalescer.clear()
     coalescer.write('snapshot')
     vi.advanceTimersByTime(TERMINAL_WRITE_FLUSH_WINDOW_MS)
-    expect(delivered).toEqual(['snapshot'])
+    expect(delivered).toEqual(['lead', 'snapshot'])
   })
 
   it('routes handle.write through the coalescer to writeText', () => {

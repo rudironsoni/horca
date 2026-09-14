@@ -12,6 +12,15 @@ export function isUsableTerminalViewport(viewport: TerminalViewport): boolean {
   return viewport.cols >= MIN_TERMINAL_FIT_COLS && viewport.rows >= MIN_TERMINAL_FIT_ROWS
 }
 
+function isUpdatedViewportResult(result: unknown): boolean {
+  return (
+    typeof result === 'object' &&
+    result != null &&
+    'updated' in result &&
+    result.updated === true
+  )
+}
+
 export class TerminalNativeViewportUpdate {
   private readonly capabilities = new WeakMap<RpcClient, ViewportCapability>()
 
@@ -38,11 +47,7 @@ export class TerminalNativeViewportUpdate {
         return false
       }
       this.capabilities.set(client, 'supported')
-      return (
-        typeof response.result === 'object' &&
-        response.result != null &&
-        (response.result as { updated?: unknown }).updated === true
-      )
+      return isUpdatedViewportResult(response.result)
     } catch {
       return false
     }
