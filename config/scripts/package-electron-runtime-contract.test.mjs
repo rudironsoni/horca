@@ -68,30 +68,57 @@ describe('Electron runtime package contract', () => {
     }
   })
 
-  it('keeps Windows and Linux package builds off macOS native helper builds', () => {
-    const scripts = packageJson.scripts
+  it('composes desktop, release, and mac packaging from shared bundle and native scripts', () => {
+    const { scripts } = packageJson
 
+    expect(scripts['build:desktop:bundles']).toBe(
+      'pnpm run build:relay && pnpm run build:cli && pnpm run build:electron-vite && pnpm run verify:built-skills-cli && pnpm run build:web-from-renderer'
+    )
+    expect(scripts['build:desktop:bundles:parallel']).toBe(
+      scripts['build:desktop:bundles'].replace(
+        'pnpm run build:electron-vite &&',
+        'pnpm run build:electron-vite:parallel &&'
+      )
+    )
     expect(scripts['build:desktop']).toBe('pnpm run typecheck && pnpm run build:desktop:bundles')
-    expect(scripts['build:desktop']).not.toContain('build:computer-macos')
-    expect(scripts['build:desktop']).not.toContain('build:keyboard-layout-macos')
-    expect(scripts['build:win']).toContain('pnpm run build:desktop')
-    expect(scripts['build:win']).not.toContain('pnpm run build ')
-    expect(scripts['build:win']).not.toContain('build:computer-macos')
-    expect(scripts['build:win']).not.toContain('build:keyboard-layout-macos')
-    expect(scripts['build:linux']).toContain('pnpm run build:desktop')
-    expect(scripts['build:linux']).not.toContain('pnpm run build ')
-    expect(scripts['build:linux']).not.toContain('build:computer-macos')
-    expect(scripts['build:linux']).not.toContain('build:keyboard-layout-macos')
-    expect(scripts['build:mac']).toContain('pnpm run build:native')
-    expect(scripts['build:mac']).not.toContain('build:computer-macos')
-    expect(scripts['build:mac:release']).toContain('pnpm run build:desktop:bundles')
-    expect(scripts['build:mac:release']).toContain('pnpm run build:native')
-    expect(scripts['build:mac:release']).not.toContain('build:desktop &&')
-    expect(scripts['build:mac:release']).not.toContain('typecheck')
-    expect(scripts['build:mac:release']).not.toContain('build:computer-macos')
-    expect(scripts['build:release']).toContain('pnpm run build:native')
-    expect(scripts['build:release']).toContain('pnpm run build:desktop:bundles')
-    expect(scripts['build:release']).not.toContain('build:computer-macos')
+    expect(scripts.build).toBe('pnpm run build:desktop && pnpm run build:native')
+    expect(scripts['build:release']).toBe(
+      'pnpm run build:native && pnpm run verify:computer-native && pnpm run build:desktop:bundles'
+    )
+    expect(scripts['build:release:parallel']).toBe(
+      scripts['build:release'].replace(
+        'pnpm run build:desktop:bundles',
+        'pnpm run build:desktop:bundles:parallel'
+      )
+    )
+    expect(scripts['build:win']).toBe(
+      'pnpm run build:desktop && pnpm run ensure:electron-runtime && electron-builder --config config/electron-builder.config.cjs --win'
+    )
+    expect(scripts['build:linux']).toBe(
+      'pnpm run build:desktop && pnpm run ensure:electron-runtime && node config/scripts/build-linux-local.mjs'
+    )
+    expect(scripts['build:mac']).toBe(
+      'pnpm run build && pnpm run ensure:electron-runtime && node config/scripts/build-mac-local.mjs'
+    )
+    expect(scripts['build:mac:release']).toBe(
+      'node config/scripts/verify-macos-release-env.mjs && ORCA_MAC_RELEASE=1 pnpm run build:native && pnpm run build:desktop:bundles && pnpm run ensure:electron-runtime && ORCA_MAC_RELEASE=1 electron-builder --config config/electron-builder.config.cjs --mac'
+    )
+
+    for (const scriptName of [
+      'build:desktop',
+      'build:desktop:bundles',
+      'build:desktop:bundles:parallel',
+      'build:release',
+      'build:release:parallel',
+      'build:win',
+      'build:linux',
+      'build:mac',
+      'build:mac:release'
+    ]) {
+      expect(scripts[scriptName], scriptName).not.toContain('build:computer-macos')
+      expect(scripts[scriptName], scriptName).not.toContain('build:keyboard-layout-macos')
+      expect(scripts[scriptName], scriptName).not.toContain('build:notification-status-macos')
+    }
   })
 
   it('runs the web build through the heap-sized Vite wrapper', () => {
