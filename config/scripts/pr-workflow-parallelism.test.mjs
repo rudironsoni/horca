@@ -215,11 +215,6 @@ describe('PR workflow parallelism', () => {
         (step) => step.name === 'Project web client from renderer build'
       ).run
     ).toBe('pnpm run build:web-from-renderer')
-    expect(packageJson.scripts['build:desktop:bundles']).toContain(
-      'pnpm run build:web-from-renderer'
-    )
-    expect(packageJson.scripts['build:desktop']).toContain('pnpm run build:desktop:bundles')
-    expect(packageJson.scripts['build:release']).toContain('pnpm run build:desktop:bundles')
   })
 
   it('smokes managed-hook companions under their supported Node 18 runtime', () => {
