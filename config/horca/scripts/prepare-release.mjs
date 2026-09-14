@@ -33,10 +33,72 @@ export function parseStableVersion(tag) {
   return tag.match(/^v?(\d+\.\d+\.\d+)$/)?.[1] ?? null
 }
 
-export function selectReleaseCore(packageVer, orcaStableVersion) {
+export function compareVersion(left, right) {
+  const leftParts = left.split('.').map(Number)
+  const rightParts = right.split('.').map(Number)
+  const length = Math.max(leftParts.length, rightParts.length)
+  for (let i = 0; i < length; i += 1) {
+    const delta = (leftParts[i] ?? 0) - (rightParts[i] ?? 0)
+    if (delta !== 0) {
+      return delta
+    }
+  }
+  return 0
+}
+
+export function highestReleasedHorcaCore(tags) {
+  let highest = null
+  for (const tag of tags) {
+    const match = stableTag.exec(tag) ?? betaTag.exec(tag)
+    if (!match) {
+      continue
+    }
+    const core = `${match[1]}.${match[2]}.${match[3]}`
+    if (highest === null || compareVersion(core, highest) > 0) {
+      highest = core
+    }
+  }
+  return highest
+}
+
+export function selectReleaseCore(packageVer, orcaStableVersion, releasedFloor = null) {
   const packageCore = packageVer.match(/^(\d+\.\d+\.\d+)/)?.[1]
   const orcaCore = parseStableVersion(orcaStableVersion ?? '')
-  return orcaCore ?? packageCore ?? null
+  const candidates = [packageCore, orcaCore, releasedFloor].filter(Boolean)
+  if (candidates.length === 0) {
+    return null
+  }
+  return candidates.reduce((highest, candidate) =>
+    compareVersion(candidate, highest) > 0 ? candidate : highest
+  )
+}
+
+export function caskVersionFromRuby(source) {
+  return source.match(/^\s*version\s+"([^"]+)"/m)?.[1] ?? null
+}
+
+export function parseHorcaReleaseVersion(version) {
+  const match = version.trim().match(/^(\d+\.\d+\.\d+)(?:-horca(?:-beta)?\.(\d+))?$/)
+  if (!match) {
+    return null
+  }
+  return { core: match[1], suffix: match[2] ? Number(match[2]) : 0 }
+}
+
+export function tapHasReachedRequestedVersion(tapVersion, requestedVersion) {
+  if (tapVersion === requestedVersion) {
+    return true
+  }
+  const tap = parseHorcaReleaseVersion(tapVersion)
+  const requested = parseHorcaReleaseVersion(requestedVersion)
+  if (!tap || !requested) {
+    return false
+  }
+  const coreDelta = compareVersion(tap.core, requested.core)
+  if (coreDelta !== 0) {
+    return coreDelta > 0
+  }
+  return tap.suffix >= requested.suffix
 }
 
 function highestLocalStableVersion() {
@@ -91,11 +153,15 @@ function resolveSource(sourceRef, channel) {
   return sourceSha
 }
 
-function findVersion(channel, sourceSha, core) {
+function listedHorcaTags(channel) {
   const pattern = channel === 'stable' ? stableTag : betaTag
-  const tags = git(['tag', '--list', channel === 'stable' ? 'v*-horca.*' : 'v*-horca-beta.*'])
+  return git(['tag', '--list', channel === 'stable' ? 'v*-horca.*' : 'v*-horca-beta.*'])
     .split('\n')
     .filter((tag) => pattern.test(tag))
+}
+
+function findVersion(channel, sourceSha, core, tags) {
+  const pattern = channel === 'stable' ? stableTag : betaTag
   const existing = tags.find((tag) => git(['rev-list', '-n', '1', tag]) === sourceSha)
   if (existing) {
     return existing
@@ -135,12 +201,13 @@ async function metadata() {
   const sourceSha = resolveSource(process.env.SOURCE_REF, channel)
   const sourceVersion = packageVersion(sourceSha)
   const orcaStableVersion = await latestOrcaStableVersion()
-  const core = selectReleaseCore(sourceVersion, orcaStableVersion)
+  const tags = listedHorcaTags(channel)
+  const core = selectReleaseCore(sourceVersion, orcaStableVersion, highestReleasedHorcaCore(tags))
   if (!core) {
     throw new Error(`Cannot derive release core from ${sourceVersion}`)
   }
   const upstreamSha = git(['merge-base', 'upstream/main', sourceSha])
-  const tag = findVersion(channel, sourceSha, core)
+  const tag = findVersion(channel, sourceSha, core, tags)
   const release = await github(`/repos/${process.env.GITHUB_REPOSITORY}/releases/tags/${tag}`)
   if (release && release.target_commitish !== sourceSha) {
     const taggedSha = git(['rev-list', '-n', '1', tag])
@@ -205,6 +272,15 @@ if (process.argv[1] && import.meta.filename === resolve(process.argv[1])) {
     await metadata()
   } else if (command === 'manifest') {
     manifest(...args)
+  } else if (command === 'tap-has') {
+    const requested = args[0]
+    if (!requested) {
+      throw new Error('tap-has requires the requested version')
+    }
+    const tapVersion = caskVersionFromRuby(readFileSync(0, 'utf8'))
+    if (!tapVersion || !tapHasReachedRequestedVersion(tapVersion, requested)) {
+      process.exit(1)
+    }
   } else {
     throw new Error(`Unknown command: ${command}`)
   }
