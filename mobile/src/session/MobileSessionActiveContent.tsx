@@ -56,6 +56,7 @@ export function MobileSessionActiveContent({
     notifyTerminalFrameHeight,
     setTerminalWebViewRef,
     handleTerminalWebReady,
+    handleTerminalNativeResize,
     handleFileTap,
     handleNativeChatFileTap,
     handleTerminalOpenUrl,
@@ -229,6 +230,7 @@ export function MobileSessionActiveContent({
           onTerminalTap={handleTerminalTap}
           onFileTap={handleFileTap}
           onOpenUrl={handleTerminalOpenUrl}
+          onGridResize={handleTerminalNativeResize}
         />
       ))}
       <MobileNativeChatOverlay

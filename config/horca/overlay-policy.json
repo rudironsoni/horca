@@ -15,7 +15,8 @@
     "src/shared/distribution-",
     "src/shared/horca-pairing",
     "src/shared/horca-vite-distribution",
-    "src/ghostty-vt/"
+    "src/ghostty-vt/",
+    "native/ghostty-surface/"
   ],
   "forkOnlyPaths": [
     "config/electron-builder-downstream.cjs",
@@ -533,9 +534,9 @@
       "dropWhen": "Upstream exposes downstream preload contributions"
     },
     {
-      "path": "src/preload/horca-terminal-settings-api.ts",
-      "subsystem": "horca-terminal-settings",
-      "reason": "Bridge the Horca-owned terminal settings IPC contract",
+      "path": "src/preload/horca-ghostty-surface-api.ts",
+      "subsystem": "horca-native-ghostty-gpu",
+      "reason": "Bridge the Horca-owned native Ghostty GPU surface IPC contract",
       "upstreamPr": null,
       "dropWhen": "Upstream exposes downstream preload contributions"
     },

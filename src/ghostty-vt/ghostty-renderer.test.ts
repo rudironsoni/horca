@@ -147,4 +147,13 @@ describe('GhosttyRenderer', () => {
     const text = ops.find((op) => op.op === 'fillText')
     expect(text?.font).toContain('22px')
   })
+
+  it('falls back to canvas2d when WebGL2 is a stub without shaders', () => {
+    installRecordingCanvas()
+    const canvas = document.createElement('canvas')
+    terminal = new GhosttyTerminal(getGhosttyVtHostOrThrow(), { cols: 20, rows: 4 })
+    renderer = new GhosttyRenderer(getGhosttyVtHostOrThrow(), canvas, CELL)
+    expect(renderer.kind).toBe('canvas2d')
+    expect(renderer.isContextLost()).toBe(false)
+  })
 })
