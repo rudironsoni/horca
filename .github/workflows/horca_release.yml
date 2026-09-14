@@ -94,7 +94,10 @@ jobs:
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
       - name: Build signed and notarized DMGs
-        run: pnpm run build:mac:release -- --publish never
+        # pnpm 12 `run` stops option parsing at the script name and forwards later
+        # tokens, including `--`, to electron-builder. An extra `--` becomes a
+        # yargs positional, so `--publish never` would be ignored.
+        run: pnpm run build:mac:release --publish never
         env:
           ORCA_DOWNSTREAM_BUILD: '1'
           ORCA_LOCAL_BUILD_VERSION: ${{ needs.metadata.outputs.version }}
