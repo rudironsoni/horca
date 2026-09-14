@@ -83,6 +83,7 @@ import { e2eApi } from './api/e2e-bridge'
 import { mobileApi } from './api/mobile-bridge'
 import { agentStatusApi } from './api/agent-status-bridge'
 import { speechApi } from './api/speech-bridge'
+import { createHorcaGhosttySurfaceApi } from './horca-ghostty-surface-api'
 import { createHorcaTerminalSettingsApi } from './horca-terminal-settings-api'
 
 installNativeFileDropHandlers()
@@ -100,6 +101,7 @@ const telemetryGetConsentStateApi: PreloadApi['telemetryGetConsentState'] = () =
 
 const api = {
   horcaTerminalSettings: createHorcaTerminalSettingsApi(ipcRenderer),
+  horcaGhosttySurface: createHorcaGhosttySurfaceApi(ipcRenderer),
   app: appApi,
   orcaProfiles: orcaProfilesApi,
   platform: platformApi,
