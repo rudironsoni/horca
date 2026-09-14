@@ -111,7 +111,7 @@ describe('Horca release workflow', () => {
     expect(macos.env.NODE_OPTIONS).toBe('--max-old-space-size=4096')
     expect(macos.env.ORCA_REUSE_PREPARED_NATIVE_RUNTIME).toBe('1')
     expect(macos.env.pnpm_config_verify_deps_before_run).toBe('false')
-    expect(buildStep.run).toBe('pnpm run build:mac:release -- --publish never')
+    expect(buildStep.run).toBe('pnpm run build:mac:release --publish never')
   })
 
   it('publishes with the Horca Maintenance app instead of a personal PAT', () => {
