@@ -65,6 +65,12 @@ jobs:
     if: needs.metadata.outputs.published != 'true'
     runs-on: macos-15
     timeout-minutes: 90
+    env:
+      NODE_OPTIONS: --max-old-space-size=4096
+      ORCA_REUSE_PREPARED_NATIVE_RUNTIME: '1'
+      # Why: `pnpm run` otherwise reinstalls host-only and rebuilds native addons
+      # after install:release already widened the CPU set.
+      pnpm_config_verify_deps_before_run: 'false'
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -88,7 +94,7 @@ jobs:
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
       - name: Build signed and notarized DMGs
-        run: pnpm build:mac:release --publish never
+        run: pnpm run build:mac:release -- --publish never
         env:
           ORCA_DOWNSTREAM_BUILD: '1'
           ORCA_LOCAL_BUILD_VERSION: ${{ needs.metadata.outputs.version }}

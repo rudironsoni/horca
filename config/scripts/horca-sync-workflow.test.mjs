@@ -104,6 +104,16 @@ describe('Horca release workflow', () => {
     expect(macosInstall.run).toBe('pnpm install:release')
   })
 
+  it('packages signed DMGs without a second typecheck or host-only reinstall', () => {
+    const macos = release.jobs.macos
+    const buildStep = macos.steps.find((step) => step.name === 'Build signed and notarized DMGs')
+
+    expect(macos.env.NODE_OPTIONS).toBe('--max-old-space-size=4096')
+    expect(macos.env.ORCA_REUSE_PREPARED_NATIVE_RUNTIME).toBe('1')
+    expect(macos.env.pnpm_config_verify_deps_before_run).toBe('false')
+    expect(buildStep.run).toBe('pnpm run build:mac:release -- --publish never')
+  })
+
   it('publishes with the Horca Maintenance app instead of a personal PAT', () => {
     const { publish } = release.jobs
     const appStep = publish.steps.find((step) => step.name === 'Create maintenance token')
