@@ -83,6 +83,7 @@ describe('Electron runtime package contract', () => {
     expect(scripts['build:mac:release']).not.toContain('typecheck')
     expect(scripts['build:mac:release']).not.toContain('build:computer-macos')
     expect(scripts['build:release']).toContain('pnpm run build:native')
+    expect(scripts['build:release']).toContain('pnpm run build:desktop:bundles')
     expect(scripts['build:release']).not.toContain('build:computer-macos')
   })
 
