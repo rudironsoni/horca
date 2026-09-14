@@ -32,6 +32,7 @@ native/**/.build/
 native/windows-registry/build/
 native/windows-registry/bin/
 native/ghostty-surface/build/
+native/ghostty-surface/bin/
 
 # pnpm
 .pnpm-store/
