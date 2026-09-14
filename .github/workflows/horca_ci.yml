@@ -117,19 +117,17 @@ jobs:
           ref: ${{ inputs.sha || github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
 
-      - name: Materialize Horca mobile
+      - name: Verify Horca mobile
         run: |
-          node --test config/horca/mobile/ios-scene-lifecycle.test.mjs config/horca/mobile/materialize.test.mjs
-          node config/horca/mobile/materialize.mjs
-          node config/horca/mobile/verify-materialized.mjs
-          node --test config/horca/mobile/ghostty-terminal-boundary.test.mjs
+          node --test config/horca/mobile/ios-scene-lifecycle.test.mjs config/horca/mobile/ghostty-terminal-boundary.test.mjs
+          node config/horca/mobile/verify-mobile.mjs
 
       - uses: ./.github/actions/install-node-dependencies
         with:
           native-runtime: none
 
       - name: Install Horca mobile dependencies
-        run: pnpm --dir out/horca-mobile/mobile install --frozen-lockfile
+        run: pnpm --dir mobile install --frozen-lockfile
 
       - name: Setup JDK 17
         uses: actions/setup-java@v5
@@ -147,20 +145,20 @@ jobs:
           'cmake;3.22.1'
 
       - name: Generate Android project
-        working-directory: out/horca-mobile/mobile
+        working-directory: mobile
         run: npx expo prebuild --platform android --no-install
 
       - name: Test Ghostty module and build debug APK
-        working-directory: out/horca-mobile/mobile/android
+        working-directory: mobile/android
         run: >-
           ./gradlew
-          :orca-libghostty-terminal:testDebugUnitTest
+          :expo-libghostty:testDebugUnitTest
           :app:assembleDebug
           -PreactNativeArchitectures=arm64-v8a,x86_64
 
       - name: Verify Ghostty native libraries and 16 KB alignment
         env:
-          APK: out/horca-mobile/mobile/android/app/build/outputs/apk/debug/app-debug.apk
+          APK: mobile/android/app/build/outputs/apk/debug/app-debug.apk
         run: |
           unzip -Z1 "$APK" | grep -Fx 'lib/arm64-v8a/libexpolibghostty.so'
           unzip -Z1 "$APK" | grep -Fx 'lib/x86_64/libexpolibghostty.so'

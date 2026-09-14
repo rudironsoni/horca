@@ -1,14 +1,22 @@
 import { useEffect, useCallback } from 'react'
+import { isUsableTerminalViewport } from '../terminal/terminal-native-viewport-update'
 import type { TerminalWebViewHandle } from '../terminal/terminal-webview-contract'
 import type { MobileSessionTabSwitchingModel } from './use-mobile-session-tab-switching'
 
 export function useMobileSessionTerminalWebview(scope: MobileSessionTabSwitchingModel) {
   const {
+    client,
     markdownDocs,
     fileDocs,
     terminalGestureInputBucketsRef,
     terminalGestureInputQueuesRef,
     terminalGestureInputInFlightRef,
+    deviceTokenRef,
+    connStateRef,
+    viewportRef,
+    viewportMeasuredRef,
+    terminalViewportUpdateRef,
+    terminalResizeSeqRef,
     terminalRefs,
     terminalUnsubsRef,
     initializedHandlesRef,
@@ -24,7 +32,6 @@ export function useMobileSessionTerminalWebview(scope: MobileSessionTabSwitching
     readMarkdownTab,
     readFileTab
   } = scope
-  // Why: only store the ref; subscribe on web-ready to avoid the blank-terminal race (init queued before Ghostty loaded).
   const setTerminalWebViewRef = useCallback((handle: string, ref: TerminalWebViewHandle | null) => {
     terminalDiagnosticsRef.current.webViewRef(handle, ref != null)
     if (ref) {
@@ -52,7 +59,6 @@ export function useMobileSessionTerminalWebview(scope: MobileSessionTabSwitching
         handle === activeHandleRef.current
       )
       if (wasAlreadyReady && initializedHandlesRef.current.has(handle)) {
-        // Why: WebView reloaded (hot reload / Android churn); old terminal buffer is gone, so resubscribe for a fresh scrollback.
         unsubscribeTerminal(handle)
         initializedHandlesRef.current.delete(handle)
         if (handle === activeHandleRef.current) {
@@ -60,8 +66,6 @@ export function useMobileSessionTerminalWebview(scope: MobileSessionTabSwitching
         }
         return
       }
-      // Why: first subscribe may skip (no WebView ref); await measure so it carries the viewport, else it races measureViewportOnce and skips.
-      // Why: a just-created tab can lose activeHandleRef to a lagging snapshot; honor the pending marker so its web-ready subscribe still fires.
       const isIntendedActive = () =>
         handle === activeHandleRef.current || handle === pendingActiveTerminalHandleRef.current
       if (isIntendedActive() && !terminalUnsubsRef.current.has(handle)) {
@@ -74,6 +78,52 @@ export function useMobileSessionTerminalWebview(scope: MobileSessionTabSwitching
       }
     },
     [measureViewportOnce, nativeChatStream, subscribeToTerminal, unsubscribeTerminal]
+  )
+
+  const handleTerminalNativeResize = useCallback(
+    (handle: string, cols: number, rows: number) => {
+      if (!isUsableTerminalViewport({ cols, rows })) {
+        return
+      }
+      const current = viewportRef.current
+      if (current?.cols === cols && current.rows === rows) {
+        return
+      }
+      viewportRef.current = { cols, rows }
+      viewportMeasuredRef.current = true
+      if (
+        handle !== activeHandleRef.current ||
+        connStateRef.current !== 'connected' ||
+        !initializedHandlesRef.current.has(handle)
+      ) {
+        return
+      }
+      const resizeSeq = (terminalResizeSeqRef.current.get(handle) ?? 0) + 1
+      terminalResizeSeqRef.current.set(handle, resizeSeq)
+      const deviceToken = deviceTokenRef.current
+      if (!client || !deviceToken) {
+        return
+      }
+      void terminalViewportUpdateRef.current
+        .request(client, handle, deviceToken, { cols, rows })
+        .then((updated) => {
+          if (
+            terminalResizeSeqRef.current.get(handle) !== resizeSeq ||
+            handle !== activeHandleRef.current ||
+            !terminalRefs.current.has(handle)
+          ) {
+            return
+          }
+          if (updated) {
+            client.updateTerminalSubscriptionViewport(handle, { cols, rows })
+            return
+          }
+          unsubscribeTerminal(handle)
+          initializedHandlesRef.current.delete(handle)
+          subscribeToTerminal(handle)
+        })
+    },
+    [client, subscribeToTerminal, unsubscribeTerminal]
   )
 
   useEffect(() => {
@@ -97,7 +147,8 @@ export function useMobileSessionTerminalWebview(scope: MobileSessionTabSwitching
   }, [activeSessionTab, fileDocs, readFileTab])
   return {
     setTerminalWebViewRef,
-    handleTerminalWebReady
+    handleTerminalWebReady,
+    handleTerminalNativeResize
   }
 }
 

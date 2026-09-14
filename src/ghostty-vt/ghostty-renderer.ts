@@ -1,22 +1,20 @@
 import type { GhosttyTerminal } from './ghostty-terminal'
 import { ghosttyVt } from './ghostty-vt-access'
-import { drawPreeditOverlay } from './ghostty-preedit'
-import { drawRenderStateCursor } from './ghostty-renderer-paint'
 import type { ThemeRgb } from './ghostty-css-color'
-import { rgbToCss } from './ghostty-css-color'
+import { UTF8_CAP } from './ghostty-renderer-cells'
 import {
-  paintGhosttyRenderRow,
-  UTF8_CAP,
-  type GhosttyRowPaintTarget
-} from './ghostty-renderer-cells'
+  paintGhosttyCanvas2dFrame,
+  paintGhosttyGpuFrame,
+  shouldSkipGhosttyFrame
+} from './ghostty-renderer-frame'
 import {
-  bindRenderRowIterator,
   isRenderDirty,
   readRenderColors,
   readRenderDirty,
   readRenderStateU16,
   type GhosttyRendererScratch
 } from './ghostty-renderer-state'
+import { tryCreateGhosttyWebglAtlas, type GhosttyWebglAtlas } from './ghostty-webgl-atlas'
 import type { GhosttyVtHost } from './wasm-host'
 
 export type GhosttyRendererMetrics = {
@@ -29,11 +27,13 @@ export type GhosttyRendererMetrics = {
 }
 
 export type GhosttyRendererOptions = GhosttyRendererMetrics
+export type GhosttyRendererKind = 'webgl2' | 'canvas2d'
 
 export class GhosttyRenderer {
   private readonly host: GhosttyVtHost
   private readonly canvas: HTMLCanvasElement
-  private readonly ctx: CanvasRenderingContext2D
+  private readonly ctx: CanvasRenderingContext2D | null
+  private gpu: GhosttyWebglAtlas | null
   private readonly state: number
   private rowIter: number
   private cells: number
@@ -57,8 +57,9 @@ export class GhosttyRenderer {
   constructor(host: GhosttyVtHost, canvas: HTMLCanvasElement, options: GhosttyRendererOptions) {
     this.host = host
     this.canvas = canvas
-    const ctx = canvas.getContext('2d')
-    if (!ctx) {
+    this.gpu = tryCreateGhosttyWebglAtlas(canvas)
+    const ctx = this.gpu ? null : canvas.getContext('2d')
+    if (!this.gpu && !ctx) {
       throw new Error('Canvas2D is unavailable')
     }
     this.ctx = ctx
@@ -94,6 +95,10 @@ export class GhosttyRenderer {
       utf8: host.alloc(host.structSize('GhosttyBuffer')),
       utf8Storage: host.alloc(UTF8_CAP)
     }
+  }
+
+  get kind(): GhosttyRendererKind {
+    return this.gpu ? 'webgl2' : 'canvas2d'
   }
 
   setMetrics(metrics: GhosttyRendererMetrics): void {
@@ -133,8 +138,20 @@ export class GhosttyRenderer {
     this.forceFull = true
   }
 
+  loseContext(): void {
+    this.gpu?.loseContext()
+  }
+
+  isContextLost(): boolean {
+    return this.gpu?.isContextLost() === true
+  }
+
   draw(terminal: GhosttyTerminal, dpr = 1): void {
     if (this.disposed || terminal.isDisposed) {
+      return
+    }
+    this.recoverGpuIfNeeded()
+    if (this.gpu?.isContextLost()) {
       return
     }
     const { host } = this
@@ -151,64 +168,44 @@ export class GhosttyRenderer {
     const width = Math.max(1, Math.floor(cssWidth * dpr))
     const height = Math.max(1, Math.floor(cssHeight * dpr))
     const resized = this.canvas.width !== width || this.canvas.height !== height
-    this.canvas.style.width = `${cssWidth}px`
-    this.canvas.style.height = `${cssHeight}px`
-    if (resized) {
-      this.canvas.width = width
-      this.canvas.height = height
-      this.forceFull = true
+    if (!this.gpu) {
+      this.canvas.style.width = `${cssWidth}px`
+      this.canvas.style.height = `${cssHeight}px`
+      if (resized) {
+        this.canvas.width = width
+        this.canvas.height = height
+        this.forceFull = true
+      }
     }
     const blinkChanged = this.blinkVisible !== this.lastBlinkDrawn
     const full = isRenderDirty(host, dirty, 'FULL')
-    const none = isRenderDirty(host, dirty, 'FALSE')
-    if (none && !this.forceFull && !blinkChanged && !resized) {
+    if (shouldSkipGhosttyFrame(host, dirty, this.forceFull, blinkChanged, resized)) {
       return
     }
-    this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-    this.refreshGlyphBaseline()
-    const defaultFont = this.cellFont(false, false)
-    this.ctx.font = defaultFont
-    this.ctx.textBaseline = 'alphabetic'
-    if (full || this.forceFull) {
-      this.ctx.fillStyle = rgbToCss(colors.background, this.backgroundAlpha)
-      this.ctx.fillRect(0, 0, cssWidth, cssHeight)
-    }
-    this.rowIter = bindRenderRowIterator(host, this.state, this.scratch, this.rowIter)
-    const rowTarget = this.rowTarget()
-    if (full || this.forceFull) {
-      let y = 0
-      while (host.exports.ghostty_render_state_row_iterator_next(this.rowIter)) {
-        this.cells = paintGhosttyRenderRow(rowTarget, y, colors)
-        y += 1
-      }
-    } else {
-      while (
-        host.exports.ghostty_render_state_row_iterator_next_dirty(this.rowIter, this.scratch.y)
-      ) {
-        const y = host.view().getUint16(this.scratch.y, true)
-        this.cells = paintGhosttyRenderRow(rowTarget, y, colors)
-      }
-    }
-    drawRenderStateCursor(
+    const paint = {
       host,
-      this.ctx,
-      this.state,
-      this.cellWidth,
-      this.cellHeight,
-      { cursor: colors.cursor, foreground: colors.foreground },
-      this.blinkVisible
-    )
-    drawPreeditOverlay(
-      this.ctx,
-      host,
-      this.state,
-      this.preedit,
-      this.cellWidth,
-      this.cellHeight,
-      defaultFont,
-      this.glyphBaseline,
-      colors
-    )
+      ctx: this.ctx,
+      gpu: this.gpu,
+      state: this.state,
+      rowIter: this.rowIter,
+      cells: this.cells,
+      scratch: this.scratch,
+      cellWidth: this.cellWidth,
+      cellHeight: this.cellHeight,
+      glyphBaseline: this.glyphBaseline,
+      backgroundAlpha: this.backgroundAlpha,
+      selectionBg: this.selectionBg,
+      selectionFg: this.selectionFg,
+      blinkVisible: this.blinkVisible,
+      preedit: this.preedit,
+      forceFull: this.forceFull,
+      cellFont: (italic: boolean, bold: boolean) => this.cellFont(italic, bold),
+      refreshGlyphBaseline: () => this.refreshGlyphBaseline()
+    }
+    this.cells = this.gpu
+      ? paintGhosttyGpuFrame(paint, colors, cssWidth, cssHeight, dpr, true)
+      : paintGhosttyCanvas2dFrame(paint, terminal, colors, cssWidth, cssHeight, dpr, full)
+    this.rowIter = paint.rowIter
     host.exports.ghostty_render_state_clean(this.state)
     this.forceFull = false
     this.lastBlinkDrawn = this.blinkVisible
@@ -219,6 +216,7 @@ export class GhosttyRenderer {
       return
     }
     this.disposed = true
+    this.gpu?.dispose()
     const { host, scratch } = this
     host.free(scratch.dirty, 4)
     host.free(scratch.y, 2)
@@ -237,30 +235,29 @@ export class GhosttyRenderer {
     host.exports.ghostty_render_state_free(this.state)
   }
 
-  private rowTarget(): GhosttyRowPaintTarget {
-    return {
-      host: this.host,
-      ctx: this.ctx,
-      cells: this.cells,
-      rowIter: this.rowIter,
-      scratch: this.scratch,
-      cellWidth: this.cellWidth,
-      cellHeight: this.cellHeight,
-      glyphBaseline: this.glyphBaseline,
-      backgroundAlpha: this.backgroundAlpha,
-      selectionBg: this.selectionBg,
-      selectionFg: this.selectionFg,
-      cellFont: (italic, bold) => this.cellFont(italic, bold)
-    }
-  }
-
   private cellFont(italic: boolean, bold: boolean): string {
     const italicPrefix = italic ? 'italic ' : ''
     const weight = bold ? this.fontWeightBold : this.fontWeight
     return `${italicPrefix}${weight} ${this.fontSize}px ${this.fontFamily}`
   }
 
+  private recoverGpuIfNeeded(): void {
+    if (!this.gpu?.isContextLost()) {
+      return
+    }
+    this.gpu.restoreContext()
+    const next = tryCreateGhosttyWebglAtlas(this.canvas)
+    if (!next || next.isContextLost()) {
+      return
+    }
+    this.gpu = next
+    this.forceFull = true
+  }
+
   private refreshGlyphBaseline(): void {
+    if (!this.ctx) {
+      return
+    }
     this.ctx.font = this.cellFont(false, false)
     const metrics = this.ctx.measureText('M')
     const ascent = metrics.actualBoundingBoxAscent || this.fontSize * 0.8

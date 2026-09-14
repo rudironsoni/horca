@@ -5,6 +5,7 @@ import { getGhosttyVtHostOrThrow } from '../../../../ghostty-vt/host-singleton'
 import { readScrollbar } from '../../../../ghostty-vt/ghostty-terminal-ops'
 import {
   bindGhosttyKeyboardInput,
+  bindGhosttyPointerInput,
   encodeGhosttyKey,
   hitTestGhosttyHyperlink
 } from './orca-pane-terminal-io'
@@ -101,6 +102,42 @@ describe('bindGhosttyKeyboardInput', () => {
     dispatch('keydown', { key: 'a', preventDefault: () => undefined } as KeyboardEvent)
     expect(encodeKey).not.toHaveBeenCalled()
     expect(input).not.toHaveBeenCalled()
+  })
+})
+
+describe('bindGhosttyPointerInput', () => {
+  let engine: GhosttyTerminal | undefined
+
+  afterEach(() => {
+    engine?.dispose()
+    engine = undefined
+  })
+
+  it('focuses the helper textarea on pointerdown, not pointermove', () => {
+    engine = new GhosttyTerminal(getGhosttyVtHostOrThrow(), { cols: 20, rows: 4 })
+    const canvas = document.createElement('canvas')
+    const textarea = document.createElement('textarea')
+    const focus = vi.spyOn(textarea, 'focus')
+    bindGhosttyPointerInput(
+      {
+        element: canvas,
+        textarea,
+        encodeMouse: () => '',
+        input: () => undefined,
+        refresh: () => undefined,
+        setPreedit: () => undefined,
+        cellWidth: 8,
+        cellHeight: 16,
+        cols: 20,
+        rows: 4
+      },
+      undefined,
+      engine
+    )
+    canvas.dispatchEvent(new PointerEvent('pointermove', { bubbles: true }))
+    expect(focus).not.toHaveBeenCalled()
+    canvas.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))
+    expect(focus).toHaveBeenCalledTimes(1)
   })
 })
 

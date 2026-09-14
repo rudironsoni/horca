@@ -173,7 +173,12 @@ export type ManagedPaneInternal = {
   // Why: expose complex-output diagnostics without changing renderer choice;
   // auto renderer fallback is reserved for platform or WebGL failures.
   hasComplexScriptOutput: boolean
-  gpuRenderer: { dispose?: () => void; clearTextureAtlas?: () => void } | null
+  gpuRenderer: {
+    dispose?: () => void
+    clearTextureAtlas?: () => void
+    loseContext?: () => void
+    isContextLost?: () => boolean
+  } | null
   ligaturesAddon: { dispose?: () => void } | null
   fitResizeObserver: ResizeObserver | null
   // Why: fit-element pixel size at the last successful fit; the reveal fit compares

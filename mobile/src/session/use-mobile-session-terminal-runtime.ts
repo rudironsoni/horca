@@ -11,6 +11,7 @@ import { resolveMobileTerminalInputGate } from '../terminal/terminal-input-conne
 import { createInitialSessionAutoCreateState } from './use-initial-session-terminal-autocreate'
 import { TerminalViewportResubscribeBudget } from './mobile-terminal-viewport-resubscribe'
 import { MobileTerminalDiagnostics } from './mobile-terminal-diagnostics'
+import { TerminalNativeViewportUpdate } from '../terminal/terminal-native-viewport-update'
 import { useBufferedTerminalDrafts } from '../terminal/use-buffered-terminal-drafts'
 import { useMobileTerminalInventoryRecoveryBridge } from './use-mobile-terminal-inventory-recovery'
 import type {
@@ -53,6 +54,8 @@ export function useMobileSessionTerminalRuntime(scope: MobileSessionScreenStateM
   // Why: measured once on mount, then passed with every subscribe so the server can auto-fit the PTY to phone dims.
   const viewportRef = useRef<{ cols: number; rows: number } | null>(null)
   const viewportMeasuredRef = useRef(false)
+  const terminalViewportUpdateRef = useRef(new TerminalNativeViewportUpdate())
+  const terminalResizeSeqRef = useRef<Map<string, number>>(new Map())
   const terminalRefs = useRef<Map<string, TerminalWebViewHandle>>(new Map())
   const liveInputRef = useRef<TextInput>(null)
   const commandInputRef = useRef<TextInput>(null)
@@ -165,6 +168,8 @@ export function useMobileSessionTerminalRuntime(scope: MobileSessionScreenStateM
     connStateRef,
     viewportRef,
     viewportMeasuredRef,
+    terminalViewportUpdateRef,
+    terminalResizeSeqRef,
     terminalRefs,
     liveInputRef,
     commandInputRef,
