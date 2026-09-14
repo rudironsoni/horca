@@ -264,6 +264,10 @@ jobs:
     timeout-minutes: 15
     environment: horca-maintenance
     steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
       - name: Create tap token
         id: app
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
@@ -297,7 +301,9 @@ jobs:
           for attempt in $(seq 1 30); do
             current=$(gh api "repos/rudironsoni/homebrew-tap/contents/Casks/$cask" \
               -H 'Accept: application/vnd.github.raw+json' 2>/dev/null || true)
-            if grep -q "version \"$VERSION\"" <<<"$current"; then exit 0; fi
+            if node config/horca/scripts/prepare-release.mjs tap-has "$VERSION" <<<"$current"; then
+              exit 0
+            fi
             sleep 20
           done
           echo "::error::Homebrew $CHANNEL did not reach $VERSION"
