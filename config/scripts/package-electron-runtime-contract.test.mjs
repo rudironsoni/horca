@@ -101,7 +101,7 @@ describe('Electron runtime package contract', () => {
       'pnpm run build && pnpm run ensure:electron-runtime && node config/scripts/build-mac-local.mjs'
     )
     expect(scripts['build:mac:release']).toBe(
-      'node config/scripts/verify-macos-release-env.mjs && ORCA_MAC_RELEASE=1 pnpm run build:native && pnpm run build:desktop:bundles && pnpm run ensure:electron-runtime && ORCA_MAC_RELEASE=1 electron-builder --config config/electron-builder.config.cjs --mac'
+      'node config/scripts/verify-macos-release-env.mjs && ORCA_MAC_RELEASE=1 pnpm run build:native && pnpm run build:desktop:bundles && pnpm run ensure:electron-runtime && ORCA_MAC_RELEASE=1 electron-builder --config config/electron-builder.config.cjs --mac --publish never'
     )
 
     for (const scriptName of [
