@@ -1,17 +1,17 @@
+import { heldGhosttyInputEncoders } from './ghostty-input-encoders'
 import type { GhosttyVtHost } from './wasm-host'
 
 const MODIFIER_KEYS = new Set(['Alt', 'AltGraph', 'Control', 'Meta', 'Shift', 'CapsLock'])
 
-export function encodeBrowserKey(host: GhosttyVtHost, term: number, event: KeyboardEvent): string {
-  const encoderSlot = host.allocOpaque()
-  host.check(host.exports.ghostty_key_encoder_new(0, encoderSlot), 'key_encoder_new')
-  const encoder = host.takeOpaque(encoderSlot)
-  host.freeOpaque(encoderSlot)
-  host.exports.ghostty_key_encoder_setopt_from_terminal(encoder, term)
-  const eventSlot = host.allocOpaque()
-  host.check(host.exports.ghostty_key_event_new(0, eventSlot), 'key_event_new')
-  const keyEvent = host.takeOpaque(eventSlot)
-  host.freeOpaque(eventSlot)
+export function encodeBrowserKey(
+  host: GhosttyVtHost,
+  term: number,
+  event: KeyboardEvent,
+  engine: object
+): string {
+  const held = heldGhosttyInputEncoders(engine, host, term)
+  const encoder = held.keyEncoder
+  const keyEvent = held.keyEvent
   const action = event.repeat ? 'REPEAT' : 'PRESS'
   host.exports.ghostty_key_event_set_action(keyEvent, host.enumValue('GhosttyKeyAction', action))
   host.exports.ghostty_key_event_set_key(keyEvent, mapKey(host, event.code))
@@ -25,8 +25,6 @@ export function encodeBrowserKey(host: GhosttyVtHost, term: number, event: Keybo
   if (utf8) {
     host.free(utf8.ptr, utf8.len)
   }
-  host.exports.ghostty_key_event_free(keyEvent)
-  host.exports.ghostty_key_encoder_free(encoder)
   if (
     encoded.length === 0 &&
     !MODIFIER_KEYS.has(event.key) &&

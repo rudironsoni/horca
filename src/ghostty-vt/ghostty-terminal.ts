@@ -1,5 +1,6 @@
 import { formatTerminal } from './ghostty-format'
-import { collectHyperlinkRanges, type HyperlinkRange } from './ghostty-hyperlinks'
+import { collectHyperlinkRanges, readHyperlinkAt, type HyperlinkRange } from './ghostty-hyperlinks'
+import { releaseGhosttyInputEncoders } from './ghostty-input-encoders'
 import { encodePaste } from './ghostty-paste'
 import { readSelection, selectAllOnTerminal } from './ghostty-selection'
 import { decodeNativeSnapshot, encodeNativeSnapshot } from './ghostty-snapshot'
@@ -178,6 +179,11 @@ export class GhosttyTerminal {
     return collectHyperlinkRanges(this.host, this.term, this.cols, this.totalRows)
   }
 
+  readHyperlinkAt(col: number, row: number): string {
+    this.assertOpen()
+    return readHyperlinkAt(this.host, this.term, col, row)
+  }
+
   encodePaste(text: string): string {
     this.assertOpen()
     return encodePaste(this.host, text, this.getMode(2004))
@@ -222,6 +228,7 @@ export class GhosttyTerminal {
     if (this.disposed) {
       return
     }
+    releaseGhosttyInputEncoders(this, this.host)
     this.disposed = true
     this.host.exports.ghostty_terminal_free(this.term)
     this.host.unregisterWritePty(this.userdata)

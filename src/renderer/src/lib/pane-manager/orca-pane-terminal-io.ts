@@ -8,10 +8,9 @@ import {
   clearSelection,
   encodeKey,
   encodeMouse,
-  findNext,
-  findPrevious,
   readScrollbar
 } from '../../../../ghostty-vt/ghostty-terminal-ops'
+import { bindOrcaPaneWheel } from './orca-pane-wheel'
 import type { GhosttyTerminal } from '../../../../ghostty-vt/ghostty-terminal'
 
 export function pasteIntoGhostty(engine: GhosttyTerminal, text: string): string {
@@ -41,6 +40,7 @@ export function encodeGhosttyMouse(
     ctrlKey: boolean
     altKey: boolean
     metaKey: boolean
+    deltaY?: number
   },
   surface: {
     left: number
@@ -52,14 +52,6 @@ export function encodeGhosttyMouse(
   }
 ): string {
   return encodeMouse(engine, event, surface)
-}
-
-export function findGhosttyNext(engine: GhosttyTerminal, query: string): boolean {
-  return findNext(engine, query)
-}
-
-export function findGhosttyPrevious(engine: GhosttyTerminal, query: string): boolean {
-  return findPrevious(engine, query)
 }
 
 export function hitTestGhosttyHyperlink(
@@ -77,11 +69,8 @@ export function hitTestGhosttyHyperlink(
     return null
   }
   const screenY = readScrollbar(engine).offset + row
-  const links = engine.collectHyperlinkRanges()
-  const hit = links.find(
-    (link) => link.row === screenY && col >= link.startCol && col < link.endCol
-  )
-  return hit?.uri ?? null
+  const uri = engine.readHyperlinkAt(col, screenY)
+  return uri.length > 0 ? uri : null
 }
 
 export function bindGhosttyKeyboardInput(pane: {
@@ -130,6 +119,7 @@ export function bindOrcaPaneSession(
     rows: number
     baseY: number
     linkProviders: Set<OrcaLinkProvider>
+    customWheelHandler?: () => ((event: WheelEvent) => boolean) | null
   },
   policy: {
     customKeyHandler: () => ((event: KeyboardEvent) => boolean) | null
@@ -138,6 +128,17 @@ export function bindOrcaPaneSession(
   engine: GhosttyTerminal
 ): () => void {
   const unbindPointer = bindGhosttyPointerInput(pane, policy.onSelectionChange, engine)
+  const unbindWheel = bindOrcaPaneWheel(
+    {
+      element: pane.element,
+      cellHeight: pane.cellHeight,
+      encodeMouse: (event) => pane.encodeMouse(event),
+      input: (data) => pane.input(data),
+      refresh: () => pane.refresh(),
+      customWheelHandler: () => pane.customWheelHandler?.() ?? null
+    },
+    engine
+  )
   const unbindKeys = bindGhosttyKeyboardInput({
     element: pane.textarea,
     encodeKey: (event) => pane.encodeKey(event),
@@ -147,6 +148,7 @@ export function bindOrcaPaneSession(
   const unbindLinks = bindOrcaPaneLinkProviders(pane)
   return () => {
     unbindPointer()
+    unbindWheel()
     unbindKeys()
     unbindLinks()
   }
@@ -169,7 +171,6 @@ export function bindGhosttyPointerInput(
   engine: GhosttyTerminal
 ): () => void {
   const send = (event: MouseEvent): void => {
-    pane.textarea?.focus()
     if (!engine.mouseTracking) {
       const before = engine.readSelection()
       const rect = pane.element.getBoundingClientRect()
@@ -192,10 +193,15 @@ export function bindGhosttyPointerInput(
       pane.input(seq)
     }
   }
+  const onPointerDown = (event: PointerEvent): void => {
+    pane.textarea?.focus()
+    pane.element.setPointerCapture?.(event.pointerId)
+    send(event)
+  }
   const onComposition = (event: CompositionEvent): void => {
     pane.setPreedit(event.type === 'compositionend' ? '' : event.data)
   }
-  pane.element.addEventListener('pointerdown', send)
+  pane.element.addEventListener('pointerdown', onPointerDown)
   pane.element.addEventListener('pointerup', send)
   pane.element.addEventListener('pointermove', send)
   const host: HTMLElement = pane.textarea ?? pane.element
@@ -203,7 +209,7 @@ export function bindGhosttyPointerInput(
   host.addEventListener('compositionupdate', onComposition)
   host.addEventListener('compositionend', onComposition)
   return () => {
-    pane.element.removeEventListener('pointerdown', send)
+    pane.element.removeEventListener('pointerdown', onPointerDown)
     pane.element.removeEventListener('pointerup', send)
     pane.element.removeEventListener('pointermove', send)
     host.removeEventListener('compositionstart', onComposition)

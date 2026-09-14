@@ -21,6 +21,7 @@ const runtime = readRuntimeArg()
 
 const NATIVE_MODULES = [
   'node-pty',
+  '@orca/ghostty-surface',
   ...(process.platform === 'win32'
     ? ['@orca/windows-registry', '@vscode/windows-process-tree']
     : [])
@@ -279,6 +280,13 @@ function loadNativeModule(moduleName) {
     const registry = require(moduleName)
     // Why: the package defers loading its .node addon until the first registry call.
     registry.getRegistryKey(registry.HK.CU, 'Environment')
+    return
+  }
+  if (moduleName === '@orca/ghostty-surface') {
+    const surface = require(moduleName)
+    // Why: the package defers loading its .node until isAvailable(), and Linux/Windows
+    // hosts report false until a native GL host can ship on the glibc floor.
+    surface.isAvailable()
     return
   }
   if (moduleName === 'node-pty') {
