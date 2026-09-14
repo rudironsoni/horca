@@ -15,7 +15,7 @@ export function encodeKey(engine: GhosttyTerminal, event: KeyboardEvent): string
     return ''
   }
   const { host, term } = ghosttyVt(engine)
-  return encodeBrowserKey(host, term, event)
+  return encodeBrowserKey(host, term, event, engine)
 }
 
 export function encodeMouse(
@@ -29,6 +29,7 @@ export function encodeMouse(
     ctrlKey: boolean
     altKey: boolean
     metaKey: boolean
+    deltaY?: number
   },
   surface: {
     left: number
@@ -43,7 +44,7 @@ export function encodeMouse(
     return ''
   }
   const { host, term } = ghosttyVt(engine)
-  return encodeBrowserMouse(host, term, event, surface)
+  return encodeBrowserMouse(host, term, event, surface, engine)
 }
 
 export function findNext(engine: GhosttyTerminal, query: string): boolean {

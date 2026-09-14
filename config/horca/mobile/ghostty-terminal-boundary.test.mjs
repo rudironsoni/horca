@@ -4,60 +4,51 @@ import { resolve } from 'node:path'
 import test from 'node:test'
 
 const repoRoot = resolve(import.meta.dirname, '..', '..', '..')
-const mobileRoot = resolve(repoRoot, 'out', 'horca-mobile', 'mobile')
+const mobileRoot = resolve(repoRoot, 'mobile')
 
-const nativeView = readFileSync(
-  resolve(mobileRoot, 'packages', 'libghostty-terminal', 'ios', 'ExpoLibghosttyView.swift'),
-  'utf8'
-)
 const terminalPane = readFileSync(
   resolve(mobileRoot, 'src', 'session', 'TerminalPaneView.tsx'),
+  'utf8'
+)
+const terminalView = readFileSync(
+  resolve(mobileRoot, 'src', 'terminal', 'TerminalWebView.tsx'),
+  'utf8'
+)
+const surfaceProps = readFileSync(
+  resolve(mobileRoot, 'src', 'terminal', 'expo-libghostty-surface-props.ts'),
   'utf8'
 )
 const sessionResize = readFileSync(
   resolve(mobileRoot, 'src', 'session', 'use-mobile-session-terminal-webview.ts'),
   'utf8'
 )
+const packageJson = JSON.parse(readFileSync(resolve(mobileRoot, 'package.json'), 'utf8'))
 
-test('resets the existing Ghostty session without reporting a fake process exit', () => {
-  const resetStart = nativeView.indexOf('  func reset(with text: String) {')
-  const resetEnd = nativeView.indexOf('  func paste(_ text: String) {', resetStart)
-
-  assert.notEqual(resetStart, -1)
-  assert.notEqual(resetEnd, -1)
-
-  const resetImplementation = nativeView.slice(resetStart, resetEnd)
-  assert.match(resetImplementation, /Data\(\[0x1b, 0x63, 0x1b, 0x5b, 0x33, 0x4a\]\)/)
-  assert.match(resetImplementation, /session\?\.receive\(data\)/)
-  assert.doesNotMatch(resetImplementation, /\.finish\(/)
-  assert.doesNotMatch(resetImplementation, /makeSession\(|installSession\(/)
-})
-
-test('keeps the Ghostty surface fitted to the React Native view', () => {
-  assert.match(
-    nativeView,
-    /override func layoutSubviews\(\) \{[\s\S]*?terminalView\.frame = bounds[\s\S]*?terminalView\.fitToSize\(\)/
-  )
-  assert.match(nativeView, /UIView\.noIntrinsicMetric/)
-  assert.match(nativeView, /terminalView\.setSurfaceVisible\(surfaceVisible\)/)
+test('consumes expo-libghostty as the native terminal view', () => {
+  assert.equal(typeof packageJson.dependencies?.['expo-libghostty'], 'string')
+  assert.match(terminalView, /from 'expo-libghostty'/)
+  assert.doesNotMatch(terminalView, /@orca\/libghostty-terminal/)
 })
 
 test('hides inactive Ghostty panes without opacity', () => {
   assert.match(terminalPane, /surfaceVisible=\{active\}/)
-  assert.match(terminalPane, /isUsableTerminalViewport/)
   assert.doesNotMatch(terminalPane, /opacity:\s*0/)
 })
 
-test('closes the native Ghostty event delegate extension', () => {
-  assert.match(
-    nativeView,
-    /extension ExpoLibghosttyView: TerminalSurfaceBellDelegate[\s\S]*?\n\}\n$/
-  )
+test('uses a mobile-sized default terminal font', () => {
+  assert.match(terminalView, /fontSize=\{8 \* textScale\}/)
+  assert.doesNotMatch(terminalView, /fontSize=\{(?:10|14) \* textScale\}/)
 })
 
-test('uses a mobile-sized default terminal font', () => {
-  assert.match(terminalPane, /fontSize=\{8 \* textScale\}/)
-  assert.doesNotMatch(terminalPane, /fontSize=\{(?:10|14) \* textScale\}/)
+test('disables the native software keyboard so the RN accessory owns IME', () => {
+  assert.match(surfaceProps, /keyboardEnabled: false/)
+  assert.match(terminalView, /expoLibghosttySurfaceProps\(surfaceVisible\)/)
+})
+
+test('never paints terminal cells with a React Native Canvas', () => {
+  assert.doesNotMatch(terminalView, /from 'react-native'/)
+  assert.doesNotMatch(terminalPane, /from 'react-native-canvas'/)
+  assert.match(terminalView, /ExpoLibghosttyPaneView/)
 })
 
 test('updates the live subscriber before falling back to snapshot replay', () => {

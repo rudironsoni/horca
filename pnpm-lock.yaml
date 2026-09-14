@@ -494,6 +494,9 @@ importers:
         specifier: ^5.0.14
         version: 5.0.14(@types/react@19.2.17)(react@19.2.8)(use-sync-external-store@1.6.0(react@19.2.8))
     optionalDependencies:
+      '@orca/ghostty-surface':
+        specifier: workspace:*
+        version: link:native/ghostty-surface
       '@orca/windows-registry':
         specifier: workspace:*
         version: link:native/windows-registry
@@ -515,6 +518,12 @@ importers:
       sherpa-onnx-win-x64:
         specifier: 1.12.37
         version: 1.12.37
+
+  native/ghostty-surface:
+    dependencies:
+      node-addon-api:
+        specifier: ^8.5.0
+        version: 8.9.2
 
   native/windows-registry:
     dependencies:

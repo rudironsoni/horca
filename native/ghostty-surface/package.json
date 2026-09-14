@@ -1,0 +1,18 @@
+{
+  "name": "@orca/ghostty-surface",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Native libghostty GPU surfaces for Horca Electron (macOS Metal; Linux/Windows GL when libghostty can host them)",
+  "license": "MIT",
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "binding.gyp",
+    "src"
+  ],
+  "main": "index.js",
+  "types": "index.d.ts",
+  "dependencies": {
+    "node-addon-api": "^8.5.0"
+  }
+}

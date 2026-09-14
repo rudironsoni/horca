@@ -28,6 +28,7 @@ type TerminalPaneViewProps = {
   onFileTap: (handle: string, pathText: string, line: number | null, column: number | null) => void
   onOpenUrl: (handle: string, url: string) => void
   onTextScaleChange: (scale: number) => void
+  onGridResize: (handle: string, cols: number, rows: number) => void
 }
 
 export function TerminalPaneView({
@@ -49,7 +50,8 @@ export function TerminalPaneView({
   onTerminalTap,
   onFileTap,
   onOpenUrl,
-  onTextScaleChange
+  onTextScaleChange,
+  onGridResize
 }: TerminalPaneViewProps) {
   const setRef = useCallback(
     (ref: TerminalWebViewHandle | null) => {
@@ -60,8 +62,6 @@ export function TerminalPaneView({
 
   return (
     <View
-      // Why: inactive terminal WebViews stay mounted to preserve terminal state,
-      // while touch and visibility are disabled until the tab is active again.
       pointerEvents={active ? 'auto' : 'none'}
       style={[
         styles.terminalPane,
@@ -71,9 +71,10 @@ export function TerminalPaneView({
     >
       <TerminalWebView
         ref={setRef}
-        style={styles.terminalWebView}
+        style={styles.terminal}
         terminalTheme={terminalTheme}
         textScale={textScale}
+        surfaceVisible={active}
         onWebReady={() => onWebReady(handle)}
         onSelectionMode={(a) => onSelectionMode(handle, a)}
         onSelectionCopy={(t) => onSelectionCopy(handle, t)}
@@ -87,6 +88,7 @@ export function TerminalPaneView({
         onFileTap={(pathText, line, column) => onFileTap(handle, pathText, line, column)}
         onOpenUrl={(url) => onOpenUrl(handle, url)}
         onTextScaleChange={onTextScaleChange}
+        onGridResize={(cols, rows) => onGridResize(handle, cols, rows)}
       />
     </View>
   )
@@ -94,12 +96,22 @@ export function TerminalPaneView({
 
 const styles = StyleSheet.create({
   terminalPane: {
-    ...StyleSheet.absoluteFillObject
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0
   },
   terminalPaneHidden: {
-    opacity: 0
+    width: 0,
+    height: 0,
+    overflow: 'hidden'
   },
-  terminalWebView: {
-    flex: 1
+  terminal: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0
   }
 })

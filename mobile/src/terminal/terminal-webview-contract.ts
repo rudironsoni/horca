@@ -69,8 +69,11 @@ export type TerminalWebViewProps = {
   // Why: baseline zoom multiplier applied on top of fit-to-width scale; raw
   // terminal fontSize alone cannot drive apparent size because fitting cancels it.
   textScale?: number
+  // Why: CAMetalLayer ignores opacity:0; Horca hides inactive panes via this + zero size.
+  surfaceVisible?: boolean
   onWebReady?: () => void
   onEngineError?: (message: string) => void
+  onGridResize?: (cols: number, rows: number) => void
 } & TerminalSelectionEvents
 
 export type TerminalWebViewHandle = {

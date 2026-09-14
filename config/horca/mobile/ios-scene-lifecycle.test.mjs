@@ -6,7 +6,7 @@ const require = createRequire(import.meta.url)
 const {
   addSceneLifecycleToAppDelegate,
   addSceneLifecycleToInfoPlist
-} = require('./ios-scene-lifecycle.js')
+} = require('../../../mobile/plugins/ios-scene-lifecycle.js')
 
 const appDelegate = `class AppDelegate: ExpoAppDelegate {
   var reactNativeFactory: RCTReactNativeFactory?
