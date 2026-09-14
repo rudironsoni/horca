@@ -8,25 +8,42 @@ import type { GhosttyVtHost } from './wasm-host'
 export const UTF8_CAP = 64
 const decoder = new TextDecoder()
 
-export type GhosttyRowPaintTarget = {
+export type GhosttyRowCellSource = {
   host: GhosttyVtHost
-  ctx: CanvasRenderingContext2D
   cells: number
   rowIter: number
   scratch: GhosttyRendererScratch
   cellWidth: number
   cellHeight: number
-  glyphBaseline: number
   backgroundAlpha: number
   selectionBg: ThemeRgb | null
   selectionFg: ThemeRgb | null
   cellFont: (italic: boolean, bold: boolean) => string
 }
 
-export function paintGhosttyRenderRow(
-  target: GhosttyRowPaintTarget,
+export type GhosttyRowPaintTarget = GhosttyRowCellSource & {
+  ctx: CanvasRenderingContext2D
+  glyphBaseline: number
+}
+
+export type GhosttyVisitedCell = {
+  x: number
+  y: number
+  columns: number
+  grapheme: string
+  fg: ThemeRgb
+  bg: ThemeRgb
+  bgAlpha: number
+  font: string
+  underline: boolean
+  strike: boolean
+}
+
+export function forEachGhosttyRenderCell(
+  target: GhosttyRowCellSource,
   y: number,
-  colors: FrameColors
+  colors: FrameColors,
+  visit: (cell: GhosttyVisitedCell) => void
 ): number {
   const { host, scratch } = target
   host.writeU32(scratch.cells, target.cells)
@@ -39,8 +56,55 @@ export function paintGhosttyRenderRow(
     'ROW CELLS'
   )
   target.cells = host.readU32(scratch.cells)
-  const py = y * target.cellHeight
   let x = 0
+  while (host.exports.ghostty_render_state_row_cells_next(target.cells)) {
+    const wide = readWide(target)
+    if (
+      wide === host.enumValue('GhosttyCellWide', 'SPACER_TAIL') ||
+      wide === host.enumValue('GhosttyCellWide', 'SPACER_HEAD')
+    ) {
+      x += 1
+      continue
+    }
+    const columns = wide === host.enumValue('GhosttyCellWide', 'WIDE') ? 2 : 1
+    const selected = readSelected(target)
+    const bg = readCellRgb(target, scratch.bg, 'BG_COLOR')
+    const fg = readCellRgb(target, scratch.fg, 'FG_COLOR')
+    const style = readStyle(target)
+    let bgRgb = bg ?? colors.background
+    let fgRgb = fg ?? colors.foreground
+    if (style.inverse) {
+      const swap = bgRgb
+      bgRgb = fgRgb
+      fgRgb = swap
+    }
+    if (selected) {
+      bgRgb = target.selectionBg ?? fgRgb
+      fgRgb = target.selectionFg ?? bg ?? colors.background
+    }
+    visit({
+      x,
+      y,
+      columns,
+      grapheme: style.invisible ? '' : readCellUtf8(target),
+      fg: style.faint ? dimRgb(fgRgb) : fgRgb,
+      bg: bgRgb,
+      bgAlpha: bg ? 1 : target.backgroundAlpha,
+      font: target.cellFont(style.italic, style.bold),
+      underline: style.underline,
+      strike: style.strikethrough
+    })
+    x += 1
+  }
+  return target.cells
+}
+
+export function paintGhosttyRenderRow(
+  target: GhosttyRowPaintTarget,
+  y: number,
+  colors: FrameColors
+): number {
+  const py = y * target.cellHeight
   let runStart = 0
   let runColumns = 0
   let runText = ''
@@ -79,58 +143,31 @@ export function paintGhosttyRenderRow(
     runText = ''
     runColumns = 0
   }
-  while (host.exports.ghostty_render_state_row_cells_next(target.cells)) {
-    const wide = readWide(target)
-    if (
-      wide === host.enumValue('GhosttyCellWide', 'SPACER_TAIL') ||
-      wide === host.enumValue('GhosttyCellWide', 'SPACER_HEAD')
-    ) {
-      x += 1
-      continue
-    }
-    const columns = wide === host.enumValue('GhosttyCellWide', 'WIDE') ? 2 : 1
-    const selected = readSelected(target)
-    const bg = readCellRgb(target, scratch.bg, 'BG_COLOR')
-    const fg = readCellRgb(target, scratch.fg, 'FG_COLOR')
-    const style = readStyle(target)
-    let bgRgb = bg ?? colors.background
-    let fgRgb = fg ?? colors.foreground
-    if (style.inverse) {
-      const swap = bgRgb
-      bgRgb = fgRgb
-      fgRgb = swap
-    }
-    if (selected) {
-      bgRgb = target.selectionBg ?? fgRgb
-      fgRgb = target.selectionFg ?? bg ?? colors.background
-    }
-    const bgCss = rgbToCss(bgRgb, bg ? 1 : target.backgroundAlpha)
-    const fgCss = rgbToCss(style.faint ? dimRgb(fgRgb) : fgRgb)
-    const grapheme = style.invisible ? '' : readCellUtf8(target)
-    const font = target.cellFont(style.italic, style.bold)
+  target.cells = forEachGhosttyRenderCell(target, y, colors, (cell) => {
+    const fgCss = rgbToCss(cell.fg)
+    const bgCss = rgbToCss(cell.bg, cell.bgAlpha)
     if (
       runColumns > 0 &&
       (fgCss !== runFg ||
         bgCss !== runBg ||
-        font !== runFont ||
-        style.underline !== runUnderline ||
-        style.strikethrough !== runStrike)
+        cell.font !== runFont ||
+        cell.underline !== runUnderline ||
+        cell.strike !== runStrike)
     ) {
       flush()
-      runStart = x
+      runStart = cell.x
     }
     if (runColumns === 0) {
-      runStart = x
+      runStart = cell.x
       runFg = fgCss
       runBg = bgCss
-      runFont = font
-      runUnderline = style.underline
-      runStrike = style.strikethrough
+      runFont = cell.font
+      runUnderline = cell.underline
+      runStrike = cell.strike
     }
-    runText += grapheme
-    runColumns += columns
-    x += 1
-  }
+    runText += cell.grapheme
+    runColumns += cell.columns
+  })
   flush()
   return target.cells
 }
@@ -139,7 +176,7 @@ function dimRgb(rgb: ThemeRgb): ThemeRgb {
   return [Math.round(rgb[0] * 0.5), Math.round(rgb[1] * 0.5), Math.round(rgb[2] * 0.5)]
 }
 
-function readSelected(target: GhosttyRowPaintTarget): boolean {
+function readSelected(target: GhosttyRowCellSource): boolean {
   const result = target.host.exports.ghostty_render_state_row_cells_get(
     target.cells,
     target.host.enumValue('GhosttyRenderStateRowCellsData', 'SELECTED'),
@@ -149,7 +186,7 @@ function readSelected(target: GhosttyRowPaintTarget): boolean {
 }
 
 function readCellRgb(
-  target: GhosttyRowPaintTarget,
+  target: GhosttyRowCellSource,
   ptr: number,
   name: 'BG_COLOR' | 'FG_COLOR'
 ): ThemeRgb | null {
@@ -164,7 +201,7 @@ function readCellRgb(
   return rgbAt(target.host, ptr)
 }
 
-function readStyle(target: GhosttyRowPaintTarget): CellStyle {
+function readStyle(target: GhosttyRowCellSource): CellStyle {
   const { host, scratch } = target
   const size = host.structSize('GhosttyStyle')
   host.bytes().fill(0, scratch.style, scratch.style + size)
@@ -180,7 +217,7 @@ function readStyle(target: GhosttyRowPaintTarget): CellStyle {
   return readStyleFromPtr(host, scratch.style)
 }
 
-function readWide(target: GhosttyRowPaintTarget): number {
+function readWide(target: GhosttyRowCellSource): number {
   const result = target.host.exports.ghostty_render_state_row_cells_get(
     target.cells,
     target.host.enumValue('GhosttyRenderStateRowCellsData', 'RAW'),
@@ -193,7 +230,7 @@ function readWide(target: GhosttyRowPaintTarget): number {
   return Number((packed >> 42n) & 3n)
 }
 
-function readCellUtf8(target: GhosttyRowPaintTarget): string {
+function readCellUtf8(target: GhosttyRowCellSource): string {
   const { host, scratch } = target
   host.writeU32(scratch.utf8, scratch.utf8Storage)
   host.writeU32(scratch.utf8 + 4, UTF8_CAP)

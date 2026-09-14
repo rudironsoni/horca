@@ -1,10 +1,6 @@
 import type { GhosttyTerminal } from '../../../../ghostty-vt/ghostty-terminal'
-import { readScrollbar, scrollViewport } from '../../../../ghostty-vt/ghostty-terminal-ops'
-import type {
-  OrcaDisposable,
-  OrcaLinkProvider,
-  OrcaTerminalGrid
-} from '../../../../shared/orca-terminal-surface'
+import { readScrollbar } from '../../../../ghostty-vt/ghostty-terminal-ops'
+import type { OrcaDisposable, OrcaTerminalGrid } from '../../../../shared/orca-terminal-surface'
 import {
   measureCellSize,
   resolveOrcaPaneAppearance,
@@ -19,29 +15,26 @@ import {
   schedulePrimaryScreenCallback,
   trackListener
 } from './orca-pane-buffer'
-import { registerOrcaPaneLinkProvider } from './orca-pane-links'
 import { applyOrcaPaneRendererMetrics } from './orca-pane-ghostty-appearance'
 import { createOrcaPaneSurface } from './orca-pane-surface'
+import { bindOrcaPaneHostChrome, type OrcaPaneHostChrome } from './orca-pane-host-chrome'
+import { syncOrcaPaneMouseReportingClass } from './orca-pane-wheel'
 import { createPaintScheduler, refreshOrcaPanePaint } from './orca-pane-paint'
 import * as paneIo from './orca-pane-terminal-io'
+import { findOrcaPane, scrollOrcaPane } from './orca-pane-viewport-nav'
+import { OrcaPaneListenerHub } from './orca-pane-terminal-events'
 
 export type { OrcaPaneAppearance } from './orca-pane-appearance'
-export class OrcaPaneTerminal {
+export class OrcaPaneTerminal extends OrcaPaneListenerHub {
   readonly element: HTMLCanvasElement
   readonly textarea: HTMLTextAreaElement
   readonly options: OrcaPaneAppearance
   readonly parser: ReturnType<typeof createOrcaPaneParser>
   private readonly engine: GhosttyTerminal
-  readonly linkProviders = new Set<OrcaLinkProvider>()
   private readonly renderer: ReturnType<typeof createOrcaPaneSurface>['renderer']
   private readonly measureRoot: HTMLElement
-  private readonly dataListeners = new Set<(data: string) => void>()
-  private readonly renderListeners = new Set<() => void>()
-  private readonly resizeListeners = new Set<(size: { cols: number; rows: number }) => void>()
-  private readonly selectionListeners = new Set<() => void>()
-  private readonly titleListeners = new Set<(title: string) => void>()
   private readonly primaryScreenWaiters = new Set<() => void>()
-  private customKeyHandler: ((event: KeyboardEvent) => boolean) | null = null
+  private chrome: OrcaPaneHostChrome
   cellWidth: number
   cellHeight: number
   private unbindInput = (): void => undefined
@@ -53,6 +46,7 @@ export class OrcaPaneTerminal {
     }
   })
   constructor(measureRoot: HTMLElement, appearance: Partial<OrcaPaneAppearance> = {}) {
+    super()
     this.options = resolveOrcaPaneAppearance(appearance)
     this.measureRoot = measureRoot
     const surface = createOrcaPaneSurface(this.options)
@@ -70,6 +64,9 @@ export class OrcaPaneTerminal {
         onSelectionChange: () => paneIo.notifySelectionListeners(this.selectionListeners)
       },
       this.engine
+    )
+    this.chrome = bindOrcaPaneHostChrome(this.element, this.measureRoot, this.engine, (delta) =>
+      this.scrollLines(delta)
     )
     surface.bindRefresh(() => this.refresh())
   }
@@ -90,7 +87,11 @@ export class OrcaPaneTerminal {
     return this.engine.readViewportText()
   }
   get buffer(): { active: OrcaTerminalGrid } {
-    return createOrcaPaneBuffer(this.engine, () => this.baseY)
+    return createOrcaPaneBuffer(
+      this.engine,
+      () => this.baseY,
+      () => this.viewportY
+    )
   }
   get cursor(): { x: number; y: number } {
     return this.engine.cursor
@@ -106,6 +107,7 @@ export class OrcaPaneTerminal {
     const text = typeof data === 'string' ? data : new TextDecoder().decode(data)
     const title = this.engine.title
     this.engine.writePtyOutput(this.parser.consume(text))
+    this.chrome.write(text)
     this.refresh()
     notifyTitleListeners(title, this.engine.title, this.titleListeners)
     flushWaiters(this.isAlternateScreen, this.primaryScreenWaiters)
@@ -130,38 +132,10 @@ export class OrcaPaneTerminal {
     }
   }
 
-  onData(listener: (data: string) => void): OrcaDisposable {
-    return trackListener(this.dataListeners, listener)
-  }
-  onResize(listener: (size: { cols: number; rows: number }) => void): OrcaDisposable {
-    return trackListener(this.resizeListeners, listener)
-  }
-  onRender(listener: () => void): OrcaDisposable {
-    return trackListener(this.renderListeners, listener)
-  }
   onTitleChange(listener: (title: string) => void): OrcaDisposable {
     listener(this.engine.title)
     return trackListener(this.titleListeners, listener)
   }
-  onSelectionChange(listener: () => void): OrcaDisposable {
-    return trackListener(this.selectionListeners, listener)
-  }
-  onWriteParsed(listener: () => void): OrcaDisposable {
-    return this.onData(() => listener())
-  }
-  attachCustomKeyEventHandler(handler: (event: KeyboardEvent) => boolean): void {
-    this.customKeyHandler = handler
-  }
-  addLinkProvider(provider: OrcaLinkProvider): OrcaDisposable {
-    return registerOrcaPaneLinkProvider(this.linkProviders, provider)
-  }
-  registerLinkProvider(provider: OrcaLinkProvider): OrcaDisposable {
-    return this.addLinkProvider(provider)
-  }
-  registerCharacterJoiner(_handler: (text: string) => number[][]): number {
-    return 0
-  }
-  deregisterCharacterJoiner(_id: number): void {}
   hasSelection(): boolean {
     return this.getSelection().length > 0
   }
@@ -172,6 +146,7 @@ export class OrcaPaneTerminal {
   }
   resize(cols: number, rows: number): void {
     this.engine.resize({ cols, rows, cellWidthPx: this.cellWidth, cellHeightPx: this.cellHeight })
+    this.chrome.resize(cols, rows)
     this.refresh()
     for (const listener of this.resizeListeners) {
       listener({ cols: this.cols, rows: this.rows })
@@ -200,6 +175,8 @@ export class OrcaPaneTerminal {
   }
   refresh(_start?: number, _end?: number): void {
     refreshOrcaPanePaint(this.paintScheduler, this.textarea)
+    this.chrome.sync()
+    syncOrcaPaneMouseReportingClass(this.element, this.engine.mouseTracking)
   }
   focus(): void {
     this.textarea.focus()
@@ -228,22 +205,21 @@ export class OrcaPaneTerminal {
     return this.engine.readSelection()
   }
   scrollToTop(): void {
-    this.scrollViewport('TOP')
+    scrollOrcaPane(this.engine, () => this.refresh(), 'TOP')
   }
   scrollToBottom(): void {
-    this.scrollViewport('BOTTOM')
+    scrollOrcaPane(this.engine, () => this.refresh(), 'BOTTOM')
   }
   scrollToLine(line: number): void {
-    this.scrollViewport('ROW', line)
+    scrollOrcaPane(this.engine, () => this.refresh(), 'ROW', line)
   }
-  private scrollViewport(tag: 'TOP' | 'BOTTOM' | 'ROW', value = 0): void {
-    scrollViewport(this.engine, tag, value)
-    this.refresh()
+  scrollLines(delta: number): void {
+    scrollOrcaPane(this.engine, () => this.refresh(), 'DELTA', delta)
   }
   encodeKey(event: KeyboardEvent): string {
     return paneIo.encodeGhosttyKey(this.engine, event)
   }
-  encodeMouse(event: MouseEvent): string {
+  encodeMouse(event: MouseEvent & { deltaY?: number }): string {
     const rect = this.element.getBoundingClientRect()
     return paneIo.encodeGhosttyMouse(this.engine, event, {
       left: rect.left,
@@ -255,16 +231,10 @@ export class OrcaPaneTerminal {
     })
   }
   findNext(query: string, _options?: { caseSensitive?: boolean; regex?: boolean }): boolean {
-    return this.findHit(paneIo.findGhosttyNext(this.engine, query))
+    return findOrcaPane(this.engine, () => this.refresh(), query, 'next')
   }
   findPrevious(query: string, _options?: { caseSensitive?: boolean; regex?: boolean }): boolean {
-    return this.findHit(paneIo.findGhosttyPrevious(this.engine, query))
-  }
-  private findHit(hit: boolean): boolean {
-    if (hit) {
-      this.refresh()
-    }
-    return hit
+    return findOrcaPane(this.engine, () => this.refresh(), query, 'previous')
   }
   serialize(_opts?: { scrollback?: number }): string {
     return this.engine.readVt()
@@ -293,8 +263,21 @@ export class OrcaPaneTerminal {
       clientY
     )
   }
+  get isDisposed(): boolean {
+    return this.engine.isDisposed
+  }
+  loseGpuContext(): void {
+    this.renderer.loseContext()
+  }
+  invalidateGpuAtlas(): void {
+    this.renderer.invalidate()
+  }
+  isGpuContextLost(): boolean {
+    return this.renderer.isContextLost()
+  }
   dispose(): void {
     this.unbindInput()
+    this.chrome.dispose()
     this.paintScheduler.dispose()
     this.primaryScreenWaiters.clear()
     this.renderer.dispose()

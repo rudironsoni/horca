@@ -13,5 +13,11 @@ describe('terminal scrollbar styling', () => {
       /\.scrollbar-editor::-webkit-scrollbar-track,\s*\.orca-terminal-canvas \.orca-terminal-viewport::-webkit-scrollbar-track\s*{[^}]*background:\s*transparent/s
     )
     expect(terminalCss).not.toContain('--orca-terminal-scrollbar-thumb')
+    expect(terminalCss).toMatch(
+      /\.orca-terminal-container\s*>\s*\.orca-terminal-scrollbar\.orca-terminal-vertical\s*{[^}]*position:\s*absolute;/s
+    )
+    expect(terminalCss).toMatch(
+      /\.orca-terminal-container[\s\S]*\.orca-terminal-slider\s*{[^}]*color-mix\(in srgb, var\(--muted-foreground\)/s
+    )
   })
 })

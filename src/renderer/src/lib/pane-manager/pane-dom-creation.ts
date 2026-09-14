@@ -129,7 +129,12 @@ export function createPaneDOM(
     },
     unicode11Addon: null,
     webLinksAddon: null,
-    gpuRenderer: null,
+    gpuRenderer: {
+      dispose: () => terminal.loseGpuContext(),
+      loseContext: () => terminal.loseGpuContext(),
+      clearTextureAtlas: () => terminal.invalidateGpuAtlas(),
+      isContextLost: () => terminal.isGpuContextLost()
+    },
     ligaturesAddon: null,
     panePointerDownHandler,
     paneMouseEnterHandler,

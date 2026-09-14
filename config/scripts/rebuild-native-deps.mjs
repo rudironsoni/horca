@@ -76,6 +76,7 @@ if (ignoreModules.length > 0) {
 const NATIVE_MODULES = [
   'node-pty',
   'cpu-features',
+  '@orca/ghostty-surface',
   ...(rebuildPlatform === 'win32' ? ['@orca/windows-registry', '@vscode/windows-process-tree'] : [])
 ]
 const onlyModules = NATIVE_MODULES.filter((m) => !ignoreModules.includes(m))
