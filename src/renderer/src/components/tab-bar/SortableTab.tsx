@@ -240,7 +240,7 @@ export default function SortableTab({
         isActive={isActive}
       />
       {isHerdrTerminal && !isEditing ? (
-        <Badge variant="outline" className="mr-1 px-1 py-0 font-normal">
+        <Badge variant="outline" className="mr-1">
           Herdr
         </Badge>
       ) : null}
