@@ -1,6 +1,6 @@
 // Why this module is shared: these profiles describe a terminal-protocol
 // contract, not a renderer concern. Both the renderer (replaying a snapshot
-// into an xterm) and the daemon (seeding a cold-restored session) must clear
+// into an terminal) and the daemon (seeding a cold-restored session) must clear
 // the same mode bits, and duplicating the literals drifted them apart (#12101).
 
 // Why: SerializeAddon replays mode bits assuming reattach to a live TUI, but Orca restores against a fresh shell with none, so stale bits (e.g. focus reporting rings the bell on click) must be reset.
@@ -28,7 +28,7 @@ export const POST_REPLAY_REATTACH_RESET = `${RESET_GRAPHIC_RENDITION}${RESET_TER
 export const POST_REPLAY_DEAD_TUI_RESET = `\x1b[?1049l${POST_REPLAY_REATTACH_RESET}`
 
 // Why: an alt-screen reattach replays the daemon's rehydrateSequences, which re-arm the live TUI's
-// mouse modes; wiping them one write later hands drags back to xterm's row selection (#8291).
+// mouse modes; wiping them one write later hands drags back to terminal's row selection (#8291).
 // Normal-buffer panes keep RESET_MOUSE_REPORTING so a dead TUI's stale modes never reach a shell (#7893).
 export const POST_REPLAY_REATTACH_RESET_KEEP_MOUSE = `${RESET_TERMINAL_CURSOR_STYLE}${RESET_KITTY_KEYBOARD_PROTOCOL}\x1b[?25h\x1b[?1004l`
 
@@ -41,7 +41,7 @@ export const POST_REPLAY_LIVE_AGENT_SNAPSHOT_RESET = RESET_TERMINAL_CURSOR_STYLE
 /** Dead-TUI bytes feed a fresh shell; clear their pen and mouse modes before re-serialization. */
 export const COLD_RESTORE_SEED_MODE_RESET = `${RESET_GRAPHIC_RENDITION}${RESET_MOUSE_REPORTING}`
 
-// CAN, not a bare ESC: xterm dispatches OSC/DCS/APC with
+// CAN, not a bare ESC: terminal dispatches OSC/DCS/APC with
 // `success = code !== 0x18 && code !== 0x1a`, so ESC grounds the parser but
 // COMMITS what the gap truncated — a half-read OSC 0 retitles the pane, OSC 52
 // writes the clipboard.
@@ -49,7 +49,7 @@ export const ABORT_TRUNCATED_CONTROL_STRING = '\x18'
 
 // Live-stream grounding: the drop marker and the abandon paths, which drain
 // queued chunks instead of repainting. Parser + pen only — a live TUI keeps
-// writing here and owns its charset and margins. Not DECSTR: xterm's soft reset
+// writing here and owns its charset and margins. Not DECSTR: terminal's soft reset
 // wipes the kitty flags agents negotiate only at startup.
 export const RESET_AFTER_BYTE_GAP = `${ABORT_TRUNCATED_CONTROL_STRING}${RESET_GRAPHIC_RENDITION}`
 
@@ -66,7 +66,7 @@ export const RESET_AFTER_BYTE_GAP = `${ABORT_TRUNCATED_CONTROL_STRING}${RESET_GR
 // render a live app's box drawing as letters.
 const REPLAY_BASELINE_TERMINAL_RESET = `${RESET_GRAPHIC_RENDITION}\x0f\x1b(B\x1b[?6l\x1b[?7h\x1b[?45l\x1b[4l`
 
-// Buffer-scoped: margins live on the xterm buffer, and `?1049` neither carries
+// Buffer-scoped: margins live on the terminal buffer, and `?1049` neither carries
 // them across nor clears them unless it actually swaps.
 const REPLAY_BASELINE_BUFFER_RESET = '\x1b[r'
 
@@ -78,7 +78,7 @@ const REPLAY_BASELINE_BUFFER_RESET = '\x1b[r'
  * serialized snapshot. Shared because the parity/fuzz harnesses replay the same
  * contract, and re-spelling the literals is what drifted them apart (#12101).
  *
- * The switch is conditional: `?1049` is not a no-op on the target buffer — xterm
+ * The switch is conditional: `?1049` is not a no-op on the target buffer — terminal
  * skips only the swap and still runs restoreCursor() and the kitty flag swap, so
  * emitting it regardless parks a live agent's kitty flags.
  *
@@ -91,7 +91,7 @@ export function buildSnapshotReplayPrologue(args: {
   targetAlternateScreen: boolean
   paneOnAlternateScreen: boolean
 }): string {
-  // Why explicit: `?1049h` does not clear the alt buffer (xterm's own
+  // Why explicit: `?1049h` does not clear the alt buffer (terminal's own
   // `1049 should clear altbuffer` FIXME); `\x1b[3J` is safe only for a
   // normal-buffer payload, which carries its own history.
   const clear = args.targetAlternateScreen ? '\x1b[2J\x1b[H' : '\x1b[2J\x1b[3J\x1b[H'

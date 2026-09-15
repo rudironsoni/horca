@@ -110,11 +110,6 @@ overrides:
 
 patchedDependencies:
   '@vscode/windows-process-tree@0.8.0': e66202cc623996d02040c93449eb9ae353fddadf426cb53202a59ee710ee6fe7
-  '@xterm/addon-ligatures@0.11.0-beta.300': 47405b9994b5acf1b4e90b49250358c1ca03649854d59560e7732b72fe336920
-  '@xterm/addon-search@0.17.0-beta.300': eee5338dd2621ece46e79c61ec06766cd7fadaf79ffdb24e2a8ab68e97ef31f0
-  '@xterm/addon-serialize@0.15.0-beta.300': 851eac3d75e6d8c013b9f4c053e61d824b23965cb19ecc28e335e05059f3a294
-  '@xterm/addon-webgl@0.20.0-beta.299': 94687e89a0115e6e6aa102837f986debdc029c091527ee5eb4a4e17ceaf9473e
-  '@xterm/xterm@6.1.0-beta.303': 1f36ce689bc50c703ae09aeda0e064f107e18e4a5ecba19e746fa5edc4b02ef4
   lint-staged@16.4.0: 7333b3837f80a7fbd045964db6d76ba4fc118e49134bdbabb00585b6b7b60673
   node-pty@1.1.0: 346cb29d33dd6eeb14910ff411c7584b0b2ff9a4b271c4b6d23c3b48e6548f74
 
@@ -131,6 +126,9 @@ importers:
       '@floating-ui/dom':
         specifier: 1.7.6
         version: 1.7.6
+      '@herdr/sdk':
+        specifier: file:config/horca/vendor/herdr-sdk-0.9.0.tgz
+        version: file:config/horca/vendor/herdr-sdk-0.9.0.tgz
       '@linear/sdk':
         specifier: ^82.1.0
         version: 82.1.0(graphql@16.14.2)
@@ -140,15 +138,12 @@ importers:
       '@streamparser/json':
         specifier: 0.0.26
         version: 0.0.26
-      '@xterm/addon-serialize':
-        specifier: 0.15.0-beta.300
-        version: 0.15.0-beta.300(patch_hash=851eac3d75e6d8c013b9f4c053e61d824b23965cb19ecc28e335e05059f3a294)(@xterm/xterm@6.1.0-beta.303(patch_hash=1f36ce689bc50c703ae09aeda0e064f107e18e4a5ecba19e746fa5edc4b02ef4))
-      '@xterm/headless':
-        specifier: 6.1.0-beta.302
-        version: 6.1.0-beta.302
       agent-browser:
         specifier: ~0.27.0
         version: 0.27.0
+      ajv:
+        specifier: 8.20.0
+        version: 8.20.0
       electron-updater:
         specifier: ^6.8.9
         version: 6.8.9(supports-color@7.2.0)
@@ -321,27 +316,6 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^5.2.0
         version: 5.2.0(rolldown-vite@7.3.1(@emnapi/core@1.11.2)(@emnapi/runtime@1.11.2)(@types/node@25.9.5)(esbuild@0.25.12)(jiti@2.7.0)(yaml@2.8.4))
-      '@xterm/addon-fit':
-        specifier: 0.12.0-beta.300
-        version: 0.12.0-beta.300(@xterm/xterm@6.1.0-beta.303(patch_hash=1f36ce689bc50c703ae09aeda0e064f107e18e4a5ecba19e746fa5edc4b02ef4))
-      '@xterm/addon-ligatures':
-        specifier: 0.11.0-beta.300
-        version: 0.11.0-beta.300(patch_hash=47405b9994b5acf1b4e90b49250358c1ca03649854d59560e7732b72fe336920)(@xterm/xterm@6.1.0-beta.303(patch_hash=1f36ce689bc50c703ae09aeda0e064f107e18e4a5ecba19e746fa5edc4b02ef4))
-      '@xterm/addon-search':
-        specifier: 0.17.0-beta.300
-        version: 0.17.0-beta.300(patch_hash=eee5338dd2621ece46e79c61ec06766cd7fadaf79ffdb24e2a8ab68e97ef31f0)(@xterm/xterm@6.1.0-beta.303(patch_hash=1f36ce689bc50c703ae09aeda0e064f107e18e4a5ecba19e746fa5edc4b02ef4))
-      '@xterm/addon-unicode11':
-        specifier: 0.10.0-beta.300
-        version: 0.10.0-beta.300(@xterm/xterm@6.1.0-beta.303(patch_hash=1f36ce689bc50c703ae09aeda0e064f107e18e4a5ecba19e746fa5edc4b02ef4))
-      '@xterm/addon-web-links':
-        specifier: 0.13.0-beta.300
-        version: 0.13.0-beta.300(@xterm/xterm@6.1.0-beta.303(patch_hash=1f36ce689bc50c703ae09aeda0e064f107e18e4a5ecba19e746fa5edc4b02ef4))
-      '@xterm/addon-webgl':
-        specifier: 0.20.0-beta.299
-        version: 0.20.0-beta.299(patch_hash=94687e89a0115e6e6aa102837f986debdc029c091527ee5eb4a4e17ceaf9473e)(@xterm/xterm@6.1.0-beta.303(patch_hash=1f36ce689bc50c703ae09aeda0e064f107e18e4a5ecba19e746fa5edc4b02ef4))
-      '@xterm/xterm':
-        specifier: 6.1.0-beta.303
-        version: 6.1.0-beta.303(patch_hash=1f36ce689bc50c703ae09aeda0e064f107e18e4a5ecba19e746fa5edc4b02ef4)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -520,6 +494,9 @@ importers:
         specifier: ^5.0.14
         version: 5.0.14(@types/react@19.2.17)(react@19.2.8)(use-sync-external-store@1.6.0(react@19.2.8))
     optionalDependencies:
+      '@orca/ghostty-surface':
+        specifier: workspace:*
+        version: link:native/ghostty-surface
       '@orca/windows-registry':
         specifier: workspace:*
         version: link:native/windows-registry
@@ -541,6 +518,12 @@ importers:
       sherpa-onnx-win-x64:
         specifier: 1.12.37
         version: 1.12.37
+
+  native/ghostty-surface:
+    dependencies:
+      node-addon-api:
+        specifier: ^8.5.0
+        version: 8.9.2
 
   native/windows-registry:
     dependencies:
@@ -773,6 +756,12 @@ packages:
     engines: {bun: '>=1', deno: '>=2.7.10', node: '>=16'}
     peerDependencies:
       '@noble/ciphers': ^1.0.0
+
+  '@effect/platform-node-shared@4.0.0-beta.105':
+    resolution: {integrity: sha512-UfeC8cFm4sP+XW14OO66CcOGJ8PcD102hH0kLwj8xUVL6nYIDGE/SJvlfVmFx+9OWF6rnjfXjMV6vyl6mCdhCQ==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      effect: ^4.0.0-beta.105
 
   '@electron-internal/extract-zip@1.0.4':
     resolution: {integrity: sha512-Zr1Vs7E9tpCNhZHDAbFVXc2gEVCG9RqPDjrno5+bdgB6LRAuvgyMHJut4NCVyYwtAieapMzc3fiQ3CSTi75ARg==}
@@ -1047,6 +1036,11 @@ packages:
     peerDependencies:
       graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
 
+  '@herdr/sdk@file:config/horca/vendor/herdr-sdk-0.9.0.tgz':
+    resolution: {integrity: sha512-lyoZ6t8vEat00JdA9+091KdqRg7aSMxGzqcjgyQyU3iCvSiEIhpc8abSOuU9+GJJAs/YTEoj4LW8a2oWPq9/jg==, tarball: file:config/horca/vendor/herdr-sdk-0.9.0.tgz}
+    version: 0.9.0
+    engines: {node: '>=20'}
+
   '@hono/node-server@2.1.0':
     resolution: {integrity: sha512-XovyyCCnBzW+zKu+z/zq8hwNs4KOR5rEMAOxo2f40Q5xoOI37IMm6MIg2COOUtUApo0i6850MTBKH2u4QLGIqg==}
     engines: {node: '>=20'}
@@ -1276,6 +1270,36 @@ packages:
       monaco-editor: '>= 0.25.0 < 1'
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+
+  '@msgpackr-extract/msgpackr-extract-darwin-arm64@3.0.4':
+    resolution: {integrity: sha512-LCkGo6JDfaBhgST7UpPWgNgLINpcpabaHfyz5OBx75nUYxBsaEPxjnyNjWpeb/xBup/682QnBfRBy2/LvPutZQ==}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@msgpackr-extract/msgpackr-extract-darwin-x64@3.0.4':
+    resolution: {integrity: sha512-zExlW9zUJKZH/tOtVMttwjKa4Xm/3KcNjnE3dPN92uCktwavMxpgCA3MoJK/DOnTWsQgo224OaST27/mPNAf+w==}
+    cpu: [x64]
+    os: [darwin]
+
+  '@msgpackr-extract/msgpackr-extract-linux-arm64@3.0.4':
+    resolution: {integrity: sha512-dgX0P/9wGPJeHFBG+ZmhgE6bmtMt7NP5CRBGyyktpopdk/mW4POnrpQsSLtKI1dwpc+pPLuXHDh6vvskyQE/sw==}
+    cpu: [arm64]
+    os: [linux]
+
+  '@msgpackr-extract/msgpackr-extract-linux-arm@3.0.4':
+    resolution: {integrity: sha512-Tg3yX65f5GbtXLkrYEHE5oibZG9epyYWas7FogTTEJeDEF9JlXJzKgXaNhT3UXlTOeA+AfZpYZYZ0uPj7Cfquw==}
+    cpu: [arm]
+    os: [linux]
+
+  '@msgpackr-extract/msgpackr-extract-linux-x64@3.0.4':
+    resolution: {integrity: sha512-8TNXMEjJc3QEy7R/x1INhgiU+XakDAFUzBhaz7+Rbrs8NH5UQeHQxxmzsSBJGyV6I1jW79undiQm8tOI+D+8FQ==}
+    cpu: [x64]
+    os: [linux]
+
+  '@msgpackr-extract/msgpackr-extract-win32-x64@3.0.4':
+    resolution: {integrity: sha512-CmCXPQrkbwExx3j946/PtHWHbYJiCRBRDl4BlkRQcJB/YOwQxJRTpoo7aTsortjgoJ1x7opzTSxn7C+ASSLVjQ==}
+    cpu: [x64]
+    os: [win32]
 
   '@mswjs/interceptors@0.41.9':
     resolution: {integrity: sha512-VVPPgHyQ6ShqnrmDWuxjmUIsO9gWyOZFmuOfLd9LfBGQJwZfy0gvv9pbHSJuoFNIYC7ZDX9aoFwowjcdSC4E8w==}
@@ -3785,48 +3809,6 @@ packages:
     resolution: {integrity: sha512-/5NV/vDALVFDXgLmfsy9TRCBlKwO2LNBFzpzvb9iIj+jR+eSc6DLYYvVOdivT/jm7MtU6TebYuRmzEOI7w40UA==}
     engines: {node: '>=10.0.0'}
 
-  '@xterm/addon-fit@0.12.0-beta.300':
-    resolution: {integrity: sha512-geBeBBKqHe0Dmf+rT79wU/rglFJFja1QmKfcgmnQQhJTvAlrP+yHT2s+yy5PBeP8CtGPDvh5UcoWmunR9fBCuQ==}
-    peerDependencies:
-      '@xterm/xterm': ^6.1.0-beta.303
-
-  '@xterm/addon-ligatures@0.11.0-beta.300':
-    resolution: {integrity: sha512-f+Uol/BSxHSLnqGDjixstqYHwI/cPgUOfCqP5Lc591xe/MlAgaFIBd8xMEAlUnJnz6/jIVoQMSNNhpk8a4asrQ==}
-    engines: {node: '>8.0.0'}
-    peerDependencies:
-      '@xterm/xterm': ^6.1.0-beta.303
-
-  '@xterm/addon-search@0.17.0-beta.300':
-    resolution: {integrity: sha512-D3kPBm0qB+AWP+qzgq7JUSCMZOjYxAX9g+bbmLiCBKhgt6dWk40GVG2YgFQRuS55Guj0ooVu93Y/nKEZ7jKxQQ==}
-    peerDependencies:
-      '@xterm/xterm': ^6.1.0-beta.303
-
-  '@xterm/addon-serialize@0.15.0-beta.300':
-    resolution: {integrity: sha512-OCcnMMOCP+p5pIuXIro+u+wfNkSD8J2CZUqmyfTULxgs7jc+vyDL6UiaKmbs2q6MUcq4F9P5Oju3J8d4SEKOmQ==}
-    peerDependencies:
-      '@xterm/xterm': ^6.1.0-beta.303
-
-  '@xterm/addon-unicode11@0.10.0-beta.300':
-    resolution: {integrity: sha512-Q678teiannkxiDQtMrr/MtuYAZXc+pou7BWVlL68DTvWdYZqYVrLNjwb1E4PCzO1arEZzO9zaTOhsXfDoiz+gw==}
-    peerDependencies:
-      '@xterm/xterm': ^6.1.0-beta.303
-
-  '@xterm/addon-web-links@0.13.0-beta.300':
-    resolution: {integrity: sha512-9RsQJadgK6cRBIC+k3P9MSTbzRB+/mF229K/shxI9vAV6DYmxRSgmxSGtoOY4MHw7nHuPUC0FxH82eK+GKQPEA==}
-    peerDependencies:
-      '@xterm/xterm': ^6.1.0-beta.303
-
-  '@xterm/addon-webgl@0.20.0-beta.299':
-    resolution: {integrity: sha512-Buf/Qyff1rzbYAhH3Wb96wkhH73XzQ0b0j/JZUqss0TlXmPGen1anA35jDR0FYpNCCXE41KKM39ZrQSBG2P3OQ==}
-    peerDependencies:
-      '@xterm/xterm': ^6.1.0-beta.303
-
-  '@xterm/headless@6.1.0-beta.302':
-    resolution: {integrity: sha512-UZTvl9zme7wu4q8H5dvudJ7jDYk2BkXbDpiuhbDj0eDg0smoDHk5vcHDfy8zokwDCIHCZXV5Yzy45Wi7DC7dXQ==}
-
-  '@xterm/xterm@6.1.0-beta.303':
-    resolution: {integrity: sha512-tqzB2bLPxbRCxQfAdP9K7v0RoS4NgqGWKHAtS4WxqOH9dFgApDojwx5WSD173OomClx40l0cpKDfERMsLPYShA==}
-
   abbrev@4.0.0:
     resolution: {integrity: sha512-a1wflyaL0tHtJSmLSOVybYhy22vRih4eduhhrkcjgrWGnRfrZtovJ2FRjxuTtkkj47O/baf0R86QU5OuYpz8fA==}
     engines: {node: ^20.17.0 || >=22.9.0}
@@ -4577,6 +4559,9 @@ packages:
   ee-first@1.1.1:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
 
+  effect@4.0.0-beta.105:
+    resolution: {integrity: sha512-7U5OzWVNlpnZFvXiZfOeu8V+dCQUa3Om569HnYG2Dx8C8V6uoKS920kFJkIDEYVhlSGhzkRqaGKmYY9bPkBMMQ==}
+
   ejs@3.1.10:
     resolution: {integrity: sha512-UeJmFfOrAQS8OJWPZ4qtgHyWExa088/MtK5UEyoJGFH67cDEXkZSviOiKRCZ4Xij0zxI3JECgYs3oKx+AizQBA==}
     engines: {node: '>=0.10.0'}
@@ -4817,6 +4802,10 @@ packages:
 
   extend@3.0.2:
     resolution: {integrity: sha512-fjquC59cD7CyW6urNXK0FBufkZcoiGG80wTuPujX590cB5Ttln20E2UB4S/WARVqhXffZl2LNgS+gQdPIIim/g==}
+
+  fast-check@4.10.0:
+    resolution: {integrity: sha512-hhqQL+IJllZi3aM4TKvmCj3bywLEcycNTTLZeLhA9ttMxBrCqM07q7Di4kl+j9EWSTXvJH1+EpIgsDbF/+8H5Q==}
+    engines: {node: '>=12.17.0'}
 
   fast-deep-equal@3.1.3:
     resolution: {integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==}
@@ -5473,6 +5462,9 @@ packages:
     resolution: {integrity: sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ==}
     engines: {node: '>=6'}
 
+  kubernetes-types@1.30.0:
+    resolution: {integrity: sha512-Dew1okvhM/SQcIa2rcgujNndZwU8VnSapDgdxlYoB84ZlpAD43U6KLAFqYo17ykSFGHNPrg0qry0bP+GJd9v7Q==}
+
   layout-base@1.0.2:
     resolution: {integrity: sha512-8h2oVEZNktL4BH2JCOI90iD1yXwL6iNW7KcCKT2QZgQJR2vbqDsldCTPRU9NifTCqHZci57XvQQ15YTu+sTYPg==}
 
@@ -5913,6 +5905,13 @@ packages:
   ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
 
+  msgpackr-extract@3.0.4:
+    resolution: {integrity: sha512-4kmO/MdyUIkLIvTPr8VHLil4AtoKIoniWPIEk5+CDy0xnWC84azhSFmuJ7PxZdsYtiP5kEeQsORAVIeMgxT+Hw==}
+    hasBin: true
+
+  msgpackr@2.1.0:
+    resolution: {integrity: sha512-p/pBCVO63CsvvpkomUnNNag6+n38rULuDA6HHe70o2gtC8ODI52foF/4ko2qQcp6OiErJXTmrZeXmsGGHsIQNQ==}
+
   msw@2.14.3:
     resolution: {integrity: sha512-kk8G5cocVlJ4wsKMGZegn2H6XLOEKjbA+nSJE2354e/SRp4mDicCHUYnMXpymzVcVDCs+GUAsmNqSn+yHv4T2A==}
     engines: {node: '>=18'}
@@ -5959,6 +5958,10 @@ packages:
 
   node-api-version@0.2.1:
     resolution: {integrity: sha512-2xP/IGGMmmSQpI1+O/k72jF/ykvZ89JeuKX3TLJAYPDVLUalrshrLHkeVcCCZqG/eEa635cr8IBYzgnDvM2O8Q==}
+
+  node-gyp-build-optional-packages@5.2.2:
+    resolution: {integrity: sha512-s+w+rBWnpTMwSFbaE0UXsRlg7hU4FjekKU4eyAih5T8nJuNZT1nNsskXpxmeqSK9UzkBl6UgRlnKc8hz8IEqOw==}
+    hasBin: true
 
   node-gyp@12.3.0:
     resolution: {integrity: sha512-QNcUWM+HgJplcPzBvFBZ9VXacyGZ4+VTOb80PwWR+TlVzoHbRKULNEzpRsnaoxG3Wzr7Qh7BYxGDU3CbKib2Yg==}
@@ -6029,10 +6032,6 @@ packages:
   open@11.0.0:
     resolution: {integrity: sha512-smsWv2LzFjP03xmvFoJ331ss6h+jixfA4UUV/Bsiyuu4YJPfN+FIQGOIiv4w9/+MoHkfkJ22UIaQWRVFRfH6Vw==}
     engines: {node: '>=20'}
-
-  opentype.js@2.0.0:
-    resolution: {integrity: sha512-kCyjv6xdDY1W/jLWZ/L3QhhTlKUqDZMQ5+Jdlw12b3dXkKNpYBqqlMMj0YDQPShWFTMwgZI1hG14kN3XUDSg/A==}
-    hasBin: true
 
   optionator@0.9.4:
     resolution: {integrity: sha512-6IpQ7mKUxRcZNLIObR0hz7lxsapSSIYNZJwXPGeF0mTVqGKFIXj1DQcMoT22S3ROcLyY/rz0PWaWZ9ayWmad9g==}
@@ -6356,6 +6355,9 @@ packages:
   punycode@2.3.1:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
     engines: {node: '>=6'}
+
+  pure-rand@8.4.2:
+    resolution: {integrity: sha512-vvuOGgcuPJAirlHvuQw1TrOiw7ptaIXXmIbNuiNOY6lNGJJH49PQ1Kj4nd783nPdQhQdicgOjVI2yI/9BD6/Ng==}
 
   pvtsutils@1.3.6:
     resolution: {integrity: sha512-PLgQXQ6H2FWCaeRak8vvk1GW462lMxB5s3Jm673N82zI4vqtVUPuZdffdZbPDFRoU8kAhItWFtPCWiPpp4/EDg==}
@@ -7205,6 +7207,10 @@ packages:
     resolution: {integrity: sha512-vIYxrBCC/N/K+Js3qSN88go7kIfNPssr/hHCesKCQNAjmgvYS2oqr69kIufEG+O4+PfezOH4EbIeHCfFov8ZgQ==}
     hasBin: true
 
+  uuid@14.0.2:
+    resolution: {integrity: sha512-xZe/16rV4aa+HGSOCiY2YeLT1OybRLrrkL/Rqaq7p7GMVXjFh+6wN4oMYgjFmnSnhY8t6Xpdl2l9qmnHYuMHwQ==}
+    hasBin: true
+
   validate-npm-package-name@7.0.2:
     resolution: {integrity: sha512-hVDIBwsRruT73PbK7uP5ebUt+ezEtCmzZz3F59BSr2F6OVFnJ/6h8liuvdLrQ88Xmnk6/+xGGuq+pG9WwTuy3A==}
     engines: {node: ^20.17.0 || >=22.9.0}
@@ -7747,6 +7753,15 @@ snapshots:
     dependencies:
       '@noble/ciphers': 1.3.0
 
+  '@effect/platform-node-shared@4.0.0-beta.105(effect@4.0.0-beta.105)':
+    dependencies:
+      '@types/ws': 8.18.1
+      effect: 4.0.0-beta.105
+      ws: 8.21.3
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
   '@electron-internal/extract-zip@1.0.4': {}
 
   '@electron-toolkit/tsconfig@2.0.0(@types/node@25.9.5)':
@@ -7997,6 +8012,15 @@ snapshots:
   '@graphql-typed-document-node/core@3.2.0(graphql@16.14.2)':
     dependencies:
       graphql: 16.14.2
+
+  '@herdr/sdk@file:config/horca/vendor/herdr-sdk-0.9.0.tgz':
+    dependencies:
+      '@effect/platform-node-shared': 4.0.0-beta.105(effect@4.0.0-beta.105)
+      ajv: 8.20.0
+      effect: 4.0.0-beta.105
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
 
   '@hono/node-server@2.1.0(hono@4.13.0)':
     dependencies:
@@ -8253,6 +8277,24 @@ snapshots:
       monaco-editor: 0.55.1
       react: 19.2.8
       react-dom: 19.2.8(react@19.2.8)
+
+  '@msgpackr-extract/msgpackr-extract-darwin-arm64@3.0.4':
+    optional: true
+
+  '@msgpackr-extract/msgpackr-extract-darwin-x64@3.0.4':
+    optional: true
+
+  '@msgpackr-extract/msgpackr-extract-linux-arm64@3.0.4':
+    optional: true
+
+  '@msgpackr-extract/msgpackr-extract-linux-arm@3.0.4':
+    optional: true
+
+  '@msgpackr-extract/msgpackr-extract-linux-x64@3.0.4':
+    optional: true
+
+  '@msgpackr-extract/msgpackr-extract-win32-x64@3.0.4':
+    optional: true
 
   '@mswjs/interceptors@0.41.9':
     dependencies:
@@ -10433,40 +10475,6 @@ snapshots:
 
   '@xmldom/xmldom@0.8.15': {}
 
-  '@xterm/addon-fit@0.12.0-beta.300(@xterm/xterm@6.1.0-beta.303(patch_hash=1f36ce689bc50c703ae09aeda0e064f107e18e4a5ecba19e746fa5edc4b02ef4))':
-    dependencies:
-      '@xterm/xterm': 6.1.0-beta.303(patch_hash=1f36ce689bc50c703ae09aeda0e064f107e18e4a5ecba19e746fa5edc4b02ef4)
-
-  '@xterm/addon-ligatures@0.11.0-beta.300(patch_hash=47405b9994b5acf1b4e90b49250358c1ca03649854d59560e7732b72fe336920)(@xterm/xterm@6.1.0-beta.303(patch_hash=1f36ce689bc50c703ae09aeda0e064f107e18e4a5ecba19e746fa5edc4b02ef4))':
-    dependencies:
-      '@xterm/xterm': 6.1.0-beta.303(patch_hash=1f36ce689bc50c703ae09aeda0e064f107e18e4a5ecba19e746fa5edc4b02ef4)
-      lru-cache: 11.5.1
-      opentype.js: 2.0.0
-
-  '@xterm/addon-search@0.17.0-beta.300(patch_hash=eee5338dd2621ece46e79c61ec06766cd7fadaf79ffdb24e2a8ab68e97ef31f0)(@xterm/xterm@6.1.0-beta.303(patch_hash=1f36ce689bc50c703ae09aeda0e064f107e18e4a5ecba19e746fa5edc4b02ef4))':
-    dependencies:
-      '@xterm/xterm': 6.1.0-beta.303(patch_hash=1f36ce689bc50c703ae09aeda0e064f107e18e4a5ecba19e746fa5edc4b02ef4)
-
-  '@xterm/addon-serialize@0.15.0-beta.300(patch_hash=851eac3d75e6d8c013b9f4c053e61d824b23965cb19ecc28e335e05059f3a294)(@xterm/xterm@6.1.0-beta.303(patch_hash=1f36ce689bc50c703ae09aeda0e064f107e18e4a5ecba19e746fa5edc4b02ef4))':
-    dependencies:
-      '@xterm/xterm': 6.1.0-beta.303(patch_hash=1f36ce689bc50c703ae09aeda0e064f107e18e4a5ecba19e746fa5edc4b02ef4)
-
-  '@xterm/addon-unicode11@0.10.0-beta.300(@xterm/xterm@6.1.0-beta.303(patch_hash=1f36ce689bc50c703ae09aeda0e064f107e18e4a5ecba19e746fa5edc4b02ef4))':
-    dependencies:
-      '@xterm/xterm': 6.1.0-beta.303(patch_hash=1f36ce689bc50c703ae09aeda0e064f107e18e4a5ecba19e746fa5edc4b02ef4)
-
-  '@xterm/addon-web-links@0.13.0-beta.300(@xterm/xterm@6.1.0-beta.303(patch_hash=1f36ce689bc50c703ae09aeda0e064f107e18e4a5ecba19e746fa5edc4b02ef4))':
-    dependencies:
-      '@xterm/xterm': 6.1.0-beta.303(patch_hash=1f36ce689bc50c703ae09aeda0e064f107e18e4a5ecba19e746fa5edc4b02ef4)
-
-  '@xterm/addon-webgl@0.20.0-beta.299(patch_hash=94687e89a0115e6e6aa102837f986debdc029c091527ee5eb4a4e17ceaf9473e)(@xterm/xterm@6.1.0-beta.303(patch_hash=1f36ce689bc50c703ae09aeda0e064f107e18e4a5ecba19e746fa5edc4b02ef4))':
-    dependencies:
-      '@xterm/xterm': 6.1.0-beta.303(patch_hash=1f36ce689bc50c703ae09aeda0e064f107e18e4a5ecba19e746fa5edc4b02ef4)
-
-  '@xterm/headless@6.1.0-beta.302': {}
-
-  '@xterm/xterm@6.1.0-beta.303(patch_hash=1f36ce689bc50c703ae09aeda0e064f107e18e4a5ecba19e746fa5edc4b02ef4)': {}
-
   abbrev@4.0.0: {}
 
   accepts@2.0.0:
@@ -11232,6 +11240,14 @@ snapshots:
 
   ee-first@1.1.1: {}
 
+  effect@4.0.0-beta.105:
+    dependencies:
+      '@standard-schema/spec': 1.1.0
+      fast-check: 4.10.0
+      kubernetes-types: 1.30.0
+      msgpackr: 2.1.0
+      uuid: 14.0.2
+
   ejs@3.1.10:
     dependencies:
       jake: 10.9.4
@@ -11579,6 +11595,10 @@ snapshots:
       - supports-color
 
   extend@3.0.2: {}
+
+  fast-check@4.10.0:
+    dependencies:
+      pure-rand: 8.4.2
 
   fast-deep-equal@3.1.3: {}
 
@@ -12293,6 +12313,8 @@ snapshots:
 
   kleur@4.1.5: {}
 
+  kubernetes-types@1.30.0: {}
+
   layout-base@1.0.2: {}
 
   layout-base@2.0.1: {}
@@ -12947,6 +12969,22 @@ snapshots:
 
   ms@2.1.3: {}
 
+  msgpackr-extract@3.0.4:
+    dependencies:
+      node-gyp-build-optional-packages: 5.2.2
+    optionalDependencies:
+      '@msgpackr-extract/msgpackr-extract-darwin-arm64': 3.0.4
+      '@msgpackr-extract/msgpackr-extract-darwin-x64': 3.0.4
+      '@msgpackr-extract/msgpackr-extract-linux-arm': 3.0.4
+      '@msgpackr-extract/msgpackr-extract-linux-arm64': 3.0.4
+      '@msgpackr-extract/msgpackr-extract-linux-x64': 3.0.4
+      '@msgpackr-extract/msgpackr-extract-win32-x64': 3.0.4
+    optional: true
+
+  msgpackr@2.1.0:
+    optionalDependencies:
+      msgpackr-extract: 3.0.4
+
   msw@2.14.3(@types/node@25.9.5)(typescript@7.0.2):
     dependencies:
       '@inquirer/confirm': 6.1.1(@types/node@25.9.5)
@@ -12998,6 +13036,11 @@ snapshots:
   node-api-version@0.2.1:
     dependencies:
       semver: 7.8.1
+
+  node-gyp-build-optional-packages@5.2.2:
+    dependencies:
+      detect-libc: 2.1.2
+    optional: true
 
   node-gyp@12.3.0:
     dependencies:
@@ -13070,8 +13113,6 @@ snapshots:
       is-inside-container: 1.0.0
       powershell-utils: 0.1.0
       wsl-utils: 0.3.1
-
-  opentype.js@2.0.0: {}
 
   optionator@0.9.4:
     dependencies:
@@ -13504,6 +13545,8 @@ snapshots:
       once: 1.4.0
 
   punycode@2.3.1: {}
+
+  pure-rand@8.4.2: {}
 
   pvtsutils@1.3.6:
     dependencies:
@@ -14488,6 +14531,8 @@ snapshots:
   util-deprecate@1.0.2: {}
 
   uuid@11.1.1: {}
+
+  uuid@14.0.2: {}
 
   validate-npm-package-name@7.0.2: {}
 

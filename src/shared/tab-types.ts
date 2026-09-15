@@ -75,7 +75,7 @@ export type Tab = {
   /** Why: per-tab rendering mode for coding-agent terminals. `'chat'` shows the
    *  native chat view as an overlay while the live terminal stays mounted
    *  underneath; `'terminal'` (the default for legacy/missing) shows the raw
-   *  xterm. Optional so sessions persisted before this field hydrate cleanly. */
+   *  terminal. Optional so sessions persisted before this field hydrate cleanly. */
   viewMode?: 'terminal' | 'chat'
   /** Timestamp when the tab was last focused / activated by the user. */
   lastFocusedAt?: number

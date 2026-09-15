@@ -1,9 +1,10 @@
-import type { IDisposable, Terminal } from '@xterm/xterm'
+import type { OrcaDisposable as IDisposable } from '../../../../shared/orca-terminal-surface'
+import type { OrcaPaneTerminal as Terminal } from '../../lib/pane-manager/orca-pane-terminal'
 import { hasTerminalComposerPlaceholder } from '../../../../shared/terminal-composer-draft'
 import { readTerminalCursorLineContext } from '../../../../shared/terminal-cursor-line-context'
 import {
-  XTERM_COMPOSITION_SESSION_END_EVENT,
-  XTERM_COMPOSITION_SESSION_START_EVENT
+  TERMINAL_COMPOSITION_SESSION_END_EVENT,
+  TERMINAL_COMPOSITION_SESSION_START_EVENT
 } from './terminal-ime-composition-route'
 
 export const TERMINAL_IME_COMPOSER_PLACEHOLDER_CLASS = 'orca-ime-composer-placeholder'
@@ -22,7 +23,7 @@ export function installTerminalImeComposerPlaceholderMask(terminal: Terminal): I
     return { dispose: () => undefined }
   }
 
-  // xterm renders one composition view; a newer transaction supersedes any older pending one.
+  // terminal renders one composition view; a newer transaction supersedes any older pending one.
   // Keeping only its id makes malformed/repeated starts bounded without evicting live ownership.
   let activeSessionId: number | null = null
   const syncPlaceholderOwnership = (): void => {
@@ -54,8 +55,8 @@ export function installTerminalImeComposerPlaceholderMask(terminal: Terminal): I
     syncPlaceholderOwnership()
   }
 
-  element.addEventListener(XTERM_COMPOSITION_SESSION_START_EVENT, handleSessionStart)
-  element.addEventListener(XTERM_COMPOSITION_SESSION_END_EVENT, handleSessionEnd)
+  element.addEventListener(TERMINAL_COMPOSITION_SESSION_START_EVENT, handleSessionStart)
+  element.addEventListener(TERMINAL_COMPOSITION_SESSION_END_EVENT, handleSessionEnd)
   element.addEventListener('blur', handleBlur, true)
   const renderDisposable = terminal.onRender(() => {
     if (activeSessionId !== null) {
@@ -67,8 +68,8 @@ export function installTerminalImeComposerPlaceholderMask(terminal: Terminal): I
     dispose: () => {
       activeSessionId = null
       element.classList.remove(TERMINAL_IME_COMPOSER_PLACEHOLDER_CLASS)
-      element.removeEventListener(XTERM_COMPOSITION_SESSION_START_EVENT, handleSessionStart)
-      element.removeEventListener(XTERM_COMPOSITION_SESSION_END_EVENT, handleSessionEnd)
+      element.removeEventListener(TERMINAL_COMPOSITION_SESSION_START_EVENT, handleSessionStart)
+      element.removeEventListener(TERMINAL_COMPOSITION_SESSION_END_EVENT, handleSessionEnd)
       element.removeEventListener('blur', handleBlur, true)
       renderDisposable.dispose()
     }

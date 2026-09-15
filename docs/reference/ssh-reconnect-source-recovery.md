@@ -7,12 +7,12 @@ cause with the fix it implies.
 
 ## The shape of the problem
 
-A reconnect remounts the pane (`tab.generation` is its React key), so the xterm is disposed with its
+A reconnect remounts the pane (`tab.generation` is its React key), so the pane terminal is disposed with its
 buffer and something must repaint it. Today that is a **byte tail**: `reattachSshPtySession` sends
 `requireReplay: true` and the relay returns `RecentPtyOutputBuffer.read()` — the last 100KB, read
 non-destructively, with no notion of what this client already consumed.
 
-Two costs follow. Main's `@xterm/headless` model never sees those bytes (the tail bypasses
+Two costs follow. Main's `HeadlessEmulator` (libghostty-vt) never sees those bytes (the tail bypasses
 `onPtyData`), so it is stale by exactly the outage — which is what forces
 `sshReconnectPaintsFromModel` to restrict the grid repaint to the alternate screen. And a shell loses
 outage output past 100KB permanently.
@@ -39,7 +39,7 @@ It still fails, three ways:
    for a **killed session**.
 3. **Wrong payload shape.** Recovery replays only the post-checkpoint delta
    `(acceptedSourceEndSu → receivedEndSu]`. The byte tail is a screen snapshot for a _fresh, empty_
-   xterm. Even a successful recovery returns roughly nothing in the common case, and the pane stays
+   terminal. Even a successful recovery returns roughly nothing in the common case, and the pane stays
    blank.
 
 These two mechanisms answer different questions. Recovery keeps main's model whole; the tail repaints
@@ -100,7 +100,7 @@ Why this is the tractable shape:
 that moment (the checkpoint's `deliveryToken`, `clientGeneration`, `ownerGeneration` and
 `ptyIncarnation` must match the live identity, `:124-128`); that `outputFlowControl` is granted on
 the reconnected session; and what a rotation implies for the _renderer_, which still remounts with an
-empty xterm and needs a screen, not a post-checkpoint delta. Recovery keeps main's model whole — it
+empty terminal and needs a screen, not a post-checkpoint delta. Recovery keeps main's model whole — it
 does not by itself repaint a fresh terminal, so the tail may still be wanted for the pane even once
 the model stops going stale.
 

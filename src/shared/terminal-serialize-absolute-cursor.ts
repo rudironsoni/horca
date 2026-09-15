@@ -1,4 +1,4 @@
-// Why this module exists: @xterm/addon-serialize restores the cursor with
+// Why this module exists: VT serializers restore the cursor with
 // RELATIVE moves (CUD/CUB) computed from where it assumes replay leaves the
 // cursor. When the final content row is filled exactly to the right margin,
 // replay leaves the fresh terminal wrap-pending (internal x == cols), so the
@@ -21,7 +21,7 @@ type BufferSerializer<TOpts> = {
 /** VT100 DECSC saved-cursor register (0-based, viewport-relative row). */
 export type SavedCursorRegister = { x: number; y: number; originMode: boolean }
 
-// xterm keeps the DECSC register on each Buffer (savedY is absolute:
+// terminal keeps the DECSC register on each Buffer (savedY is absolute:
 // ybase-included). It is not exposed through the public API, so snapshot
 // producers read the core buffer directly — `_core.buffer` is the ACTIVE
 // buffer, so an alt-screen TUI yields the alternate screen's own register,
@@ -60,7 +60,7 @@ export function readSavedCursorRegister(
   const x = Math.min(Math.max(core.savedX, 0), terminal.cols - 1)
   const originMode = core.savedOriginMode === true
   if (x === 0 && y === 0 && !originMode) {
-    // Home is xterm's never-saved default: a fresh restore terminal already
+    // Home is terminal's never-saved default: a fresh restore terminal already
     // sends DECRC to home, and skipping the injection avoids overwriting the
     // fresh terminal's default saved SGR/charset when nothing was ever saved.
     return null

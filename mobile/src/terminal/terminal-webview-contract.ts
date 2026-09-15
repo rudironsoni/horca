@@ -67,10 +67,13 @@ export type TerminalWebViewProps = {
   style?: StyleProp<ViewStyle>
   terminalTheme?: MobileTerminalTheme
   // Why: baseline zoom multiplier applied on top of fit-to-width scale; raw
-  // xterm fontSize alone cannot drive apparent size because fitting cancels it.
+  // terminal fontSize alone cannot drive apparent size because fitting cancels it.
   textScale?: number
+  // Why: CAMetalLayer ignores opacity:0; Horca hides inactive panes via this + zero size.
+  surfaceVisible?: boolean
   onWebReady?: () => void
   onEngineError?: (message: string) => void
+  onGridResize?: (cols: number, rows: number) => void
 } & TerminalSelectionEvents
 
 export type TerminalWebViewHandle = {
@@ -86,7 +89,7 @@ export type TerminalWebViewHandle = {
     oscLinks?: TerminalOscLinkRange[]
   ) => void
   resize: (cols: number, rows: number) => void
-  // Why: reflow the local xterm buffer (scrollback included) to a new width
+  // Why: reflow the local terminal buffer (scrollback included) to a new width
   // after a server-side PTY reflow, so older wrapped lines rewrap to match the
   // latest output. No-op on the alternate screen.
   reflow: (cols: number, rows: number) => void

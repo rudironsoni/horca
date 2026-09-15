@@ -1,4 +1,5 @@
-import type { IDisposable, Terminal } from '@xterm/xterm'
+import type { OrcaDisposable as IDisposable } from '../../../../shared/orca-terminal-surface'
+import type { OrcaPaneTerminal as Terminal } from '../../lib/pane-manager/orca-pane-terminal'
 import { isTerminalOwnedLinkGesture } from './terminal-link-activation'
 
 const CAPTURE_LISTENER_OPTIONS = { capture: true } as const
@@ -32,7 +33,7 @@ function primeTerminalLinkifier(terminal: Terminal, event: MouseEvent): void {
     }
     linkifier._handleMouseMove(event)
   } catch {
-    /* xterm internals unavailable — hover still primes later clicks */
+    /* terminal internals unavailable — hover still primes later clicks */
   }
 }
 
@@ -42,7 +43,7 @@ export function installTerminalLinkifierClickPriming(terminal: Terminal): IDispo
     if (!isTerminalOwnedLinkGesture(event)) {
       return
     }
-    // Why: xterm snapshots its current link on mousedown but otherwise resolves
+    // Why: terminal snapshots its current link on mousedown but otherwise resolves
     // links only on mousemove, so output painted under a still pointer misses its first click.
     primeTerminalLinkifier(terminal, event)
   }

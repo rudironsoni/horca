@@ -225,8 +225,8 @@ export function isFloatingWorkspaceTerminalInputTarget(target: EventTarget | nul
     return false
   }
   return (
-    target.classList?.contains('xterm-helper-textarea') === true ||
-    target.closest('.xterm') !== null
+    target.classList?.contains('orca-terminal-helper-textarea') === true ||
+    target.closest('.orca-terminal-canvas') !== null
   )
 }
 

@@ -19,8 +19,8 @@
  * Two properties are pinned here:
  *
  * - `깨` opens on `ㄲ`, a Shift-typed double consonant. Orca's own Shift rule
- *   (`xterm-bypass-policy.ts`) already hides those keydowns from xterm, so a fix
- *   living inside xterm's CompositionHelper never sees them and every syllable
+ *   (`terminal-bypass-policy.ts`) already hides those keydowns from terminal, so a fix
+ *   living inside terminal's CompositionHelper never sees them and every syllable
  *   starting with one — 깨 꿈 딸 빵 쓰다 짜다 — stays broken. Sitting upstream of
  *   the bypass policy is what makes the source of the keydown irrelevant.
  * - Nothing is sent and then retracted. A field-diffing mirror emits one write
@@ -31,12 +31,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   deviceTraceKeystrokes,
+  loadIosDeviceTrace,
+  replayIosDeviceTrace
+} from './terminal-ios-hangul-device-trace'
+import {
   disposeOpenTerminals,
   dispatchKey,
-  loadIosDeviceTrace,
   openIosTerminal,
   pretendIosWeb,
-  replayIosDeviceTrace,
   typeJamo,
   typePrintable,
   type IosHangulRig

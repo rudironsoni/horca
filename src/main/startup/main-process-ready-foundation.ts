@@ -12,6 +12,8 @@ import {
 import { browserCertificateTrustController } from '../browser/browser-manager'
 import { ensureActiveOrcaProfile } from '../orca-profiles/profile-index-store'
 import { Store, getCanonicalUserDataPath } from '../persistence'
+import { initializeHorca } from '../horca/initialize-horca'
+import { getDistributionIdentity } from '../../shared/distribution-identity'
 import { initializeBrowserClientHostId } from '../browser/browser-client-host-id'
 import { scheduleSecretProtectionGapReport } from '../host/deferred-secret-protection-report'
 import { initSshHostKeyStoreFile } from '../ssh/ssh-host-key-store'
@@ -139,6 +141,9 @@ export async function initializeReadyFoundation(): Promise<void> {
     storageAuthority: state.isServeMode ? 'runtime' : 'desktop'
   })
   state.store = store
+  if (getDistributionIdentity().distribution === 'horca') {
+    initializeHorca(store)
+  }
   // Why: create pending readiness before the guard can observe the default session.
   // Why parked on state instead of awaited here: Dock/Launchpad launches don't inherit shell
   // proxy env vars, so the persisted proxy must land before any app-owned network fetcher runs —
@@ -161,11 +166,12 @@ export async function initializeReadyFoundation(): Promise<void> {
   // that state lives beside the profile data file, which does not exist until now.
   // Why scheduled and not called: the report probes the OS keyring, which blocks on Linux
   // and must not gate the first window (STA-5765).
+  // Why E2E: a disposable packaged smoke profile must not create or prompt for a real OS keychain item.
   scheduleSecretProtectionGapReport({
     dataFile: profile.dataFile,
     force: process.env.ORCA_ALWAYS_REPORT_SECRET_PROTECTION === '1',
     deferUntilFirstWindow: !state.isServeMode,
-    skipInDevelopment: is.dev
+    skipInDevelopment: is.dev || Boolean(process.env.ORCA_E2E_USER_DATA_DIR)
   })
   // Why here: the host key store is a sidecar of the same profile, and every SSH connect consults
   // it. Left unbound it reports nothing trusted, which is safe but silently discards our own

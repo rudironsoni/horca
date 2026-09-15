@@ -18,10 +18,15 @@ const PACKAGED_RUNTIME_PACKAGE_ROOTS = [
   '@electron-toolkit/utils',
   '@linear/sdk',
   '@parcel/watcher',
+  // Why: @herdr/sdk compiled AJV validators emit runtime requires of
+  // ajv/dist/runtime/* helpers evaluated when herdr session messages are
+  // validated; they resolve against packaged node_modules at runtime.
+  'ajv',
   'electron-updater',
   'i18next',
   'jsonc-parser',
   'node-pty',
+  '@orca/ghostty-surface',
   'posthog-node',
   'proper-lockfile',
   // serve-sim (for CLI JS entry + closure + state/middleware + to make packaged require('serve-sim') + its internal relatives work; mirrors other runtime JS like ws/yaml/zod. Natives/dylibs still via extraResources + the node_modules/serve-sim copy in resources from builder. Client if added too.
@@ -83,6 +88,7 @@ function isPackagedExternalSpecifier(specifier) {
   return (
     !specifier.startsWith('.') &&
     !specifier.startsWith('/') &&
+    !specifier.startsWith('node:') &&
     specifier !== 'electron' &&
     !NODE_BUILTINS.has(specifier)
   )

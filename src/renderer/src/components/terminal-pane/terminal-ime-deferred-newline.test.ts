@@ -11,8 +11,8 @@ import {
 } from './terminal-ime-deferred-newline'
 import {
   installTerminalImeCompositionRoute,
-  XTERM_COMPOSITION_SESSION_END_EVENT,
-  XTERM_COMPOSITION_SESSION_START_EVENT
+  TERMINAL_COMPOSITION_SESSION_END_EVENT,
+  TERMINAL_COMPOSITION_SESSION_START_EVENT
 } from './terminal-ime-composition-route'
 
 describe('sendTerminalInputAfterComposition', () => {
@@ -31,7 +31,7 @@ describe('sendTerminalInputAfterComposition', () => {
     expect(send).not.toHaveBeenCalled()
 
     el.dispatchEvent(new Event('compositionend'))
-    // Deferred a macrotask so xterm's own post-compositionend flush runs first.
+    // Deferred a macrotask so terminal's own post-compositionend flush runs first.
     expect(send).not.toHaveBeenCalled()
 
     vi.runAllTimers()
@@ -66,7 +66,7 @@ describe('sendTerminalInputAfterComposition', () => {
 
     expect(removeEventListener).toHaveBeenCalledWith('compositionend', expect.any(Function))
     expect(removeEventListener).toHaveBeenCalledWith(
-      XTERM_COMPOSITION_SESSION_END_EVENT,
+      TERMINAL_COMPOSITION_SESSION_END_EVENT,
       expect.any(Function)
     )
 
@@ -96,23 +96,23 @@ describe('sendTerminalInputAfterComposition', () => {
 
     expect(removeEventListener).toHaveBeenCalledWith('compositionend', expect.any(Function))
     expect(removeEventListener).toHaveBeenCalledWith(
-      XTERM_COMPOSITION_SESSION_END_EVENT,
+      TERMINAL_COMPOSITION_SESSION_END_EVENT,
       expect.any(Function)
     )
   })
 
-  it('finishes from the captured xterm transaction when deferral starts after compositionend', () => {
+  it('finishes from the captured terminal transaction when deferral starts after compositionend', () => {
     const el = document.createElement('div')
     const send = vi.fn()
 
     sendTerminalInputAfterComposition(el, send)
-    el.dispatchEvent(new CustomEvent(XTERM_COMPOSITION_SESSION_END_EVENT))
+    el.dispatchEvent(new CustomEvent(TERMINAL_COMPOSITION_SESSION_END_EVENT))
     vi.advanceTimersByTime(0)
 
     expect(send).toHaveBeenCalledTimes(1)
   })
 
-  it('waits for every overlapping captured xterm transaction', () => {
+  it('waits for every overlapping captured terminal transaction', () => {
     const el = document.createElement('div')
     const send = vi.fn()
     const terminal = { input: vi.fn() }
@@ -128,14 +128,14 @@ describe('sendTerminalInputAfterComposition', () => {
     const sessionEvent = (type: string, id: number) =>
       new CustomEvent(type, { detail: { id, data: `commit-${id}` } })
 
-    el.dispatchEvent(sessionEvent(XTERM_COMPOSITION_SESSION_START_EVENT, 1))
-    el.dispatchEvent(sessionEvent(XTERM_COMPOSITION_SESSION_START_EVENT, 2))
+    el.dispatchEvent(sessionEvent(TERMINAL_COMPOSITION_SESSION_START_EVENT, 1))
+    el.dispatchEvent(sessionEvent(TERMINAL_COMPOSITION_SESSION_START_EVENT, 2))
     sendTerminalInputAfterComposition(el, send)
-    el.dispatchEvent(sessionEvent(XTERM_COMPOSITION_SESSION_END_EVENT, 1))
+    el.dispatchEvent(sessionEvent(TERMINAL_COMPOSITION_SESSION_END_EVENT, 1))
     vi.advanceTimersByTime(0)
     expect(send).not.toHaveBeenCalled()
 
-    el.dispatchEvent(sessionEvent(XTERM_COMPOSITION_SESSION_END_EVENT, 2))
+    el.dispatchEvent(sessionEvent(TERMINAL_COMPOSITION_SESSION_END_EVENT, 2))
     vi.advanceTimersByTime(0)
     expect(send).toHaveBeenCalledTimes(1)
 
@@ -158,12 +158,12 @@ describe('sendTerminalInputAfterComposition', () => {
     const sessionEvent = (type: string, id: number, data: string) =>
       new CustomEvent(type, { cancelable: true, detail: { id, data } })
 
-    el.dispatchEvent(sessionEvent(XTERM_COMPOSITION_SESSION_START_EVENT, 1, ''))
+    el.dispatchEvent(sessionEvent(TERMINAL_COMPOSITION_SESSION_START_EVENT, 1, ''))
     const stopWaiting = sendTerminalInputAfterComposition(el, send, { fallbackMs: null })
-    el.dispatchEvent(sessionEvent(XTERM_COMPOSITION_SESSION_START_EVENT, 2, ''))
+    el.dispatchEvent(sessionEvent(TERMINAL_COMPOSITION_SESSION_START_EVENT, 2, ''))
     expect(send).not.toHaveBeenCalled()
 
-    el.dispatchEvent(sessionEvent(XTERM_COMPOSITION_SESSION_END_EVENT, 1, '한'))
+    el.dispatchEvent(sessionEvent(TERMINAL_COMPOSITION_SESSION_END_EVENT, 1, '한'))
     vi.advanceTimersByTime(0)
 
     expect(send).toHaveBeenCalledTimes(1)

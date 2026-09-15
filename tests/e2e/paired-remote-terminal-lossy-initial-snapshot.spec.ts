@@ -188,8 +188,8 @@ test('paints a nonempty lossy initial snapshot on a paired Electron client @head
             return {
               mounted: Boolean(pane),
               markerCount:
-                (pane?.serializeAddon?.serialize?.() ?? '').split('REMOTE_LOSSY_INITIAL_').length -
-                1
+                (pane?.serializeController?.serialize?.() ?? '').split('REMOTE_LOSSY_INITIAL_')
+                  .length - 1
             }
           }, webTabId),
         { timeout: 30_000 }
@@ -230,7 +230,7 @@ test('paints a nonempty lossy initial snapshot on a paired Electron client @head
             ({ initialMarker, liveMarker, tabId }) => {
               const manager = window.__paneManagers?.get(tabId)
               const pane = manager?.getActivePane?.() ?? manager?.getPanes?.()[0] ?? null
-              const content = pane?.serializeAddon?.serialize?.() ?? ''
+              const content = pane?.serializeController?.serialize?.() ?? ''
               return {
                 initialMarkerCount: content.split(initialMarker).length - 1,
                 liveMarkerCount: content.split(`LIVE:${liveMarker}`).length - 1

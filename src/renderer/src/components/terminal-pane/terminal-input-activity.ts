@@ -4,7 +4,7 @@ import { useAppStore } from '@/store'
 export function recordTerminalUserInputForLeaf(tabId: string, leafId: string): void {
   try {
     // Why: hibernation must see all user-authorized terminal writes, including
-    // sends that bypass xterm.onData.
+    // sends that bypass terminal.onData.
     useAppStore.getState().recordTerminalInput(makePaneKey(tabId, leafId))
   } catch {
     // Legacy/malformed layouts are ignored; hibernation remains conservative

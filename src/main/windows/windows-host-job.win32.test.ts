@@ -66,7 +66,7 @@ describeOnWindows('host job reaps the tree when the host dies', () => {
         `const { loadNativeModule } = require(${JSON.stringify(`${nodePtyDir}/lib/utils`)});`,
         `const native = loadNativeModule('conpty').module;`,
         `console.log('ASSIGNED=' + native.assignCurrentProcessToJob());`,
-        `const term = pty.spawn('cmd.exe', [], { name: 'xterm', cols: 80, rows: 30, cwd: ${JSON.stringify(dir)}, useConptyDll: true });`,
+        `const term = pty.spawn('cmd.exe', [], { name: 'terminal', cols: 80, rows: 30, cwd: ${JSON.stringify(dir)}, useConptyDll: true });`,
         `term.onData((d) => { const m = /GC=(\\d+)/.exec(d); if (m) console.log('GRANDCHILD=' + m[1]); });`,
         `term.write('node -e "const{spawn}=require(\\'child_process\\');const c=spawn(process.execPath,[\\'-e\\',\\'setInterval(()=>{},1000)\\'],{detached:true,windowsHide:true,stdio:\\'ignore\\'});c.unref();console.log(\\'GC=\\'+c.pid);"\\r');`,
         `setTimeout(() => console.log('SHELL=' + term.pid), 4000);`,

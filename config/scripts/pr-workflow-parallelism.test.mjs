@@ -216,8 +216,6 @@ describe('PR workflow parallelism', () => {
         (step) => step.name === 'Project web client from renderer build'
       ).run
     ).toBe('pnpm run build:web-from-renderer')
-    expect(packageJson.scripts['build:desktop']).toContain('pnpm run build:web-from-renderer')
-    expect(packageJson.scripts['build:release']).toContain('pnpm run build:web-from-renderer')
   })
 
   it('smokes managed-hook companions under their supported Node 18 runtime', () => {
@@ -296,7 +294,7 @@ describe('PR workflow parallelism', () => {
       (step) => step.uses === './.github/actions/install-node-dependencies'
     )
 
-    for (const jobName of ['typecheck', 'git_compatibility', 'xterm_patch_sync']) {
+    for (const jobName of ['typecheck', 'git_compatibility']) {
       expect(installFor(jobName).with, jobName).toBeUndefined()
     }
     expect(installFor('static_analysis').with['native-runtime']).toBe('node')
@@ -324,7 +322,7 @@ describe('PR workflow parallelism', () => {
     expect(dependencyInstall.run).toContain('--frozen-lockfile')
     expect(dependencyInstall.run).not.toContain('--no-frozen-lockfile')
     expect(dependencyInstall.run).toContain(
-      'git -C "$GITHUB_WORKSPACE" diff --exit-code -- package.json pnpm-lock.yaml pnpm-workspace.yaml'
+      'git -C "$GITHUB_WORKSPACE" -c diff.mnemonicPrefix=false -c diff.noprefix=false diff --exit-code -- package.json pnpm-lock.yaml pnpm-workspace.yaml'
     )
     expect(dependencyInstall.run).toContain('--ignore-scripts')
     expect(dependencyInstall.run).not.toContain('--os=')
@@ -459,7 +457,6 @@ describe('PR workflow parallelism', () => {
       'typecheck',
       'git_compatibility',
       'codex_index_heal_contract',
-      'xterm_patch_sync',
       'shell_contracts',
       'test',
       'orcad_browser',

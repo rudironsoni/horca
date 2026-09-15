@@ -15,7 +15,7 @@ export function bindRegisterPaneSerializer(session: ConnectPanePtySession): void
     // Why: StrictMode mounts panes twice; the first mount is session.disposed
     // before the second runs, but its pty:spawn IPC may have resolved by
     // the time `session.disposed` flips. Without this guard, the session.disposed first
-    // mount would register against a torn-down xterm and replace the live
+    // mount would register against a torn-down terminal and replace the live
     // second-mount registration via owner-token shadowing.
     if (session.disposed) {
       return
@@ -44,7 +44,7 @@ export function bindRegisterPaneSerializer(session: ConnectPanePtySession): void
           // output from the seed instead of the transient TUI bytes, and every
           // later restore painted only the TUI screen (#6106).
           const data = serializeWithAbsoluteCursor(
-            session.pane.serializeAddon,
+            session.pane.serializeController,
             session.pane.terminal,
             { scrollback: opts?.scrollbackRows }
           )

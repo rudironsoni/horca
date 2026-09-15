@@ -93,8 +93,8 @@ async function rightClickActiveTerminalSurface(page: Page): Promise<void> {
     const manager = tabId ? window.__paneManagers?.get(tabId) : null
     const pane = manager?.getActivePane?.() ?? manager?.getPanes?.()[0] ?? null
     const surface =
-      pane?.container.querySelector<HTMLElement>('.xterm-screen') ??
-      pane?.container.querySelector<HTMLElement>('.xterm') ??
+      pane?.container.querySelector<HTMLElement>('.orca-terminal-canvas') ??
+      pane?.container.querySelector<HTMLElement>('.orca-terminal-canvas') ??
       pane?.container
     if (!pane || !surface) {
       throw new Error('No active terminal surface to right-click')
@@ -173,7 +173,7 @@ async function openTerminalContextMenu(page: Page): Promise<void> {
   const isMac = await page.evaluate(() => navigator.userAgent.includes('Mac'))
   const modifiers: ('Alt' | 'Control' | 'Meta' | 'Shift')[] = isMac || isWindows ? ['Control'] : []
   await page
-    .locator('.xterm:visible')
+    .locator('.orca-terminal-canvas:visible')
     .first()
     .click({
       button: isMac ? 'left' : 'right',
@@ -336,7 +336,7 @@ test.describe('terminal paste ownership', () => {
       'Unicode: caf\u00e9 \u4f60\u597d \u0645\u0631\u062d\u0628\u0627 \ud83d\ude00',
       `mixed-newline-before\r\nlf-line\ncrlf-line\r\n${sentinel}`
     ].join('\n')
-    // Why: xterm translates clipboard line endings to terminal Enter bytes;
+    // Why: terminal translates clipboard line endings to terminal Enter bytes;
     // Orca's direct Windows bracketed-paste path must produce the same bytes.
     const terminalText = payload.replace(/\r?\n/g, '\r')
     const scriptPath = path.join(testRepoPath, `.orca-paste-multiline-${runId}.mjs`)

@@ -4,6 +4,7 @@ import { join, resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { parse } from 'yaml'
 import { relayArtifactFilenames } from '../../src/shared/relay-artifacts.ts'
+import { describeNativeAddonPackaging } from './package-electron-native-addon-contract.mjs'
 
 const projectDir = resolve(import.meta.dirname, '../..')
 const require = createRequire(import.meta.url)
@@ -24,6 +25,14 @@ describe('Electron runtime package contract', () => {
     linux: createPackagedRuntimeNodeModuleResources('linux')
   }
 
+  describeNativeAddonPackaging({
+    packageJson,
+    pnpmWorkspace,
+    packageTargets,
+    windowsAddonsInstalled,
+    readProject
+  })
+
   it('keeps root postinstall as the single Electron binary install owner', () => {
     // Why not an exact match: the invariant is that the root postinstall owns the Electron
     // binary install, not that nothing else may run after it. Pinning the whole string made
@@ -34,74 +43,6 @@ describe('Electron runtime package contract', () => {
     // No later step may take over the Electron install the first step owns.
     expect(steps.slice(1).join(' ')).not.toMatch(/electron/i)
     expect(pnpmWorkspace.allowBuilds).not.toHaveProperty('electron')
-  })
-
-  it('keeps the native Windows registry addon optional and platform-gated', () => {
-    const rebuildScript = readProject('config/scripts/rebuild-native-deps.mjs')
-    const ensureScript = readProject('config/scripts/ensure-native-runtime.mjs')
-    expect(packageJson.optionalDependencies['@orca/windows-registry']).toBe('workspace:*')
-    // Why: allowBuilds stops pnpm running node-gyp at install time -- the root
-    // Windows-only rebuild owns this addon so it is built against the right runtime ABI.
-    expect(pnpmWorkspace.allowBuilds['@orca/windows-registry']).toBe(false)
-    // Why assert the guard and the member separately: the list now carries more
-    // than one addon, so pinning the whole literal only tested its formatting.
-    expect(rebuildScript).toContain("rebuildPlatform === 'win32'")
-    expect(rebuildScript).toContain("'@orca/windows-registry'")
-    expect(ensureScript).toContain("process.platform === 'win32'")
-    expect(ensureScript).toContain("'@orca/windows-registry'")
-    if (windowsAddonsInstalled) {
-      expect(packageTargets.win32).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({ to: join('node_modules', '@orca', 'windows-registry') }),
-          expect.objectContaining({ to: join('node_modules', 'node-addon-api') })
-        ])
-      )
-    }
-    for (const platform of ['darwin', 'linux']) {
-      expect(packageTargets[platform]).not.toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({ to: join('node_modules', '@orca', 'windows-registry') })
-        ])
-      )
-    }
-  })
-
-  it('keeps the native Windows process-table addon optional and platform-gated', () => {
-    const rebuildScript = readFileSync(
-      join(projectDir, 'config/scripts/rebuild-native-deps.mjs'),
-      'utf8'
-    )
-    const ensureScript = readFileSync(
-      join(projectDir, 'config/scripts/ensure-native-runtime.mjs'),
-      'utf8'
-    )
-    expect(packageJson.optionalDependencies['@vscode/windows-process-tree']).toBe('0.8.0')
-    // Why: same rule as the registry addon -- allowBuilds stops pnpm running node-gyp at
-    // install time so the Windows-only rebuild owns it with the right runtime ABI.
-    expect(pnpmWorkspace.allowBuilds['@vscode/windows-process-tree']).toBe(false)
-    expect(rebuildScript).toContain("'@vscode/windows-process-tree'")
-    expect(ensureScript).toContain("'@vscode/windows-process-tree'")
-    // Why pin the patch: the upstream binding.gyp requires Spectre-mitigated
-    // libraries our build agents do not carry, and the enumeration stops after
-    // 1024 processes -- on a busy host that silently hides the very descendants
-    // teardown is looking for.
-    expect(pnpmWorkspace.patchedDependencies['@vscode/windows-process-tree@0.8.0']).toBe(
-      'config/patches/@vscode__windows-process-tree@0.8.0.patch'
-    )
-    if (windowsAddonsInstalled) {
-      expect(packageTargets.win32).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({ to: join('node_modules', '@vscode', 'windows-process-tree') })
-        ])
-      )
-    }
-    for (const platform of ['darwin', 'linux']) {
-      expect(packageTargets[platform]).not.toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({ to: join('node_modules', '@vscode', 'windows-process-tree') })
-        ])
-      )
-    }
   })
 
   it('guards package scripts that launch Electron tooling', () => {
@@ -127,23 +68,57 @@ describe('Electron runtime package contract', () => {
     }
   })
 
-  it('keeps Windows and Linux package builds off macOS native helper builds', () => {
-    const scripts = packageJson.scripts
+  it('composes desktop, release, and mac packaging from shared bundle and native scripts', () => {
+    const { scripts } = packageJson
 
-    expect(scripts['build:desktop']).not.toContain('build:computer-macos')
-    expect(scripts['build:desktop']).not.toContain('build:keyboard-layout-macos')
-    expect(scripts['build:win']).toContain('pnpm run build:desktop')
-    expect(scripts['build:win']).not.toContain('pnpm run build ')
-    expect(scripts['build:win']).not.toContain('build:computer-macos')
-    expect(scripts['build:win']).not.toContain('build:keyboard-layout-macos')
-    expect(scripts['build:linux']).toContain('pnpm run build:desktop')
-    expect(scripts['build:linux']).not.toContain('pnpm run build ')
-    expect(scripts['build:linux']).not.toContain('build:computer-macos')
-    expect(scripts['build:linux']).not.toContain('build:keyboard-layout-macos')
-    expect(scripts['build:mac']).toContain('pnpm run build:computer-macos')
-    expect(scripts['build:mac']).toContain('pnpm run build:keyboard-layout-macos')
-    expect(scripts['build:release']).toContain('pnpm run build:native')
-    expect(scripts['build:release']).not.toContain('build:computer-macos')
+    expect(scripts['build:desktop:bundles']).toBe(
+      'pnpm run build:relay && pnpm run build:cli && pnpm run build:electron-vite && pnpm run verify:built-skills-cli && pnpm run build:web-from-renderer'
+    )
+    expect(scripts['build:desktop:bundles:parallel']).toBe(
+      scripts['build:desktop:bundles'].replace(
+        'pnpm run build:electron-vite &&',
+        'pnpm run build:electron-vite:parallel &&'
+      )
+    )
+    expect(scripts['build:desktop']).toBe('pnpm run typecheck && pnpm run build:desktop:bundles')
+    expect(scripts.build).toBe('pnpm run build:desktop && pnpm run build:native')
+    expect(scripts['build:release']).toBe(
+      'pnpm run build:native && pnpm run verify:computer-native && pnpm run build:desktop:bundles'
+    )
+    expect(scripts['build:release:parallel']).toBe(
+      scripts['build:release'].replace(
+        'pnpm run build:desktop:bundles',
+        'pnpm run build:desktop:bundles:parallel'
+      )
+    )
+    expect(scripts['build:win']).toBe(
+      'pnpm run build:desktop && pnpm run ensure:electron-runtime && electron-builder --config config/electron-builder.config.cjs --win'
+    )
+    expect(scripts['build:linux']).toBe(
+      'pnpm run build:desktop && pnpm run ensure:electron-runtime && node config/scripts/build-linux-local.mjs'
+    )
+    expect(scripts['build:mac']).toBe(
+      'pnpm run build && pnpm run ensure:electron-runtime && node config/scripts/build-mac-local.mjs'
+    )
+    expect(scripts['build:mac:release']).toBe(
+      'node config/scripts/verify-macos-release-env.mjs && ORCA_MAC_RELEASE=1 pnpm run build:native && pnpm run build:desktop:bundles && pnpm run ensure:electron-runtime && ORCA_MAC_RELEASE=1 electron-builder --config config/electron-builder.config.cjs --mac --publish never'
+    )
+
+    for (const scriptName of [
+      'build:desktop',
+      'build:desktop:bundles',
+      'build:desktop:bundles:parallel',
+      'build:release',
+      'build:release:parallel',
+      'build:win',
+      'build:linux',
+      'build:mac',
+      'build:mac:release'
+    ]) {
+      expect(scripts[scriptName], scriptName).not.toContain('build:computer-macos')
+      expect(scripts[scriptName], scriptName).not.toContain('build:keyboard-layout-macos')
+      expect(scripts[scriptName], scriptName).not.toContain('build:notification-status-macos')
+    }
   })
 
   it('runs the web build through the heap-sized Vite wrapper', () => {

@@ -206,7 +206,7 @@ export function findEditablePrimarySelectionPasteTarget(
   if (!(target instanceof Element)) {
     return null
   }
-  if (target.closest('.xterm-helper-textarea')) {
+  if (target.closest('.orca-terminal-helper-textarea')) {
     return null
   }
 

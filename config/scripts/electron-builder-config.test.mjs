@@ -13,6 +13,7 @@ const electronBuilderConfig = require('../electron-builder.config.cjs')
 const { FileMatcher } = require('app-builder-lib/out/fileMatcher')
 const FpmTarget = require('app-builder-lib/out/targets/FpmTarget').default
 const electronBuilderNativeRebuild = require('./electron-builder-native-rebuild.cjs')
+const { isPackagedExternalSpecifier } = require('../packaged-runtime-node-modules.cjs')
 
 describe('electron-builder config', () => {
   it('keeps the packaged app identity aligned with local-build validation', () => {
@@ -214,7 +215,11 @@ describe('electron-builder config', () => {
         'out/package.json',
         'out/cli/**',
         'out/shared/**',
-        'out/main/claude-accounts/keychain.js'
+        'out/main/claude-accounts/keychain.js',
+        'out/main/codex-accounts/**',
+        'out/main/agent-state-file-reader.js',
+        'out/main/local-state-root.js',
+        'out/main/rolling-file-backup.js'
       ])
     )
   })
@@ -385,6 +390,10 @@ describe('electron-builder config', () => {
   it('uses Orca native rebuild hook instead of electron-builder default rebuild', () => {
     expect(electronBuilderConfig.beforeBuild).toBe(electronBuilderNativeRebuild)
     expect(electronBuilderConfig.npmRebuild).toBe(true)
+  })
+
+  it('does not treat experimental node protocol modules as external packages', () => {
+    expect(isPackagedExternalSpecifier('node:sqlite')).toBe(false)
   })
 
   // Why: the .deb/.rpm update-recovery path keys entirely off the resources/package-type marker that

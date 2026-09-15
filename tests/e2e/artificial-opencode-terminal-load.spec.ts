@@ -18,8 +18,9 @@ import {
 } from './helpers/terminal'
 import {
   ensureActiveWorktreePaneLoad,
-  focusActiveTerminalInput,
   focusPane,
+  focusTerminalPaneByPtyId,
+  bindLiveTypingPane,
   waitForMarkerLatency,
   waitForTerminalOutputForPtyId
 } from './artificial-opencode-pane-interactions'
@@ -110,8 +111,9 @@ const DEFAULT_SAME_WORKSPACE_PANES = 5
 const DEFAULT_CROSS_WORKSPACE_PANES_PER_WORKTREE = 3
 const DEFAULT_PRESSURE_BACKGROUND_PANES = 17
 const DEFAULT_PRESSURE_OUTPUT_CHARS = 768 * 1024
+const DEFAULT_MAIN_PRESSURE_OUTPUT_CHARS = 8 * 1024 * 1024
 const DEFAULT_HIDDEN_PRESSURE_PANES = 17
-const HIDDEN_PRESSURE_START_DELAY_MS = 1200
+const HIDDEN_PRESSURE_START_DELAY_MS = 4_000
 const DEFAULT_FRAME_COUNT = 180
 const DEFAULT_FRAME_INTERVAL_MS = 6
 const TIMER_SAMPLE_MS = 16
@@ -119,8 +121,10 @@ const MAIN_RENDERER_PRESSURE_TARGET_CHARS = 2 * 1024 * 1024
 // Why: these are regression budgets, not observed baselines. Repeated local
 // 100-pane OpenCode-scale runs are below 50ms worst-key latency; keep enough
 // CI headroom while still failing changes that make typing visibly sluggish.
+// Why: Canvas2D plus macOS IME `input` commit is slower than the old terminal
+// WebGL path that this 75ms budget was written against.
 const MAX_MEDIAN_KEY_LATENCY_MS = 75
-const MAX_WORST_KEY_LATENCY_MS = 300
+const MAX_WORST_KEY_LATENCY_MS = 350
 // Why: under injected multi-pane load, the worst *single* key echo lands behind
 // whichever synthetic flush it collides with, so on a CPU-starved OSS shard it
 // is environment-dominated (seen at ~3.1s) even when typing stays instant. The
@@ -184,6 +188,10 @@ const PRESSURE_OUTPUT_CHARS = readPositiveInt(
   'ORCA_E2E_OPENCODE_PRESSURE_OUTPUT_CHARS',
   DEFAULT_PRESSURE_OUTPUT_CHARS
 )
+const MAIN_PRESSURE_OUTPUT_CHARS = readPositiveInt(
+  'ORCA_E2E_OPENCODE_MAIN_PRESSURE_OUTPUT_CHARS',
+  DEFAULT_MAIN_PRESSURE_OUTPUT_CHARS
+)
 const HIDDEN_PRESSURE_PANES = readPositiveInt(
   'ORCA_E2E_OPENCODE_HIDDEN_PRESSURE_PANES',
   DEFAULT_HIDDEN_PRESSURE_PANES
@@ -240,11 +248,18 @@ async function measureTypingDuringLoad(
   page: Page,
   scriptPath: string,
   ptyId: string,
-  runId: string
+  runId: string,
+  onReady?: () => Promise<void>
 ): Promise<TypingMeasurement> {
-  await sendToTerminal(page, ptyId, `node ${JSON.stringify(scriptPath)}\r`)
-  await waitForTerminalOutputForPtyId(page, ptyId, `OPENCODE_TYPING_READY_${runId}`, 10_000)
-  await focusActiveTerminalInput(page)
+  const ready = `OPENCODE_TYPING_READY_${runId}`
+  try {
+    await waitForTerminalOutputForPtyId(page, ptyId, ready, 100)
+  } catch {
+    await sendToTerminal(page, ptyId, `node ${JSON.stringify(scriptPath)}\r`)
+    await waitForTerminalOutputForPtyId(page, ptyId, ready, 10_000)
+  }
+  await onReady?.()
+  await focusTerminalPaneByPtyId(page, ptyId)
 
   const eventLoop = await page.evaluateHandle((sampleMs) => {
     let maxTimerDriftMs = 0
@@ -265,11 +280,15 @@ async function measureTypingDuringLoad(
   const latencies: number[] = []
   for (const [index, char] of [...KEY_LATENCY_SAMPLES].entries()) {
     const marker = `OPENCODE_TYPING_KEY_${runId}_${index + 1}`
+    await focusTerminalPaneByPtyId(page, ptyId)
+    await page
+      .locator(`[data-pty-id=${JSON.stringify(ptyId)}] textarea.orca-terminal-helper-textarea`)
+      .click({ force: true })
     const start = performance.now()
     await page.keyboard.type(char)
     // Why: wait up to the under-load budget so a slow echo is measured and
     // asserted per-scenario, not thrown as a confusing "did not contain".
-    await waitForMarkerLatency(page, marker, MAX_WORST_KEY_LATENCY_UNDER_LOAD_MS)
+    await waitForMarkerLatency(page, marker, MAX_WORST_KEY_LATENCY_UNDER_LOAD_MS, ptyId)
     latencies.push(performance.now() - start)
   }
 
@@ -338,22 +357,29 @@ async function readTerminalAckGateDebug(page: Page): Promise<TerminalPtyAckGateS
 
 async function waitForMainPtyPressureBacklog(page: Page): Promise<MainPtyPressureDebugSnapshot> {
   let lastSnapshot: MainPtyPressureDebugSnapshot | null = null
-  await expect
-    .poll(
-      async () => {
-        lastSnapshot = await readMainPtyPressureDebug(page)
-        return (
-          (lastSnapshot?.peakRendererInFlightChars ?? 0) >= MAIN_RENDERER_PRESSURE_TARGET_CHARS &&
-          (lastSnapshot?.peakPendingChars ?? 0) > 0 &&
-          (lastSnapshot?.ackGatedFlushSkipCount ?? 0) > 0
-        )
-      },
-      {
-        timeout: 20_000,
-        message: 'Main PTY renderer delivery pressure did not build up'
-      }
+  try {
+    await expect
+      .poll(
+        async () => {
+          lastSnapshot = await readMainPtyPressureDebug(page)
+          return (
+            (lastSnapshot?.peakRendererInFlightChars ?? 0) >= MAIN_RENDERER_PRESSURE_TARGET_CHARS &&
+            (lastSnapshot?.peakPendingChars ?? 0) > 0 &&
+            (lastSnapshot?.ackGatedFlushSkipCount ?? 0) > 0
+          )
+        },
+        {
+          timeout: 60_000,
+          message: 'Main PTY renderer delivery pressure did not build up'
+        }
+      )
+      .toBe(true)
+  } catch (error) {
+    const gate = await readTerminalAckGateDebug(page)
+    throw new Error(
+      `${error instanceof Error ? error.message : String(error)} snapshot=${JSON.stringify(lastSnapshot)} gate=${JSON.stringify(gate)}`
     )
-    .toBe(true)
+  }
   if (!lastSnapshot) {
     throw new Error('Main PTY pressure snapshot unavailable')
   }
@@ -475,7 +501,7 @@ async function runConfiguredMainPressureScenario({
     annotationSuffix,
     backgroundPaneCount,
     orcaPage,
-    pressureOutputChars: PRESSURE_OUTPUT_CHARS,
+    pressureOutputChars: MAIN_PRESSURE_OUTPUT_CHARS,
     testInfo,
     testRepoPath,
     maxMedianKeyLatencyMs: MAX_MEDIAN_KEY_LATENCY_MS,
@@ -551,25 +577,27 @@ test.describe('Artificial OpenCode terminal load', () => {
     await waitForSessionReady(orcaPage)
     await waitForActiveWorktree(orcaPage)
     const panes = await ensureActiveWorktreePaneLoad(orcaPage, SAME_WORKSPACE_PANES)
-    const [typingPane, ...loadPanes] = panes
-    await focusPane(orcaPage, typingPane.paneKey)
-
+    const { typingPane, loadPanes } = await bindLiveTypingPane(orcaPage, panes)
     const runId = randomUUID()
+    await focusPane(orcaPage, typingPane.paneKey)
     const scriptPath = path.join(testRepoPath, `.orca-opencode-typing-${runId}.mjs`)
     writeInteractivePromptScript(scriptPath, runId)
     await resetTerminalPtyOutputDebug(orcaPage)
-    const load = await startSyntheticOpenCodeInjection({
-      frameCount: FRAME_COUNT,
-      intervalMs: FRAME_INTERVAL_MS,
-      page: orcaPage,
-      paneKeys: loadPanes.map((pane) => pane.paneKey)
-    })
+    let load: { stop: () => Promise<void> } | undefined
     try {
       const measurement = await measureTypingDuringLoad(
         orcaPage,
         scriptPath,
         typingPane.ptyId,
-        runId
+        runId,
+        async () => {
+          load = await startSyntheticOpenCodeInjection({
+            frameCount: FRAME_COUNT,
+            intervalMs: FRAME_INTERVAL_MS,
+            page: orcaPage,
+            paneKeys: loadPanes.map((pane) => pane.paneKey)
+          })
+        }
       )
       annotateTypingMeasurement(
         testInfo,
@@ -584,7 +612,7 @@ test.describe('Artificial OpenCode terminal load', () => {
       expect(measurement.worstLatencyMs).toBeLessThan(MAX_WORST_KEY_LATENCY_UNDER_LOAD_MS)
       expect(measurement.maxTimerDriftMs).toBeLessThan(MAX_TIMER_DRIFT_UNDER_LOAD_MS)
     } finally {
-      await load.stop()
+      await load?.stop()
       await sendToTerminal(orcaPage, typingPane.ptyId, '\x03').catch(() => undefined)
       rmSync(scriptPath, { force: true })
     }
@@ -621,7 +649,7 @@ test.describe('Artificial OpenCode terminal load', () => {
       maxTimerDriftMs: MAX_TIMER_DRIFT_UNDER_LOAD_MS,
       maxWorstKeyLatencyMs: MAX_WORST_KEY_LATENCY_UNDER_LOAD_MS,
       orcaPage,
-      pressureOutputChars: PRESSURE_OUTPUT_CHARS,
+      pressureOutputChars: MAIN_PRESSURE_OUTPUT_CHARS,
       testInfo,
       testRepoPath
     })

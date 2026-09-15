@@ -1,4 +1,8 @@
-import type { Terminal } from '@xterm/xterm'
+type PreviewGridTerminal = {
+  cols: number
+  rows: number
+  element: HTMLElement
+}
 
 const FIT_REQUEST_DEBOUNCE_MS = 200
 // Mirror the runtime's clampTerminalViewport so a request always matches what lands.
@@ -23,7 +27,7 @@ function clampGridAxis(value: number, min: number, max: number): number {
 export function createPreviewGridClaim(args: {
   ptyId: string
   container: HTMLElement
-  getTerminal: () => Terminal | null
+  getTerminal: () => PreviewGridTerminal | null
 }): { schedule: () => void; dispose: () => void } {
   let lastRequestedFit: string | null = null
   let timer: ReturnType<typeof setTimeout> | null = null
@@ -34,7 +38,7 @@ export function createPreviewGridClaim(args: {
     if (disposed || !terminal) {
       return
     }
-    const screen = args.container.querySelector<HTMLElement>('.xterm-screen')
+    const screen = terminal.element
     const box = args.container.parentElement
     if (!screen || !box) {
       return

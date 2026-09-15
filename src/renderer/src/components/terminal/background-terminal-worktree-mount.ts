@@ -96,7 +96,7 @@ export function addBackgroundMountedTerminalWorktree(
 
 /**
  * Records which terminal tabs a background mount may instantiate. Why: a
- * whole-worktree background mount creates a TerminalPane (xterm + PTY connect)
+ * whole-worktree background mount creates a TerminalPane (terminal + PTY connect)
  * for every saved tab, so wake/resume flows pass the exact tabs they need.
  * Must run before the worktree is added to `mountedWorktreeIds`.
  */
@@ -135,7 +135,7 @@ export function shouldMountBackgroundWorktreeTab(
 
 // Why deferral exists: activating a worktree used to mount a TerminalPane for
 // every saved tab in one render pass. Each mount replays scrollback through
-// xterm, attaches a WebGL renderer, and issues a sync-IPC snapshot read, so a
+// terminal, attaches a WebGL renderer, and issues a sync-IPC snapshot read, so a
 // worktree with many agent-session tabs froze the renderer for tens of
 // seconds (field trace: 200+ replay-guard stall releases in one activation
 // window). Deferred tabs behave like cold-parked tabs from birth: no view

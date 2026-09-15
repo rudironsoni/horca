@@ -5,7 +5,7 @@ import type {
   PaneStyleOptions
 } from './pane-manager-types'
 import { createDivider, disposeDivider } from './pane-divider'
-import { disposeWebgl, attachWebgl } from './pane-webgl-renderer'
+import { disposeWebgl, refreshPaneRenderer } from './pane-webgl-renderer'
 import { safeFit } from './pane-fit'
 
 export {
@@ -147,8 +147,8 @@ export function insertPaneNextTo(
 
   // Why: same pattern as splitPane — dispose WebGL before the DOM reparent
   // to free GPU context slots, then reattach after layout settles.
-  const sourceHadWebgl = !!source.webglAddon
-  const targetHadWebgl = !!target.webglAddon
+  const sourceHadWebgl = !!source.gpuRenderer
+  const targetHadWebgl = !!target.gpuRenderer
   disposeWebgl(source)
   disposeWebgl(target)
 
@@ -174,10 +174,10 @@ export function insertPaneNextTo(
       return
     }
     if (sourceHadWebgl && source.gpuRenderingEnabled && !source.webglDisabledAfterContextLoss) {
-      attachWebgl(source)
+      refreshPaneRenderer(source)
     }
     if (targetHadWebgl && target.gpuRenderingEnabled && !target.webglDisabledAfterContextLoss) {
-      attachWebgl(target)
+      refreshPaneRenderer(target)
     }
     callbacks.safeFit(source)
     callbacks.safeFit(target)

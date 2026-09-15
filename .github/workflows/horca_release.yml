@@ -1,0 +1,337 @@
+name: 'Horca: Stable Release'
+
+on:
+  push:
+    branches: [main]
+  workflow_call:
+    inputs:
+      channel:
+        required: true
+        type: string
+      source_ref:
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  attestations: write
+  id-token: write
+  issues: write
+
+concurrency:
+  group: horca-release-${{ inputs.channel || 'stable' }}
+  cancel-in-progress: false
+
+jobs:
+  metadata:
+    if: >-
+      github.repository == 'rudironsoni/horca' &&
+      (github.event_name != 'push' ||
+       !contains(github.event.head_commit.message, '[skip horca-release]'))
+    runs-on: ubuntu-latest
+    outputs:
+      channel: ${{ steps.release.outputs.channel }}
+      prerelease: ${{ steps.release.outputs.prerelease }}
+      published: ${{ steps.release.outputs.published }}
+      sha: ${{ steps.release.outputs.source_sha }}
+      tag: ${{ steps.release.outputs.tag }}
+      upstream_sha: ${{ steps.release.outputs.upstream_sha }}
+      upstream_version: ${{ steps.release.outputs.upstream_version }}
+      version: ${{ steps.release.outputs.version }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Resolve source and version
+        id: release
+        env:
+          CHANNEL: ${{ inputs.channel || 'stable' }}
+          SOURCE_REF: ${{ inputs.source_ref || github.sha }}
+          GH_TOKEN: ${{ github.token }}
+        run: node config/horca/scripts/prepare-release.mjs metadata
+
+  validation:
+    needs: metadata
+    if: needs.metadata.outputs.published != 'true'
+    uses: ./.github/workflows/horca_ci.yml
+    with:
+      sha: ${{ needs.metadata.outputs.sha }}
+      upstream_sha: ${{ needs.metadata.outputs.upstream_sha }}
+      full: true
+
+  macos:
+    needs: [metadata, validation]
+    if: needs.metadata.outputs.published != 'true'
+    runs-on: macos-15
+    timeout-minutes: 90
+    env:
+      NODE_OPTIONS: --max-old-space-size=4096
+      ORCA_REUSE_PREPARED_NATIVE_RUNTIME: '1'
+      # Why: `pnpm run` otherwise reinstalls host-only and rebuilds native addons
+      # after install:release already widened the CPU set.
+      pnpm_config_verify_deps_before_run: 'false'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ needs.metadata.outputs.sha }}
+          persist-credentials: false
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
+        with:
+          run_install: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: package.json
+          cache: pnpm
+      - name: Install release native variants
+        run: pnpm install:release
+      - name: Verify signing inputs
+        run: node config/scripts/verify-macos-release-env.mjs
+        env:
+          CSC_LINK: ${{ secrets.MAC_CERTS }}
+          CSC_KEY_PASSWORD: ${{ secrets.MAC_CERTS_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      - name: Build signed and notarized DMGs
+        # pnpm 12 `run` stops option parsing at the script name and forwards later
+        # tokens, including `--`, to electron-builder. An extra `--` becomes a
+        # yargs positional, so `--publish never` would be ignored.
+        run: pnpm run build:mac:release --publish never
+        env:
+          ORCA_DOWNSTREAM_BUILD: '1'
+          ORCA_LOCAL_BUILD_VERSION: ${{ needs.metadata.outputs.version }}
+          CSC_LINK: ${{ secrets.MAC_CERTS }}
+          CSC_KEY_PASSWORD: ${{ secrets.MAC_CERTS_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      - name: Verify identity and signatures
+        run: |
+          node config/horca/verify-packaged-distribution.mjs dist
+          for arch in arm64 x64; do
+            dmg="dist/horca-macos-$arch.dmg"
+            test -f "$dmg"
+            mount=$(hdiutil attach -nobrowse -readonly "$dmg" | grep -o '/Volumes/.*' | tail -1)
+            app="$mount/Horca.app"
+            test "$(plutil -extract CFBundleIdentifier raw "$app/Contents/Info.plist")" = 'com.rudironsoni.horca'
+            codesign --verify --deep --strict "$app"
+            xcrun stapler validate "$app"
+            if [ "$arch" = 'arm64' ]; then
+              node config/horca/smoke-packaged-distribution.mjs "$app/Contents/MacOS/Horca"
+            fi
+            hdiutil detach "$mount" -quiet
+          done
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: horca-macos
+          path: dist/horca-macos-*.dmg
+          if-no-files-found: error
+
+  windows:
+    needs: [metadata, validation]
+    if: needs.metadata.outputs.published != 'true' && needs.metadata.outputs.channel == 'beta'
+    runs-on: windows-2022
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ needs.metadata.outputs.sha }}
+          persist-credentials: false
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
+        with:
+          run_install: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: package.json
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Build Horca
+        run: pnpm build:release
+        env:
+          ORCA_DOWNSTREAM_BUILD: '1'
+          ORCA_LOCAL_BUILD_VERSION: ${{ needs.metadata.outputs.version }}
+      - name: Package unsigned installer
+        shell: pwsh
+        run: |
+          node config/scripts/ensure-native-runtime.mjs --runtime=electron
+          pnpm exec electron-builder --config config/electron-builder.config.cjs --win --publish never
+        env:
+          ORCA_DOWNSTREAM_BUILD: '1'
+          ORCA_LOCAL_BUILD_VERSION: ${{ needs.metadata.outputs.version }}
+      - name: Verify unsigned identity
+        shell: pwsh
+        run: |
+          node config/horca/verify-packaged-distribution.mjs dist
+          if (-not (Test-Path 'dist\horca-windows-x64-setup.exe')) { exit 1 }
+          if (-not (Test-Path 'dist\win-unpacked\Horca.exe')) { exit 1 }
+          if ((Get-Item 'dist\win-unpacked\Horca.exe').VersionInfo.ProductName -ne 'Horca') { exit 1 }
+          if (-not (Test-Path 'dist\win-unpacked\resources\bin\horca.cmd')) { exit 1 }
+          if ((Get-AuthenticodeSignature 'dist\horca-windows-x64-setup.exe').Status -ne 'NotSigned') { exit 1 }
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: horca-windows
+          path: dist/horca-windows-x64-setup.exe
+          if-no-files-found: error
+
+  publish:
+    needs: [metadata, validation, macos, windows]
+    if: >-
+      always() && needs.metadata.result == 'success' &&
+      (needs.metadata.outputs.published == 'true' ||
+       (needs.validation.result == 'success' && needs.macos.result == 'success' &&
+        (needs.windows.result == 'success' || needs.windows.result == 'skipped')))
+    runs-on: ubuntu-latest
+    environment: horca-maintenance
+    outputs:
+      channel: ${{ needs.metadata.outputs.channel }}
+      sha: ${{ needs.metadata.outputs.sha }}
+      tag: ${{ needs.metadata.outputs.tag }}
+      version: ${{ needs.metadata.outputs.version }}
+    steps:
+      - name: Create maintenance token
+        id: app
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.HORCA_APP_ID }}
+          private-key: ${{ secrets.HORCA_APP_PRIVATE_KEY }}
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ needs.metadata.outputs.sha }}
+          fetch-depth: 0
+          token: ${{ steps.app.outputs.token }}
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        if: needs.metadata.outputs.published != 'true'
+        with:
+          pattern: horca-*
+          path: artifacts
+          merge-multiple: true
+      - name: Build checksums and release manifest
+        if: needs.metadata.outputs.published != 'true'
+        env:
+          CHANNEL: ${{ needs.metadata.outputs.channel }}
+          TAG: ${{ needs.metadata.outputs.tag }}
+          VERSION: ${{ needs.metadata.outputs.version }}
+          SOURCE_SHA: ${{ needs.metadata.outputs.sha }}
+          UPSTREAM_SHA: ${{ needs.metadata.outputs.upstream_sha }}
+          UPSTREAM_VERSION: ${{ needs.metadata.outputs.upstream_version }}
+        run: node config/horca/scripts/prepare-release.mjs manifest artifacts
+      - name: Attest release assets
+        if: needs.metadata.outputs.published != 'true'
+        uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3
+        with:
+          subject-path: artifacts/*
+      - name: Publish immutable source tag and release
+        if: needs.metadata.outputs.published != 'true'
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          TAG: ${{ needs.metadata.outputs.tag }}
+          VERSION: ${{ needs.metadata.outputs.version }}
+          SHA: ${{ needs.metadata.outputs.sha }}
+          PRERELEASE: ${{ needs.metadata.outputs.prerelease }}
+        run: |
+          if git rev-parse "$TAG^{commit}" >/dev/null 2>&1; then
+            test "$(git rev-parse "$TAG^{commit}")" = "$SHA"
+          else
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git tag -a "$TAG" "$SHA" -m "Horca $VERSION"
+            git push origin "$TAG"
+          fi
+          release_id=$(gh api "repos/$GITHUB_REPOSITORY/releases?per_page=100" --jq ".[] | select(.tag_name == \"$TAG\") | .id" | head -1)
+          if [ -z "$release_id" ]; then
+            release_id=$(gh api --method POST "repos/$GITHUB_REPOSITORY/releases" \
+              -f tag_name="$TAG" -f target_commitish="$SHA" -f name="Horca $VERSION" \
+              -F draft=true -F prerelease="$PRERELEASE" -F generate_release_notes=true \
+              --jq '.id')
+          fi
+          test -n "$release_id"
+          for asset in artifacts/*; do
+            name=${asset##*/}
+            existing=$(gh api "repos/$GITHUB_REPOSITORY/releases/$release_id/assets?per_page=100" \
+              --jq ".[] | select(.name == \"$name\") | .id" | head -1)
+            if [ -n "$existing" ]; then
+              gh api --method DELETE "repos/$GITHUB_REPOSITORY/releases/assets/$existing"
+            fi
+            curl --fail-with-body --silent --show-error \
+              -X POST -H "Authorization: Bearer $GH_TOKEN" \
+              -H 'Accept: application/vnd.github+json' \
+              -H 'Content-Type: application/octet-stream' \
+              --data-binary "@$asset" \
+              "https://uploads.github.com/repos/$GITHUB_REPOSITORY/releases/$release_id/assets?name=$name" \
+              >/dev/null
+          done
+          latest=true
+          if [ "$PRERELEASE" = true ]; then latest=false; fi
+          gh api --method PATCH "repos/$GITHUB_REPOSITORY/releases/$release_id" \
+            -F draft=false -F prerelease="$PRERELEASE" -f make_latest="$latest"
+
+  tap:
+    needs: publish
+    if: always() && needs.publish.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: horca-maintenance
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - name: Create tap token
+        id: app
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.HORCA_APP_ID }}
+          private-key: ${{ secrets.HORCA_APP_PRIVATE_KEY }}
+          owner: rudironsoni
+          repositories: homebrew-tap
+
+      - name: Dispatch Homebrew channel update
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          CHANNEL: ${{ needs.publish.outputs.channel }}
+          TAG: ${{ needs.publish.outputs.tag }}
+          SOURCE_SHA: ${{ needs.publish.outputs.sha }}
+        run: |
+          gh api --method POST repos/rudironsoni/homebrew-tap/dispatches \
+            -f event_type=horca-release-published \
+            -f "client_payload[channel]=$CHANNEL" \
+            -f "client_payload[tag]=$TAG" \
+            -f "client_payload[source_sha]=$SOURCE_SHA"
+
+      - name: Confirm Homebrew channel
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          CHANNEL: ${{ needs.publish.outputs.channel }}
+          VERSION: ${{ needs.publish.outputs.version }}
+        run: |
+          cask=horca.rb
+          if [ "$CHANNEL" = beta ]; then cask='horca@beta.rb'; fi
+          for attempt in $(seq 1 30); do
+            current=$(gh api "repos/rudironsoni/homebrew-tap/contents/Casks/$cask" \
+              -H 'Accept: application/vnd.github.raw+json' 2>/dev/null || true)
+            if node config/horca/scripts/prepare-release.mjs tap-has "$VERSION" <<<"$current"; then
+              exit 0
+            fi
+            sleep 20
+          done
+          echo "::error::Homebrew $CHANNEL did not reach $VERSION"
+          exit 1
+
+      - name: Record release drift
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          CHANNEL: ${{ needs.publish.outputs.channel }}
+          TAG: ${{ needs.publish.outputs.tag }}
+        run: |
+          title='Horca release is ahead of the Homebrew tap'
+          body="Release $TAG ($CHANNEL) was published, but the tap did not confirm the same version. Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          gh label create release-drift --color D93F0B --description 'Published release not confirmed in Homebrew' --force
+          issue=$(gh issue list --label release-drift --state open --json number --jq '.[0].number // empty')
+          if [ -n "$issue" ]; then
+            gh issue comment "$issue" --body "$body"
+          else
+            gh issue create --title "$title" --body "$body" --label release-drift
+          fi

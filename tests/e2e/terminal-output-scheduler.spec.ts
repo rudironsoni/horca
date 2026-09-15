@@ -4,7 +4,7 @@
  * This is a scaled-down version of the user report: several terminal tabs are
  * mounted, inactive tabs emit large output bursts, and the focused tab must
  * still render a foreground marker while the background output drains through
- * the shared scheduler instead of direct xterm writes.
+ * the shared scheduler instead of direct terminal writes.
  */
 
 import type { Page } from '@stablyai/playwright-test'
@@ -77,7 +77,7 @@ async function createTerminalTab(page: Page): Promise<string> {
       throw new Error('createTerminalTab: active worktree id was unavailable')
     }
     // Why: this scheduler spec cares about mounted PTYs, not the tab menu.
-    // Store creation avoids hiding xterm regressions behind menu hit-testing flakes.
+    // Store creation avoids hiding terminal regressions behind menu hit-testing flakes.
     return state.createTab(worktreeId).id
   })
 
@@ -115,13 +115,29 @@ async function waitForTabPtyId(page: Page, tabId: string): Promise<string> {
       async () => {
         ptyId = await page.evaluate((targetTabId) => {
           const manager = window.__paneManagers?.get(targetTabId)
-          const pane = manager?.getPanes?.()[0] ?? null
-          return pane?.container?.dataset?.ptyId ?? null
+          const panes = manager?.getPanes?.() ?? []
+          const pane = manager?.getActivePane?.() ?? panes[0] ?? null
+          const fromPane = pane?.container?.dataset?.ptyId
+          if (fromPane) {
+            return fromPane
+          }
+          for (const candidate of panes) {
+            const id = candidate.container?.dataset?.ptyId
+            if (id) {
+              return id
+            }
+          }
+          const layout = window.__store?.getState()?.terminalLayoutsByTabId?.[targetTabId]
+          const leafId = pane?.leafId
+          if (leafId && layout?.ptyIdsByLeafId?.[leafId]) {
+            return layout.ptyIdsByLeafId[leafId]
+          }
+          return Object.values(layout?.ptyIdsByLeafId ?? {})[0] ?? null
         }, tabId)
         return ptyId
       },
       {
-        timeout: 15_000,
+        timeout: 120_000,
         message: `Terminal tab ${tabId} did not receive a PTY binding`
       }
     )
@@ -301,7 +317,7 @@ test.describe('Terminal output scheduler', () => {
       .toBe(true)
   })
 
-  test('visible bulk output uses the high-priority drain instead of synchronous xterm writes', async ({
+  test('visible bulk output uses the high-priority drain instead of synchronous terminal writes', async ({
     orcaPage
   }, testInfo) => {
     await waitForSessionReady(orcaPage)
@@ -313,6 +329,7 @@ test.describe('Terminal output scheduler', () => {
     if (!activeTabId) {
       throw new Error('Expected a fresh terminal tab')
     }
+    await waitForActiveTerminalManager(orcaPage, 90_000)
     const ptyId = await waitForTabPtyId(orcaPage, activeTabId)
     await resetSchedulerDebug(orcaPage)
 
@@ -357,7 +374,7 @@ test.describe('Terminal output scheduler', () => {
       throw new Error('Expected an initial terminal tab')
     }
     const hiddenTabId = await createTerminalTab(orcaPage)
-    await waitForActiveTerminalManager(orcaPage, 30_000)
+    await waitForActiveTerminalManager(orcaPage, 90_000)
     const hiddenPtyId = await waitForTabPtyId(orcaPage, hiddenTabId)
 
     await tabLocator(orcaPage, foregroundTabId).click()

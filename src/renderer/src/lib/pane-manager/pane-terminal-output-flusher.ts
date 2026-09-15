@@ -105,7 +105,7 @@ export function flushTerminalOutputImpl(
         return
       }
     } catch {
-      // Why: pre-write hooks/setup failed before xterm owned these bytes; cancel the watch, but consumed + abandoned chunks still credit delivery.
+      // Why: pre-write hooks/setup failed before terminal owned these bytes; cancel the watch, but consumed + abandoned chunks still credit delivery.
       cancelTerminalWriteStallWatch(terminal)
       ackCreditsParsed?.()
       fireQueuedAckCredits(entry)

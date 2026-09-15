@@ -1,4 +1,4 @@
-import type { Terminal } from '@xterm/xterm'
+import type { OrcaPaneTerminal as Terminal } from '../../lib/pane-manager/orca-pane-terminal'
 import type { WindowsInputRecordNewline } from './terminal-paste-model'
 
 type BracketedPasteTerminal = {
@@ -8,8 +8,8 @@ type BracketedPasteTerminal = {
 }
 
 type PasteTerminal = BracketedPasteTerminal & {
-  options: Pick<Terminal['options'], 'ignoreBracketedPasteMode'>
-  input: (data: string) => void
+  options?: Pick<Terminal['options'], 'ignoreBracketedPasteMode'>
+  input?: (data: string) => void
   paste: (text: string) => void
 }
 
@@ -69,7 +69,7 @@ export function sanitizeTerminalPasteText(text: string): string {
 }
 
 export function normalizeTerminalPasteLineEndings(text: string): string {
-  // Why: xterm's native paste path converts every clipboard newline to CR.
+  // Why: terminal's native paste path converts every clipboard newline to CR.
   // Direct frames must match it or ConPTY TUIs can treat raw LF as submit.
   return text.replace(/\r?\n/g, '\r')
 }
@@ -103,8 +103,8 @@ export function encodeWindowsInputRecordPasteText(
 
 function forceBracketedPaste(terminal: PasteTerminal, text: string): void {
   // Why: forced callers already built the exact paste protocol bytes. Send
-  // them as PTY input so xterm's DOM/native paste machinery cannot defer them.
-  terminal.input(wrapTerminalBracketedPasteText(text))
+  // them as PTY input so terminal's DOM/native paste machinery cannot defer them.
+  terminal.input?.(wrapTerminalBracketedPasteText(text))
 }
 
 export function markTerminalBracketedPasteInterrupted(terminal: BracketedPasteTerminal): void {
@@ -137,7 +137,7 @@ export function pasteTerminalText(
   if (options?.windowsInputRecordNewline) {
     // Why: input-record TUIs see bracket markers as keys; modified Enter preserves
     // pasted newlines without turning the first one into submit.
-    terminal.input(encodeWindowsInputRecordPasteText(text, options.windowsInputRecordNewline))
+    terminal.input?.(encodeWindowsInputRecordPasteText(text, options.windowsInputRecordNewline))
     return
   }
   if (options?.forceBracketedPaste) {
@@ -161,13 +161,17 @@ export function pasteTerminalText(
     return
   }
 
-  const previousIgnoreBracketedPasteMode = terminal.options.ignoreBracketedPasteMode
-  // Why: Ctrl+C can leave xterm's bracketed-paste bit stale after the foreground
+  const previousIgnoreBracketedPasteMode = terminal.options?.ignoreBracketedPasteMode
+  // Why: Ctrl+C can leave terminal's bracketed-paste bit stale after the foreground
   // process dies. Single-line paste does not need wrappers, so avoid leaking them.
-  terminal.options.ignoreBracketedPasteMode = true
+  if (terminal.options) {
+    terminal.options.ignoreBracketedPasteMode = true
+  }
   try {
     terminal.paste(sanitizeTerminalPasteText(text))
   } finally {
-    terminal.options.ignoreBracketedPasteMode = previousIgnoreBracketedPasteMode
+    if (terminal.options) {
+      terminal.options.ignoreBracketedPasteMode = previousIgnoreBracketedPasteMode
+    }
   }
 }

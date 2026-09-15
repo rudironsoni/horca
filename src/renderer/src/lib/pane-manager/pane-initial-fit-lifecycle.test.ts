@@ -14,22 +14,22 @@ function createPane(pendingInitialFitRafId: number | null): ManagedPaneInternal 
       dispose: vi.fn()
     } as never,
     container: {} as never,
-    xtermContainer: {} as never,
+    terminalHost: {} as never,
     linkTooltip: {} as never,
     terminalGpuAcceleration: 'off',
     gpuRenderingEnabled: false,
     webglAttachmentDeferred: false,
     webglDisabledAfterContextLoss: false,
     hasComplexScriptOutput: false,
-    fitAddon: { dispose: vi.fn() } as never,
+    fitController: { dispose: vi.fn() } as never,
     fitResizeObserver: null,
     pendingInitialFitRafId,
     pendingObservedFitRafId: null,
-    searchAddon: { dispose: vi.fn() } as never,
-    serializeAddon: { dispose: vi.fn() } as never,
+    searchController: { dispose: vi.fn() } as never,
+    serializeController: { dispose: vi.fn() } as never,
     unicode11Addon: { dispose: vi.fn() } as never,
     webLinksAddon: { dispose: vi.fn() } as never,
-    webglAddon: null,
+    gpuRenderer: null,
     ligaturesAddon: null,
     compositionHandler: null,
     pendingSplitScrollState: null,
@@ -64,7 +64,6 @@ describe('pane initial fit lifecycle', () => {
     )
     vi.stubGlobal('cancelAnimationFrame', cancelAnimationFrame)
     const pane = createPane(null)
-    const marker = { line: 42, isDisposed: false, dispose: vi.fn() }
 
     restoreScrollStateAfterFit(
       pane.terminal,
@@ -72,14 +71,12 @@ describe('pane initial fit lifecycle', () => {
         bufferType: 'normal',
         wasAtBottom: false,
         viewportY: 42,
-        baseY: 100,
-        firstVisibleLineMarker: marker as never
+        baseY: 100
       },
       { onRestored: vi.fn(), shouldRestore: () => true }
     )
     disposePane(pane, new Map([[pane.id, pane]]))
 
     expect(cancelAnimationFrame).toHaveBeenCalledWith(23)
-    expect(marker.dispose).toHaveBeenCalledTimes(1)
   })
 })

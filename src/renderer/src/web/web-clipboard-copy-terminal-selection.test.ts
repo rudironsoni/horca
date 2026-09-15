@@ -21,7 +21,7 @@ function createClipboardDataStub(): ClipboardDataStub {
   }
 }
 
-/** Stands in for xterm's copyHandler: bubble-phase, overwrites text/plain. */
+/** Stands in for terminal's copyHandler: bubble-phase, overwrites text/plain. */
 function mountTerminalWithSelection(selectionText: string): HTMLElement {
   const terminalElement = document.createElement('div')
   document.body.appendChild(terminalElement)
@@ -61,7 +61,7 @@ describe('web copy fallback vs. the terminal selection', () => {
 
   it('copies the requested text even when the selection anchor is inside a terminal', () => {
     // Copy Path / Copy Pane ID leave the selection in the terminal, so the copy event
-    // dispatches from there and a capture-phase write loses to xterm's bubble handler.
+    // dispatches from there and a capture-phase write loses to terminal's bubble handler.
     const terminalElement = mountTerminalWithSelection('rm -rf ./secret-dir')
     const clipboardData = createClipboardDataStub()
     stubExecCommand(terminalElement, clipboardData)

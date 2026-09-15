@@ -1,4 +1,3 @@
-import type { IBuffer, IDisposable } from '@xterm/xterm'
 import type { ManagedPaneInternal, ScrollState } from './pane-manager-types'
 import { releaseScrollStateMarker, restoreScrollState } from './pane-scroll'
 
@@ -45,16 +44,11 @@ function runAfterNormalBuffer(
   callback: (pane: ManagedPaneInternal) => void
 ): void {
   clearPendingSplitScrollBufferDisposable(pane)
-  let disposable: IDisposable | null = null
-  disposable = pane.terminal.buffer.onBufferChange((buffer: IBuffer) => {
-    if (buffer.type === 'alternate') {
-      return
-    }
+  const disposable = pane.terminal.whenPrimaryScreen(() => {
     if (pane.pendingSplitScrollBufferDisposable === disposable) {
       pane.pendingSplitScrollBufferDisposable = null
     }
-    disposable?.dispose()
-    disposable = null
+    disposable.dispose()
     if (isDestroyed()) {
       return
     }
@@ -118,10 +112,7 @@ export function scheduleSplitScrollRestore(
       }
       // Why: see the 200ms timer below — the alt-screen buffer belongs to a
       // TUI and restore-during-draw knocks its cursor one row off (#1298).
-      if (
-        scrollState.bufferType === 'alternate' ||
-        live.terminal.buffer.active.type === 'alternate'
-      ) {
+      if (scrollState.bufferType === 'alternate' || live.terminal.isAlternateScreen) {
         return
       }
       restoreScrollState(live.terminal, scrollState)
@@ -153,7 +144,7 @@ export function scheduleSplitScrollRestore(
     // Why: the alt-screen buffer belongs to a full-screen TUI (Claude Code,
     // vim, less) that owns its cursor position. Re-running scroll restore
     // and a full refresh here clobbers an in-progress draw — refresh(0,
-    // rows-1) repaints rows from xterm's buffer, racing the TUI's next
+    // rows-1) repaints rows from terminal's buffer, racing the TUI's next
     // write and leaving its cursor one row off (#1298 regression).
     // WebGL reattach also refreshes, so defer it until the TUI exits the
     // alternate buffer. Alt-screen has no scrollback, so scroll restore has
@@ -161,7 +152,7 @@ export function scheduleSplitScrollRestore(
     if (scrollState.bufferType === 'alternate') {
       clearPendingSplitScrollBufferDisposable(live)
       live.pendingSplitScrollState = null
-      if (live.terminal.buffer.active.type === 'alternate' && reattachWebgl) {
+      if (live.terminal.isAlternateScreen && reattachWebgl) {
         runAfterNormalBuffer(live, getPaneById, paneId, isDestroyed, reattachWebgl)
         return
       }
@@ -170,7 +161,7 @@ export function scheduleSplitScrollRestore(
       }
       return
     }
-    if (live.terminal.buffer.active.type === 'alternate') {
+    if (live.terminal.isAlternateScreen) {
       runAfterNormalBuffer(live, getPaneById, paneId, isDestroyed, (normalPane) => {
         restoreCapturedScrollState(normalPane, scrollState, reattachWebgl)
       })

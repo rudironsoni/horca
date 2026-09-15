@@ -1,5 +1,5 @@
-import type { ILink } from '@xterm/xterm'
 import { expect, it, vi } from 'vitest'
+import type { ILink } from '../../../../shared/orca-terminal-surface'
 import { createTerminalLinkTestDoubles } from './terminal-link-handlers-test-fixtures'
 import {
   createProvider,

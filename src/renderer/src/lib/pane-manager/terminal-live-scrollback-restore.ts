@@ -55,7 +55,7 @@ type PendingRestore = {
 /**
  * Preserves a pinned viewport across a live CSI 3 J that erases scrollback.
  *
- * Why a parser handler and not a scan of the outgoing bytes: xterm's parser
+ * Why a parser handler and not a scan of the outgoing bytes: terminal's parser
  * already carries sequence state across writes, so a redraw split over several
  * PTY chunks is reported once, at the exact point the erase is about to run.
  * That is also the only place where the rows written earlier in the same chunk
@@ -67,7 +67,7 @@ type PendingRestore = {
  * write would turn a pinned viewport into follow-output-at-an-offset and drag
  * the reader through whatever the program printed next.
  *
- * Capture and restore both hang off xterm's own events, so installing this is
+ * Capture and restore both hang off terminal's own events, so installing this is
  * the whole integration — there is no per-write wiring a caller can drop.
  */
 export function installTerminalLiveScrollbackRestore(
@@ -131,7 +131,7 @@ export function installTerminalLiveScrollbackRestore(
   }
 
   function observeEraseInDisplay(params: (number | number[])[]): boolean {
-    // Why params[0] is enough for the subparameter form: xterm reports CSI 3:1 J
+    // Why params[0] is enough for the subparameter form: terminal reports CSI 3:1 J
     // as [3, [1]], so the leading parameter still compares equal.
     if (params[0] !== ERASE_SCROLLBACK_PARAMETER) {
       return false
@@ -160,7 +160,7 @@ export function installTerminalLiveScrollbackRestore(
       return false
     }
     const captured = captureTerminalStructuralScrollIntent(terminal)
-    // Why skip follow-output: xterm already keeps a bottomed viewport at the
+    // Why skip follow-output: terminal already keeps a bottomed viewport at the
     // bottom, and re-latching it would only churn the intent revision.
     if (!captured || captured.kind !== 'pinnedViewport') {
       return false
@@ -182,19 +182,19 @@ export function installTerminalLiveScrollbackRestore(
     }
     pending = active
     armSettle(active)
-    // Why false: this observes the erase, it does not implement it — xterm's
+    // Why false: this observes the erase, it does not implement it — terminal's
     // own handler still has to clear the scrollback.
     return false
   }
 
-  // Why guarded: xterm runs custom handlers inside WriteBuffer._innerWrite with
+  // Why guarded: terminal runs custom handlers inside WriteBuffer._innerWrite with
   // no try/catch, and one throw there wedges the pane's write pipeline for good.
   const observeEraseInDisplayGuarded = guardParserHandler(
     'csi-erase-scrollback',
     observeEraseInDisplay
   )
 
-  // Why both forms: xterm routes the private `CSI ? 3 J` to its own handler, and
+  // Why both forms: terminal routes the private `CSI ? 3 J` to its own handler, and
   // that one erases scrollback too — a plain-only registration misses it.
   const registrations = [
     terminal.parser?.registerCsiHandler?.(

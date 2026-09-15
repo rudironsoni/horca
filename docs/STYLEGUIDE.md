@@ -4,7 +4,7 @@ This is the **UI/visual design** doc for Orca — color tokens, typography, comp
 
 ## Overview
 
-Orca is an Electron desktop app for orchestrating coding agents across git worktrees. The visual identity is **monochrome and quiet** — neutral grays carry the chrome, color is reserved for state (selection ring, destructive, git decorations). The product spends most of its time hosting other people's tools (Monaco, xterm, Markdown previews), so Orca's own UI should recede and frame.
+Orca is an Electron desktop app for orchestrating coding agents across git worktrees. The visual identity is **monochrome and quiet** — neutral grays carry the chrome, color is reserved for state (selection ring, destructive, git decorations). The product spends most of its time hosting other people's tools (Monaco, Ghostty, Markdown previews), so Orca's own UI should recede and frame.
 
 When in doubt:
 

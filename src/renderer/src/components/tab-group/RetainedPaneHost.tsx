@@ -34,6 +34,7 @@ type RetainedPaneHostProps = {
   children: React.ReactNode
   'data-terminal-overlay-tab-id'?: string
   'data-structured-agent-session-overlay-tab-id'?: string
+  'data-native-ghostty-occluder'?: string
 }
 
 export function RetainedPaneHost({
@@ -80,7 +81,7 @@ export function RetainedPaneHost({
         width: bodyRect.width,
         height: bodyRect.height
       }
-      // Why: ResizeObserver and xterm fit can otherwise amplify sub-pixel jitter forever.
+      // Why: ResizeObserver and terminal fit can otherwise amplify sub-pixel jitter forever.
       setMeasuredFallbackRect((prev) =>
         prev &&
         Math.abs(prev.top - next.top) < FALLBACK_RECT_MIN_CHANGE_PX &&

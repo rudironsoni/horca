@@ -37,7 +37,7 @@ type PersistedData = {
 
 type RendererOwnershipSnapshot = {
   paneCount: number
-  xtermCount: number
+  terminalCount: number
   rootLeafCount: number
   ptyBindingCount: number
   uniquePtyCount: number
@@ -122,7 +122,7 @@ async function readRendererOwnership(
     const ptyIds = Object.values(layout?.ptyIdsByLeafId ?? {})
     return {
       paneCount: manager?.getPanes?.().length ?? 0,
-      xtermCount: surface?.querySelectorAll('.xterm').length ?? 0,
+      terminalCount: surface?.querySelectorAll('.orca-terminal-canvas').length ?? 0,
       rootLeafCount: countLeaves(layout?.root ?? null),
       ptyBindingCount: ptyIds.length,
       uniquePtyCount: new Set(ptyIds).size
@@ -166,7 +166,7 @@ async function readRevealFrameDiagnostics(
       // Same pane resolution as readActiveScreen, so both halves describe one pane.
       const manager = window.__paneManagers?.get(tabId)
       const pane = manager?.getActivePane?.() ?? manager?.getPanes?.()[0]
-      return pane?.serializeAddon?.serialize?.() ?? null
+      return pane?.serializeController?.serialize?.() ?? null
     }, tabId)) ?? ''
   const prefix = `${marker} frame `
   const markerOffsets: number[] = []
@@ -262,7 +262,7 @@ test('repairs duplicate persisted PTY renderers before streaming tab reveal', as
       .poll(() => readRendererOwnership(secondLaunch.page, restoredTabId), { timeout: 10_000 })
       .toEqual({
         paneCount: 1,
-        xtermCount: 1,
+        terminalCount: 1,
         rootLeafCount: 1,
         ptyBindingCount: 1,
         uniquePtyCount: 1

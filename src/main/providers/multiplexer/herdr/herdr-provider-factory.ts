@@ -1,0 +1,252 @@
+import { herdrSessionNameForProject } from '../../../../shared/horca/herdr-session-identity'
+import type { Store } from '../../../persistence'
+import type { IPtyProvider } from '../../types'
+import { herdrServerEnvironment, localHerdrCommand } from './herdr-cli-session'
+import { HerdrSdkHost } from './herdr-sdk-host'
+import { HerdrPtyProvider } from './herdr-pty-provider'
+import type { HerdrPtyTarget } from './herdr-pty-types'
+import {
+  createHerdrPtyTargetResolver,
+  createLocalHerdrPtyTargetResolver
+} from './herdr-project-pty-target'
+import type { SshConnection } from '../../../ssh/ssh-connection'
+import type { RemoteHostPlatform } from '../../../ssh/ssh-remote-platform'
+import {
+  LOCAL_EXECUTION_HOST_ID,
+  toSshExecutionHostId,
+  type ExecutionHostId
+} from '../../../../shared/execution-host'
+import {
+  normalizeHerdrBinarySource,
+  type HerdrBinarySource
+} from '../../../../shared/horca/terminal-backend'
+import {
+  createHorcaTerminalSettingsSource,
+  type HorcaTerminalSettingsSource
+} from '../../../horca/terminal-backend/horca-terminal-settings'
+import { HerdrSshHostTransport } from './herdr-ssh-session'
+import type { HerdrHostTransport } from './herdr-runtime-contract'
+import { HerdrRuntimeError } from './herdr-runtime-contract'
+import { createHerdrSurfaceSync } from './herdr-surface-presentation'
+import { resolveWslHerdrExecutable } from './herdr-wsl-executable'
+import { existsSync } from 'node:fs'
+import { join } from 'node:path'
+import { getAppEnvironment } from '../../../../shared/app-environment'
+
+export function createLocalHerdrPtyProvider(
+  fallback: IPtyProvider | undefined,
+  store: Store,
+  terminalSettings: HorcaTerminalSettingsSource = createHorcaTerminalSettingsSource(store)
+): HerdrPtyProvider {
+  const transports = new Map<string, HerdrHostTransport>()
+  return new HerdrPtyProvider(
+    (target) => {
+      const hostId = target.identity.hostId
+      const settings = terminalSettings.getHerdrSettings(hostId as ExecutionHostId)
+      const projectSettings = terminalSettings.getProjectSettings(target.project.id)
+      const source = resolveHerdrBinarySource(settings, hostId as ExecutionHostId)
+      const sessionName = herdrSessionNameForProject(
+        {
+          id: target.project.id,
+          herdrSessionName:
+            (target.project as { herdrSessionName?: string }).herdrSessionName ??
+            projectSettings.sessionName
+        },
+        settings.defaultSessionName
+      )
+      const key = herdrTransportKey(target, sessionName, source)
+      let transport = transports.get(key)
+      if (transport) {
+        return transport
+      }
+      const wslDistro = parseWslHostId(hostId)
+      if (wslDistro) {
+        const executableFor = () => resolveWslHerdrExecutable(wslDistro, source)
+        transport = new HerdrSdkHost({
+          wslDistro,
+          commandFor: async (args) => ({
+            file: await executableFor(),
+            args
+          }),
+          serverCommandFor: async (name) => {
+            const executable = await executableFor()
+            const envKeysToRemove = Object.keys(process.env).filter((k) => k.startsWith('HERDR_'))
+            return {
+              file: '/usr/bin/env',
+              args: [
+                ...envKeysToRemove.flatMap((k) => ['-u', k]),
+                executable,
+                '--session',
+                name,
+                'server'
+              ]
+            }
+          }
+        })
+      } else {
+        const executable = resolveHerdrExecutable(source)
+        transport = new HerdrSdkHost({
+          commandFor: localHerdrCommand(executable),
+          serverCommandFor: (name) => ({
+            file: executable,
+            args: ['--session', name, 'server'],
+            env: herdrServerEnvironment(undefined, name)
+          })
+        })
+      }
+      transports.set(key, transport)
+      return transport
+    },
+    createLocalHerdrPtyTargetResolver(store, terminalSettings),
+    () => terminalSettings.getHerdrSettings(LOCAL_EXECUTION_HOST_ID).defaultSessionName,
+    createHerdrSurfaceSync(store),
+    fallback,
+    () => disconnectHerdrTransports(transports)
+  )
+}
+
+export function createSshHerdrPtyProvider(
+  fallback: IPtyProvider | undefined,
+  store: Store,
+  connection: SshConnection,
+  targetId: string,
+  hostPlatform?: RemoteHostPlatform,
+  terminalSettings: HorcaTerminalSettingsSource = createHorcaTerminalSettingsSource(store)
+): HerdrPtyProvider {
+  const hostId = toSshExecutionHostId(targetId)
+  const transports = new Map<string, HerdrHostTransport>()
+
+  return new HerdrPtyProvider(
+    (target) => {
+      const settings = terminalSettings.getHerdrSettings(hostId)
+      const source = resolveHerdrBinarySource(settings, hostId)
+      const projectSettings = terminalSettings.getProjectSettings(target.project.id)
+      const sessionName = herdrSessionNameForProject(
+        {
+          id: target.project.id,
+          herdrSessionName:
+            (target.project as { herdrSessionName?: string }).herdrSessionName ??
+            projectSettings.sessionName
+        },
+        settings.defaultSessionName
+      )
+      const key = herdrTransportKey(target, sessionName, source)
+      let transport = transports.get(key)
+      if (!transport) {
+        transport = createSshHerdrHostTransport(connection, source, hostPlatform)
+        transports.set(key, transport)
+      }
+      return transport
+    },
+    createHerdrPtyTargetResolver(store, hostId, terminalSettings),
+    () => terminalSettings.getHerdrSettings(hostId).defaultSessionName,
+    createHerdrSurfaceSync(store),
+    fallback,
+    () => disconnectHerdrTransports(transports)
+  )
+}
+
+function disconnectHerdrTransports(transports: Map<string, HerdrHostTransport>): void {
+  for (const transport of new Set(transports.values())) {
+    void Promise.resolve(transport.disconnect?.()).catch(() => undefined)
+  }
+  transports.clear()
+}
+
+function createSshHerdrHostTransport(
+  connection: SshConnection,
+  source: HerdrBinarySource,
+  hostPlatform?: RemoteHostPlatform
+): HerdrHostTransport {
+  if (hostPlatform?.os === 'win32') {
+    throw new HerdrRuntimeError(
+      'herdr_unsupported_remote_host',
+      'Herdr remote hosts must run Linux or macOS. Select the Orca backend for this Windows host.'
+    )
+  }
+  // Herdr 0.8.2 limits --remote to its interactive TUI launch. API subcommands
+  // are rejected, so programmatic pane control must stay on Orca's authenticated
+  // SSH execution boundary and run the remote Herdr CLI there.
+  const remoteExecutable = async () =>
+    resolveHerdrExecutable(source, hostPlatform?.os ?? 'linux', 'remote')
+  return new HerdrSshHostTransport(connection, 15_000, remoteExecutable, hostPlatform)
+}
+
+type HerdrSettings = {
+  binarySource?: unknown
+  herdrBinarySource?: unknown
+  hostSettingOverrides?: Partial<Record<ExecutionHostId, { herdrBinarySource?: unknown }>>
+}
+
+function herdrTransportKey(
+  target: HerdrPtyTarget,
+  sessionName: string,
+  source: HerdrBinarySource
+): string {
+  const sourceKey = source.kind === 'custom' ? `custom:${source.path.trim()}` : source.kind
+  return `${target.identity.hostId}\n${sessionName}\n${sourceKey}`
+}
+
+export function resolveHerdrBinarySource(
+  settings: HerdrSettings,
+  hostId: ExecutionHostId
+): HerdrBinarySource {
+  return normalizeHerdrBinarySource(
+    settings.hostSettingOverrides?.[hostId]?.herdrBinarySource ??
+      settings.herdrBinarySource ??
+      settings.binarySource
+  )
+}
+
+export function resolveHerdrExecutable(
+  source: HerdrBinarySource,
+  platform: NodeJS.Platform = process.platform,
+  location: 'local' | 'remote' = 'local'
+): string {
+  if (source.kind === 'custom') {
+    const customPath = source.path.trim()
+    if (!customPath) {
+      throw new HerdrRuntimeError('herdr_unavailable', 'Custom Herdr path is empty')
+    }
+    return customPath
+  }
+  if (source.kind === 'managed' && location === 'local') {
+    const environmentOverride = process.env.ORCA_HERDR_BUNDLED_BINARY?.trim()
+    if (environmentOverride) {
+      return environmentOverride
+    }
+    const executableName = platform === 'win32' ? 'herdr.exe' : 'herdr'
+    const resourcesPath = process.resourcesPath
+    if (resourcesPath) {
+      const packagedPath = join(resourcesPath, 'herdr', executableName)
+      if (existsSync(packagedPath)) {
+        return packagedPath
+      }
+      if (getAppEnvironment().isPackaged()) {
+        throw new HerdrRuntimeError(
+          'herdr_unavailable',
+          `Bundled Herdr executable is missing: ${packagedPath}`
+        )
+      }
+    }
+  }
+  return platform === 'win32' ? 'herdr.exe' : 'herdr'
+}
+
+function parseWslHostId(hostId: string): string | null {
+  if (!hostId.startsWith('wsl:')) {
+    return null
+  }
+  try {
+    const distro = decodeURIComponent(hostId.slice('wsl:'.length))
+    return distro || null
+  } catch {
+    return null
+  }
+}
+
+export {
+  presentHerdrImportedSurface,
+  presentHerdrSurfaceAction,
+  resetHerdrImportedSurfaceOwnersForTests
+} from './herdr-surface-presentation'

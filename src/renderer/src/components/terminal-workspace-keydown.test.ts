@@ -179,7 +179,7 @@ describe('tab.close uses the unified active tab', () => {
   function close(platform: NodeJS.Platform = 'darwin', terminalFocus = false): KeyboardEvent {
     const target = document.createElement('textarea')
     if (terminalFocus) {
-      target.classList.add('xterm-helper-textarea')
+      target.classList.add('orca-terminal-helper-textarea')
     }
     const event = new KeyboardEvent('keydown', {
       key: 'w',

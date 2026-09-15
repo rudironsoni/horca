@@ -144,7 +144,7 @@ describe('connectPanePty', () => {
   })
 
   describe('PTY size re-assert on visibility resume', () => {
-    // Why: a resize dropped while hidden leaves xterm and the PTY diverged, and dedupe hides it; resume re-asserts on real drift.
+    // Why: a resize dropped while hidden leaves terminal and the PTY diverged, and dedupe hides it; resume re-asserts on real drift.
     async function connectResumablePane(depsOverrides: Record<string, unknown> = {}): Promise<{
       binding: { noteVisibilityResume: () => void }
       transport: MockTransport
@@ -219,7 +219,7 @@ describe('connectPanePty', () => {
       }
     }
 
-    it('re-asserts the current size when the PTY drifted from xterm', async () => {
+    it('re-asserts the current size when the PTY drifted from terminal', async () => {
       vi.mocked(window.api.pty.getSize).mockResolvedValue({ cols: 80, rows: 24 })
       const { binding, transport } = await connectResumablePane()
       transport.resize.mockClear()
@@ -227,7 +227,7 @@ describe('connectPanePty', () => {
       binding.noteVisibilityResume()
       await flushAsyncTicks()
 
-      // xterm is 120x40 (createPane default), PTY reports 80x24 → re-assert.
+      // terminal is 120x40 (createPane default), PTY reports 80x24 → re-assert.
       expect(transport.resize).toHaveBeenCalledWith(120, 40, { claim: true })
     })
 
@@ -238,8 +238,8 @@ describe('connectPanePty', () => {
         pane.terminal.cols = 132
         pane.terminal.rows = 40
       })
-      pane.fitAddon = {
-        ...pane.fitAddon,
+      pane.fitController = {
+        ...pane.fitController,
         fit,
         proposeDimensions: vi.fn(() => ({ cols: 132, rows: 40 }))
       } as never
@@ -287,7 +287,7 @@ describe('connectPanePty', () => {
       }
     })
 
-    it('repairs stale xterm grid drift on foreground output even without a pane resize', async () => {
+    it('repairs stale terminal grid drift on foreground output even without a pane resize', async () => {
       const { connectPanePty } = await import('./pty-connection')
       const transport = createMockTransport('pty-pane-2')
       const capturedDataCallback: { current: ((data: string) => void) | null } = { current: null }
@@ -307,8 +307,8 @@ describe('connectPanePty', () => {
       let proposedGrid = { cols: 62, rows: 63 }
       pane.terminal.cols = 62
       pane.terminal.rows = 63
-      pane.fitAddon = {
-        ...pane.fitAddon,
+      pane.fitController = {
+        ...pane.fitController,
         fit: vi.fn(() => {
           pane.terminal.cols = proposedGrid.cols
           pane.terminal.rows = proposedGrid.rows
@@ -320,7 +320,7 @@ describe('connectPanePty', () => {
       connectPanePty(pane as never, manager as never, deps as never)
       await flushAsyncTicks()
       proposedGrid = { cols: 65, rows: 63 }
-      vi.mocked(pane.fitAddon.fit).mockClear()
+      vi.mocked(pane.fitController.fit).mockClear()
       transport.resize.mockClear()
       vi.mocked(window.api.pty.getSize).mockClear()
       expect(capturedDataCallback.current).not.toBeNull()
@@ -328,7 +328,7 @@ describe('connectPanePty', () => {
       capturedDataCallback.current?.('\x1b[?2026hcodex redraw frame')
       await flushAsyncTicks()
 
-      expect(pane.fitAddon.fit).toHaveBeenCalled()
+      expect(pane.fitController.fit).toHaveBeenCalled()
       expect(window.api.pty.getSize).toHaveBeenCalledWith('pty-pane-2')
       expect(transport.resize).toHaveBeenCalledWith(65, 63, { claim: true })
     })
@@ -354,8 +354,8 @@ describe('connectPanePty', () => {
       let proposedGrid = { cols: 62, rows: 63 }
       pane.terminal.cols = 62
       pane.terminal.rows = 63
-      pane.fitAddon = {
-        ...pane.fitAddon,
+      pane.fitController = {
+        ...pane.fitController,
         fit: vi.fn(() => {
           pane.terminal.cols = proposedGrid.cols
           pane.terminal.rows = proposedGrid.rows
@@ -368,7 +368,7 @@ describe('connectPanePty', () => {
         await flushAsyncTicks()
         proposedGrid = { cols: 65, rows: 63 }
         setDriverForPty('pty-pane-2', { kind: 'mobile', clientId: 'phone-1' })
-        vi.mocked(pane.fitAddon.fit).mockClear()
+        vi.mocked(pane.fitController.fit).mockClear()
         transport.resize.mockClear()
         vi.mocked(window.api.pty.getSize).mockClear()
         expect(capturedDataCallback.current).not.toBeNull()
@@ -376,7 +376,7 @@ describe('connectPanePty', () => {
         capturedDataCallback.current?.('\x1b[?2026hcodex redraw frame')
         await flushAsyncTicks()
 
-        expect(pane.fitAddon.fit).not.toHaveBeenCalled()
+        expect(pane.fitController.fit).not.toHaveBeenCalled()
         expect(window.api.pty.getSize).not.toHaveBeenCalled()
         expect(transport.resize).not.toHaveBeenCalled()
       } finally {
@@ -397,8 +397,8 @@ describe('connectPanePty', () => {
           restoredLeafId: LEAF_2,
           paneTransportsRef: { current: new Map([[1, createMockTransport('pty-pane-1')]]) }
         })
-        pane.fitAddon = {
-          ...pane.fitAddon,
+        pane.fitController = {
+          ...pane.fitController,
           proposeDimensions: vi.fn(() => ({ cols: 101, rows: 33 }))
         } as never
 
@@ -421,7 +421,7 @@ describe('connectPanePty', () => {
       }
     })
 
-    it('updates the claiming desktop xterm before forwarding an observed viewport claim', async () => {
+    it('updates the claiming desktop terminal before forwarding an observed viewport claim', async () => {
       const originalDocument = globalThis.document
       ;(globalThis as { document?: Document }).document = {
         visibilityState: 'visible',
@@ -444,8 +444,8 @@ describe('connectPanePty', () => {
           paneTransportsRef: { current: new Map([[1, createMockTransport('pty-pane-1')]]) }
         })
         let proposedGrid = { cols: 120, rows: 40 }
-        pane.fitAddon = {
-          ...pane.fitAddon,
+        pane.fitController = {
+          ...pane.fitController,
           proposeDimensions: vi.fn(() => proposedGrid)
         } as never
 
@@ -496,8 +496,8 @@ describe('connectPanePty', () => {
           paneTransportsRef: { current: new Map([[1, createMockTransport('pty-pane-1')]]) }
         })
         let proposedGrid = { cols: 120, rows: 40 }
-        pane.fitAddon = {
-          ...pane.fitAddon,
+        pane.fitController = {
+          ...pane.fitController,
           proposeDimensions: vi.fn(() => proposedGrid)
         } as never
         connectPanePty(pane as never, manager as never, deps as never)
@@ -540,8 +540,8 @@ describe('connectPanePty', () => {
           paneTransportsRef: { current: new Map([[1, createMockTransport('pty-pane-1')]]) }
         })
         const fit = vi.fn()
-        pane.fitAddon = {
-          ...pane.fitAddon,
+        pane.fitController = {
+          ...pane.fitController,
           fit,
           proposeDimensions: vi.fn(() => ({ cols: 130, rows: 50 }))
         } as never
@@ -567,7 +567,7 @@ describe('connectPanePty', () => {
       }
     })
 
-    it('does NOT re-assert when the PTY already matches xterm (no spurious SIGWINCH)', async () => {
+    it('does NOT re-assert when the PTY already matches terminal (no spurious SIGWINCH)', async () => {
       vi.mocked(window.api.pty.getSize).mockResolvedValue({ cols: 120, rows: 40 })
       const { binding, transport } = await connectResumablePane()
       transport.resize.mockClear()
@@ -676,8 +676,8 @@ describe('connectPanePty', () => {
         paneTransportsRef: { current: new Map([[1, createMockTransport('pty-pane-1')]]) }
       })
       const pane = createPane(2)
-      pane.fitAddon = {
-        ...pane.fitAddon,
+      pane.fitController = {
+        ...pane.fitController,
         proposeDimensions: vi.fn(() => ({ cols: 132, rows: 42 }))
       } as never
       const binding = connectPanePty(pane as never, createManager(2) as never, deps as never)

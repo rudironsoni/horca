@@ -153,10 +153,10 @@ describe('resolveTerminalKeyboardShortcutAction', () => {
 describe('runTerminalSearchNavigation', () => {
   const searchState = { query: 'hello', caseSensitive: true, regex: false }
 
-  it('runs the next search through the guarded xterm path', () => {
+  it('runs the next search through the guarded terminal path', () => {
     const findNext = vi.fn(() => true)
     const findPrevious = vi.fn(() => false)
-    const pane = { searchAddon: { findNext, findPrevious } } as unknown as Parameters<
+    const pane = { searchController: { findNext, findPrevious } } as unknown as Parameters<
       typeof runTerminalSearchNavigation
     >[0]
 
@@ -165,10 +165,10 @@ describe('runTerminalSearchNavigation', () => {
     expect(findPrevious).not.toHaveBeenCalled()
   })
 
-  it('runs the previous search through the guarded xterm path', () => {
+  it('runs the previous search through the guarded terminal path', () => {
     const findNext = vi.fn(() => false)
     const findPrevious = vi.fn(() => true)
-    const pane = { searchAddon: { findNext, findPrevious } } as unknown as Parameters<
+    const pane = { searchController: { findNext, findPrevious } } as unknown as Parameters<
       typeof runTerminalSearchNavigation
     >[0]
 
@@ -177,11 +177,23 @@ describe('runTerminalSearchNavigation', () => {
     expect(findNext).not.toHaveBeenCalled()
   })
 
-  it('contains the xterm decoration positive-integer crash from shortcut navigation', () => {
+  it('contains the terminal decoration positive-integer crash from shortcut navigation', () => {
     const findNext = vi.fn(() => {
       throw new Error('This API only accepts positive integers')
     })
-    const pane = { searchAddon: { findNext } } as unknown as Parameters<
+    const pane = { searchController: { findNext } } as unknown as Parameters<
+      typeof runTerminalSearchNavigation
+    >[0]
+
+    expect(() => runTerminalSearchNavigation(pane, 'next', searchState)).not.toThrow()
+    expect(runTerminalSearchNavigation(pane, 'next', searchState)).toBe(false)
+  })
+
+  it('contains the Ghostty unbound findNext crash from shortcut navigation', () => {
+    const findNext = vi.fn(() => {
+      throw new Error('GhosttyTerminal is not bound')
+    })
+    const pane = { searchController: { findNext } } as unknown as Parameters<
       typeof runTerminalSearchNavigation
     >[0]
 

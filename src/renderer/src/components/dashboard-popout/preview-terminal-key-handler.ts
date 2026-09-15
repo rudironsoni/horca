@@ -1,4 +1,3 @@
-import type { Terminal } from '@xterm/xterm'
 import { getShortcutPlatform } from '@/lib/shortcut-platform'
 import { keybindingMatchesAction } from '../../../../shared/keybindings'
 import { useAppStore } from '@/store'
@@ -16,7 +15,7 @@ import {
 import { readTerminalClipboardSelection } from '@/components/terminal-pane/terminal-clipboard-selection-text'
 
 /**
- * Installs the preview terminal's ONE custom key handler (xterm allows a single
+ * Installs the preview terminal's ONE custom key handler (terminal allows a single
  * attachCustomKeyEventHandler) covering copy/paste chords, the IME native-text
  * bypass, and the full pane shortcut policy. On macOS plain Cmd+V is left to
  * the Edit-menu accelerator, which reaches this window as an app-menu paste —
@@ -25,8 +24,17 @@ import { readTerminalClipboardSelection } from '@/components/terminal-pane/termi
  * Returns a disposer for the Option-key location listeners the policy needs to
  * tell left Option from right.
  */
+export type PreviewKeyTerminal = {
+  element: HTMLElement
+  getSelection: () => string
+  scrollToTop: () => void
+  scrollToBottom: () => void
+  selectAll: () => void
+  encodeKey: (event: KeyboardEvent) => string
+}
+
 export function installPreviewTerminalKeyHandler(args: {
-  terminal: Terminal
+  terminal: PreviewKeyTerminal
   claimImeKeyEvent: (event: KeyboardEvent) => boolean
   pasteClipboardText: (activeElement: Element | null, source: 'keyboard') => void
   sendInput: (data: string) => void
@@ -89,9 +97,43 @@ export function installPreviewTerminalKeyHandler(args: {
   window.addEventListener('beforeinput', onNativeOnlyBeforeInput, true)
   window.addEventListener('blur', onWindowBlur)
 
-  terminal.attachCustomKeyEventHandler((event) => {
+  const onTerminalKey = (event: KeyboardEvent): void => {
+    const passToEngine = handlePreviewKey(event)
+    if (!passToEngine) {
+      return
+    }
+    if (event.type !== 'keydown' && event.type !== 'keyup') {
+      return
+    }
+    if (
+      event.metaKey ||
+      event.key === 'Meta' ||
+      event.key === 'Control' ||
+      event.key === 'Alt' ||
+      event.key === 'Shift'
+    ) {
+      if (
+        event.key === 'Meta' ||
+        event.key === 'Control' ||
+        event.key === 'Alt' ||
+        event.key === 'Shift'
+      ) {
+        return
+      }
+    }
+    const encoded = terminal.encodeKey(event)
+    if (encoded) {
+      args.sendInput(encoded)
+      event.preventDefault()
+    }
+  }
+  terminal.element.addEventListener('keydown', onTerminalKey)
+  terminal.element.addEventListener('keyup', onTerminalKey)
+
+  const handlePreviewKey = (event: KeyboardEvent): boolean => {
     if (args.claimImeKeyEvent(event)) {
-      // Why: bypass xterm's kitty encoder for native-text keydowns so the committed glyph survives via the input event.
+      event.preventDefault()
+      event.stopPropagation()
       return false
     }
     if (event.type !== 'keydown') {
@@ -190,12 +232,12 @@ export function installPreviewTerminalKeyHandler(args: {
         }
         return consumeEvent(event)
       case 'switchInputSource':
-        // Why: the OS owns this chord — block xterm without preventing the default.
+        // Why: the OS owns this chord — block terminal without preventing the default.
         nativeOnlyShortcutTracker.armKeyDown(event)
         event.stopImmediatePropagation()
         return false
       // Why: pane-scoped chords have no target in a preview dialog. Swallow them
-      // — a pane never sends these bytes to the shell, and xterm would encode
+      // — a pane never sends these bytes to the shell, and terminal would encode
       // e.g. Ctrl+Shift+D as a bare Ctrl+D. Listed one by one rather than under a
       // `default` so a newly added action has to be classified here, not
       // silently swallowed.
@@ -211,9 +253,11 @@ export function installPreviewTerminalKeyHandler(args: {
       case 'toggleSearch':
         return consumeEvent(event)
     }
-  })
+  }
 
   return () => {
+    terminal.element.removeEventListener('keydown', onTerminalKey)
+    terminal.element.removeEventListener('keyup', onTerminalKey)
     window.removeEventListener('keydown', onModifierDown, true)
     window.removeEventListener('keyup', onModifierUp, true)
     window.removeEventListener('keypress', onNativeOnlyShortcutCompanion, true)

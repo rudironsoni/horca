@@ -127,7 +127,7 @@ function seedRemoteRepo(target: DockerSshRelayTarget, repoPath: string): void {
 }
 
 /**
- * The fixture image ships Debian's `/etc/bash.bashrc` with the xterm title block commented out and
+ * The fixture image ships Debian's `/etc/bash.bashrc` with the terminal title block commented out and
  * an all-comments `/root/.bashrc`, so its shell never emits OSC 0. Orca derives a tab title from
  * that sequence, so without this every SSH tab keeps its `Terminal N` placeholder no matter how
  * healthy the shell is. Opt in from specs that assert on titles; a real user's shell sets one.

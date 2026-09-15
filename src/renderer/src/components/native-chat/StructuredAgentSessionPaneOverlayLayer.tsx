@@ -36,6 +36,7 @@ const StructuredAgentSessionOverlaySlot = memo(function StructuredAgentSessionOv
       groupId={groupId}
       isVisible={isActive}
       data-structured-agent-session-overlay-tab-id={tab.id}
+      data-native-ghostty-occluder=""
       onFocusOwningGroup={onFocusOwningGroup}
     >
       <NativeChatView

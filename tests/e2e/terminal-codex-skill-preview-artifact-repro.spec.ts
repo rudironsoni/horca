@@ -294,12 +294,12 @@ async function describeActiveTerminalPanes(page: Page): Promise<PaneDescriptor[]
           }
           const rect = pane.container.getBoundingClientRect()
           const screenRect = pane.container
-            .querySelector<HTMLElement>('.xterm-screen')
+            .querySelector<HTMLElement>('.orca-terminal-canvas')
             ?.getBoundingClientRect()
           const rendering = diagnostics.find((diagnostic) => diagnostic.paneId === pane.id)
           let proposed: { cols: number; rows: number } | null = null
           try {
-            proposed = pane.fitAddon.proposeDimensions() ?? null
+            proposed = pane.fitController.proposeDimensions() ?? null
           } catch {
             proposed = null
           }
@@ -344,7 +344,7 @@ async function focusTerminalPane(page: Page, pane: PaneDescriptor): Promise<void
     pane.terminal.options.cursorBlink = false
     pane.terminal.options.cursorStyle = 'block'
     pane.terminal.focus()
-    pane.container.querySelector<HTMLTextAreaElement>('.xterm-helper-textarea')?.focus()
+    pane.container.querySelector<HTMLTextAreaElement>('.orca-terminal-helper-textarea')?.focus()
   }, pane)
 }
 
@@ -378,7 +378,7 @@ async function readPaneContent(
       const pane = manager
         ?.getPanes?.()
         .find((candidate) => candidate.container.dataset.ptyId === ptyId)
-      const content = pane?.serializeAddon?.serialize?.() ?? ''
+      const content = pane?.serializeController?.serialize?.() ?? ''
       return content.slice(-charLimit)
     },
     { tabId, ptyId, charLimit }
@@ -483,7 +483,7 @@ async function clickPaneAfterEvidenceCapture(page: Page, pane: PaneDescriptor): 
 }
 
 async function screenshotPane(page: Page, ptyId: string): Promise<Buffer> {
-  const screen = page.locator(`[data-pty-id="${ptyId}"] .xterm-screen`).first()
+  const screen = page.locator(`[data-pty-id="${ptyId}"] .orca-terminal-canvas`).first()
   await expect(screen).toBeVisible({ timeout: 10_000 })
   return Buffer.from(await screen.screenshot({ animations: 'disabled' }))
 }
