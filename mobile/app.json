@@ -1,14 +1,8 @@
 {
   "expo": {
-<<<<<<< HEAD
-    "name": "Orca",
-    "slug": "orca-mobile",
-    "version": "0.0.50",
-=======
     "name": "Horca",
     "slug": "horca-mobile",
-    "version": "0.0.48",
->>>>>>> 5767aa04a (feat(terminal): native GPU libghostty and one mobile tree (#125))
+    "version": "0.0.50",
     "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
