@@ -48,21 +48,33 @@ export function encodeMouse(
 }
 
 export function findNext(engine: GhosttyTerminal, query: string): boolean {
+  if (engine.isDisposed) {
+    return false
+  }
   const { host, term } = ghosttyVt(engine)
   return searchNext(host, term, query)
 }
 
 export function findPrevious(engine: GhosttyTerminal, query: string): boolean {
+  if (engine.isDisposed) {
+    return false
+  }
   const { host, term } = ghosttyVt(engine)
   return searchPrevious(host, term, query)
 }
 
 export function clearSelection(engine: GhosttyTerminal): void {
+  if (engine.isDisposed) {
+    return
+  }
   const { host, term } = ghosttyVt(engine)
   clearSelectionOnTerminal(host, term)
 }
 
 export function readScrollbar(engine: GhosttyTerminal): ReturnType<typeof readScrollbarAt> {
+  if (engine.isDisposed) {
+    return { total: 0, offset: 0, len: 0 }
+  }
   const { host, term } = ghosttyVt(engine)
   return readScrollbarAt(host, term)
 }
@@ -72,11 +84,17 @@ export function scrollViewport(
   tag: 'TOP' | 'BOTTOM' | 'DELTA' | 'ROW',
   value = 0
 ): void {
+  if (engine.isDisposed) {
+    return
+  }
   const { host, term } = ghosttyVt(engine)
   scrollViewportAt(host, term, tag, value)
 }
 
 export function readGridLine(engine: GhosttyTerminal, row: number): GridLine | undefined {
+  if (engine.isDisposed) {
+    return undefined
+  }
   const { host, term } = ghosttyVt(engine)
   return readGridLineAt(host, term, engine.cols, row)
 }
