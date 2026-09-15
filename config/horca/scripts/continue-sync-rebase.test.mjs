@@ -190,6 +190,29 @@ ${tooltip}
     assert.equal(css.includes('#10481'), true)
   })
 
+  it('keeps Horca helper-textarea CSS when upstream already has contain:paint', () => {
+    const ours = `.orca-terminal-container {
+  box-sizing: border-box;
+  width: calc(100% - var(--pane-padding-x, 4px));
+}
+.orca-terminal-container > .orca-terminal-helper-textarea {
+  position: absolute;
+  opacity: 0;
+}
+`
+    const theirs = `.xterm-container {
+  box-sizing: border-box;
+  width: calc(100% - var(--pane-padding-x, 4px));
+  contain: paint;
+}
+`
+    const css = keepPaintContainmentInOverlayTerminalCss(ours, theirs)
+    assert.equal(css.includes('.orca-terminal-helper-textarea'), true)
+    assert.equal(css.includes('.orca-terminal-container'), true)
+    assert.equal(css.includes('contain: paint'), true)
+    assert.equal(css.includes('.xterm-container'), false)
+  })
+
   it('keeps Horca mobile identity and takes the upstream version', () => {
     const ours = `{
   "expo": {

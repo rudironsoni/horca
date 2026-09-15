@@ -5,6 +5,23 @@ import { measureCellSize, type OrcaPaneAppearance } from './orca-pane-appearance
 import { bindOrcaPaneGhosttyAppearance } from './orca-pane-ghostty-appearance'
 import { createOrcaPaneCursorBlink } from './orca-pane-cursor-blink'
 
+function hideOrcaPaneHelperTextarea(textarea: HTMLTextAreaElement): void {
+  textarea.className = 'orca-terminal-helper-textarea'
+  textarea.tabIndex = 0
+  textarea.setAttribute('aria-label', 'Terminal input')
+  textarea.style.position = 'absolute'
+  textarea.style.opacity = '0'
+  textarea.style.caretColor = 'transparent'
+  textarea.style.width = '0'
+  textarea.style.height = '0'
+  textarea.style.border = '0'
+  textarea.style.padding = '0'
+  textarea.style.margin = '0'
+  textarea.style.resize = 'none'
+  textarea.style.overflow = 'hidden'
+  textarea.style.zIndex = '-5'
+}
+
 export function createOrcaPaneSurface(appearance: OrcaPaneAppearance): {
   canvas: HTMLCanvasElement
   textarea: HTMLTextAreaElement
@@ -20,9 +37,7 @@ export function createOrcaPaneSurface(appearance: OrcaPaneAppearance): {
   canvas.tabIndex = -1
   canvas.style.display = 'block'
   const textarea = document.createElement('textarea')
-  textarea.className = 'orca-terminal-helper-textarea'
-  textarea.tabIndex = 0
-  textarea.setAttribute('aria-label', 'Terminal input')
+  hideOrcaPaneHelperTextarea(textarea)
   const host = getGhosttyVtHostOrThrow()
   const engine = new GhosttyTerminal(host, {
     cols: 80,

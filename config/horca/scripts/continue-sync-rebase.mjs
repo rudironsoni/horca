@@ -113,20 +113,40 @@ export function retargetGeometryTestXtermSelectors(source) {
     .replaceAll('\\.xterm-container', '\\.orca-terminal-container')
 }
 
-export function keepPaintContainmentInOverlayTerminalCss(ours, theirs) {
-  if (theirs.includes('contain: paint') || !ours.includes('contain: paint')) {
+function overlayTerminalCss(ours, theirs) {
+  if (
+    ours.includes('.orca-terminal-container') ||
+    ours.includes('.orca-terminal-helper-textarea')
+  ) {
+    return ours
+  }
+  if (
+    theirs.includes('.orca-terminal-container') ||
+    theirs.includes('.orca-terminal-helper-textarea')
+  ) {
     return theirs
+  }
+  return ours
+}
+
+function injectPaintContainment(css) {
+  if (css.includes('contain: paint')) {
+    return css
   }
   const widthMarker = 'width: calc(100% - var(--pane-padding-x, 4px));'
-  const widthAt = theirs.indexOf(widthMarker)
+  const widthAt = css.indexOf(widthMarker)
   if (widthAt === -1) {
-    return theirs
+    return css
   }
-  const close = theirs.indexOf('\n}', widthAt)
+  const close = css.indexOf('\n}', widthAt)
   if (close === -1) {
-    return theirs
+    return css
   }
-  return `${theirs.slice(0, close)}\n${PAINT_CONTAINMENT}${theirs.slice(close)}`
+  return `${css.slice(0, close)}\n${PAINT_CONTAINMENT}${css.slice(close)}`
+}
+
+export function keepPaintContainmentInOverlayTerminalCss(ours, theirs) {
+  return injectPaintContainment(overlayTerminalCss(ours, theirs))
 }
 
 export function keepHorcaMobileIdentityWithUpstreamVersion(ours, theirs) {

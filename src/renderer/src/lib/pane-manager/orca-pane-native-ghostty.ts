@@ -100,7 +100,7 @@ export function attachOrcaPaneNativeGhostty(
   if (!api || !isRendererNativeGhosttyGpuAvailable()) {
     return noopNativeGhostty()
   }
-  canvas.style.display = 'none'
+  canvas.style.display = 'block'
   let surfaceId: number | null = null
   const pending: string[] = []
   const sync = (): void => {
@@ -113,7 +113,6 @@ export function attachOrcaPaneNativeGhostty(
   }
   void api.attach(readBounds(host)).then((id) => {
     if (id == null) {
-      canvas.style.display = 'block'
       pending.length = 0
       return
     }
@@ -154,7 +153,6 @@ export function attachOrcaPaneNativeGhostty(
       observer?.disconnect()
       mutation?.disconnect()
       window.removeEventListener('resize', sync)
-      canvas.style.display = 'block'
       if (surfaceId != null) {
         void api.destroy(surfaceId)
       }
