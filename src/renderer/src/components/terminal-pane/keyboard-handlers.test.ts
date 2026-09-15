@@ -188,6 +188,18 @@ describe('runTerminalSearchNavigation', () => {
     expect(() => runTerminalSearchNavigation(pane, 'next', searchState)).not.toThrow()
     expect(runTerminalSearchNavigation(pane, 'next', searchState)).toBe(false)
   })
+
+  it('contains the Ghostty unbound findNext crash from shortcut navigation', () => {
+    const findNext = vi.fn(() => {
+      throw new Error('GhosttyTerminal is not bound')
+    })
+    const pane = { searchController: { findNext } } as unknown as Parameters<
+      typeof runTerminalSearchNavigation
+    >[0]
+
+    expect(() => runTerminalSearchNavigation(pane, 'next', searchState)).not.toThrow()
+    expect(runTerminalSearchNavigation(pane, 'next', searchState)).toBe(false)
+  })
 })
 
 describe('matchFileSearchShortcut', () => {
