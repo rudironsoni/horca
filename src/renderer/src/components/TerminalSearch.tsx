@@ -19,7 +19,7 @@ function clearTerminalSearch(searchController: PaneSearchController | null): voi
     return
   }
   searchController.clearDecorations()
-  searchController.findNext('')
+  safeFind((term) => searchController.findNext(term), '')
 }
 
 export default function TerminalSearch({
