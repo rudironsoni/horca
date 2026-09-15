@@ -17,8 +17,7 @@ export class GhosttyWebglAtlas {
   private readonly buffer: WebGLBuffer
   private readonly vao: WebGLVertexArrayObject
   private readonly texture: WebGLTexture
-  private readonly baker: OffscreenCanvas | HTMLCanvasElement
-  private readonly bakeCtx: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D
+  private readonly baker: HTMLCanvasElement
   private readonly glyphs = new Map<string, GlyphSlot>()
   private atlasX = 1
   private atlasY = 1
@@ -39,15 +38,10 @@ export class GhosttyWebglAtlas {
     this.vao = vao
     this.buffer = buffer
     this.texture = texture
-    this.baker =
-      typeof OffscreenCanvas === 'function'
-        ? new OffscreenCanvas(64, 64)
-        : document.createElement('canvas')
-    const bakeCtx = this.baker.getContext('2d')
-    if (!bakeCtx) {
+    this.baker = document.createElement('canvas')
+    if (!this.baker.getContext('2d')) {
       throw new Error('glyph baker unavailable')
     }
-    this.bakeCtx = bakeCtx
     this.bindProgram()
     this.initTexture()
   }
@@ -152,14 +146,18 @@ export class GhosttyWebglAtlas {
     }
     this.baker.width = w
     this.baker.height = h
-    this.bakeCtx.clearRect(0, 0, w, h)
-    this.bakeCtx.font = font
-    this.bakeCtx.fillStyle = '#fff'
-    this.bakeCtx.textBaseline = 'alphabetic'
-    const metrics = this.bakeCtx.measureText(grapheme)
+    const bakeCtx = this.baker.getContext('2d')
+    if (!bakeCtx) {
+      return { u: 0, v: 0, uw: 0, vh: 0 }
+    }
+    bakeCtx.clearRect(0, 0, w, h)
+    bakeCtx.font = font
+    bakeCtx.fillStyle = '#fff'
+    bakeCtx.textBaseline = 'alphabetic'
+    const metrics = bakeCtx.measureText(grapheme)
     const ascent = metrics.actualBoundingBoxAscent || h * 0.8
     const descent = metrics.actualBoundingBoxDescent || h * 0.2
-    this.bakeCtx.fillText(grapheme, 0, (h - (ascent + descent)) / 2 + ascent)
+    bakeCtx.fillText(grapheme, 0, (h - (ascent + descent)) / 2 + ascent)
     this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture)
     this.gl.texSubImage2D(
       this.gl.TEXTURE_2D,
@@ -246,6 +244,8 @@ export class GhosttyWebglAtlas {
 
   private initTexture(): void {
     const gl = this.gl
+    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, 0)
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1)
     gl.bindTexture(gl.TEXTURE_2D, this.texture)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
@@ -273,7 +273,7 @@ export function tryCreateGhosttyWebglAtlas(canvas: HTMLCanvasElement): GhosttyWe
   const gl = canvas.getContext('webgl2', {
     alpha: true,
     antialias: false,
-    premultipliedAlpha: true
+    premultipliedAlpha: false
   })
   if (!isUsableWebGL2(gl)) {
     return null

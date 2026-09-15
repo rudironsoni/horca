@@ -70,6 +70,8 @@ describe('createPaneDOM link tooltips', () => {
     expect(pane.terminalHost.contains(pane.terminal.element)).toBe(true)
     expect(pane.terminal.element.tagName).toBe('CANVAS')
     expect(pane.terminal.textarea.className).toBe('orca-terminal-helper-textarea')
+    expect(pane.terminal.textarea.style.opacity).toBe('0')
+    expect(pane.terminal.textarea.style.caretColor).toBe('transparent')
     expect(pane.terminal.serialize()).toContain('hello ghostty')
     pane.terminal.dispose()
   })
@@ -153,6 +155,31 @@ describe('createPaneDOM link tooltips', () => {
       requestAnimationFrame(() => resolve())
     })
     expect(fillTexts.some((text) => text.includes('hello'))).toBe(true)
+    pane.terminal.dispose()
+  })
+
+  it('still paints glyphs after leftover xterm loseGpuContext', async () => {
+    const fillTexts: string[] = []
+    HTMLCanvasElement.prototype.getContext = vi.fn(() => stubCanvas(undefined, fillTexts)) as never
+    const leafId = '11111111-1111-4111-8111-111111111111' as TerminalLeafId
+    const pane = createPaneDOM(
+      1,
+      leafId,
+      { linkOpenHint: () => 'open hint' },
+      { active: null } as never,
+      {} as never,
+      vi.fn(),
+      vi.fn()
+    )
+    pane.terminal.write('hello ghostty')
+    pane.terminal.loseGpuContext()
+    pane.terminal.write(' still here')
+    pane.terminal.refresh()
+    await new Promise<void>((resolve) => {
+      requestAnimationFrame(() => resolve())
+    })
+    expect(fillTexts.some((text) => text.includes('hello'))).toBe(true)
+    expect(fillTexts.some((text) => text.includes('still'))).toBe(true)
     pane.terminal.dispose()
   })
 
