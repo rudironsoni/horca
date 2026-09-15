@@ -36,7 +36,7 @@ describe('orca pane native Ghostty GPU', () => {
     expect(canvas.style.display).not.toBe('none')
   })
 
-  it('attaches, hides the canvas, and forwards writes when the preload reports GPU', async () => {
+  it('forwards writes without hiding the in-process canvas when the preload reports GPU', async () => {
     const writes: string[] = []
     const api = {
       isAvailable: () => true,
@@ -56,14 +56,14 @@ describe('orca pane native Ghostty GPU', () => {
     document.body.appendChild(host)
     const native = attachOrcaPaneNativeGhostty(canvas, host)
     expect(native.attached).toBe(true)
-    expect(canvas.style.display).toBe('none')
+    expect(canvas.style.display).not.toBe('none')
     native.write('hello')
     await api.attach.mock.results[0]?.value
     await Promise.resolve()
     expect(writes).toEqual(['hello'])
     native.dispose()
     expect(api.destroy).toHaveBeenCalledWith(7)
-    expect(canvas.style.display).toBe('block')
+    expect(canvas.style.display).not.toBe('none')
     restore()
   })
 })

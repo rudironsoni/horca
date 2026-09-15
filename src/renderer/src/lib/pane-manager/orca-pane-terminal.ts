@@ -267,7 +267,7 @@ export class OrcaPaneTerminal extends OrcaPaneListenerHub {
     return this.engine.isDisposed
   }
   loseGpuContext(): void {
-    this.renderer.loseContext()
+    this.renderer.invalidate()
   }
   invalidateGpuAtlas(): void {
     this.renderer.invalidate()

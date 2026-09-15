@@ -57,12 +57,12 @@ export class GhosttyRenderer {
   constructor(host: GhosttyVtHost, canvas: HTMLCanvasElement, options: GhosttyRendererOptions) {
     this.host = host
     this.canvas = canvas
-    this.gpu = tryCreateGhosttyWebglAtlas(canvas)
-    const ctx = this.gpu ? null : canvas.getContext('2d')
-    if (!this.gpu && !ctx) {
+    // Why: WebGL2 on this canvas cannot fall back to 2d after loseContext, and leftover xterm disposeWebgl blanks glyphs.
+    this.ctx = canvas.getContext('2d')
+    this.gpu = this.ctx ? null : tryCreateGhosttyWebglAtlas(canvas)
+    if (!this.gpu && !this.ctx) {
       throw new Error('Canvas2D is unavailable')
     }
-    this.ctx = ctx
     this.cellWidth = options.cellWidth
     this.cellHeight = options.cellHeight
     this.fontFamily = options.fontFamily

@@ -148,6 +148,36 @@ describe('GhosttyRenderer', () => {
     expect(text?.font).toContain('22px')
   })
 
+  it('prefers canvas2d over WebGL2 so leftover xterm loseContext cannot blank glyphs', () => {
+    const { ops } = installRecordingCanvas()
+    const webgl2 = {
+      createTexture: () => ({}),
+      createShader: () => ({}),
+      texSubImage2D: vi.fn(),
+      drawArrays: vi.fn()
+    }
+    const original = HTMLCanvasElement.prototype.getContext
+    HTMLCanvasElement.prototype.getContext = vi.fn(function (
+      this: HTMLCanvasElement,
+      type: string,
+      options?: unknown
+    ) {
+      if (type === 'webgl2') {
+        return webgl2
+      }
+      return original.call(this, type, options)
+    }) as never
+    const canvas = document.createElement('canvas')
+    terminal = new GhosttyTerminal(getGhosttyVtHostOrThrow(), { cols: 20, rows: 4 })
+    renderer = new GhosttyRenderer(getGhosttyVtHostOrThrow(), canvas, CELL)
+    expect(renderer.kind).toBe('canvas2d')
+    terminal.writePtyOutput('hello')
+    renderer.draw(terminal)
+    expect(ops.some((op) => op.op === 'fillText' && String(op.args[0]).includes('hello'))).toBe(
+      true
+    )
+  })
+
   it('falls back to canvas2d when WebGL2 is a stub without shaders', () => {
     installRecordingCanvas()
     const canvas = document.createElement('canvas')
