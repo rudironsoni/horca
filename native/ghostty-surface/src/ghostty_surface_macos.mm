@@ -65,7 +65,9 @@ static bool loadLibghostty() {
 }
 
 extern "C" bool orca_ghostty_macos_available() {
-  return loadLibghostty();
+  // Why: ghostty_surface_new is not bound to the CAMetalLayer, so a live NSView
+  // would occlude the in-process canvas with an empty surface.
+  return false;
 }
 
 static OrcaGhosttySurface* findSurface(int id) {
