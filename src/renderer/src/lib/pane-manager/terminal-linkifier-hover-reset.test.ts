@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { Terminal } from '@xterm/xterm'
+import type { OrcaPaneTerminal as Terminal } from './orca-pane-terminal'
 import {
   isTerminalLinkifierHoverActive,
   resetTerminalLinkifierHoverState
@@ -26,7 +26,7 @@ describe('resetTerminalLinkifierHoverState', () => {
     expect(() => resetTerminalLinkifierHoverState(createTerminal(undefined, false))).not.toThrow()
   })
 
-  it('only touches fields that exist so a renamed xterm internal degrades safely', () => {
+  it('only touches fields that exist so a renamed terminal internal degrades safely', () => {
     const linkifier: FakeLinkifier = {}
     resetTerminalLinkifierHoverState(createTerminal(linkifier))
 

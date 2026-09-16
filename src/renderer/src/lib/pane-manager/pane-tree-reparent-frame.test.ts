@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { ManagedPaneInternal } from './pane-manager-types'
 
 const webglRendererMock = vi.hoisted(() => ({
-  attachWebgl: vi.fn(),
+  refreshPaneRenderer: vi.fn(),
   disposeWebgl: vi.fn()
 }))
 
@@ -59,12 +59,12 @@ function createPane(id: number, container = createMockElement('pane')): ManagedP
     leafId,
     stablePaneId: leafId,
     container,
-    xtermContainer: createMockElement(),
+    terminalHost: createMockElement(),
     linkTooltip: createMockElement(),
     terminal: {} as never,
-    fitAddon: {} as never,
-    searchAddon: {} as never,
-    serializeAddon: {} as never,
+    fitController: {} as never,
+    searchController: {} as never,
+    serializeController: {} as never,
     unicode11Addon: {} as never,
     webLinksAddon: {} as never,
     terminalGpuAcceleration: 'on',
@@ -72,7 +72,7 @@ function createPane(id: number, container = createMockElement('pane')): ManagedP
     webglAttachmentDeferred: false,
     webglDisabledAfterContextLoss: false,
     hasComplexScriptOutput: false,
-    webglAddon: {} as never,
+    gpuRenderer: {} as never,
     ligaturesAddon: null,
     fitResizeObserver: null,
     pendingObservedFitRafId: null,
@@ -121,8 +121,8 @@ describe('insertPaneNextTo reparent frame', () => {
 
     expect(webglRendererMock.disposeWebgl).toHaveBeenCalledWith(source)
     expect(webglRendererMock.disposeWebgl).toHaveBeenCalledWith(target)
-    expect(webglRendererMock.attachWebgl).toHaveBeenCalledWith(source)
-    expect(webglRendererMock.attachWebgl).toHaveBeenCalledWith(target)
+    expect(webglRendererMock.refreshPaneRenderer).toHaveBeenCalledWith(source)
+    expect(webglRendererMock.refreshPaneRenderer).toHaveBeenCalledWith(target)
     expect(safeFit).toHaveBeenCalledWith(source)
     expect(safeFit).toHaveBeenCalledWith(target)
   })
@@ -152,7 +152,7 @@ describe('insertPaneNextTo reparent frame', () => {
     destroyed = true
     frames[0]?.(16)
 
-    expect(webglRendererMock.attachWebgl).not.toHaveBeenCalled()
+    expect(webglRendererMock.refreshPaneRenderer).not.toHaveBeenCalled()
     expect(safeFit).not.toHaveBeenCalled()
   })
 

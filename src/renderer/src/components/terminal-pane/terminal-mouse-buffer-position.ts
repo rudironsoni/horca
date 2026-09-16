@@ -1,10 +1,11 @@
-import type { Terminal } from '@xterm/xterm'
+import type { Terminal } from '../../../../shared/orca-terminal-surface'
+import { resolveOrcaTerminalScreen } from '@/lib/pane-manager/orca-terminal-canvas-element'
 
 export function getTerminalBufferPositionForMouseEvent(
   terminal: Terminal,
   event: MouseEvent
 ): { x: number; y: number } | null {
-  const screenElement = terminal.element?.querySelector('.xterm-screen')
+  const screenElement = resolveOrcaTerminalScreen(terminal.element)
   if (!screenElement || terminal.cols <= 0 || terminal.rows <= 0) {
     return null
   }
@@ -24,6 +25,6 @@ export function getTerminalBufferPositionForMouseEvent(
 
   return {
     x: Math.floor(relativeX / cellWidth) + 1,
-    y: Math.floor(relativeY / cellHeight) + terminal.buffer.active.viewportY + 1
+    y: Math.floor(relativeY / cellHeight) + (terminal.buffer?.active.viewportY ?? 0) + 1
   }
 }

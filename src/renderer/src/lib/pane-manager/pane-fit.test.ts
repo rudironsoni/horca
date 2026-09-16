@@ -32,8 +32,8 @@ function createPane(options: {
   proposed?: () => { cols: number; rows: number } | undefined
 }): TestPane {
   let rect = options.rect
-  // Why: the reveal gate measures the inner xterm host, which can differ from the outer .pane.
-  let xtermRect: { width: number; height: number } | null = null
+  // Why: the reveal gate measures the inner terminal host, which can differ from the outer .pane.
+  let terminalRect: { width: number; height: number } | null = null
   let display = 'block'
   const leafId = '22222222-2222-4222-8222-222222222222'
   const pane = {
@@ -45,26 +45,26 @@ function createPane(options: {
       dataset: {},
       getBoundingClientRect: () => ({ width: rect.width, height: rect.height })
     },
-    xtermContainer: {
+    terminalHost: {
       getBoundingClientRect: () => ({
-        width: (xtermRect ?? rect).width,
-        height: (xtermRect ?? rect).height
+        width: (terminalRect ?? rect).width,
+        height: (terminalRect ?? rect).height
       }),
       parentElement: null,
       ownerDocument: { defaultView: { getComputedStyle: () => ({ display }) } }
     },
-    fitAddon: {
+    fitController: {
       fit: vi.fn(),
       proposeDimensions: vi.fn(options.proposed ?? (() => ({ cols: 132, rows: 40 })))
     },
-    serializeAddon: {},
-    searchAddon: {},
+    serializeController: {},
+    searchController: {},
     pendingSplitScrollState: null as ScrollState | null,
     setRect: (next: { width: number; height: number }) => {
       rect = next
     },
     setXtermRect: (next: { width: number; height: number }) => {
-      xtermRect = next
+      terminalRect = next
     },
     setDisplay: (next: string) => {
       display = next
@@ -362,7 +362,7 @@ describe('safeFitAndThen unmeasurable-pane retry', () => {
   it('does not retry a pane explicitly hidden with display none', async () => {
     vi.mocked(recordRendererCrashBreadcrumb).mockClear()
     const pane = createPane({ rect: { width: 0, height: 0 } })
-    const container = (pane as unknown as ManagedPaneInternal).xtermContainer
+    const container = (pane as unknown as ManagedPaneInternal).terminalHost
     Object.assign(container, {
       ownerDocument: {
         defaultView: { getComputedStyle: () => ({ display: 'none' }) }
@@ -384,7 +384,7 @@ describe('safeFitAndThen unmeasurable-pane retry', () => {
   it('stops retrying when a pane becomes display none', async () => {
     vi.mocked(recordRendererCrashBreadcrumb).mockClear()
     const pane = createPane({ rect: { width: 0, height: 0 } })
-    const container = (pane as unknown as ManagedPaneInternal).xtermContainer
+    const container = (pane as unknown as ManagedPaneInternal).terminalHost
     let display = 'block'
     Object.assign(container, {
       ownerDocument: {
@@ -453,7 +453,7 @@ describe('paneFitClientSizeChanged (reveal fit gate)', () => {
     expect(paneFitClientSizeChanged(pane)).toBe(true)
   })
 
-  it('reports changed when the inner xterm host shrank but the outer pane did not', () => {
+  it('reports changed when the inner terminal host shrank but the outer pane did not', () => {
     // A title bar / restored-session banner reduces the fittable area while the
     // outer .pane pixels stay constant; the reveal must fit, not skip.
     const pane = createPane({
@@ -467,8 +467,13 @@ describe('paneFitClientSizeChanged (reveal fit gate)', () => {
 })
 
 describe('deferred metric flush inside safeFit', () => {
-  function createMetricPane(): ManagedPane & { fitAddon: { fit: ReturnType<typeof vi.fn> } } {
-    const terminal = { cols: 80, rows: 24, options: {} as Record<string, unknown> }
+  function createMetricPane(): ManagedPane & { fitController: { fit: ReturnType<typeof vi.fn> } } {
+    const terminal = {
+      cols: 80,
+      rows: 24,
+      options: {} as Record<string, unknown>,
+      applyMetrics: vi.fn()
+    }
     // Grid shrinks once the parked large font lands — the case the min-dimension
     // gate exists to reject, but which it can only see after the flush.
     const proposeDimensions = (): { cols: number; rows: number } =>
@@ -480,8 +485,8 @@ describe('deferred metric flush inside safeFit', () => {
         dataset: {},
         getBoundingClientRect: () => ({ width: 340, height: 240 })
       },
-      fitAddon: { fit: vi.fn(), proposeDimensions: vi.fn(proposeDimensions) }
-    } as unknown as ManagedPane & { fitAddon: { fit: ReturnType<typeof vi.fn> } }
+      fitController: { fit: vi.fn(), proposeDimensions: vi.fn(proposeDimensions) }
+    } as unknown as ManagedPane & { fitController: { fit: ReturnType<typeof vi.fn> } }
   }
 
   it('does not fit when the flushed font drops the pane under the minimum grid', () => {
@@ -492,7 +497,7 @@ describe('deferred metric flush inside safeFit', () => {
     // The parked value still lands so the pane is not stuck on stale metrics.
     expect(pane.terminal.options.fontSize).toBe(24)
     // But the PTY must not be pinned to the 5x2 grid the floor rejects.
-    expect(pane.fitAddon.fit).not.toHaveBeenCalled()
+    expect(pane.fitController.fit).not.toHaveBeenCalled()
   })
 
   it('still fits when the flushed font keeps the pane above the minimum grid', () => {
@@ -501,11 +506,16 @@ describe('deferred metric flush inside safeFit', () => {
 
     expect(safeFit(pane)).toBe(true)
     expect(pane.terminal.options.fontSize).toBe(12)
-    expect(pane.fitAddon.fit).toHaveBeenCalled()
+    expect(pane.fitController.fit).toHaveBeenCalled()
   })
 
   it('reports the post-metric grid used by the next safe fit', () => {
-    const terminal = { cols: 80, rows: 24, options: {} as Record<string, unknown> }
+    const terminal = {
+      cols: 80,
+      rows: 24,
+      options: {} as Record<string, unknown>,
+      applyMetrics: vi.fn()
+    }
     const pane = {
       id: 12,
       terminal,
@@ -513,7 +523,7 @@ describe('deferred metric flush inside safeFit', () => {
         dataset: {},
         getBoundingClientRect: () => ({ width: 500, height: 300 })
       },
-      fitAddon: {
+      fitController: {
         fit: vi.fn(),
         proposeDimensions: vi.fn(() =>
           Number(terminal.options.fontSize ?? 10) >= 18
@@ -536,13 +546,13 @@ describe('deferred metric flush inside safeFit', () => {
         dataset: { ptyId: 'pty-override' },
         getBoundingClientRect: () => ({ width: 0, height: 0 })
       },
-      fitAddon: { proposeDimensions: vi.fn() }
+      fitController: { proposeDimensions: vi.fn() }
     } as unknown as ManagedPane
     setFitOverride('pty-override', 'mobile-fit', 49, 20)
 
     try {
       expect(readProposedPaneFitDimensions(pane)).toEqual({ cols: 49, rows: 20 })
-      expect(pane.fitAddon.proposeDimensions).not.toHaveBeenCalled()
+      expect(pane.fitController.proposeDimensions).not.toHaveBeenCalled()
       expect(safeFit(pane)).toBe(false)
       expect(resize).not.toHaveBeenCalled()
     } finally {

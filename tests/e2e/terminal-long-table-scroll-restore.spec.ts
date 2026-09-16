@@ -94,8 +94,8 @@ async function scrollActiveTerminalLikeUser(page: Page): Promise<void> {
     pane.terminal.focus()
     pane.terminal.scrollToBottom()
     const viewport =
-      pane.container.querySelector<HTMLElement>('.xterm-viewport') ??
-      pane.container.querySelector<HTMLElement>('.xterm')
+      pane.container.querySelector<HTMLElement>('.orca-terminal-viewport') ??
+      pane.container.querySelector<HTMLElement>('.orca-terminal-canvas')
     if (!viewport) {
       throw new Error('Active terminal viewport unavailable')
     }
@@ -178,8 +178,8 @@ async function readTerminalRightEdgeOverpaint(page: Page): Promise<{
           : null
     const manager = tabId ? window.__paneManagers?.get(tabId) : null
     const pane = manager?.getActivePane?.() ?? manager?.getPanes?.()[0] ?? null
-    const screen = pane?.container.querySelector<HTMLElement>('.xterm-screen')
-    const rows = pane?.container.querySelector<HTMLElement>('.xterm-rows')
+    const screen = pane?.container.querySelector<HTMLElement>('.orca-terminal-canvas')
+    const rows = pane?.container.querySelector<HTMLElement>('.orca-terminal-rows')
     if (!pane || !screen) {
       throw new Error('Active terminal DOM unavailable')
     }
@@ -313,13 +313,13 @@ async function readTerminalRenderDiagnostics(page: Page): Promise<TerminalRender
             )
             return line?.translateToString(true) ?? ''
           }).join('\n')
-          const serializedText = managedPane.serializeAddon?.serialize?.() ?? visibleText
+          const serializedText = managedPane.serializeController?.serialize?.() ?? visibleText
           return {
             tabId: managerTabId,
             paneId: managedPane.id,
             hasComplexScriptOutput: managedPane.hasComplexScriptOutput === true,
             hasMarker: serializedText.includes('LONG_TABLE_SCROLL_RESTORE_'),
-            hasWebgl: Boolean(managedPane.webglAddon)
+            hasWebgl: Boolean(managedPane.gpuRenderer)
           }
         })
     )
@@ -329,7 +329,7 @@ async function readTerminalRenderDiagnostics(page: Page): Promise<TerminalRender
       viewportY: buffer.viewportY,
       baseY: buffer.baseY,
       hasComplexScriptOutput: pane.hasComplexScriptOutput === true,
-      hasWebgl: Boolean(pane.webglAddon),
+      hasWebgl: Boolean(pane.gpuRenderer),
       canvasCount: pane.container.querySelectorAll('canvas').length,
       cursorHidden: terminalCore?.coreService?.isCursorHidden ?? null,
       visibleLineTails,
@@ -534,7 +534,7 @@ test.describe('Terminal long table scroll restore repro', () => {
       const generatedTableWidth = Number(generatedWidthMatch?.[1] ?? 0)
 
       // Why: rows near the top of this heavily wrapped table can fall out of
-      // xterm scrollback on CI, and narrow columns split names like "Peacock"
+      // terminal scrollback on CI, and narrow columns split names like "Peacock"
       // across terminal lines. A lower cell fragment still exercises the
       // restored markdown-table viewport without depending on early output.
       const retainedEmojiCell = 'Peac'

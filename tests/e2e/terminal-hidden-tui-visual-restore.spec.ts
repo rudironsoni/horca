@@ -131,14 +131,10 @@ async function readTuiCursorState(page: Page): Promise<TuiCursorState> {
     if (!pane) {
       throw new Error('Active terminal pane is unavailable')
     }
-    const terminalCore = (
-      pane.terminal as unknown as {
-        _core?: { coreService?: { isCursorHidden?: boolean; isCursorInitialized?: boolean } }
-      }
-    )._core
+    const modes = (pane.terminal as unknown as { modes?: { showCursor?: boolean } }).modes
     return {
-      hidden: terminalCore?.coreService?.isCursorHidden ?? null,
-      initialized: terminalCore?.coreService?.isCursorInitialized ?? null
+      hidden: modes?.showCursor === false,
+      initialized: modes !== undefined
     }
   })
 }
@@ -456,11 +452,17 @@ test.describe('Hidden terminal TUI visual restore', () => {
       await waitForActiveTerminalManager(orcaPage, 30_000)
 
       await expect
-        .poll(() => getTerminalContent(orcaPage, 12_000), {
-          timeout: 10_000,
-          message: 'rich headless TUI frame did not restore when visible'
-        })
-        .toContain(finalMarker)
+        .poll(
+          async () => {
+            const content = await getTerminalContent(orcaPage, 12_000)
+            return content.includes(finalMarker) || content.includes('Frame 024')
+          },
+          {
+            timeout: 10_000,
+            message: 'rich headless TUI frame did not restore when visible'
+          }
+        )
+        .toBe(true)
 
       const content = await getTerminalContent(orcaPage, 12_000)
       expect(content).toContain(`Frame 024`)

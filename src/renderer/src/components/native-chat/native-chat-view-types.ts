@@ -24,7 +24,7 @@ export type NativeChatBridgeViewProps = {
   ownsTabWideLaunchDraft: boolean
   /** Return this pane to the hosted terminal surface. */
   onSwitchToTerminal?: () => void
-  /** Current xterm screen reader used to recover agent-reported session state. */
+  /** Current terminal screen reader used to recover agent-reported session state. */
   readTerminalScreen?: () => string | null
   contextMenuActions?: Omit<NativeChatContextMenuActions, 'onPaste'>
 }

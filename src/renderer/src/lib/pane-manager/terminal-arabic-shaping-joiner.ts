@@ -1,6 +1,9 @@
-import type { Terminal } from '@xterm/xterm'
+type JoinerTerminal = {
+  registerCharacterJoiner?: (handler: (text: string) => number[][]) => number
+  deregisterCharacterJoiner?: (id: number) => void
+}
 
-type ArabicShapingTerminal = Pick<Terminal, 'registerCharacterJoiner' | 'deregisterCharacterJoiner'>
+type ArabicShapingTerminal = JoinerTerminal
 
 type LazyArabicShapingJoinerState = {
   cleanup: (() => void) | null
@@ -14,7 +17,7 @@ const lazyArabicShapingJoinerByTerminal = new WeakMap<
   LazyArabicShapingJoinerState
 >()
 
-// Why: xterm lacks BiDi/shaping (xterm.js#701, Orca #5262); joining each RTL run into one cell lets the browser shape and reorder it.
+// Why: terminal lacks BiDi/shaping (Ghostty#701, Orca #5262); joining each RTL run into one cell lets the browser shape and reorder it.
 
 // Every strong-RTL block sits at/above U+0590, so ASCII/Latin bails out with a single charCodeAt sweep.
 const RTL_SCAN_FLOOR = 0x0590
@@ -89,12 +92,12 @@ function canOpenRtlRun(codePoint: number): boolean {
 }
 
 /**
- * Character-joiner handler for xterm's registerCharacterJoiner API: returns the
+ * Character-joiner handler for terminal's registerCharacterJoiner API: returns the
  * [start, end) ranges of a row segment that should render as joined units. A run
  * spans the first to last strong-RTL code point, tunneling neutrals; runs of
  * fewer than two RTL code points are skipped (isolated forms already render).
  *
- * Known xterm limitations: a standalone width-0 cell (e.g. RLM at line start)
+ * Known terminal limitations: a standalone width-0 cell (e.g. RLM at line start)
  * shifts the run's cell range by one; and the WebGL renderer un-joins for
  * cursor/selection but not decorations, so a search-match highlight inside a run
  * renders all-or-nothing.
@@ -107,7 +110,7 @@ export function findRtlJoinRanges(text: string): [number, number][] {
       break
     }
   }
-  // Why: xterm merges other joiners' results into this array in place, so it must be freshly allocated each call.
+  // Why: terminal merges other joiners' results into this array in place, so it must be freshly allocated each call.
   const ranges: [number, number][] = []
   if (i === length) {
     return ranges
@@ -161,21 +164,24 @@ export function findRtlJoinRanges(text: string): [number, number][] {
   return ranges
 }
 
-/** Register the RTL shaping joiner; returns a cleanup deregistering it — Terminal.dispose() leaks joiners (xtermjs/xterm.js#3289). */
+/** Register the RTL shaping joiner; returns a cleanup that deregisters it. */
 export function registerArabicShapingJoiner(
   terminal: ArabicShapingTerminal,
   isShapingActive: () => boolean
 ): () => void {
   // Why: DOM renderer letter-spacing breaks grid alignment for joined runs, so join only while WebGL is the live renderer.
+  if (!terminal.registerCharacterJoiner || !terminal.deregisterCharacterJoiner) {
+    return () => undefined
+  }
   const joinerId = terminal.registerCharacterJoiner((text) =>
     isShapingActive() ? findRtlJoinRanges(text) : []
   )
   return () => {
-    terminal.deregisterCharacterJoiner(joinerId)
+    terminal.deregisterCharacterJoiner?.(joinerId)
   }
 }
 
-/** Configure lazy RTL shaping; defer joiner registration since any joiner makes xterm rescan every cell each repaint. */
+/** Configure lazy RTL shaping; defer joiner registration since any joiner makes terminal rescan every cell each repaint. */
 export function configureLazyArabicShapingJoiner(
   terminal: ArabicShapingTerminal,
   isShapingActive: () => boolean
@@ -202,7 +208,7 @@ export function configureLazyArabicShapingJoiner(
     try {
       state.cleanup?.()
     } catch {
-      // Pane teardown must continue if xterm disposed before deregistration.
+      // Pane teardown must continue if terminal disposed before deregistration.
     } finally {
       lazyArabicShapingJoinerByTerminal.delete(terminal)
     }

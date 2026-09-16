@@ -273,7 +273,7 @@ describe('connectPanePty', () => {
         rows: 24,
         seq: 64
       })
-      pane.fitAddon.proposeDimensions = vi.fn(() => undefined) as never
+      pane.fitController.proposeDimensions = vi.fn(() => undefined) as never
       transport.resize.mockClear()
 
       dataCallback('hidden output\r\n', { seq: 16, rawLength: 16 })
@@ -292,7 +292,7 @@ describe('connectPanePty', () => {
         'live-after-hidden'
       )
 
-      pane.fitAddon.proposeDimensions = vi.fn(() => ({ cols: 120, rows: 40 })) as never
+      pane.fitController.proposeDimensions = vi.fn(() => ({ cols: 120, rows: 40 })) as never
       safeFit(pane as never)
       await flushAsyncTicks(20)
 
@@ -352,7 +352,7 @@ describe('connectPanePty', () => {
       expect(remountTerminalTabForRecovery).toHaveBeenCalledTimes(2)
       expect(remountTerminalTabForRecovery).toHaveBeenLastCalledWith('tab-1', AUTOMATIC_REQUEST)
 
-      // Latched per xterm instance: repeat restore attempts do not spam.
+      // Latched per terminal instance: repeat restore attempts do not spam.
       _dispatchPtyModelRestoreNeededForTest({ id: 'pty-id', reason: 'hidden-drop', markerSeq: 96 })
       await flushAsyncTicks(4)
       expect(remountTerminalTabForRecovery).toHaveBeenCalledTimes(2)

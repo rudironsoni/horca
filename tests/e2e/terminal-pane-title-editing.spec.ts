@@ -209,7 +209,7 @@ test.describe('Terminal Panes', () => {
     await orcaPage.waitForTimeout(100)
     await titleInput.fill(title)
     await orcaPage
-      .locator('.xterm:visible')
+      .locator('.orca-terminal-canvas:visible')
       .first()
       .click({ position: { x: 40, y: 60 } })
 

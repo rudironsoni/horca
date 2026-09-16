@@ -5,7 +5,7 @@ import {
 } from './pane-cursor-blink-suspension'
 import { safeFit } from './pane-tree-ops'
 import {
-  attachWebgl,
+  refreshPaneRenderer,
   clearTerminalWebglAttachBackoff,
   disposeWebgl,
   isPaneWebglContextLost,
@@ -41,8 +41,8 @@ export function setPaneGpuRenderingState(
   if (pane.webglAttachmentDeferred || pane.webglDisabledAfterContextLoss) {
     return
   }
-  if (!pane.webglAddon) {
-    attachWebgl(pane)
+  if (!pane.gpuRenderer) {
+    refreshPaneRenderer(pane)
     safeFit(pane)
   }
 }
@@ -104,10 +104,10 @@ export function resumePaneRendering(
     // Reveal can retry before the next resume, so both paths share the bounded loss policy.
     clearPaneWebglContextLossForRetry(pane)
     pane.webglRebuildDeferred = false
-    if (pane.webglAddon && isPaneWebglContextLost(pane)) {
+    if (pane.gpuRenderer && isPaneWebglContextLost(pane)) {
       disposeWebgl(pane)
     }
-    if (rebuildDeferred && pane.webglAddon) {
+    if (rebuildDeferred && pane.gpuRenderer) {
       rebuildAttachedWebgl(pane)
       continue
     }

@@ -90,13 +90,13 @@ async function enableTerminalAccessibilityDom(page: Page, ptyId: string): Promis
     if (!pane) {
       throw new Error(`Terminal pane ${ptyId} is unavailable`)
     }
-    // Why: xterm normally paints to canvas. Screen-reader mode mirrors the
+    // Why: terminal normally paints to canvas. Screen-reader mode mirrors the
     // user-visible buffer into DOM rows so the survival assertion stays DOM-based.
     pane.terminal.options.screenReaderMode = true
     pane.terminal.refresh(0, pane.terminal.rows - 1)
   }, ptyId)
   await expect(
-    page.locator(`[data-pty-id=${JSON.stringify(ptyId)}] .xterm-accessibility-tree`)
+    page.locator(`[data-pty-id=${JSON.stringify(ptyId)}] .orca-terminal-accessibility-tree`)
   ).toBeAttached({ timeout: 10_000 })
 }
 
@@ -161,7 +161,7 @@ test.describe('Docker SSH relay watcher isolation', () => {
           `printf '%s\\n' 'after watcher crash' > ${shellQuote(remoteRepoFile(afterFile))}`
       )
       const terminalDom = orcaPage.locator(
-        `[data-pty-id=${JSON.stringify(ptyId)}] .xterm-accessibility-tree`
+        `[data-pty-id=${JSON.stringify(ptyId)}] .orca-terminal-accessibility-tree`
       )
       await expect(terminalDom).toContainText(terminalMarker, { timeout: 30_000 })
 

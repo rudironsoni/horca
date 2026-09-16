@@ -1,4 +1,3 @@
-import type { ITerminalOptions } from '@xterm/xterm'
 import type { ExecutionHostId } from '../../../../shared/execution-host'
 import type { TuiAgent } from '../../../../shared/tui-agent'
 import {
@@ -29,7 +28,7 @@ export function prefersKittyKeyboardDespiteWindowsConpty(
 
 /**
  * Whether the Kitty enhanced keyboard protocol (CSI-u) must be withheld from a
- * pane's xterm advertisement.
+ * pane's terminal advertisement.
  *
  * Why: Orca's default options advertise `vtExtensions.kittyKeyboard` so probing
  * CLIs enable enhanced key reporting. But local native Windows shells are backed
@@ -53,13 +52,13 @@ export function shouldDisableKittyKeyboardForTerminal(
 }
 
 /**
- * xterm option overrides that withhold the Kitty enhanced keyboard protocol for
+ * terminal option overrides that withhold the Kitty enhanced keyboard protocol for
  * local Windows ConPTY panes and leave every other pane untouched. Merged after
  * `buildDefaultTerminalOptions()`, so `{}` keeps the advertised default on.
  */
-export function buildTerminalKeyboardProtocolOptions(
-  context: TerminalKeyboardProtocolContext
-): Partial<ITerminalOptions> {
+export function buildTerminalKeyboardProtocolOptions(context: TerminalKeyboardProtocolContext): {
+  vtExtensions?: { kittyKeyboard: boolean }
+} {
   if (!shouldDisableKittyKeyboardForTerminal(context)) {
     return {}
   }

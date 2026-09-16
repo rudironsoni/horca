@@ -220,5 +220,14 @@ export function installTitleSpawnBell(session: ConnectPanePtySession): void {
     openCommandCodeDoneSettle(session.cacheKey, normalizedPrompt)
   }
 
+  // Why: Ghostty owns OSC 0; facts cover hidden-delivery drops. Same policy.
+  const titleSource = session.pane.terminal.onTitleChange((title) => {
+    if (!title) {
+      return
+    }
+    session.onTitleChange(title, title)
+  })
+  session.waitTeardowns.push(() => titleSource.dispose())
+
   installPanePtyVisibilityBind(session)
 }

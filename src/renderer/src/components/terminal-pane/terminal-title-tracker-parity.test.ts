@@ -49,7 +49,7 @@ function createRendererPath(initialTitle?: string, deferDrain = false): TitleFac
     feed(chunk: string): void {
       processor.processData(chunk, callbacks)
       // Why: the renderer defers side effects behind a setTimeout(0) drain to
-      // protect xterm paint. Flush synchronously so both paths observe each
+      // protect terminal paint. Flush synchronously so both paths observe each
       // chunk at the same fake-timer instant.
       if (!deferDrain) {
         processor.flushPendingSideEffects()

@@ -31,6 +31,7 @@ native/**/.build/
 # node-gyp output for the vendored Windows registry addon; generated per host and ABI.
 native/windows-registry/build/
 native/windows-registry/bin/
+native/ghostty-surface/build/
 
 # pnpm
 .pnpm-store/
@@ -133,7 +134,6 @@ docs/**
 !docs/reference/worktree-scan-fingerprint.md
 !docs/reference/wsl-command-execution.md
 !docs/reference/wsl-probe-failure-semantics.md
-!docs/reference/xterm-patch-regeneration.md
 
 # Stably CLI (only docs/ are tracked)
 .stably/*

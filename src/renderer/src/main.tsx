@@ -19,11 +19,12 @@ import { applyDocumentTheme } from './lib/document-theme'
 import { installTypingLatencyDiagnostic } from './lib/typing-latency/diagnostic'
 import { shouldEnableReactGrab } from './lib/react-grab-dev-gate'
 import { I18nProvider } from './i18n/I18nProvider'
-import { translate } from './i18n/i18n'
 import { getOrCreateRendererRoot } from './lib/react-renderer-root'
 import { primeTerminalWebglAddon } from './lib/pane-manager/pane-webgl-renderer'
+import { primeGhosttyVtHost } from './lib/ghostty-vt-web-host'
 import { SkillWarningPreviewLauncher } from './components/skills/SkillWarningPreviewLauncher'
 import { installBrowserClientPageRenderer } from './components/browser-pane/browser-client-page-renderer-installation'
+import { productCopy } from './horca/product-identity'
 
 recordRendererCrashBreadcrumb('renderer_bootstrap_started', { dev: import.meta.env.DEV })
 installRendererCrashDiagnostics()
@@ -45,11 +46,12 @@ applyDocumentTheme('system', { disableTransitions: false })
 const browserClientPageRenderer = installBrowserClientPageRenderer()
 import.meta.hot?.dispose(() => browserClientPageRenderer?.dispose())
 
-const rootElement = document.getElementById('root')
-if (!rootElement) {
+const foundRoot = document.getElementById('root')
+if (!foundRoot) {
   recordRendererCrashBreadcrumb('renderer_root_missing')
   throw new Error('Renderer root element not found.')
 }
+const rootElement: HTMLElement = foundRoot
 
 function RendererRoot(): React.JSX.Element {
   useTranslation()
@@ -57,9 +59,8 @@ function RendererRoot(): React.JSX.Element {
     <RecoverableRenderErrorBoundary
       boundaryId="app.root"
       surface="app-root"
-      title={translate('app.recoverableError.rootTitle', 'Orca hit a renderer error.')}
-      description={translate(
-        'app.recoverableError.rootDescription',
+      title={productCopy('Orca hit a renderer error.')}
+      description={productCopy(
         'The app shell could not finish rendering. Retry to remount it, or relaunch Orca if the error persists.'
       )}
     >
@@ -69,16 +70,30 @@ function RendererRoot(): React.JSX.Element {
   )
 }
 
-getOrCreateRendererRoot(rootElement, import.meta.hot?.data).render(
-  <StrictMode>
-    <I18nProvider>
-      <RendererRoot />
-    </I18nProvider>
-  </StrictMode>
-)
-recordRendererCrashBreadcrumb('renderer_bootstrap_rendered')
+function mountRenderer(): void {
+  getOrCreateRendererRoot(rootElement, import.meta.hot?.data).render(
+    <StrictMode>
+      <I18nProvider>
+        <RendererRoot />
+      </I18nProvider>
+    </StrictMode>
+  )
+  recordRendererCrashBreadcrumb('renderer_bootstrap_rendered')
+}
 
-// Why here: the xterm WebGL addon is 243 KB, is only ever constructed once a
+void primeGhosttyVtHost()
+  .then(() => {
+    recordRendererCrashBreadcrumb('ghostty_vt_host_primed')
+    mountRenderer()
+  })
+  .catch((error: unknown) => {
+    recordRendererCrashBreadcrumb('ghostty_vt_host_prime_failed', {
+      message: error instanceof Error ? error.message : String(error)
+    })
+    throw error
+  })
+
+// Why here: the terminal WebGL addon is 243 KB, is only ever constructed once a
 // terminal attaches (many frames away), and is needed by nothing during boot.
 // Starting the load after the first render keeps it off the boot graph while
 // leaving it resolved long before any pane can attach.

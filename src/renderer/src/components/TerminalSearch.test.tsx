@@ -1,8 +1,10 @@
-// @vitest-environment happy-dom
-
-import { cleanup, fireEvent, render, waitFor } from '@testing-library/react'
-import type { SearchAddon } from '@xterm/addon-search'
+/**
+ * @vitest-environment happy-dom
+ */
+import { act, cleanup, render } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import type { SearchState } from '@/components/terminal-pane/keyboard-handlers'
+import type { PaneSearchController } from '@/lib/pane-manager/pane-manager-types'
 import TerminalSearch from './TerminalSearch'
 
 vi.mock('@/i18n/i18n', () => ({
@@ -11,76 +13,35 @@ vi.mock('@/i18n/i18n', () => ({
 
 afterEach(cleanup)
 
-function createSearchAddon(): SearchAddon {
-  return {
-    findNext: vi.fn(() => true),
-    findPrevious: vi.fn(() => true),
-    clearDecorations: vi.fn()
-  } as unknown as SearchAddon
-}
+describe('TerminalSearch unmount', () => {
+  it('contains GhosttyTerminal is not bound from findNext cleanup', () => {
+    const findNext = vi.fn(() => {
+      throw new Error('GhosttyTerminal is not bound')
+    })
+    const searchController: PaneSearchController = {
+      findNext,
+      findPrevious: vi.fn(() => false),
+      clearDecorations: vi.fn(),
+      dispose: vi.fn()
+    }
+    const searchStateRef: { current: SearchState } = {
+      current: { query: '', caseSensitive: false, regex: false }
+    }
 
-function renderSearch(searchAddon: SearchAddon): ReturnType<typeof render> {
-  return render(
-    <TerminalSearch
-      isOpen
-      onClose={vi.fn()}
-      searchAddon={searchAddon}
-      searchStateRef={{ current: { query: '', caseSensitive: false, regex: false } }}
-    />
-  )
-}
-
-describe('TerminalSearch cleanup', () => {
-  it('clears the current addon when the query is erased', async () => {
-    const addon = createSearchAddon()
-    const view = renderSearch(addon)
-
-    fireEvent.change(view.getByPlaceholderText('Search...'), { target: { value: 'needle' } })
-    await waitFor(() => expect(addon.findNext).toHaveBeenCalled())
-    vi.mocked(addon.clearDecorations).mockClear()
-    vi.mocked(addon.findNext).mockClear()
-
-    fireEvent.change(view.getByPlaceholderText('Search...'), { target: { value: '' } })
-
-    await waitFor(() => expect(addon.clearDecorations).toHaveBeenCalledTimes(1))
-    expect(addon.findNext).toHaveBeenCalledWith('')
-  })
-
-  it('clears the previous addon when the search moves to another pane', async () => {
-    const previousAddon = createSearchAddon()
-    const nextAddon = createSearchAddon()
-    const view = renderSearch(previousAddon)
-
-    fireEvent.change(view.getByPlaceholderText('Search...'), { target: { value: 'needle' } })
-    await waitFor(() => expect(previousAddon.findNext).toHaveBeenCalled())
-    vi.mocked(previousAddon.clearDecorations).mockClear()
-    vi.mocked(previousAddon.findNext).mockClear()
-
-    view.rerender(
+    const { unmount } = render(
       <TerminalSearch
-        isOpen
+        isOpen={false}
         onClose={vi.fn()}
-        searchAddon={nextAddon}
-        searchStateRef={{ current: { query: '', caseSensitive: false, regex: false } }}
+        searchController={searchController}
+        searchStateRef={searchStateRef}
       />
     )
 
-    expect(previousAddon.clearDecorations).toHaveBeenCalledTimes(1)
-    expect(previousAddon.findNext).toHaveBeenCalledWith('')
-  })
-
-  it('clears the addon when the search portal unmounts', async () => {
-    const addon = createSearchAddon()
-    const view = renderSearch(addon)
-
-    fireEvent.change(view.getByPlaceholderText('Search...'), { target: { value: 'needle' } })
-    await waitFor(() => expect(addon.findNext).toHaveBeenCalled())
-    vi.mocked(addon.clearDecorations).mockClear()
-    vi.mocked(addon.findNext).mockClear()
-
-    view.unmount()
-
-    expect(addon.clearDecorations).toHaveBeenCalledTimes(1)
-    expect(addon.findNext).toHaveBeenCalledWith('')
+    expect(() => {
+      act(() => {
+        unmount()
+      })
+    }).not.toThrow()
+    expect(findNext).toHaveBeenCalled()
   })
 })

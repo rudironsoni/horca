@@ -1,4 +1,3 @@
-import type { Terminal } from '@xterm/xterm'
 import { isEditableTarget } from '@/lib/editable-target'
 import { APP_MENU_PASTE_EVENT } from '@/lib/app-menu-paste'
 import {
@@ -8,7 +7,11 @@ import {
 import { copyTerminalSelection } from '@/components/terminal-pane/terminal-selection-copy'
 import type { PreviewTerminalPasteSource } from './preview-terminal-paste'
 
-type PreviewTerminalSelection = Pick<Terminal, 'getSelection' | 'selectAll' | 'clearSelection'>
+type PreviewTerminalSelection = {
+  getSelection: () => string
+  selectAll: () => void
+  clearSelection: () => void
+}
 
 /**
  * Routes Edit-menu and context-menu clipboard commands to the preview terminal.
@@ -17,7 +20,7 @@ type PreviewTerminalSelection = Pick<Terminal, 'getSelection' | 'selectAll' | 'c
  * NOT to the raw ui:appMenuPaste / ui:appMenuSelectionAction IPC. The
  * preventDefault() claim is load-bearing: without it the App-level handler
  * falls back to the focused text control, which for a focused terminal is
- * xterm's hidden .xterm-helper-textarea — the clipboard text lands there and
+ * terminal's hidden .orca-terminal-helper-textarea — the clipboard text lands there and
  * never reaches the PTY. Leaving an event unclaimed is equally deliberate: the
  * App handler then performs the native action for text controls.
  */

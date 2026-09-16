@@ -9,9 +9,9 @@ import {
 } from './helpers/terminal'
 
 // Repro for the permanent frozen-pane state behind issue #8104-class reports:
-// once a pane's xterm WriteBuffer wedges (an escaping throw from an unguarded
+// once a pane's terminal WriteBuffer wedges (an escaping throw from an unguarded
 // write callback, or a write into a disposed terminal silently dropping its
-// completion — both verified against vendored xterm 6.1.0-beta.287), every
+// completion — both verified against vendored terminal 6.1.0-beta.287), every
 // later write queues forever: output stops rendering while the PTY stays
 // alive. The replay guard's probe certifies the wedge and fires the
 // terminal_replay_guard_wedged_release breadcrumb ("pane likely needs
@@ -89,7 +89,7 @@ test.describe('Wedged terminal write pipeline recovery', () => {
       .toBe(true)
   })
 
-  test('pane recovers after its xterm is disposed under live bindings (zombie pane)', async ({
+  test('pane recovers after its terminal is disposed under live bindings (zombie pane)', async ({
     orcaPage
   }) => {
     await waitForSessionReady(orcaPage)
@@ -111,7 +111,7 @@ test.describe('Wedged terminal write pipeline recovery', () => {
       .toBe(true)
 
     // The production zombie: disposePane/teardown raced pane bindings, leaving
-    // delivery and input routed at a disposed xterm. write() on a disposed
+    // delivery and input routed at a disposed terminal. write() on a disposed
     // terminal silently drops its completion callback (verified against
     // 6.1.0-beta.287), so delivery acks leak and keyboard onData never fires —
     // the pane looks painted but is a fossil: input dead, output dead, PTY alive.
@@ -132,9 +132,9 @@ test.describe('Wedged terminal write pipeline recovery', () => {
       pane.terminal.dispose()
     })
 
-    // Generate PTY output daemon-side; delivery into the disposed xterm is the
+    // Generate PTY output daemon-side; delivery into the disposed terminal is the
     // health signal recovery must catch (typing can't be one here — a disposed
-    // xterm emits no onData at all).
+    // terminal emits no onData at all).
     const outputMarker = `ZOMBIE_OUTPUT_${runId}`
     await sendToTerminal(orcaPage, ptyId, `echo ${outputMarker}\r`)
 
@@ -142,7 +142,7 @@ test.describe('Wedged terminal write pipeline recovery', () => {
       .poll(async () => (await getTerminalContent(orcaPage)).includes(outputMarker), {
         timeout: 45_000,
         message:
-          'Output written after the pane xterm was disposed never rendered — zombie pane was not recovered'
+          'Output written after the pane terminal was disposed never rendered — zombie pane was not recovered'
       })
       .toBe(true)
 

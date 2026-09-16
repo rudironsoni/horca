@@ -11,8 +11,8 @@ import type { PaneManager } from '@/lib/pane-manager/pane-manager'
 import type { PtyTransport } from './pty-transport'
 import {
   installTerminalImeCompositionRoute,
-  XTERM_COMPOSITION_SESSION_END_EVENT,
-  XTERM_COMPOSITION_SESSION_START_EVENT
+  TERMINAL_COMPOSITION_SESSION_END_EVENT,
+  TERMINAL_COMPOSITION_SESSION_START_EVENT
 } from './terminal-ime-composition-route'
 import { TERMINAL_IME_DEFERRED_CHORD_ABANDON_MS } from './terminal-ime-deferred-chord'
 import { useTerminalKeyboardShortcuts } from './keyboard-handlers'
@@ -34,7 +34,7 @@ function keyboardEvent(
 /** Live registrations on the terminal element, so a deferral that never disposes is visible. */
 function trackCompositionListeners(element: HTMLElement): () => number {
   const live = new Set<EventListenerOrEventListenerObject>()
-  const watched = new Set(['compositionend', XTERM_COMPOSITION_SESSION_END_EVENT])
+  const watched = new Set(['compositionend', TERMINAL_COMPOSITION_SESSION_END_EVENT])
   const { addEventListener, removeEventListener } = element
   element.addEventListener = function (type, listener, options): void {
     if (watched.has(type) && listener) {
@@ -66,7 +66,7 @@ function createHarness(): {
   const scope = document.createElement('div')
   const terminalElement = document.createElement('div')
   const terminalInput = document.createElement('textarea')
-  terminalInput.className = 'xterm-helper-textarea'
+  terminalInput.className = 'orca-terminal-helper-textarea'
   terminalElement.append(terminalInput)
   scope.append(terminalElement)
   document.body.append(scope)
@@ -138,12 +138,12 @@ function createHarness(): {
     deferralListenerCount,
     startComposition: () => {
       terminalElement.dispatchEvent(
-        new CustomEvent(XTERM_COMPOSITION_SESSION_START_EVENT, { detail: { id: 1 } })
+        new CustomEvent(TERMINAL_COMPOSITION_SESSION_START_EVENT, { detail: { id: 1 } })
       )
     },
     endComposition: (data: string) => {
       terminalElement.dispatchEvent(
-        new CustomEvent(XTERM_COMPOSITION_SESSION_END_EVENT, {
+        new CustomEvent(TERMINAL_COMPOSITION_SESSION_END_EVENT, {
           cancelable: true,
           detail: { id: 1, data }
         })
@@ -187,7 +187,7 @@ describe('a cursor chord pressed during a composition', () => {
   }
 
   // The Korean 2-Set shape: the platform replays the chord unmarked after keyup, so `isComposing`
-  // is already false — but xterm has not yet emitted the session end that writes the syllable.
+  // is already false — but terminal has not yet emitted the session end that writes the syllable.
   it('sends the composed syllable before the chord, not after it', () => {
     const harness = createHarness()
     const hook = renderHook(() => useTerminalKeyboardShortcuts(harness.deps))

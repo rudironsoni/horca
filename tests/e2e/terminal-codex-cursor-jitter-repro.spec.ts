@@ -233,7 +233,7 @@ async function getTerminalContentForTab(
     ({ tabId, charLimit }) => {
       const manager = window.__paneManagers?.get(tabId)
       const activePane = manager?.getActivePane?.() ?? manager?.getPanes?.()[0] ?? null
-      const text = activePane?.serializeAddon?.serialize?.() ?? ''
+      const text = activePane?.serializeController?.serialize?.() ?? ''
       return text.slice(-charLimit)
     },
     { tabId, charLimit }
@@ -449,16 +449,16 @@ async function readCaptureTarget(page: Page, tabId: string, ptyId: string): Prom
       if (!pane) {
         throw new Error(`No active pane for tab ${tabId}`)
       }
-      const screen = pane.container.querySelector<HTMLElement>('.xterm-screen')
+      const screen = pane.container.querySelector<HTMLElement>('.orca-terminal-canvas')
       if (!screen) {
-        throw new Error('xterm screen element not found')
+        throw new Error('terminal screen element not found')
       }
       const rect = screen.getBoundingClientRect()
       const terminal = pane.terminal
       const terminalCore = (terminal as unknown as TerminalWithInternalCore)._core
       const cellWidth = rect.width / terminal.cols
       const cellHeight = rect.height / terminal.rows
-      const cursorElement = pane.container.querySelector<HTMLElement>('.xterm-cursor')
+      const cursorElement = pane.container.querySelector<HTMLElement>('.orca-terminal-cursor')
       const cursorRect = cursorElement?.getBoundingClientRect()
       const cursorStyle = cursorElement ? window.getComputedStyle(cursorElement) : null
       const cursorVisible =
@@ -484,9 +484,9 @@ async function readCaptureTarget(page: Page, tabId: string, ptyId: string): Prom
             }
           : null
       const cursorCanvas = pane.container.querySelector<HTMLCanvasElement>(
-        '.xterm-cursor-layer canvas'
+        '.orca-terminal-cursor-layer canvas'
       )
-      const canvasLayer = cursorCanvas?.closest<HTMLElement>('.xterm-cursor-layer')
+      const canvasLayer = cursorCanvas?.closest<HTMLElement>('.orca-terminal-cursor-layer')
       const canvasLayerStyle = canvasLayer ? window.getComputedStyle(canvasLayer) : null
       const canvasMarker = (() => {
         if (
@@ -562,16 +562,17 @@ async function readCaptureTarget(page: Page, tabId: string, ptyId: string): Prom
         cursorX: terminal.buffer.active.cursorX,
         cursorY: terminal.buffer.active.cursorY,
         suppressed: false,
-        renderer: pane.webglAddon ? 'webgl' : 'dom',
+        renderer: pane.gpuRenderer ? 'webgl' : 'dom',
         windowsPty: (terminal.options.windowsPty ?? null) as {
           backend?: string
           buildNumber?: number
         } | null,
         marker: marker ?? canvasMarker,
         cursorDebug: {
-          cursorCount: pane.container.querySelectorAll('.xterm-cursor').length,
-          cursorLayerCount: pane.container.querySelectorAll('.xterm-cursor-layer').length,
-          cursorCanvasCount: pane.container.querySelectorAll('.xterm-cursor-layer canvas').length,
+          cursorCount: pane.container.querySelectorAll('.orca-terminal-cursor').length,
+          cursorLayerCount: pane.container.querySelectorAll('.orca-terminal-cursor-layer').length,
+          cursorCanvasCount: pane.container.querySelectorAll('.orca-terminal-cursor-layer canvas')
+            .length,
           firstCursorClass: cursorElement?.className ?? '',
           firstCursorDisplay: cursorStyle?.display ?? '',
           firstCursorVisibility: cursorStyle?.visibility ?? '',

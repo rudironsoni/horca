@@ -4,7 +4,7 @@ import { parseTerminalKittyKeyboardFlags } from './terminal-kitty-keyboard-flags
 // Keep parser state far beyond normal sequence lengths while bounding memory.
 const KITTY_SCAN_TAIL_LIMIT = 4096
 
-// Why: mirrors xterm's InputHandler cap so a runaway TUI cannot grow the
+// Why: mirrors terminal's InputHandler cap so a runaway TUI cannot grow the
 // mirrored stacks unboundedly while the renderer's own stacks stay at 16.
 const KITTY_STACK_LIMIT = 16
 
@@ -13,18 +13,18 @@ type KittyStackFrame = { flags: number; known: boolean }
 
 /**
  * Mirrors the kitty keyboard protocol flag state (CSI > u push, CSI < u pop,
- * CSI = u set) by scanning the raw PTY output stream, replicating xterm's
+ * CSI = u set) by scanning the raw PTY output stream, replicating terminal's
  * exact stack/screen algorithm including the per-screen flag slots swapped by
  * DECSET/DECRST 47/1047/1049, the full reset on RIS, and the soft reset on
  * DECSTR (CSI ! p).
  *
- * Why a mirror instead of reading xterm's internal state: Orca defensively
+ * Why a mirror instead of reading terminal's internal state: Orca defensively
  * wipes the renderer terminal's kitty flags at moments when the TUI may have
  * died (Ctrl+C interrupts, reattach resets) while the TUI is usually still
  * alive and expecting protocol-encoded input. This tracker is fed only by
  * application output, so it reflects what the *application* negotiated,
  * independent of renderer-side defensive writes. The daemon reuses it to
- * carry flags into snapshots (xterm's SerializeAddon does not serialize kitty
+ * carry flags into snapshots (terminal's SerializeAddon does not serialize kitty
  * state).
  */
 export class TerminalKittyKeyboardModeTracker {
@@ -182,7 +182,7 @@ export class TerminalKittyKeyboardModeTracker {
   }
 
   private applySoftReset(): void {
-    // Why: xterm's DECSTR (CSI ! p) wipes kitty flags and stacks for both
+    // Why: terminal's DECSTR (CSI ! p) wipes kitty flags and stacks for both
     // screens via coreService.reset but does not switch buffers — mirror that
     // so a soft-resetting TUI stops receiving kitty-encoded Option chords.
     this.baselineProven = true
@@ -205,7 +205,7 @@ export class TerminalKittyKeyboardModeTracker {
         continue
       }
       this.alternateScreenSwitchObserved = true
-      // Why: xterm swaps the current flags with the inactive screen's slot on
+      // Why: terminal swaps the current flags with the inactive screen's slot on
       // every 47/1047/1049 transition, without an already-active guard —
       // mirror it exactly so this state matches what the renderer encodes.
       // Why the known bit rides the numeric slot: a screen whose flags were
@@ -257,7 +257,7 @@ export class TerminalKittyKeyboardModeTracker {
         this.currentKnown = frame.known
       }
       if (stack.length === 0) {
-        // Why: xterm zeroes an exhausted stack even over a just-popped value.
+        // Why: terminal zeroes an exhausted stack even over a just-popped value.
         // With complete history that matches the app's emulator exactly, but a
         // mirror whose stack omits pre-snapshot pushes empties EARLIER than
         // the app's — its forced zero is only proven when the popped frame

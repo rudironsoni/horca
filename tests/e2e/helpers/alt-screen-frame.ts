@@ -22,7 +22,7 @@ export type ActiveScreen = {
   rows: string[]
 }
 
-// Why: what the pane shows is the active buffer's viewport. `serializeAddon.serialize()`
+// Why: what the pane shows is the active buffer's viewport. `serializeController.serialize()`
 // dumps the whole normal buffer (scrollback included) before the alt frame, so a stale
 // marker there is indistinguishable from the live one (STA-5208). Null on a missing pane
 // because callers poll this and `expect.poll` aborts on a generator throw.

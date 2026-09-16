@@ -8,7 +8,7 @@ import {
 } from '@/constants/terminal'
 import type { PaneManager } from '@/lib/pane-manager/pane-manager'
 import type { PtyTransport } from './pty-transport'
-import type { IDisposable } from '@xterm/xterm'
+import type { OrcaDisposable as IDisposable } from '../../../../shared/orca-terminal-surface'
 import { handleTerminalFileDrop } from './terminal-drop-handler'
 import { handleFocusTerminalPaneDetail } from './focus-terminal-pane-event'
 import { surfaceStaleAgentRow } from './stale-agent-row'
@@ -160,7 +160,7 @@ export function useTerminalPaneGlobalEffects({
       resumeTerminalVisibility({
         manager,
         isActive,
-        // Why: chat mode is tab-wide, but only the chat leaf's xterm is covered;
+        // Why: chat mode is tab-wide, but only the chat leaf's terminal is covered;
         // a split terminal leaf that is active must still regain focus on reveal.
         isChatViewMode: isChatViewMode && activePaneIsCoveredByNativeChat(manager),
         wasVisible,

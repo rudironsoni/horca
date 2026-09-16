@@ -188,7 +188,7 @@ describe('connectPanePty', () => {
         }) as DOMRect
     })
     ;(
-      pane.fitAddon as unknown as { proposeDimensions: () => { cols: number; rows: number } }
+      pane.fitController as unknown as { proposeDimensions: () => { cols: number; rows: number } }
     ).proposeDimensions = vi.fn(() => ({ cols: 120, rows: 40 }))
     pane.terminal.resize.mockImplementation((cols: number, rows: number) => {
       pane.terminal.cols = cols
@@ -301,11 +301,11 @@ describe('connectPanePty', () => {
     pane.container = mainContainer
     siblingPane.container = setupContainer
     ;(
-      pane.fitAddon as unknown as {
+      pane.fitController as unknown as {
         proposeDimensions: () => { cols: number; rows: number }
       }
     ).proposeDimensions = vi.fn(() => proposedGrid)
-    pane.fitAddon.fit = vi.fn(() => {
+    pane.fitController.fit = vi.fn(() => {
       pane.terminal.cols = proposedGrid.cols
       pane.terminal.rows = proposedGrid.rows
     })
@@ -604,8 +604,8 @@ describe('connectPanePty', () => {
     expect(deps.syncPanePtyLayoutBinding).toHaveBeenCalledWith(1, stablePtyId)
   })
 
-  it('drops xterm onData while pane is replaying restored bytes', async () => {
-    // Regression: during replay, xterm auto-replies to embedded queries (DA1/DECRQM/OSC/CPR) via onData must not reach transport.sendInput or they land as stray chars on the prompt. See replay-guard.ts.
+  it('drops terminal onData while pane is replaying restored bytes', async () => {
+    // Regression: during replay, terminal auto-replies to embedded queries (DA1/DECRQM/OSC/CPR) via onData must not reach transport.sendInput or they land as stray chars on the prompt. See replay-guard.ts.
     const { connectPanePty } = await import('./pty-connection')
 
     const transport = createMockTransport('pty-live')
@@ -632,7 +632,7 @@ describe('connectPanePty', () => {
     if (!onDataHandler) {
       throw new Error('expected onData handler to be registered')
     }
-    // Simulate xterm emitting a DA1 auto-reply during replay parse.
+    // Simulate terminal emitting a DA1 auto-reply during replay parse.
     ;(onDataHandler as (data: string) => void)('\x1b[?1;2c')
     expect(transport.sendInput).not.toHaveBeenCalled()
     expect(transport.claimViewport).not.toHaveBeenCalled()

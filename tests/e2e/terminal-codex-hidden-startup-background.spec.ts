@@ -137,10 +137,10 @@ async function readCodexStartupBackgroundTarget(
       if (!pane) {
         throw new Error('Active Codex terminal pane is unavailable')
       }
-      const screen = pane.container.querySelector<HTMLElement>('.xterm-screen')
+      const screen = pane.container.querySelector<HTMLElement>('.orca-terminal-canvas')
       const dimensions = pane.terminal._core?._renderService?.dimensions?.css?.cell
       if (!screen || !dimensions) {
-        throw new Error('Active Codex terminal has no measurable xterm screen')
+        throw new Error('Active Codex terminal has no measurable terminal screen')
       }
       const rect = screen.getBoundingClientRect()
       if (rect.width <= 0 || rect.height <= 0) {

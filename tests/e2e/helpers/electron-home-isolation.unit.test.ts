@@ -1,4 +1,4 @@
-import { mkdtempSync, realpathSync, rmSync } from 'node:fs'
+import { mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
@@ -32,6 +32,7 @@ describe('createElectronHomeIsolation', () => {
         CODEX_HOME: '/real/codex',
         ORCA_CODEX_HOME: '/real/orca-codex',
         ZDOTDIR: '/real/zdotdir',
+        XDG_CONFIG_HOME: '/real/home/.config',
         PATH: '/bin'
       },
       launchEnv: { TEST_TOKEN: 'safe' },
@@ -55,6 +56,8 @@ describe('createElectronHomeIsolation', () => {
     expect(isolation.env.CODEX_HOME).toBeUndefined()
     expect(isolation.env.ORCA_CODEX_HOME).toBeUndefined()
     expect(isolation.env.ZDOTDIR).toBeUndefined()
+    expect(isolation.env.XDG_CONFIG_HOME).toBe(path.join(canonicalHome, '.config'))
+    expect(isolation.env.TEST_WORKER_INDEX).toBe('0')
     // Codex always routes to the resolved home, so the post-launch guard must
     // accept the boundary this env produces.
     expect(() =>
@@ -86,5 +89,28 @@ describe('createElectronHomeIsolation', () => {
 
   it('compares Windows home paths case-insensitively', () => {
     expect(areSameHomePath('C:\\Users\\Alice', 'c:\\users\\alice', 'win32')).toBe(true)
+  })
+
+  it('seeds isolated Horca settings with the pinned Herdr executable', () => {
+    const userDataDir = createUserDataDir()
+    const pinDir = mkdtempSync(path.join(os.tmpdir(), 'orca-herdr-pin-'))
+    tempDirs.push(pinDir)
+    const pin = path.join(pinDir, 'herdr-macos-aarch64')
+    writeFileSync(pin, '')
+    const isolation = createElectronHomeIsolation({
+      inheritedEnv: { PATH: '/bin' },
+      launchEnv: { ORCA_HERDR_BUNDLED_BINARY: pin },
+      extraEnv: {},
+      userDataDir,
+      realHome: '/real/home'
+    })
+    expect(isolation.env.ORCA_HERDR_BUNDLED_BINARY).toBe(pin)
+    expect(
+      JSON.parse(
+        readFileSync(path.join(isolation.isolatedHome, '.horca', 'terminal-backends.json'), 'utf8')
+      )
+    ).toMatchObject({
+      herdr: { binarySource: { kind: 'custom', path: pin } }
+    })
   })
 })

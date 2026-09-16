@@ -88,7 +88,7 @@ function tick() {
   }
 }
 
-// Codex-shaped startup: terminal queries (answered by xterm or the daemon's
+// Codex-shaped startup: terminal queries (answered by terminal or the daemon's
 // model responder) and mouse reporting, so the run takes the live-agent
 // classification branches instead of the plain-shell ones.
 process.stdout.write('\x1b[c\x1b[6n\x1b]10;?\x07\x1b]11;?\x07')

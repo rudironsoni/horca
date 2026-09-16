@@ -1,10 +1,9 @@
-import type { Terminal } from '@xterm/xterm'
 import { getShortcutPlatform } from '@/lib/shortcut-platform'
 import { installTerminalImeCompositionTracker } from '@/components/terminal-pane/terminal-ime-composition-tracker'
 import { installTerminalImeNativeTextForwarder } from '@/components/terminal-pane/terminal-ime-native-text-forwarder'
 
 export type PreviewImeBridge = {
-  /** True when the forwarder owns this keydown, so xterm must not encode it. */
+  /** True when the forwarder owns this keydown, so terminal must not encode it. */
   claimKeyEvent: (event: KeyboardEvent) => boolean
   dispose: () => void
 }
@@ -21,7 +20,7 @@ export type PreviewImeBridgeOptions = {
 /**
  * Native-text bridge for the preview terminal.
  *
- * Why: xterm's kitty encoder can encode+cancel a printable keydown before
+ * Why: terminal's kitty encoder can encode+cancel a printable keydown before
  * Chromium commits IME/native text, silently dropping the glyph. Mirrors
  * TerminalPane's forwarder, macOS-only like the pane's install.
  *
@@ -29,7 +28,7 @@ export type PreviewImeBridgeOptions = {
  * forwarded unchanged, never masked or reduced to a boolean.
  */
 export function installPreviewImeBridge(
-  terminal: Terminal,
+  terminal: { element: HTMLElement; input: (data: string) => void },
   options: PreviewImeBridgeOptions
 ): PreviewImeBridge | null {
   if (getShortcutPlatform() !== 'darwin') {

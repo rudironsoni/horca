@@ -1,36 +1,30 @@
-import './xterm-env-polyfill'
-import { Terminal } from '@xterm/headless'
-import { SerializeAddon } from '@xterm/addon-serialize'
-import { Unicode11Addon } from '@xterm/addon-unicode11'
-import { activateOrcaTerminalUnicodeProvider } from '../../shared/terminal-unicode-provider'
-import {
-  readSavedCursorRegister,
-  serializeWithAbsoluteCursor
-} from '../../shared/terminal-serialize-absolute-cursor'
+import { applyGhosttyViewAttributes } from '../../ghostty-vt/ghostty-color-theme'
+import { HeadlessVtQueryParser } from '../../ghostty-vt/headless-vt-query-parser'
+import { GhosttyTerminal } from '../../ghostty-vt/ghostty-terminal'
+import type { TerminalCursorContext } from '../../shared/terminal-composer-draft'
 import { advancePartialEscapeTail } from '../../shared/terminal-partial-escape-tail'
+import type { TerminalOscLinkRange } from '../../shared/terminal-osc-link-ranges'
 import type { TerminalViewAttributes } from '../../shared/terminal-view-attributes'
-import { collectHeadlessOscLinkRanges } from './headless-osc-link-ranges'
-import { readTerminalModes } from './headless-emulator-modes'
-import { buildRehydrateSequences } from './terminal-mode-rehydrate-sequences'
+import { getGhosttyVtHost } from './ghostty-vt-node-host'
 import { TerminalMouseModeMirror } from './terminal-mouse-mode-mirror'
 import { TerminalOscCwdTitleScanner } from './terminal-osc-cwd-title-scanner'
-import { buildFrameRestoreSnapshotFields } from './terminal-frame-restore-sequences'
-import { splitTerminalSnapshotAnsi } from './terminal-snapshot-ansi-buffers'
+import {
+  collectHeadlessOscLinks,
+  headlessFrameRestoreAnsi,
+  headlessModes,
+  serializeHeadlessAnsiBuffers
+} from './headless-emulator-snapshot'
+import { buildRehydrateSequences } from './terminal-mode-rehydrate-sequences'
 import {
   installTerminalViewAttributeResponder,
   type TerminalViewAttributeResponder
 } from './terminal-view-attribute-responder'
-import { installDeviceAttributesResponder } from './startup-device-attributes-responder'
-import type { TerminalSnapshot, TerminalModes } from './types'
-import type { TerminalOscLinkRange } from '../../shared/terminal-osc-link-ranges'
-import type { TerminalCursorContext } from '../../shared/terminal-composer-draft'
-import { readTerminalCursorLineContext } from '../../shared/terminal-cursor-line-context'
+import type { TerminalSnapshot } from './types'
 
 export type HeadlessEmulatorOptions = {
   cols: number
   rows: number
   scrollback?: number
-  /** Query reply sink (terminal-query-authority.md); only `forwardQueryReplies` writes emit here. The daemon Session must never pass this. */
   onQueryReply?: (reply: string) => void
   pathFlavor?: 'posix' | 'win32'
   remotePosixFileUriAuthority?: boolean
@@ -38,117 +32,69 @@ export type HeadlessEmulatorOptions = {
 }
 
 export type HeadlessEmulatorWriteOptions = {
-  /** Reply ownership for this exact chunk; default false so seed/hydration/snapshot writes never forward (main-side replay guard; twin of renderer replay-guard.ts). */
   forwardQueryReplies?: boolean
 }
 
-type TerminalWithSynchronousWrite = Terminal & {
-  _core?: {
-    writeSync?: (data: string) => void
-    // Why: kitty keyboard flags aren't on the public IModes; read the core service the CSI u handlers mutate.
-    coreService?: {
-      kittyKeyboard?: { flags?: number }
-    }
-  }
-}
-
 const DEFAULT_SCROLLBACK = 5000
-// Keep in sync with the renderer twin terminal-capability-replies.ts (main must not import renderer modules).
 const CONPTY_DA1_RESPONSE = '\x1b[?61;4c'
+const DA1_QUERIES = ['\x1b[c', '\x1b[0c'] as const
 
 export class HeadlessEmulator {
-  private terminal: Terminal
-  private serializer: SerializeAddon
+  private terminal: GhosttyTerminal
   private oscText: TerminalOscCwdTitleScanner
   private mouseModes = new TerminalMouseModeMirror()
-  private readonly pathFlavor?: 'posix' | 'win32'
-  private readonly remotePosixFileUriAuthority: boolean
   private restoredOscLinks: TerminalOscLinkRange[] = []
   private disposed = false
   private onQueryReply: ((reply: string) => void) | null
   private conptyDa1OverrideInstalled = false
-  private viewAttributeResponder: TerminalViewAttributeResponder | null = null
-  // Why: replies must be scoped to the exact write that carried the query, so seeds/snapshots and unsolicited emissions never leak to the PTY.
   private queryReplyForwardingDepth = 0
-  // Why: a mid-escape chunk tail lives in xterm's parser, not the buffer, so serialize() drops it and it renders literal after restore (Bug E).
   private partialEscapeTail = ''
+  private pushedCursorHidden = false
+  private readonly queryParser = new HeadlessVtQueryParser()
+  private viewAttributeResponder: TerminalViewAttributeResponder | null = null
 
   constructor(opts: HeadlessEmulatorOptions) {
-    this.pathFlavor = opts.pathFlavor
-    this.remotePosixFileUriAuthority = opts.remotePosixFileUriAuthority === true
     this.oscText = new TerminalOscCwdTitleScanner({
-      pathFlavor: this.pathFlavor,
-      remotePosixAuthority: this.remotePosixFileUriAuthority,
+      pathFlavor: opts.pathFlavor,
+      remotePosixAuthority: opts.remotePosixFileUriAuthority === true,
       wslDistro: opts.wslDistro
     })
-    this.terminal = new Terminal({
+    this.onQueryReply = opts.onQueryReply ?? null
+    this.terminal = new GhosttyTerminal(getGhosttyVtHost(), {
       cols: opts.cols,
       rows: opts.rows,
-      scrollback: opts.scrollback ?? DEFAULT_SCROLLBACK,
-      allowProposedApi: true,
-      logLevel: 'off',
-      // Why: parse CSI =/>/< u pushes so CSI ? u answers with the flags the hidden app pushed (renderer parity).
-      vtExtensions: { kittyKeyboard: true }
+      scrollbackLines: opts.scrollback ?? DEFAULT_SCROLLBACK,
+      onWritePty: this.onQueryReply
+        ? (bytes) => this.emitQueryReply(new TextDecoder().decode(bytes))
+        : undefined
     })
-
-    this.serializer = new SerializeAddon()
-    this.terminal.loadAddon(this.serializer)
-
-    // Why Unicode 11: must match the renderer's char-width measurement, else emoji rows mismeasure and the mirror accumulates cell-shifted tears.
-    this.terminal.loadAddon(new Unicode11Addon())
-    activateOrcaTerminalUnicodeProvider(this.terminal)
-
-    // Why gated: an emulator query reply would beat the renderer's to the shell's stdin (OSC 11 default-black was the casualty).
-    this.onQueryReply = opts.onQueryReply ?? null
-    if (this.onQueryReply) {
-      this.terminal.onData((reply) => this.emitQueryReply(reply))
-    }
   }
 
-  /** ConPTY 1.22+ blocks at spawn awaiting a DA1 reply. See startup-device-attributes-responder. */
   installConptyPrimaryDeviceAttributesOverride(): void {
-    // Why idempotent: installed at creation and again at spawn-mark time (which can land later), so it's never stacked.
-    if (this.conptyDa1OverrideInstalled) {
-      return
-    }
     this.conptyDa1OverrideInstalled = true
-    installDeviceAttributesResponder({
-      parser: this.terminal.parser,
-      response: CONPTY_DA1_RESPONSE,
-      reply: (data) => this.emitQueryReply(data)
-    })
   }
 
-  /** Why exposed: responder modules install handlers here (see the view-attribute and
-   *  device-attributes responders); the caller owns disposal. */
-  get responderParser(): Terminal['parser'] {
-    return this.terminal.parser
+  get responderParser(): HeadlessVtQueryParser {
+    return this.queryParser
   }
 
-  /** Headless core has no theme service, so OSC 4/10/11/12 and DSR ?996n answer from the renderer's pushed attributes; daemon Session must never call this. */
   installViewAttributeResponder(getBaseAttributes: () => TerminalViewAttributes | null): void {
     if (this.viewAttributeResponder) {
       return
     }
     this.viewAttributeResponder = installTerminalViewAttributeResponder({
-      parser: this.terminal.parser,
+      parser: this.queryParser,
       getBaseAttributes,
-      // emitQueryReply keeps replies in the per-chunk forwarding window, so seeded/replayed queries answer no one.
       emitReply: (reply) => this.emitQueryReply(reply)
     })
   }
 
-  /** Sets cursor options so xterm answers DECSCUSR / DECRQM 12 renderer-true; per-PTY color overrides are dropped (a theme apply overwrites them anyway). */
   applyPushedViewAttributes(attributes: TerminalViewAttributes): void {
-    if (this.disposed) {
-      return
-    }
-    this.terminal.options.cursorStyle = attributes.cursorStyle
-    this.terminal.options.cursorBlink = attributes.cursorBlink
+    this.pushedCursorHidden = attributes.cursorStyle === 'bar' && attributes.cursorBlink === false
+    applyGhosttyViewAttributes(this.terminal, attributes)
     this.viewAttributeResponder?.clearColorOverrides()
   }
 
-  /** Re-seeds snapshot kitty flags via the live-push parse, routed unflagged so it can never answer a query (terminal-query-authority.md). */
   applyKittyKeyboardFlags(flags: number): Promise<void> {
     if (!Number.isInteger(flags) || flags <= 0) {
       return Promise.resolve()
@@ -156,74 +102,26 @@ export class HeadlessEmulator {
     return this.write(`\x1b[=${flags};1u`)
   }
 
-  private emitQueryReply(reply: string): void {
-    if (this.queryReplyForwardingDepth > 0 && this.onQueryReply) {
-      this.onQueryReply(reply)
-    }
-  }
-
-  /** Severs the reply sink so a post-dispose reply can't reach a successor PTY (respawns reuse session ids). */
   disableQueryReplyForwarding(): void {
     this.onQueryReply = null
   }
 
   write(data: string, opts: HeadlessEmulatorWriteOptions = {}): Promise<void> {
-    if (this.disposed) {
-      return Promise.resolve()
-    }
-
-    const forwardQueryReplies = opts.forwardQueryReplies === true
-    if (this.tryWriteSync(data, { forwardQueryReplies })) {
-      return Promise.resolve()
-    }
-    this.oscText.scan(data)
-    // Why the sentinel: xterm parses writes async, so its zero-byte callback fires in FIFO order to open the window at exactly this chunk.
-    if (forwardQueryReplies) {
-      this.terminal.write('', () => {
-        this.queryReplyForwardingDepth += 1
-      })
-    }
-    return new Promise<void>((resolve) => {
-      this.terminal.write(data, () => {
-        if (forwardQueryReplies) {
-          this.queryReplyForwardingDepth -= 1
-        }
-        // Why: commit the mouse-mode mirror only after xterm has parsed the same bytes (snapshots combine both).
-        this.mouseModes.scan(data)
-        this.partialEscapeTail = advancePartialEscapeTail(this.partialEscapeTail, data)
-        resolve()
-      })
+    const remaining = this.maybeAnswerConptyDa1(data, opts.forwardQueryReplies === true)
+    this.withForwarding(opts.forwardQueryReplies === true, () => {
+      this.writeSync(remaining)
     })
+    return Promise.resolve()
   }
 
-  /** Synchronous write for cold-restore replay (async would snapshot a half-applied stream); false when writeSync is unavailable. */
   writeSync(data: string): boolean {
     if (this.disposed) {
       return false
     }
-    return this.tryWriteSync(data)
-  }
-
-  private tryWriteSync(data: string, opts: HeadlessEmulatorWriteOptions = {}): boolean {
-    const writeSync = (this.terminal as TerminalWithSynchronousWrite)._core?.writeSync
-    if (typeof writeSync !== 'function') {
-      return false
-    }
     this.oscText.scan(data)
-    const forwardQueryReplies = opts.forwardQueryReplies === true
-    if (forwardQueryReplies) {
-      this.queryReplyForwardingDepth += 1
-    }
-    // Why: restore snapshots are requested right after PTY bursts; queued writes could snapshot half-cleared TUI rows.
-    try {
-      writeSync.call((this.terminal as TerminalWithSynchronousWrite)._core, data)
-    } finally {
-      if (forwardQueryReplies) {
-        this.queryReplyForwardingDepth -= 1
-      }
-    }
     this.mouseModes.scan(data)
     this.partialEscapeTail = advancePartialEscapeTail(this.partialEscapeTail, data)
+    this.terminal.writePtyOutput(this.queryParser.consume(data))
     return true
   }
 
@@ -231,110 +129,94 @@ export class HeadlessEmulator {
     if (this.disposed) {
       return
     }
-    // Why gated: restored OSC-8 ranges are row-indexed, so a reflow
-    // invalidates them — but a resize to the size already applied is not a
-    // reflow. Cold restore seeds the ranges and then replays records that
-    // resize, and same-size records reach the durable log because every
-    // attach re-asserts the pane's dimensions, so clearing unconditionally
-    // dropped the links a restore had just recovered.
     if (this.terminal.cols === cols && this.terminal.rows === rows) {
       return
     }
     this.restoredOscLinks = []
-    this.terminal.resize(cols, rows)
+    this.terminal.resize({ cols, rows })
   }
 
-  // Why: these dims proxy the child's real size, so they stay stale on a dropped resize the renderer must detect.
   getAppliedSize(): { cols: number; rows: number } {
     return { cols: this.terminal.cols, rows: this.terminal.rows }
   }
 
   getSnapshot(opts: { scrollbackRows?: number } = {}): TerminalSnapshot {
-    const modes = this.getModes()
-    // Why absolute: relative cursor restore is off by a column after a wrap-pending final row; saved-cursor rides along for DECRC.
-    const serializedAnsi = serializeWithAbsoluteCursor(
-      this.serializer,
-      this.terminal,
-      { scrollback: opts.scrollbackRows },
-      readSavedCursorRegister(this.terminal)
-    )
-    const { snapshotAnsi, scrollbackAnsi } = splitTerminalSnapshotAnsi(serializedAnsi, modes)
-    const snapshot: TerminalSnapshot = {
+    const modes = headlessModes(this.terminal, this.mouseModes)
+    const { snapshotAnsi, scrollbackAnsi } = serializeHeadlessAnsiBuffers(this.terminal, modes)
+    return {
       snapshotAnsi,
       scrollbackAnsi,
-      oscLinks: collectHeadlessOscLinkRanges(
-        this.terminal,
-        opts.scrollbackRows,
-        this.restoredOscLinks
-      ),
+      oscLinks: collectHeadlessOscLinks(this.terminal, this.restoredOscLinks, opts.scrollbackRows),
       rehydrateSequences: buildRehydrateSequences(modes),
-      ...buildFrameRestoreSnapshotFields(this.serializer, this.terminal, modes),
+      frameRestoreAnsi: modes.alternateScreen
+        ? headlessFrameRestoreAnsi(this.terminal, modes)
+        : undefined,
       cwd: this.oscText.cwd,
       modes,
       cols: this.terminal.cols,
       rows: this.terminal.rows,
-      scrollbackLines: this.terminal.buffer.normal.length - this.terminal.rows,
+      scrollbackLines: this.terminal.scrollbackRows,
       lastTitle: this.oscText.lastTitle ?? undefined,
-      // Why written LAST by the restorer: the next live chunk must complete this dangling sequence, not render it literally (Bug E / #7329).
       ...(this.partialEscapeTail.length > 0
         ? { pendingEscapeTailAnsi: this.partialEscapeTail }
         : {})
     }
-    return snapshot
   }
 
   get isAlternateScreen(): boolean {
-    return this.terminal.buffer.active.type === 'alternate'
+    return this.terminal.isAlternateScreen
   }
 
-  /** Dangling incomplete escape at the stream position; handoffs seed the other side so a split sequence isn't lost. */
   get partialEscapeTailAnsi(): string {
     return this.partialEscapeTail
   }
 
-  /** PSReadLine's Ctrl+L repaint is only safe at an empty prompt; '>>' is PowerShell's continuation prompt, not empty. */
   isCursorOnEmptyPromptLine(): boolean {
-    const buffer = this.terminal.buffer.active
-    const line = buffer.getLine(buffer.baseY + buffer.cursorY)
-    if (!line) {
-      return false
-    }
-    const upToCursor = line.translateToString(true, 0, buffer.cursorX).trimEnd()
-    const fullLine = line.translateToString(true).trimEnd()
-    return fullLine === upToCursor && upToCursor.endsWith('>') && !upToCursor.endsWith('>>')
+    const line = this.cursorLineText()
+    return line.endsWith('>') && !line.endsWith('>>')
   }
 
   getVisibleLines(): string[] {
-    const buffer = this.terminal.buffer.active
-    const lines: string[] = []
-    for (let row = buffer.viewportY; row < buffer.viewportY + this.terminal.rows; row += 1) {
-      lines.push(buffer.getLine(row)?.translateToString(true) ?? '')
+    const rows = this.terminal.rows
+    const lines = this.terminal.readViewportText().split('\n')
+    while (lines.length < rows) {
+      lines.push('')
     }
-    return lines
+    return lines.slice(0, rows)
   }
 
   getVisibleBufferRange(): { start: number; endExclusive: number; totalLength: number } {
-    const buffer = this.terminal.buffer.active
-    const start = buffer.viewportY
-    return {
-      start,
-      endExclusive: Math.min(buffer.length, start + this.terminal.rows),
-      totalLength: buffer.length
-    }
+    const totalLength = this.terminal.totalRows
+    const start = Math.max(0, totalLength - this.terminal.rows)
+    return { start, endExclusive: totalLength, totalLength }
   }
 
   getCursorLineContext(rowsAbove = this.terminal.rows): TerminalCursorContext | null {
-    return readTerminalCursorLineContext(this.terminal, rowsAbove)
+    const lines = this.getVisibleLines()
+    const cursor = this.terminal.cursor
+    const start = Math.max(0, cursor.y - Math.max(0, Math.floor(rowsAbove)))
+    const line = lines[cursor.y] ?? ''
+    return {
+      rows: lines.slice(start, cursor.y + 1),
+      typedRows: lines.slice(start, cursor.y + 1),
+      promptGlyphBoldRows: lines.slice(start, cursor.y + 1).map(() => false),
+      rowsWrapped: lines.slice(start, cursor.y + 1).map(() => false),
+      rowsBelow: lines.slice(cursor.y + 1),
+      typedRowsBelow: lines.slice(cursor.y + 1),
+      rowsBelowWrapped: lines.slice(cursor.y + 1).map(() => false),
+      rowsBelowCustomForeground: lines.slice(cursor.y + 1).map(() => false),
+      beforeCursor: line.slice(0, cursor.x),
+      afterCursor: line.slice(cursor.x),
+      rawAfterCursor: line.slice(cursor.x),
+      cursorHidden: this.pushedCursorHidden,
+      cursorViewportRow: cursor.y
+    }
   }
 
   getBufferTailLines(limit: number): string[] {
-    const buffer = this.terminal.buffer.active
-    const start = Math.max(0, buffer.length - Math.max(0, Math.floor(limit)))
-    const lines: string[] = []
-    for (let row = start; row < buffer.length; row += 1) {
-      lines.push(buffer.getLine(row)?.translateToString(true) ?? '')
-    }
-    return lines
+    const lines = this.terminal.readViewportText().split('\n')
+    const start = Math.max(0, lines.length - Math.max(0, Math.floor(limit)))
+    return lines.slice(start)
   }
 
   getCwd(): string | null {
@@ -355,15 +237,63 @@ export class HeadlessEmulator {
 
   clearScrollback(): void {
     this.restoredOscLinks = []
-    this.terminal.clear()
+    this.terminal.writePtyOutput('\x1b[3J')
+  }
+
+  captureEngine(): Uint8Array {
+    return this.terminal.capture().nativeSnapshot
+  }
+
+  restoreEngine(snapshot: Uint8Array): void {
+    this.terminal.restore({ nativeSnapshot: snapshot })
   }
 
   dispose(): void {
+    if (this.disposed) {
+      return
+    }
     this.disposed = true
     this.terminal.dispose()
   }
 
-  private getModes(): TerminalModes {
-    return readTerminalModes(this.terminal, this.mouseModes)
+  private emitQueryReply(reply: string): void {
+    if (this.queryReplyForwardingDepth > 0 && this.onQueryReply) {
+      this.onQueryReply(reply)
+    }
+  }
+
+  private maybeAnswerConptyDa1(data: string, forward: boolean): string {
+    if (!this.conptyDa1OverrideInstalled) {
+      this.withForwarding(forward, () => undefined)
+      return data
+    }
+    let remaining = data
+    for (const query of DA1_QUERIES) {
+      if (remaining.includes(query)) {
+        this.withForwarding(true, () => this.emitQueryReply(CONPTY_DA1_RESPONSE))
+        remaining = remaining.split(query).join('')
+      }
+    }
+    this.withForwarding(forward, () => undefined)
+    return remaining
+  }
+
+  private withForwarding(forward: boolean, body: () => void): void {
+    if (forward) {
+      this.queryReplyForwardingDepth += 1
+    }
+    try {
+      body()
+    } finally {
+      if (forward) {
+        this.queryReplyForwardingDepth -= 1
+      }
+    }
+  }
+
+  private cursorLineText(): string {
+    const lines = this.getVisibleLines()
+    const { x, y } = this.terminal.cursor
+    return (lines[y] ?? '').slice(0, x).trimEnd()
   }
 }

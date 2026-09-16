@@ -1,6 +1,6 @@
 import type { ManagedPaneInternal, PaneManagerOptions } from './pane-manager-types'
 import {
-  attachWebgl,
+  refreshPaneRenderer,
   disposeWebgl,
   resetTerminalWebglSuggestion,
   shouldUseTerminalWebgl
@@ -36,12 +36,13 @@ export function applyTerminalGpuAcceleration(
     }
     if (
       pane.gpuRenderingEnabled &&
-      !pane.webglAddon &&
       !pane.webglAttachmentDeferred &&
       !pane.webglDisabledAfterContextLoss
     ) {
-      attachWebgl(pane)
-      safeFit(pane)
+      refreshPaneRenderer(pane)
+      if (modeChanged) {
+        safeFit(pane)
+      }
     }
   }
 }

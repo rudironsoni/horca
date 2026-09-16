@@ -285,7 +285,7 @@ async function readPaneContent(page: Page, webTabId: string): Promise<string> {
   return page.evaluate((id) => {
     const manager = window.__paneManagers?.get(id)
     const pane = manager?.getActivePane?.() ?? manager?.getPanes?.()[0] ?? null
-    return pane?.serializeAddon?.serialize?.() ?? ''
+    return pane?.serializeController?.serialize?.() ?? ''
   }, webTabId)
 }
 
@@ -332,7 +332,7 @@ async function focusAndType(page: Page, webTabId: string, text: string): Promise
   await page.evaluate((id) => {
     const manager = window.__paneManagers?.get(id)
     const pane = manager?.getActivePane?.() ?? manager?.getPanes?.()[0] ?? null
-    const textarea = pane?.container.querySelector('.xterm-helper-textarea') as
+    const textarea = pane?.container.querySelector('.orca-terminal-helper-textarea') as
       | HTMLTextAreaElement
       | undefined
     if (!pane || !textarea) {

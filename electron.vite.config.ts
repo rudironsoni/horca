@@ -1,20 +1,25 @@
+import { copyFileSync } from 'node:fs'
 import { isBuiltin } from 'node:module'
-import { resolve } from 'node:path'
+import { join, resolve } from 'node:path'
 import { defineConfig, type UserConfig } from 'electron-vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { createBootstrapFatalExitBanner } from './config/build-plugins/bootstrap-fatal-exit-banner'
 import { createPlainNodeEntryGuardPlugin } from './config/build-plugins/plain-node-entry-guard'
+import { applyHorcaViteDistributionEnv } from './src/shared/horca-vite-distribution'
+import { createDistributionTranslationCatalogPlugin } from './src/shared/horca/distribution-translation-catalog-plugin'
 import packageJson from './package.json' with { type: 'json' }
 
 const BUNDLED_MAIN_DEPENDENCIES = new Set([
   '@streamparser/json',
-  '@xterm/headless',
-  '@xterm/addon-serialize',
   'tldts',
   // Why: Windows NSIS deploys app.asar before external resources; bootstrap must
   // not race the later resources/node_modules copy.
-  'zod'
+  'zod',
+  // Why: @herdr/sdk is ESM-only; CJS main cannot require() it from node_modules.
+  '@herdr/sdk',
+  'effect',
+  '@effect/platform-node-shared'
 ])
 const EXTERNAL_MAIN_DEPENDENCIES = Object.keys(packageJson.dependencies).filter(
   (dependency) => !BUNDLED_MAIN_DEPENDENCIES.has(dependency)
@@ -58,6 +63,13 @@ const ORCA_DIAGNOSTICS_TOKEN_URL_LITERAL =
   typeof orcaDiagnosticsTokenUrl === 'string' && orcaDiagnosticsTokenUrl.length > 0
     ? JSON.stringify(orcaDiagnosticsTokenUrl)
     : 'null'
+// Why: downstream personal-distribution builds (ORCA_DOWNSTREAM_BUILD=1, used
+// by the fork's packaging repo) resolve every externally visible identity from
+// src/shared/distribution-identity.json. Official builds and every other path
+// substitute 'official', leaving upstream behavior unchanged.
+applyHorcaViteDistributionEnv(process.env)
+const orcaDistribution = process.env.ORCA_DOWNSTREAM_BUILD === '1' ? 'horca' : 'official'
+const ORCA_DISTRIBUTION_LITERAL = JSON.stringify(orcaDistribution)
 
 function createStartupDiagnosticsBanner(chunkName: string): string {
   return `
@@ -192,8 +204,25 @@ function createMainBootstrapPlugin() {
   }
 }
 
+function copyGhosttyVtWasmToMainOutput(): { name: string; closeBundle: () => void } {
+  return {
+    name: 'copy-ghostty-vt-wasm',
+    closeBundle() {
+      const sourceDir = resolve('src/ghostty-vt')
+      const destDir = resolve('out/main')
+      for (const name of ['ghostty-vt.wasm', 'write-pty-trampoline.wasm'] as const) {
+        copyFileSync(join(sourceDir, name), join(destDir, name))
+      }
+    }
+  }
+}
+
 export const electronViteConfig: UserConfig = {
   main: {
+    plugins: [
+      createDistributionTranslationCatalogPlugin(orcaDistribution),
+      copyGhosttyVtWasmToMainOutput()
+    ],
     build: {
       // Why: 'esbuild' makes rolldown disable its own minifier and re-print every
       // chunk through esbuild, which is undeclared here and only resolves via
@@ -212,7 +241,7 @@ export const electronViteConfig: UserConfig = {
       },
       rollupOptions: {
         // Why: native dependencies must resolve from packaged node_modules,
-        // while the unpacked daemon needs its pure-JS xterm graph bundled.
+        // while the unpacked daemon needs its pure-JS terminal graph bundled.
         external: isExternalMainModule,
         input: {
           index: resolve('src/main/index.ts'),
@@ -275,35 +304,32 @@ export const electronViteConfig: UserConfig = {
     define: {
       ORCA_BUILD_IDENTITY: ORCA_BUILD_IDENTITY_LITERAL,
       ORCA_POSTHOG_WRITE_KEY: ORCA_POSTHOG_WRITE_KEY_LITERAL,
-      ORCA_DIAGNOSTICS_TOKEN_URL: ORCA_DIAGNOSTICS_TOKEN_URL_LITERAL
+      ORCA_DIAGNOSTICS_TOKEN_URL: ORCA_DIAGNOSTICS_TOKEN_URL_LITERAL,
+      ORCA_DISTRIBUTION: ORCA_DISTRIBUTION_LITERAL
     },
-    // Why: @xterm/headless declares "exports": null in package.json, which
-    // prevents Vite's default resolver from finding the CJS entry. Point
-    // directly at the published main file so the bundler can inline it.
-    resolve: {
-      alias: {
-        '@xterm/headless': resolve('node_modules/@xterm/headless/lib-headless/xterm-headless.js'),
-        '@xterm/addon-serialize': resolve(
-          'node_modules/@xterm/addon-serialize/lib/addon-serialize.js'
-        )
-      }
-    }
+    resolve: {}
   },
   preload: {
     build: {
       externalizeDeps: {
         exclude: ['zod']
       }
+    },
+    define: {
+      ORCA_DISTRIBUTION: ORCA_DISTRIBUTION_LITERAL
     }
   },
   renderer: {
+    define: {
+      ORCA_DISTRIBUTION: ORCA_DISTRIBUTION_LITERAL
+    },
     resolve: {
       alias: {
         '@renderer': resolve('src/renderer/src'),
         '@': resolve('src/renderer/src')
       }
     },
-    plugins: [react(), tailwindcss()],
+    plugins: [createDistributionTranslationCatalogPlugin(orcaDistribution), react(), tailwindcss()],
     worker: {
       format: 'es'
     },

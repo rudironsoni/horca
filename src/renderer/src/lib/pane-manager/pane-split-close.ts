@@ -102,7 +102,7 @@ function prepareMovedPanesForSplit(
 
     // Why: DOM reparenting can silently invalidate a WebGL context without
     // firing contextlost, so dispose before the move and reattach after settle.
-    const hadWebgl = !!pane.webglAddon
+    const hadWebgl = !!pane.gpuRenderer
     disposeWebgl(pane)
     return { pane, scrollState, hadWebgl }
   })
@@ -141,7 +141,7 @@ function openSplitPane(
   newPane: ManagedPaneInternal,
   cwd?: string
 ): void {
-  openTerminal(newPane, args.managerOptions.terminalLigaturesEnabled?.())
+  openTerminal(newPane)
   applyPaneOpacity(args.panes.values(), newPane.id, args.styleOptions)
   applyDividerStyles(args.root, args.styleOptions)
   newPane.terminal.focus()

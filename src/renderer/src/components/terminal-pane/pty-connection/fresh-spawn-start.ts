@@ -49,7 +49,7 @@ export function bindStartFreshSpawn(session: ConnectPanePtySession): void {
     session.remotePtyIncarnationId = null
     session.clearPaneMode2031State()
     session.clearHiddenOutputRestoreState()
-    // Why: a canceled old replay clear can preserve xterm's native
+    // Why: a canceled old replay clear can preserve terminal's native
     // isUserScrolling flag. A replacement shell must start in follow mode.
     session.resetFreshSpawnFollowOutput()
     // Why: a fresh spawn is a new process with kitty keyboard flags at
@@ -257,7 +257,8 @@ export function bindStartFreshSpawn(session: ConnectPanePtySession): void {
         session.finishReattachLiveDataDeferral(Boolean(resolvedPtyId), outputCallbacks.generation)
         return resolvedPtyId
       })
-      .catch(async () => {
+      .catch(async (err) => {
+        console.warn('[orca-terminal] fresh spawn failed', err)
         releaseDeferredCwdFence()
         session.finishReattachLiveDataDeferral(false, outputCallbacks.generation)
         if (

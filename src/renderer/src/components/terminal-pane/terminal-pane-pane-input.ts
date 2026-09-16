@@ -1,4 +1,4 @@
-import type { IDisposable } from '@xterm/xterm'
+import type { OrcaDisposable as IDisposable } from '../../../../shared/orca-terminal-surface'
 import type { ManagedPane, PaneManager } from '@/lib/pane-manager/pane-manager'
 import type { UseTerminalPaneLifecycleDeps } from './terminal-pane-lifecycle-types'
 import {
@@ -20,14 +20,14 @@ import {
   resolveNonLatinControlChordInput
 } from './terminal-non-latin-control-chord'
 import {
-  shouldBypassXtermKeyboardEvent,
+  shouldBypassTerminalKeyboardEvent,
   shouldHandleTerminalInterruptKeyboardEvent,
   shouldPreventDefaultTerminalImeCandidateKey,
   shouldSuppressTerminalImeKeyboardEvent,
   shouldSuppressTerminalInterruptKeyup,
   shouldSuppressTerminalModifierKeyboardEvent,
   TERMINAL_INTERRUPT_INPUT
-} from './xterm-bypass-policy'
+} from './terminal-bypass-policy'
 import { markTerminalPinnedViewport } from '@/lib/pane-manager/terminal-scroll-intent'
 import { syncTerminalScrollIntentSoon } from '@/lib/pane-manager/terminal-scroll-intent-settle'
 import { resetTerminalKeyboardProtocolAfterInterrupt } from './terminal-pane-lifecycle-primitives'
@@ -84,7 +84,7 @@ export function installTerminalPaneInputHandling(context: PaneInputContext): voi
   const imeNativeTextForwarder =
     isMac && !isIosWeb
       ? installTerminalImeNativeTextForwarder({
-          terminalElement: pane.terminal.element,
+          terminalElement: pane.terminal.textarea,
           isComposing: () => imeCompositionTracker.isActive(),
           sendInput: (data) => pane.terminal.input(data),
           getKittyKeyboardFlags: () => paneKittyKeyboardModesRef.current.get(pane.id)?.flags ?? 0
@@ -191,7 +191,7 @@ export function installTerminalPaneInputHandling(context: PaneInputContext): voi
       observeLinuxCandidateEvent()
       return false
     }
-    const shouldBypass = shouldBypassXtermKeyboardEvent(event, {
+    const shouldBypass = shouldBypassTerminalKeyboardEvent(event, {
       isMac,
       isIosWeb,
       hasSelection: pane.terminal.hasSelection(),
