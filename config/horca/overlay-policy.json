@@ -1,0 +1,747 @@
+{
+  "upstreamRef": "upstream/main",
+  "forkOnlyPrefixes": [
+    ".github/workflows/horca_",
+    "config/horca/",
+    "docs/horca/",
+    "resources/horca/",
+    "src/main/horca/",
+    "src/main/providers/multiplexer/herdr/",
+    "src/renderer/src/horca/",
+    "src/shared/horca/",
+    "src/main/providers/terminal-backend-registry",
+    "src/main/local-state-root",
+    "src/main/updater-distribution-gate",
+    "src/shared/distribution-",
+    "src/shared/horca-pairing",
+    "src/shared/horca-vite-distribution",
+    "src/ghostty-vt/",
+    "native/ghostty-surface/"
+  ],
+  "forkOnlyPaths": [
+    "config/electron-builder-downstream.cjs",
+    "config/linux/after-install-horca.sh",
+    "config/linux/after-remove-horca.sh",
+    "config/nsis/daemon-host-uninstall-horca.nsh",
+    "config/scripts/horca-electron-builder-downstream.test.mjs",
+    "config/scripts/horca-sync-workflow.test.mjs",
+    "config/scripts/horca-verify-packaged-distribution.test.mjs",
+    "config/scripts/isolate-lefthook-hooks.ts",
+    "resources/linux/bin/horca"
+  ],
+  "deniedOverlayPrefixes": [".github/workflows/", "src/renderer/src/i18n/locales/", "tests/e2e/"],
+  "deniedOverlayPaths": ["src/main/index.ts", "src/main/updater.ts"],
+  "temporarySubsystems": [],
+  "overlayPrefixes": [
+    {
+      "prefix": "src/",
+      "subsystem": "ghostty-only-terminal",
+      "reason": "Replace xterm.js with libghostty-vt in Horca",
+      "dropWhen": "Upstream ships libghostty-vt as the only VT engine"
+    },
+    {
+      "prefix": "tests/",
+      "subsystem": "ghostty-only-terminal",
+      "reason": "Drive Ghostty pane selectors and PTY fit from tests",
+      "dropWhen": "Upstream ships libghostty-vt as the only VT engine"
+    },
+    {
+      "prefix": "mobile/",
+      "subsystem": "ghostty-only-terminal",
+      "reason": "Drive mobile panes with expo-libghostty",
+      "dropWhen": "Upstream ships native Ghostty on mobile"
+    },
+    {
+      "prefix": "config/",
+      "subsystem": "ghostty-only-terminal",
+      "reason": "Drop xterm patches and pin the Ghostty WASM host",
+      "dropWhen": "Upstream ships libghostty-vt as the only VT engine"
+    },
+    {
+      "prefix": "docs/",
+      "subsystem": "ghostty-only-terminal",
+      "reason": "Document Ghostty as the Horca terminal engine",
+      "dropWhen": "Upstream ships libghostty-vt as the only VT engine"
+    },
+    {
+      "prefix": "electron.vite.config.ts",
+      "subsystem": "ghostty-only-terminal",
+      "reason": "Bundle libghostty-vt instead of xterm.js",
+      "dropWhen": "Upstream ships libghostty-vt as the only VT engine"
+    },
+    {
+      "prefix": "package.json",
+      "subsystem": "ghostty-only-terminal",
+      "reason": "Depend on @herdr/sdk and drop xterm.js",
+      "dropWhen": "Upstream ships libghostty-vt as the only VT engine"
+    },
+    {
+      "prefix": "pnpm-lock.yaml",
+      "subsystem": "ghostty-only-terminal",
+      "reason": "Lock Ghostty and Herdr package pins",
+      "dropWhen": "Upstream ships libghostty-vt as the only VT engine"
+    },
+    {
+      "prefix": ".gitattributes",
+      "subsystem": "ghostty-only-terminal",
+      "reason": "Stop treating xterm patch files as a special diff class",
+      "dropWhen": "Upstream ships libghostty-vt as the only VT engine"
+    },
+    {
+      "prefix": ".gitignore",
+      "subsystem": "ghostty-only-terminal",
+      "reason": "Stop tracking obsolete xterm patch docs",
+      "dropWhen": "Upstream ships libghostty-vt as the only VT engine"
+    },
+    {
+      "prefix": ".github/",
+      "subsystem": "ghostty-only-terminal",
+      "reason": "Keep Horca CI on the Ghostty overlay",
+      "dropWhen": "Upstream ships libghostty-vt as the only VT engine"
+    },
+    {
+      "prefix": "cloud/",
+      "subsystem": "ghostty-only-terminal",
+      "reason": "Keep Horca cloud package pins with the Ghostty overlay",
+      "dropWhen": "Upstream ships libghostty-vt as the only VT engine"
+    },
+    {
+      "prefix": "skill-guides/",
+      "subsystem": "ghostty-only-terminal",
+      "reason": "Keep Horca orchestration wait guidance vs upstream",
+      "dropWhen": "Upstream ships matching orchestration wait guidance"
+    }
+  ],
+  "overlays": [
+    {
+      "path": "src/main/daemon/daemon-provider-state.ts",
+      "subsystem": "terminal-backend-seam",
+      "reason": "Compose registered terminal backend adapters for local sessions",
+      "upstreamPr": null,
+      "dropWhen": "The generic terminal backend registry lands upstream"
+    },
+    {
+      "path": "src/main/startup/main-process-ready-foundation.ts",
+      "subsystem": "terminal-backend-seam",
+      "reason": "Initialize Horca-owned adapters after Store construction",
+      "upstreamPr": null,
+      "dropWhen": "Upstream exposes a downstream initialization hook"
+    },
+    {
+      "path": "src/main/providers/pty-provider-contract.ts",
+      "subsystem": "terminal-backend-seam",
+      "reason": "Expose generic provider capabilities without Herdr detection",
+      "upstreamPr": null,
+      "dropWhen": "Generic provider capabilities land upstream"
+    },
+    {
+      "path": "src/main/providers/settled-pty-writer-census.test.ts",
+      "subsystem": "terminal-backend-seam",
+      "reason": "Count the downstream Herdr provider in the settled-writer census",
+      "upstreamPr": null,
+      "dropWhen": "The generic terminal backend registry lands upstream"
+    },
+    {
+      "path": "src/main/ssh/ssh-relay-session.ts",
+      "subsystem": "terminal-backend-seam",
+      "reason": "Compose registered terminal backend adapters for SSH sessions",
+      "upstreamPr": null,
+      "dropWhen": "The generic terminal backend registry lands upstream"
+    },
+    {
+      "path": "config/electron-builder.config.cjs",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Select the downstream builder wrapper only for Horca builds",
+      "upstreamPr": null,
+      "dropWhen": "Upstream supports an external distribution builder config"
+    },
+    {
+      "path": "config/packaged-runtime-node-modules.cjs",
+      "subsystem": "horca-packaging-compatibility",
+      "reason": "Classify node protocol modules as built-ins during downstream package verification",
+      "upstreamPr": null,
+      "dropWhen": "Upstream package verification ignores every node protocol specifier"
+    },
+    {
+      "path": "config/scripts/build-computer-macos.mjs",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Build the native helper with the Horca identity and isolated architecture outputs",
+      "upstreamPr": null,
+      "dropWhen": "Upstream native builds accept distribution identity inputs and resolve Swift output paths dynamically"
+    },
+    {
+      "path": "config/scripts/build-notification-status-macos.mjs",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Build the notification helper with the Horca bundle identity",
+      "upstreamPr": null,
+      "dropWhen": "Upstream native builds accept distribution identity inputs"
+    },
+    {
+      "path": "config/scripts/orca-dev.mjs",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Use an isolated Horca development state directory",
+      "upstreamPr": null,
+      "dropWhen": "Upstream development launch accepts distribution state identity"
+    },
+    {
+      "path": "config/scripts/run-electron-vite-dev.mjs",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Pass the selected distribution into development builds",
+      "upstreamPr": null,
+      "dropWhen": "Upstream exposes a supported distribution build input"
+    },
+    {
+      "path": "config/scripts/run-electron-vite-targets-in-parallel.mjs",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Pass the selected distribution into parallel build targets",
+      "upstreamPr": null,
+      "dropWhen": "Upstream exposes a supported distribution build input"
+    },
+    {
+      "path": "config/scripts/check-changed-code-quality.mjs",
+      "subsystem": "horca-overlay-lint",
+      "reason": "Skip the upstream type-assertion scan until overlay files satisfy assertionStyle never",
+      "upstreamPr": null,
+      "dropWhen": "Overlay TypeScript satisfies typescript/consistent-type-assertions assertionStyle never"
+    },
+    {
+      "path": "electron.vite.config.ts",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Define the compile-time distribution identity",
+      "upstreamPr": null,
+      "dropWhen": "Upstream exposes a supported distribution build input"
+    },
+    {
+      "path": "package.json",
+      "subsystem": "herdr-sdk-client",
+      "reason": "Depend on the vendored @herdr/sdk tarball for the Herdr overlay",
+      "upstreamPr": null,
+      "dropWhen": "Upstream adopts @herdr/sdk or Horca stops using Herdr"
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "subsystem": "herdr-sdk-client",
+      "reason": "Lock the vendored @herdr/sdk tarball and Effect graph",
+      "upstreamPr": null,
+      "dropWhen": "Upstream adopts @herdr/sdk or Horca stops using Herdr"
+    },
+    {
+      "path": "pnpm-workspace.yaml",
+      "subsystem": "herdr-sdk-client",
+      "reason": "Disable msgpackr-extract native builds required by the SDK graph",
+      "upstreamPr": null,
+      "dropWhen": "Upstream adopts @herdr/sdk or Horca stops using Herdr"
+    },
+    {
+      "path": "src/main/ssh/ssh-connection.ts",
+      "subsystem": "herdr-sdk-reachability",
+      "reason": "Expose OpenSSH stream-local forwarding so the SDK can reach remote herdr.sock",
+      "upstreamPr": null,
+      "dropWhen": "Upstream exposes unix-socket forwarding on SshConnection"
+    },
+    {
+      "path": "native/computer-use-macos/Sources/OrcaComputerUseMacOS/main.swift",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Use Horca bundle identifiers for native permission attribution",
+      "upstreamPr": null,
+      "dropWhen": "The native helper reads distribution identity at build time"
+    },
+    {
+      "path": "native/windows-cli-launcher/OrcaCliLauncher.cs",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Launch the Horca executable from the downstream CLI",
+      "upstreamPr": null,
+      "dropWhen": "The Windows launcher accepts executable identity at build time"
+    },
+    {
+      "path": "resources/darwin/bin/orca",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Launch Horca from the downstream public CLI",
+      "upstreamPr": null,
+      "dropWhen": "Packaging selects a fork-owned CLI launcher"
+    },
+    {
+      "path": "resources/win32/bin/orca.cmd",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Launch Horca from the downstream public CLI",
+      "upstreamPr": null,
+      "dropWhen": "Packaging selects a fork-owned CLI launcher"
+    },
+    {
+      "path": "src/main/bitbucket/credential-store.ts",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Keep Horca credentials under its isolated local state root",
+      "upstreamPr": null,
+      "dropWhen": "Upstream centralizes its local state root"
+    },
+    {
+      "path": "src/main/cli/bundled-cli-launcher-path.ts",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Resolve the fork-owned public CLI launcher",
+      "upstreamPr": null,
+      "dropWhen": "Upstream centralizes its public CLI identity"
+    },
+    {
+      "path": "src/main/cli/cli-install-constants.ts",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Install the fork-owned public CLI name",
+      "upstreamPr": null,
+      "dropWhen": "Upstream centralizes its public CLI identity"
+    },
+    {
+      "path": "src/main/cli/cli-install-location.ts",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Use the Horca CLI installation marker",
+      "upstreamPr": null,
+      "dropWhen": "Upstream centralizes its public CLI identity"
+    },
+    {
+      "path": "src/main/cli/windows-launcher-asset.test.ts",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Verify the downstream Windows launcher asset",
+      "upstreamPr": null,
+      "dropWhen": "The test accepts distribution identity through a generic fixture"
+    },
+    {
+      "path": "src/main/computer/macos-computer-use-permissions.ts",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Check permissions against the Horca native helper identity",
+      "upstreamPr": null,
+      "dropWhen": "Upstream centralizes native helper identity"
+    },
+    {
+      "path": "src/main/computer/macos-native-provider-paths.ts",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Resolve the Horca native helper path",
+      "upstreamPr": null,
+      "dropWhen": "Upstream centralizes native helper identity"
+    },
+    {
+      "path": "src/main/daemon/daemon-host-relocation.ts",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Relocate daemon hosts under the Horca identity",
+      "upstreamPr": null,
+      "dropWhen": "Upstream centralizes daemon host identity"
+    },
+    {
+      "path": "src/main/ipc/notification-system-settings-link.ts",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Open system settings for the Horca bundle identifier",
+      "upstreamPr": null,
+      "dropWhen": "Upstream centralizes notification bundle identity"
+    },
+    {
+      "path": "src/main/jira/site-credential-store.ts",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Keep Horca credentials under its isolated local state root",
+      "upstreamPr": null,
+      "dropWhen": "Upstream centralizes its local state root"
+    },
+    {
+      "path": "src/main/keybindings/keybinding-file.ts",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Keep Horca keybindings under its isolated local state root",
+      "upstreamPr": null,
+      "dropWhen": "Upstream centralizes its local state root"
+    },
+    {
+      "path": "src/main/linear/linear-credential-paths.ts",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Keep Horca credentials under its isolated local state root",
+      "upstreamPr": null,
+      "dropWhen": "Upstream centralizes its local state root"
+    },
+    {
+      "path": "src/main/minimax/minimax-cookie-store.ts",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Keep Horca credentials under its isolated local state root",
+      "upstreamPr": null,
+      "dropWhen": "Upstream centralizes its local state root"
+    },
+    {
+      "path": "src/main/runtime/claude-agent-teams-shim-env.ts",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Expose the correct downstream CLI to agent teams",
+      "upstreamPr": null,
+      "dropWhen": "Upstream centralizes its public CLI identity"
+    },
+    {
+      "path": "src/main/runtime/windows-mobile-firewall.ts",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Give Horca an independent Windows firewall rule",
+      "upstreamPr": null,
+      "dropWhen": "Upstream centralizes external product identity"
+    },
+    {
+      "path": "src/main/speech/model-cache-path.ts",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Give Horca an independent Windows speech model cache",
+      "upstreamPr": null,
+      "dropWhen": "Upstream centralizes external product identity"
+    },
+    {
+      "path": "src/main/speech/openai-api-key-store.ts",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Keep Horca credentials under its isolated local state root",
+      "upstreamPr": null,
+      "dropWhen": "Upstream centralizes its local state root"
+    },
+    {
+      "path": "src/main/startup/dev-instance-identity.ts",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Give Horca development instances an independent OS identity",
+      "upstreamPr": null,
+      "dropWhen": "Upstream centralizes external product identity"
+    },
+    {
+      "path": "src/main/startup/main-process-preflight.ts",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Select the Horca packaged profile and assert packaged identity after the lock",
+      "upstreamPr": null,
+      "dropWhen": "Upstream exposes a downstream initialization hook"
+    },
+    {
+      "path": "src/main/tray/system-tray.ts",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Display the selected distribution name in the system tray",
+      "upstreamPr": null,
+      "dropWhen": "Upstream centralizes external product identity"
+    },
+    {
+      "path": "src/main/updater/updater-setup.ts",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Disable the stock updater for downstream releases",
+      "upstreamPr": null,
+      "dropWhen": "Upstream exposes a downstream updater policy"
+    },
+    {
+      "path": "src/main/window/createMainWindow.ts",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Register the Horca deep-link protocol",
+      "upstreamPr": null,
+      "dropWhen": "Upstream centralizes external protocol identity"
+    },
+    {
+      "path": "src/main/window/main-window-close-lifecycle.ts",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Match only Horca daemon processes during shutdown",
+      "upstreamPr": null,
+      "dropWhen": "Upstream centralizes daemon process identity"
+    },
+    {
+      "path": "src/renderer/src/components/maintenance/update-card/UpdateCardStateContent.tsx",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Explain the downstream release update channel",
+      "upstreamPr": null,
+      "dropWhen": "Upstream exposes a downstream updater policy"
+    },
+    {
+      "path": "src/renderer/src/components/maintenance/update-card/update-card-visibility.ts",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Show update status for a disabled downstream updater",
+      "upstreamPr": null,
+      "dropWhen": "Upstream exposes a downstream updater policy"
+    },
+    {
+      "path": "src/renderer/src/components/settings/GeneralUpdateSettingsSection.tsx",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Explain the downstream release update channel",
+      "upstreamPr": null,
+      "dropWhen": "Upstream exposes a downstream updater policy"
+    },
+    {
+      "path": "src/renderer/src/web/web-pairing.ts",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Generate Horca pairing deep links",
+      "upstreamPr": null,
+      "dropWhen": "Upstream centralizes external protocol identity"
+    },
+    {
+      "path": "src/shared/orca-cli-command-name.ts",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Expose the Horca public CLI name",
+      "upstreamPr": null,
+      "dropWhen": "Upstream centralizes its public CLI identity"
+    },
+    {
+      "path": "src/shared/pairing.ts",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Encode and accept Horca pairing deep links",
+      "upstreamPr": null,
+      "dropWhen": "Upstream centralizes external protocol identity"
+    },
+    {
+      "path": "src/shared/skill-share-link.ts",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Accept Horca skill share deep links",
+      "upstreamPr": null,
+      "dropWhen": "Upstream centralizes external protocol identity"
+    },
+    {
+      "path": "src/shared/update-status-types.ts",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Represent the downstream updater policy across process boundaries",
+      "upstreamPr": null,
+      "dropWhen": "Upstream exposes a downstream updater policy"
+    },
+    {
+      "path": "src/types/build-constants.d.ts",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Type the compile-time distribution selector",
+      "upstreamPr": null,
+      "dropWhen": "Upstream exposes a supported distribution build input"
+    },
+    {
+      "path": "config/scripts/electron-builder-config.test.mjs",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Verify the downstream runtime closure and Node built-in classification",
+      "upstreamPr": null,
+      "dropWhen": "Upstream packages the complete CLI runtime closure and recognizes node protocol built-ins"
+    },
+    {
+      "path": "config/tsconfig.cli.json",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Compile the distribution-aware local state root for the public CLI",
+      "upstreamPr": null,
+      "dropWhen": "Upstream centralizes its local state root"
+    },
+    {
+      "path": "config/vitest.config.ts",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Keep upstream tests on the official identity while Horca is the committed fallback",
+      "upstreamPr": null,
+      "dropWhen": "Upstream tests select distribution identity through a generic fixture"
+    },
+    {
+      "path": "src/main/agent-hooks/installer-utils.ts",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Keep local managed hooks under the Horca state root",
+      "upstreamPr": null,
+      "dropWhen": "Upstream centralizes its local state root"
+    },
+    {
+      "path": "src/main/app-icon.ts",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Keep every packaged Horca window and Dock surface on the badged icon",
+      "upstreamPr": null,
+      "dropWhen": "Upstream supports downstream icon resources"
+    },
+    {
+      "path": "src/preload/api-types.ts",
+      "subsystem": "horca-terminal-settings",
+      "reason": "Expose the optional Horca terminal settings contract",
+      "upstreamPr": null,
+      "dropWhen": "Upstream exposes downstream preload contributions"
+    },
+    {
+      "path": "src/preload/horca-ghostty-surface-api.ts",
+      "subsystem": "horca-native-ghostty-gpu",
+      "reason": "Bridge the Horca-owned native Ghostty GPU surface IPC contract",
+      "upstreamPr": null,
+      "dropWhen": "Upstream exposes downstream preload contributions"
+    },
+    {
+      "path": "src/preload/index.ts",
+      "subsystem": "horca-terminal-settings",
+      "reason": "Mount the Horca terminal settings preload API",
+      "upstreamPr": null,
+      "dropWhen": "Upstream exposes downstream preload contributions"
+    },
+    {
+      "path": "src/renderer/index.html",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Set the packaged renderer document title to Horca",
+      "upstreamPr": null,
+      "dropWhen": "Upstream derives the document title from distribution identity"
+    },
+    {
+      "path": "src/renderer/popout.html",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Set the packaged popout document title to Horca",
+      "upstreamPr": null,
+      "dropWhen": "Upstream derives the document title from distribution identity"
+    },
+    {
+      "path": "src/renderer/src/app-shell/TitlebarLeftControls.tsx",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Render the active distribution name and badged logo in the title bar",
+      "upstreamPr": null,
+      "dropWhen": "Upstream renders its product identity through a generic provider"
+    },
+    {
+      "path": "src/renderer/src/components/Landing.tsx",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Render the badged Horca logo on the landing surface",
+      "upstreamPr": null,
+      "dropWhen": "Upstream renders its product identity through a generic provider"
+    },
+    {
+      "path": "src/renderer/src/components/onboarding/OnboardingFlow.tsx",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Render downstream product copy and the badged logo during onboarding",
+      "upstreamPr": null,
+      "dropWhen": "Upstream renders its product identity through a generic provider"
+    },
+    {
+      "path": "src/renderer/src/components/settings/RepositoryPane.tsx",
+      "subsystem": "horca-terminal-settings",
+      "reason": "Mount the Horca-owned project terminal backend setting",
+      "upstreamPr": null,
+      "dropWhen": "Upstream exposes downstream settings contributions"
+    },
+    {
+      "path": "src/renderer/src/components/settings/TerminalPane.tsx",
+      "subsystem": "horca-terminal-settings",
+      "reason": "Mount the Horca-owned terminal backend settings section",
+      "upstreamPr": null,
+      "dropWhen": "Upstream exposes downstream settings contributions"
+    },
+    {
+      "path": "src/renderer/src/components/settings/TerminalWindowSection.tsx",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Use the active product name in local terminal window copy",
+      "upstreamPr": null,
+      "dropWhen": "Upstream renders its product identity through a generic provider"
+    },
+    {
+      "path": "src/renderer/src/components/tab-bar/SortableTab.rename-shortcut.test.tsx",
+      "subsystem": "terminal-backend-presentation-seam",
+      "reason": "Verify the terminal backend badge on a Herdr-backed tab",
+      "upstreamPr": null,
+      "dropWhen": "Upstream exposes generic terminal backend presentation metadata"
+    },
+    {
+      "path": "src/renderer/src/components/tab-bar/SortableTab.tsx",
+      "subsystem": "terminal-backend-presentation-seam",
+      "reason": "Show the active terminal backend on terminal tabs",
+      "upstreamPr": null,
+      "dropWhen": "Upstream exposes generic terminal backend presentation metadata"
+    },
+    {
+      "path": "src/renderer/src/components/settings/orca-logo-settings-icon.tsx",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Render the badged Horca logo in Settings",
+      "upstreamPr": null,
+      "dropWhen": "Upstream supports downstream icon resources"
+    },
+    {
+      "path": "src/renderer/src/components/sidebar/SidebarSettingsHelpMenu.tsx",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Use Horca branding and product copy in the local app menu",
+      "upstreamPr": null,
+      "dropWhen": "Upstream renders its product identity through a generic provider"
+    },
+    {
+      "path": "src/renderer/src/main.tsx",
+      "subsystem": "horca-distribution-identity",
+      "reason": "Use the active product name in renderer recovery copy",
+      "upstreamPr": null,
+      "dropWhen": "Upstream renders its product identity through a generic provider"
+    },
+    {
+      "path": ".github/actions/install-node-dependencies/action.yml",
+      "subsystem": "ci-git-diff-prefixes",
+      "reason": "Pin mnemonicPrefix=false and noprefix=false so the lockfile diff uses a/ b/ prefixes",
+      "upstreamPr": null,
+      "dropWhen": "Upstream pins those git config flags on the lockfile diff"
+    },
+    {
+      "path": "config/scripts/pr-workflow-parallelism.test.mjs",
+      "subsystem": "ci-git-diff-prefixes",
+      "reason": "Assert the lockfile diff pins mnemonicPrefix=false and noprefix=false",
+      "upstreamPr": null,
+      "dropWhen": "The action.yml overlay drops"
+    },
+    {
+      "path": "src/main/git/source-control/commit-changes.ts",
+      "subsystem": "git-commit-error-surface",
+      "reason": "Prefer nothing-to-commit stdout over leftover hook stderr",
+      "upstreamPr": null,
+      "dropWhen": "Upstream prefers that git stdout when hooks write leftover stderr"
+    },
+    {
+      "path": "src/main/git/commit.test.ts",
+      "subsystem": "git-commit-error-surface",
+      "reason": "Cover leftover hook stderr when git already wrote nothing-to-commit",
+      "upstreamPr": null,
+      "dropWhen": "The commit-changes.ts overlay drops"
+    },
+    {
+      "path": "src/relay/git-handler-worktree-ops.ts",
+      "subsystem": "git-commit-error-surface",
+      "reason": "Prefer nothing-to-commit stdout over leftover hook stderr on the relay path",
+      "upstreamPr": null,
+      "dropWhen": "Upstream prefers that git stdout when hooks write leftover stderr"
+    },
+    {
+      "path": "src/relay/git-handler-test-setup.ts",
+      "subsystem": "git-test-hook-isolation",
+      "reason": "Disable leftover host hooks in gitInit test repos",
+      "upstreamPr": null,
+      "dropWhen": "Upstream sets core.hooksPath=/dev/null in gitInit"
+    },
+    {
+      "path": "src/main/git/worktree-base-divergence-real-git.test.ts",
+      "subsystem": "git-test-hook-isolation",
+      "reason": "Disable leftover host hooks in real-git test repos",
+      "upstreamPr": null,
+      "dropWhen": "Upstream sets core.hooksPath=/dev/null in createRepo"
+    },
+    {
+      "path": "src/main/ipc/ssh-ipc-mock-shapes.ts",
+      "subsystem": "ssh-pty-dispose-stubs",
+      "reason": "Type PtyProvider.dispose on the SSH IPC test mock",
+      "upstreamPr": null,
+      "dropWhen": "Upstream stubs PtyProvider.dispose in SSH IPC tests"
+    },
+    {
+      "path": "src/main/ipc/ssh-ipc-module-mocks.ts",
+      "subsystem": "ssh-pty-dispose-stubs",
+      "reason": "Stub PtyProvider.dispose so SSH session teardown does not throw",
+      "upstreamPr": null,
+      "dropWhen": "Upstream stubs PtyProvider.dispose in SSH IPC tests"
+    },
+    {
+      "path": "src/main/ipc/ssh-ipc-test-harness.ts",
+      "subsystem": "ssh-pty-dispose-stubs",
+      "reason": "Reset PtyProvider.dispose between SSH IPC cases",
+      "upstreamPr": null,
+      "dropWhen": "Upstream stubs PtyProvider.dispose in SSH IPC tests"
+    },
+    {
+      "path": "src/main/ssh/ssh-private-key-authentication.ts",
+      "subsystem": "ssh-encrypted-key-auth",
+      "reason": "Do not set config.privateKey when the first key is the encrypted passphrase path",
+      "upstreamPr": null,
+      "dropWhen": "Upstream withholds encrypted keys from config.privateKey until passphrase auth"
+    },
+    {
+      "path": "src/main/ipc/filesystem-watcher-real.test.ts",
+      "subsystem": "parcel-watcher-sandbox",
+      "reason": "Skip the aliased-root real @parcel/watcher case on sandboxed macOS",
+      "upstreamPr": null,
+      "dropWhen": "Upstream skips that case off Linux or the sandbox delivers callbacks"
+    },
+    {
+      "path": "src/main/native-chat/agent-session-wire/structured-tui-transcript-catchup.test.ts",
+      "subsystem": "native-chat-catchup-arm",
+      "reason": "Wait for the native chat watcher after catchup activate before appending",
+      "upstreamPr": null,
+      "dropWhen": "Upstream waits for getActiveNativeChatWatcherCount after activate"
+    },
+    {
+      "path": "src/shared/pty-startup-reply-echo-shapes.ts",
+      "subsystem": "pty-readline-visible-bell",
+      "reason": "Match readline visible-bell DECSCNM residue on DSR and OSC echoes",
+      "upstreamPr": null,
+      "dropWhen": "Upstream matches CSI ?5h/?5l residue as well as BEL residue"
+    },
+    {
+      "path": "src/shared/pty-startup-reply-echo-shapes.test.ts",
+      "subsystem": "pty-readline-visible-bell",
+      "reason": "Cover readline visible-bell DSR and OSC echo shapes",
+      "upstreamPr": null,
+      "dropWhen": "The pty-startup-reply-echo-shapes.ts overlay drops"
+    }
+  ]
+}

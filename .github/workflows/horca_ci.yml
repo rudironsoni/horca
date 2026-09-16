@@ -1,0 +1,162 @@
+name: 'Horca: CI'
+
+on:
+  workflow_call:
+    inputs:
+      sha:
+        description: Exact candidate SHA to validate
+        required: true
+        type: string
+      upstream_sha:
+        description: Exact upstream SHA used to build the candidate
+        required: true
+        type: string
+      full:
+        description: Run maintenance build and Herdr integration checks
+        required: false
+        default: false
+        type: boolean
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: horca-ci-${{ inputs.sha || github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    if: github.repository == 'rudironsoni/horca'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ inputs.sha || github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Fetch upstream
+        run: |
+          git remote add upstream https://github.com/stablyai/orca.git
+          git fetch --no-prune-tags upstream main
+
+      - name: Validate patch stack
+        env:
+          HORCA_REQUIRE_UPSTREAM_ANCESTOR: ${{ inputs.upstream_sha && '1' || '0' }}
+          HORCA_UPSTREAM_REF: ${{ inputs.upstream_sha || 'upstream/main' }}
+        run: node config/horca/scripts/check-patch-stack.mjs
+
+      - name: Enforce downstream ownership
+        env:
+          HORCA_UPSTREAM_REF: ${{ inputs.upstream_sha || 'upstream/main' }}
+        run: node config/horca/scripts/check-overlay-policy.mjs
+
+      - uses: ./.github/actions/install-node-dependencies
+        with:
+          native-runtime: ${{ inputs.full && 'node' || 'none' }}
+
+      - name: Install Linux computer-use runtime
+        if: inputs.full == true
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends gir1.2-atspi-2.0
+
+      - name: Typecheck
+        run: pnpm tc
+
+      - name: Lint changed code
+        env:
+          HORCA_SKIP_CASTING_SCAN: '1'
+        run: pnpm run check:code-quality:changed -- upstream/main
+
+      - name: Test Horca boundaries
+        run: >-
+          pnpm exec vitest run --config config/vitest.config.ts
+          src/shared/distribution-identity.test.ts
+          src/shared/distribution-update-copy.test.ts
+          src/shared/horca
+          src/main/local-state-root.test.ts
+          src/main/updater-distribution-gate.test.ts
+          src/main/providers/terminal-backend-registry.test.ts
+          src/main/horca
+          src/main/providers/multiplexer/herdr
+          config/scripts/horca-electron-builder-downstream.test.mjs
+          config/scripts/horca-sync-workflow.test.mjs
+          config/scripts/horca-verify-packaged-distribution.test.mjs
+          --exclude '**/*.integration.test.ts'
+          --exclude '**/*.probe.test.ts'
+
+      - name: Test Horca release metadata
+        run: node --test config/horca/scripts/prepare-release.test.mjs
+
+      - name: Build downstream distribution
+        if: inputs.full == true
+        env:
+          ORCA_DOWNSTREAM_BUILD: '1'
+        run: pnpm run build:release
+
+      - name: Test pinned Herdr runtime
+        if: inputs.full == true
+        run: node config/horca/scripts/run-herdr-stock-integration.mjs
+
+  android:
+    if: github.repository == 'rudironsoni/horca'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ inputs.sha || github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+
+      - name: Verify Horca mobile
+        run: |
+          node --test config/horca/mobile/ios-scene-lifecycle.test.mjs config/horca/mobile/ghostty-terminal-boundary.test.mjs
+          node config/horca/mobile/verify-mobile.mjs
+
+      - uses: ./.github/actions/install-node-dependencies
+        with:
+          native-runtime: none
+
+      - name: Install Horca mobile dependencies
+        run: pnpm --dir mobile install --frozen-lockfile
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: gradle
+
+      - name: Install Android SDK components
+        run: >-
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          'platforms;android-36'
+          'build-tools;36.0.0'
+          'ndk;27.1.12297006'
+          'cmake;3.22.1'
+
+      - name: Generate Android project
+        working-directory: mobile
+        run: npx expo prebuild --platform android --no-install
+
+      - name: Test Ghostty module and build debug APK
+        working-directory: mobile/android
+        run: >-
+          ./gradlew
+          :expo-libghostty:testDebugUnitTest
+          :app:assembleDebug
+          -PreactNativeArchitectures=arm64-v8a,x86_64
+
+      - name: Verify Ghostty native libraries and 16 KB alignment
+        env:
+          APK: mobile/android/app/build/outputs/apk/debug/app-debug.apk
+        run: |
+          unzip -Z1 "$APK" | grep -Fx 'lib/arm64-v8a/libexpolibghostty.so'
+          unzip -Z1 "$APK" | grep -Fx 'lib/x86_64/libexpolibghostty.so'
+          "$ANDROID_HOME/build-tools/36.0.0/zipalign" -c -P 16 -v 4 "$APK"
