@@ -76,7 +76,7 @@ describe('local POSIX shell startup-command delivery', () => {
             HOME: testHome,
             ORCA_ORIG_ZDOTDIR: testHome,
             ORCA_ZSHENV_SOURCE_DIR: testHome,
-            TERM: 'xterm-256color'
+            TERM: 'xterm-ghostty'
           }
         })
         let transcript = ''
