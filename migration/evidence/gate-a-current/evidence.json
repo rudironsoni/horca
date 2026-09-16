@@ -1,0 +1,65 @@
+{
+  "gate": "A",
+  "status": "PASS",
+  "scope": "Current upstream main (not a historical control)",
+  "t0": {
+    "repository": "https://github.com/stablyai/orca.git",
+    "resolvedSha": "6101f0169fe798546436f13494149a1d10f0491a",
+    "fetchTimestampUtc": "2026-09-16T21:38:46Z",
+    "commitTimestamp": "2026-09-16T14:35:28-07:00",
+    "subject": "Make CLI reveal labels translatable (#21079)"
+  },
+  "t1": {
+    "immutableSha": "6101f0169fe798546436f13494149a1d10f0491a",
+    "toolchain": {
+      "node": "v24.20.0",
+      "pnpm": "12.0.0",
+      "enginesNode": "24",
+      "packageManager": "pnpm@12.0.0"
+    },
+    "criteria": {
+      "materialize": "PASS",
+      "materializedHeadEqualsLock": "PASS",
+      "applyOverlaysEmpty": "PASS",
+      "verifyOverlay": "PASS",
+      "nodeEngineAssertion": "PASS (24 == 24)",
+      "pnpmVersionAssertion": "PASS (12.0.0 == 12.0.0)",
+      "frozenInstallFull": "PASS",
+      "tcNode": "PASS",
+      "tcCli": "PASS",
+      "tcWeb": "PASS",
+      "tcAggregate": "PASS",
+      "testSmoke": "PASS",
+      "testPackagingResources": "PASS",
+      "buildDesktop": "PASS",
+      "ensureElectronRuntime": "PASS",
+      "electronBuilderDirUnsigned": "PASS",
+      "packagedApp": "PASS (527M Orca.app, ad-hoc signed)",
+      "cleanupGitAware": "PASS",
+      "cleanupVerification": "PASS",
+      "noStaleWorktreeMetadata": "PASS",
+      "secondMaterialization": "PASS",
+      "concurrentMaterializationIsolation": "PASS"
+    },
+    "passCount": 22,
+    "failCount": 0
+  },
+  "packaging": {
+    "command": "CSC_IDENTITY_AUTO_DISCOVERY=false CSC_NAME=- npx electron-builder --config config/electron-builder.config.cjs --dir",
+    "signing": "ad-hoc; no Developer ID, no release secrets",
+    "artifact": "dist/mac-arm64/Orca.app",
+    "size": "527M"
+  },
+  "upstreamMovedDuringRun": false,
+  "postRunMain": "6101f0169fe798546436f13494149a1d10f0491a",
+  "historicalControls": {
+    "location": "migration/evidence/gate-a/",
+    "note": "The 07b7687a2e / 15cac68802 / a7e34d5695 differential matrix is retained as diagnostic evidence only. It does not determine the production pin.",
+    "preRegression": "07b7687a2e6468ca699e1baf2415d479a9aca318 (control PASS)",
+    "regression": "15cac68802361f3b9075630335d3e6d379c2a909 (control FAIL)",
+    "repair": "a7e34d5695fda152a9ca441f0a496a89359bae91 (control PASS)"
+  },
+  "overlays": "None. Gate A proves stock current Orca consumption. overlay/manifest.json is empty.",
+  "claimVerified": "A clean Horca orchestration project fetches the exact current upstream main revision, creates an isolated disposable worktree, and runs Orca's normal desktop build toolchain (install, typecheck, tests, build, unsigned packaging) entirely from that generated worktree without modifying the upstream Git revision.",
+  "nextStep": "Gate A PASS. Gate B may proceed."
+}

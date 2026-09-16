@@ -1,0 +1,89 @@
+{
+  "gate": "A",
+  "status": "PASS",
+  "passingSha": "a7e34d5695fda152a9ca441f0a496a89359bae91",
+  "alsoPassingSha": "07b7687a2e6468ca699e1baf2415d479a9aca318",
+  "verifiedUnderToolchain": {
+    "node": "v24.20.0",
+    "enginesNode": "24",
+    "pnpm": "12.0.0",
+    "packageManager": "pnpm@12.0.0+sha512.9e2e3dc3911995868dc94b8175c217c27e95408fa03b4a22749778f2b34f773b77cdd3b39ede8171b22fcd53be6a35342e9fac9948a68ef58df6488ce89a7e67",
+    "harnessEngineAssertion": "fails closed if running Node major != package.json engines.node"
+  },
+  "claim": "A clean Horca orchestration project can fetch an exact Orca revision, create an isolated disposable worktree, and run Orca's normal desktop build toolchain entirely from that generated worktree without modifying the upstream Git revision.",
+  "acceptanceCriteria": [
+    "baseline.jsonGeneratedFromRepositoryState: PASS",
+    "lockedCommitFetchedIndependently: PASS",
+    "uniqueDetachedWorktreeAtExactSha: PASS",
+    "initialWorktreeClean: PASS",
+    "emptyOverlayLeavesClean: PASS",
+    "verifierConfirmsZeroUndeclaredChanges: PASS",
+    "frozenDependencyInstallation: PASS (full install with scripts, under declared Node 24)",
+    "nodeTypecheck: PASS",
+    "cliTypecheck: PASS",
+    "webTypecheck: PASS (on pre-regression and repair)",
+    "aggregateTypecheck: PASS (on pre-regression and repair)",
+    "requiredTests: PASS (smoke 9 + packaging-resources 21)",
+    "desktopCompilation: PASS (pnpm build:desktop)",
+    "unsignedLocalPackaging: PASS (electron-builder --dir, ad-hoc signed, 527M Orca.app)",
+    "sourceForkNotUsedForBuildSteps: PASS",
+    "generatedWorktreeRemovableCleanly: PASS (git worktree remove, no --force)",
+    "secondMaterializationAfterCleanup: PASS",
+    "coexistingMaterializationsNonMutating: PASS"
+  ],
+  "retractions": {
+    "nodeSqliteSeam": {
+      "status": "RETRACTED",
+      "originalClaim": "Upstream packaging check misclassifies node:sqlite as an external dependency; a Horca overlay is needed.",
+      "whyRetracted": "The claim was produced under Node v22.23.2, which does not satisfy Orca's declared engines.node=24. module.builtinModules gained prefix-only builtins (node:sqlite, node:test) in Node 23.5.0; Node 24 includes them.",
+      "differentialEvidence": {
+        "node22": {
+          "builtinModulesHasNodeSqlite": false,
+          "isPackagedExternalSpecifier(node:sqlite)": true,
+          "isPackagedExternalSpecifier(node:test)": true
+        },
+        "node24": {
+          "builtinModulesHasNodeSqlite": true,
+          "isPackagedExternalSpecifier(node:sqlite)": false,
+          "isPackagedExternalSpecifier(node:test)": false
+        }
+      },
+      "conclusion": "Under the supported Node 24 runtime upstream classifies node:sqlite and node:test correctly. No overlay is needed. The existing Horca patch is legacy patch archaeology, not a new-architecture seam.",
+      "actionTaken": "No overlay added. No patch preserved on the basis of this finding."
+    },
+    "localEnvironmentBlocker": {
+      "status": "RECLASSIFIED_AS_LOCAL_ENVIRONMENT_INCOMPATIBLE",
+      "originalClaim": "node-pty native rebuild fails on this host because MacOSX27.0.sdk .tbd files declare arm64e.x1, blocking Gate A packaging.",
+      "rootCause": "The active Xcode linker was older than the SDK in use. Earlier the machine's xcode-select pointed at Xcode 26.6 (ld-1267), which cannot parse the MacOSX27.0 SDK's arm64e.x1 entries. During the session it moved to Xcode 27.0 RC (ld-27037.1), which can.",
+      "evidence": {
+        "earlier": {
+          "xcode": "26.6",
+          "linker": "ld-1267",
+          "sdk": "MacOSX27.0",
+          "result": "FAIL unknown architecture arm64e.x1"
+        },
+        "now": {
+          "xcode": "27.0 RC (27A266a)",
+          "linker": "ld-27037.1",
+          "sdk": "MacOSX27.0",
+          "result": "PASS"
+        }
+      },
+      "conclusion": "Machine Xcode/SDK configuration, not a Horca or upstream defect. No Horca workaround required. A coherent Xcode/SDK pair (or clean CI) is the environment requirement.",
+      "actionTaken": "No workaround added to Horca. Recorded as LOCAL_ENVIRONMENT_INCOMPATIBLE."
+    }
+  },
+  "correctionsFromPriorRound": {
+    "noFalseGateAPass": "Resolved by running the complete contract; a7e34d5695 and 07b7687a2e genuinely pass.",
+    "gitAwareCleanup": "git worktree remove (no --force) + prune; verified no stale registration after each SHA.",
+    "requiredTests": "Smoke test plus upstream packaging/runtime-resource tests, both run and reported.",
+    "threeShaExperiment": "Run under the declared Node 24 toolchain with a fail-closed engine assertion.",
+    "upstreamRefreshed": "See upstream-observations.json."
+  },
+  "significance": "Gate A established the architecture works and produced a real methodological finding: running the build under an undeclared Node major manufactured two false blockers. The harness now refuses to run under a toolchain that does not satisfy the upstream engine declaration.",
+  "nextStep": "Gate A PASS on a7e34d5695fda152a9ca441f0a496a89359bae91 (and 07b7687a2e). Gate B may proceed.",
+  "environmentClassification": {
+    "localEnvironment": "LOCAL_ENVIRONMENT_INCOMPATIBLE resolved by machine Xcode selection; irrelevant to Horca architecture",
+    "gateAPackagingProof": "Local, under declared Node 24, ad-hoc signed. A reproducible CI macOS runner is the recommended environment for signed release proofs."
+  }
+}

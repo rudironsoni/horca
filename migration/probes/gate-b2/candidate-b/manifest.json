@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "schemaVersion": 1,
+  "overrides": [
+    {
+      "id": "gate-b2-consume-probe",
+      "target": "src/renderer/src/main.tsx",
+      "mode": "substitute",
+      "find": "import { installBrowserClientPageRenderer } from './components/browser-pane/browser-client-page-renderer-installation'",
+      "replace": "import { installBrowserClientPageRenderer } from './components/browser-pane/browser-client-page-renderer-installation'\nimport { GATE_B2_PROBE_TITLE } from '@horca/gate-b2-probe'\ndocument.title = GATE_B2_PROBE_TITLE",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "import { installBrowserClientPageRenderer } from './components/browser-pane/browser-client-page-renderer-installation'",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel+blob-sha256",
+        "mustOccurExactlyOnce": "import { GATE_B2_PROBE_TITLE } from '@horca/gate-b2-probe'",
+        "resultingBlobSha256": "1b17d868bfa4f8513c5edb87c0e18082aea19ca77d8f450a32c28b1774b730fb"
+      },
+      "reason": "Gate B2: renderer consumes the Horca probe; the title originates in the probe."
+    }
+  ]
+}

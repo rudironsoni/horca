@@ -1,0 +1,100 @@
+{
+  "gate": "B",
+  "status": "PASS",
+  "purpose": "Prove: immutable upstream revision + deterministic Horca overlay + small upstream bump = same downstream behavior, without merge/rebase/conflict machinery.",
+  "baseline": {
+    "upstreamSha": "6101f0169fe798546436f13494149a1d10f0491a",
+    "buildIdentity": "f3c8332da372ccac",
+    "overlayDigest": "e96ba886b1ac",
+    "sourceDeltaSha256": "119c49abc075b8a81c940e3a794ac9f4a56c6c95acb16b6f8cbf34b35036ff7b",
+    "observableResult": "out/renderer/index.html contains <title>Horca Gate B Probe</title>",
+    "install": "PASS",
+    "buildElectronVite": "PASS"
+  },
+  "overlay": {
+    "id": "gate-b-probe-renderer-title",
+    "target": "src/renderer/index.html",
+    "mode": "substitute",
+    "find": "<title>Orca</title>",
+    "replace": "<title>Horca Gate B Probe</title>",
+    "precondition": "find sentinel occurs exactly once",
+    "postcondition": "replace sentinel exactly once; find sentinel absent; resulting blob sha256 matches",
+    "appliedTwiceBehavior": "explicit HORCA_OVERLAY_ALREADY_APPLIED error (exit 1); no silent double mutation"
+  },
+  "determinism": {
+    "method": "two independent materializations of the same upstream SHA, same overlay",
+    "overlayDigestA": "e96ba886b1ac",
+    "overlayDigestB": "e96ba886b1ac",
+    "sourceDeltaA": "119c49abc075b8a81c940e3a794ac9f4a56c6c95acb16b6f8cbf34b35036ff7b",
+    "sourceDeltaB": "119c49abc075b8a81c940e3a794ac9f4a56c6c95acb16b6f8cbf34b35036ff7b",
+    "buildIdentityA": "f3c8332da372ccac",
+    "buildIdentityB": "f3c8332da372ccac",
+    "ephemeralInputsExcludedFromIdentity": ["runId", "path", "timestamp", "pid"]
+  },
+  "bump": {
+    "oldUpstreamSha": "6101f0169fe798546436f13494149a1d10f0491a",
+    "newUpstreamSha": "85d1ffc0726d8403f9494436c421c5e3d7932c47",
+    "relationship": "85d1ffc^ == 6101f016 (verified in local mirror)",
+    "commitSubject": "fix: accept enterprise managed GitHub owner logins (#20450)",
+    "upstreamFilesChangedCount": 16,
+    "upstreamFilesChanged": [
+      "mobile/src/tasks/github-project-reference.test.ts",
+      "mobile/src/tasks/github-project-reference.ts",
+      "src/main/git/git-username.test.ts",
+      "src/main/git/git-username.ts",
+      "src/main/git/repo-username.test.ts",
+      "src/main/github/github-api-repository-validation.test.ts",
+      "src/main/github/github-api-repository-validation.ts",
+      "src/main/github/github-api-repository.test.ts",
+      "src/main/github/project-view-host-auth.test.ts",
+      "src/main/github/project-view.test.ts",
+      "src/main/github/project-view/internals.ts",
+      "src/main/github/project-view/project-view-reference.ts",
+      "src/renderer/src/components/github-project/project-picker-input.test.ts",
+      "src/main/github-project/project-picker-input.ts",
+      "src/shared/github/owner-slug.test.ts",
+      "src/shared/github/owner-slug.ts"
+    ],
+    "upstreamTouchedOverlayTarget": false,
+    "overlayTargetIdenticalAcrossBump": true,
+    "overlayAppliedUnchanged": true,
+    "sourceDeltaAfterBump": "119c49abc075b8a81c940e3a794ac9f4a56c6c95acb16b6f8cbf34b35036ff7b",
+    "builderIdentityAfter": "275fe06ef3b91c01",
+    "observableResultAfter": "out/renderer/index.html contains <title>Horca Gate B Probe</title>",
+    "install": "PASS",
+    "typecheckAggregate": "PASS",
+    "packagingResourcesTest": "PASS",
+    "buildElectronVite": "PASS"
+  },
+  "changeAccounting": {
+    "lockChanges": 1,
+    "lockChangeDetail": "6101f016 -> 85d1ffc (intentional SHA update only)",
+    "overlayDefinitionChanges": 0,
+    "horcaImplementationChanges": 0,
+    "contractChanges": 0,
+    "manualCompatibilityDecisions": 0
+  },
+  "noMergeMachinery": {
+    "gitMerge": false, "gitRebase": false, "gitCherryPick": false,
+    "gitAm": false, "gitApply": false, "threeWayPatch": false,
+    "automaticConflictResolution": false, "forcePushSync": false,
+    "onlyUpstreamMigrationOperation": "change exact upstream dependency SHA"
+  },
+  "passConditions": {
+    "1_overlayAppliesDeterministicallyTo6101f016": "PASS",
+    "2_independentMaterializationsIdenticalOutput": "PASS",
+    "3_sameOverlayDefinitionAppliesTo85d1ffc": "PASS",
+    "4_downstreamObservableResultPreserved": "PASS",
+    "5_noHorcaImplementationChangeRequired": "PASS",
+    "6_noManualCompatibilityDecisionRequired": "PASS",
+    "7_allGeneratedTreeChangesDeclared": "PASS",
+    "8_cleanupLeavesNoStaleWorktreeMetadata": "PASS"
+  },
+  "cleanup": {
+    "method": "git worktree remove --force (disposable worktree; content reproducible from SHA+manifest) then git worktree prune --expire now",
+    "note": "Plain git worktree remove refuses an overlay-applied worktree because the overlay intentionally modifies a tracked file. --force is the documented Git idiom for a disposable worktree.",
+    "staleMetadataAfter": "none",
+    "secondMaterializationAfterCleanup": "PASS (identical BuildIdentity)"
+  },
+  "nextStep": "Gate B PASS. Do not proceed to Gate B2 in this run."
+}

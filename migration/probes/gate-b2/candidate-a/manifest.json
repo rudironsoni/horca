@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "schemaVersion": 1,
+  "overrides": [
+    {
+      "id": "gate-b2-a-resolver-alias",
+      "target": "electron.vite.config.ts",
+      "mode": "substitute",
+      "find": "      alias: {\n        '@renderer': resolve('src/renderer/src'),\n        '@': resolve('src/renderer/src')\n      }",
+      "replace": "      alias: {\n        '@renderer': resolve('src/renderer/src'),\n        '@': resolve('src/renderer/src'),\n        '@horca/gate-b2-probe': process.env.HORCA_GATE_B2_PROBE_ENTRY ?? ''\n      }",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "      alias: {\n        '@renderer': resolve('src/renderer/src'),\n        '@': resolve('src/renderer/src')\n      }",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel+blob-sha256",
+        "mustOccurExactlyOnce": "'@horca/gate-b2-probe': process.env.HORCA_GATE_B2_PROBE_ENTRY ?? ''",
+        "resultingBlobSha256": "acc50509defee7b30e0f5cc01bd3904422664855ff6fd884f949602a14dec697"
+      },
+      "reason": "Gate B2 A: Vite resolver seam to the separately-installed Horca probe."
+    },
+    {
+      "id": "gate-b2-a-typescript-include",
+      "target": "config/tsconfig.tc.web.json",
+      "mode": "substitute",
+      "find": "  \"include\": [\n    \"../src/renderer/src/env.d.ts\",",
+      "replace": "  \"include\": [\n    \"../src/renderer/src/env.d.ts\",\n    \"../../../../../migration/probes/gate-b2/horca-probe/src/index.ts\",",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "  \"include\": [\n    \"../src/renderer/src/env.d.ts\",",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "    \"../../../../../migration/probes/gate-b2/horca-probe/src/index.ts\","
+      },
+      "reason": "Gate B2 A hardening: add the real probe source to the composite project file list (TS6307)."
+    },
+    {
+      "id": "gate-b2-a-typescript-resolver",
+      "target": "config/tsconfig.tc.web.json",
+      "mode": "substitute",
+      "find": "    \"paths\": {\n      \"@renderer/*\": [\"../src/renderer/src/*\"],\n      \"@/*\": [\"../src/renderer/src/*\"]\n    }",
+      "replace": "    \"paths\": {\n      \"@renderer/*\": [\"../src/renderer/src/*\"],\n      \"@/*\": [\"../src/renderer/src/*\"],\n      \"@horca/gate-b2-probe\": [\"../../../../../migration/probes/gate-b2/horca-probe/src/index.ts\"]\n    }",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "    \"paths\": {\n      \"@renderer/*\": [\"../src/renderer/src/*\"],\n      \"@/*\": [\"../src/renderer/src/*\"]\n    }",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel+blob-sha256",
+        "mustOccurExactlyOnce": "\"@horca/gate-b2-probe\": [\"../../../../../migration/probes/gate-b2/horca-probe/src/index.ts\"]",
+        "resultingBlobSha256": "1ebfd9b775373167a1a3c50092a3e2ab854a78e74c644f10c234808c2809b19c"
+      },
+      "reason": "Gate B2 A hardening: real TypeScript resolution to the SAME probe source the bundler uses. Replaces the ambient declaration shim."
+    },
+    {
+      "id": "gate-b2-consume-probe",
+      "target": "src/renderer/src/main.tsx",
+      "mode": "substitute",
+      "find": "import { installBrowserClientPageRenderer } from './components/browser-pane/browser-client-page-renderer-installation'",
+      "replace": "import { installBrowserClientPageRenderer } from './components/browser-pane/browser-client-page-renderer-installation'\nimport { GATE_B2_PROBE_TITLE } from '@horca/gate-b2-probe'\ndocument.title = GATE_B2_PROBE_TITLE",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "import { installBrowserClientPageRenderer } from './components/browser-pane/browser-client-page-renderer-installation'",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel+blob-sha256",
+        "mustOccurExactlyOnce": "import { GATE_B2_PROBE_TITLE } from '@horca/gate-b2-probe'",
+        "resultingBlobSha256": "1b17d868bfa4f8513c5edb87c0e18082aea19ca77d8f450a32c28b1774b730fb"
+      },
+      "reason": "Gate B2: renderer consumes the Horca probe; the title originates in the probe."
+    }
+  ]
+}

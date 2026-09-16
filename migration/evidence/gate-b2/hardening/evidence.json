@@ -1,0 +1,89 @@
+{
+  "gate": "B2-hardening",
+  "status": "PASS",
+  "selectedArchitecture": "A: separate Horca dependency workspace + Horca-owned lock",
+  "upstreamSha": "85d1ffc0726d8403f9494436c421c5e3d7932c47",
+  "fix1_realTypeScriptResolution": {
+    "status": "DONE",
+    "ambientShimRemoved": true,
+    "mechanism": "config/tsconfig.tc.web.json gains both an `include` entry and a `paths` mapping that resolve '@horca/gate-b2-probe' to the SAME real source the Vite alias uses: migration/probes/gate-b2/horca-probe/src/index.ts",
+    "sameSourceAsBundler": true,
+    "noDuplicatedInterfaceDeclaration": true,
+    "note": "The include entry was required because tc.web is a composite project (TS6307 otherwise)."
+  },
+  "negativeTypeSafetyProof": {
+    "step1_baseline": {"command": "pnpm tc:web", "result": "PASS", "log": "negproof-1-baseline-pass.log"},
+    "step2_exportRemoved": {"change": "renamed GATE_B2_PROBE_TITLE -> GATE_B2_PROBE_TITLE_RENAMED in the probe", "command": "pnpm tc:web", "result": "FAIL", "error": "src/renderer/src/main.tsx(27,10): error TS2724: '\"@horca/gate-b2-probe\"' has no exported member named 'GATE_B2_PROBE_TITLE'", "log": "negproof-2-export-removed-fail.log"},
+    "step3_restored": {"command": "pnpm tc:web", "result": "PASS", "log": "negproof-3-restored-pass.log"},
+    "conclusion": "TypeScript can no longer be lied to independently of the real Horca module."
+  },
+  "fix2_horcaDependencyDomainRoot": {
+    "status": "DONE",
+    "path": "migration/probes/gate-b2/horca-probe",
+    "files": ["package.json", "pnpm-workspace.yaml", "pnpm-lock.yaml"],
+    "explicitWorkspaceRoot": "pnpm-workspace.yaml with packages: ['.'] stops pnpm from walking up into the Horca repo workspace",
+    "cwdIndependent": true,
+    "lockDigest": "714fa10c0483905624b5dbac7ab645845b590e764da3b1920978ee77649a4e30"
+  },
+  "fix3_dependencyDomainMutationGuard": {
+    "status": "DONE",
+    "script": "scripts/guard-dependency-domain.mjs",
+    "protected": ["root package.json", "root pnpm-lock.yaml", "root pnpm-workspace.yaml", "worktree package.json", "worktree pnpm-lock.yaml", "worktree pnpm-workspace.yaml"],
+    "behavior": "hashes protected files before and after a Horca dependency operation; FAILS if any changed and does not auto-restore",
+    "negativeTest": {"command": "append '# tamper' to root pnpm-lock.yaml", "guardResult": "FAIL (exit 1)", "mutationRemainedVisible": true, "restoredAfterRecording": true}
+  },
+  "fix4_cleanStateIsolation": {
+    "status": "DONE",
+    "runs": [
+      {"run": 1, "from": "no node_modules", "command": "pnpm install --frozen-lockfile", "guard": "PASS", "lockDigest": "714fa10c0483905624b5dbac7ab645845b590e764da3b1920978ee77649a4e30", "changeCase": "5.4.4"},
+      {"run": 2, "from": "no node_modules", "command": "pnpm install --frozen-lockfile", "guard": "PASS", "lockDigest": "714fa10c0483905624b5dbac7ab645845b590e764da3b1920978ee77649a4e30", "changeCase": "5.4.4"}
+    ],
+    "rootLockUnchanged": true,
+    "rootWorkspaceUnchanged": true,
+    "rootPackageJsonDependencyFieldsUnchanged": true
+  },
+  "fix5_fullCandidateARerun": {
+    "status": "PASS",
+    "horcaFrozenInstall": "PASS (guarded)",
+    "orcaFrozenInstall": "PASS (guarded; worktree dep metadata unchanged)",
+    "realTypeScriptResolution": "PASS",
+    "typecheck": "PASS",
+    "buildDesktop": "PASS",
+    "ensureElectronRuntime": "PASS",
+    "electronBuilderDirUnsigned": "PASS",
+    "packagedApp": "523M Orca.app",
+    "packagedProbeObservable": "app.asar contains 'Horca Gate B2 ${He('",
+    "overlayVerification": "PASS",
+    "trackedMutationVerification": "PASS (exactly the 3 declared targets)",
+    "gitAwareCleanup": "PASS (validated then removed)",
+    "cleanupVerification": "PASS (no stale metadata)"
+  },
+  "buildIdentity": {
+    "modelUnchanged": true,
+    "inputs": ["upstreamSha", "overlayDigest", "materializer schema-2", "Horca dependency lock digest"],
+    "value": "b92cbf6f6eb19bca",
+    "overlayDigest": "b1ebac17e864",
+    "depLockDigest": "714fa10c0483",
+    "deterministicAcrossPaths": true,
+    "excluded": ["path", "workspace location", "runId", "timestamp", "pid"]
+  },
+  "isolation": {
+    "twoIndependentMaterializations": true,
+    "modifiedFilesIdentical": ["electron.vite.config.ts acc50509defee7b3...", "config/tsconfig.tc.web.json 1ebfd9b775373167...", "src/renderer/src/main.tsx 1b17d868bfa4f851..."],
+    "buildIdentityIdentical": "b92cbf6f6eb19bca"
+  },
+  "b2DecisionPreserved": true,
+  "b2ReconsiderationRequired": false,
+  "c0Readiness": {
+    "noAmbientDeclarationDuplicatesContract": true,
+    "removingRealExportFailsTypecheck": true,
+    "horcaInstallCannotSilentlyMutateRootMetadata": true,
+    "rootMetadataByteIdenticalDuringHorcaInstall": true,
+    "independentMaterializationsDeterministic": true,
+    "desktopBuildPasses": true,
+    "unsignedPackagingPasses": true,
+    "packagedProbeObservable": true,
+    "cleanupNoUnexplainedTrackedChanges": true,
+    "cleanupNoStaleWorktreeMetadata": true
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "capturedAt": "2026-09-16T19:00:09Z",
+  "upstream": {
+    "repository": "https://github.com/stablyai/orca.git",
+    "mainSha": "71e308e574b951174cc7ec5c57a6bb5718195a9f",
+    "mainSubject": "feat(relay): count failed cell-inventory lock acquisitions (#21067)",
+    "windowingTestImportPresent": false,
+    "note": "The unused NativeChatMessage import introduced by PR #20898 is absent from current main. Repair commit a7e34d5695fda152a9ca441f0a496a89359bae91 is an ancestor of current main."
+  },
+  "observedShas": {
+    "pre-regression": {
+      "sha": "07b7687a2e6468ca699e1baf2415d479a9aca318",
+      "subject": "fix(sidebar): keep the Projects filter when a project is added (#20987)",
+      "nativeChatMessageTypeUsedInWindowingTest": true,
+      "typecheck": "PASS"
+    },
+    "regression": {
+      "sha": "15cac68802361f3b9075630335d3e6d379c2a909",
+      "subject": "Native chat keeps scrolling to bottom (#20898)",
+      "prNumber": 20898,
+      "nativeChatMessageTypeUsedInWindowingTest": false,
+      "typecheck": "FAIL (TS6196 unused import)",
+      "currentMainHasThisSha": true
+    },
+    "repair": {
+      "sha": "a7e34d5695fda152a9ca441f0a496a89359bae91",
+      "subject": "feat(session-search): add panel search and opt-in consent (PR7) (#20580)",
+      "repairCommitMessageIncludes": "fix(lint): drop the type import #20898 left behind in the windowing test",
+      "nativeChatMessageTypeUsedInWindowingTest": false,
+      "importRemoved": true,
+      "typecheck": "PASS",
+      "ancestorOfCurrentMain": true
+    }
+  }
+}

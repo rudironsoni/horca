@@ -1,0 +1,4 @@
+# Gate B2 Candidate A: standalone Horca probe workspace.
+# Stops pnpm from walking up into the Horca repo workspace.
+packages:
+  - '.'

@@ -1,0 +1,14 @@
+{
+  "name": "@horca/gate-b2-probe",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "change-case": "5.4.4"
+  },
+  "packageManager": "pnpm@12.0.0"
+}

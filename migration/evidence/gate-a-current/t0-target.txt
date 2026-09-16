@@ -1,0 +1,5 @@
+repository: https://github.com/stablyai/orca.git
+resolvedSha: 6101f0169fe798546436f13494149a1d10f0491a
+fetchTimestampUtc: 2026-09-16T21:38:46Z
+commitTimestamp: 2026-09-16T14:35:28-07:00
+subject: Make CLI reveal labels translatable (#21079)

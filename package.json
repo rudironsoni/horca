@@ -164,7 +164,13 @@
     "test:e2e:remote-bulk-open-freeze": "pnpm run ensure:electron-runtime && pnpm exec playwright test tests/e2e/remote-session-bulk-open-freeze-repro.spec.ts --config tests/playwright.config.ts --project electron-headless --workers=1",
     "test:e2e:ssh-docker-bulk-open-freeze": "node config/scripts/run-ssh-docker-bulk-open-freeze-e2e.mjs",
     "repro:live-remote-bulk-open-freeze": "node config/scripts/live-remote-bulk-open-freeze-repro.mjs",
-    "repro:live-remote-realistic-freeze": "node config/scripts/live-remote-realistic-freeze-repro.mjs"
+    "repro:live-remote-realistic-freeze": "node config/scripts/live-remote-realistic-freeze-repro.mjs",
+    "horca:upstream:fetch": "node scripts/fetch-upstream.mjs",
+    "horca:materialize": "node scripts/materialize.mjs",
+    "horca:apply-overlays": "node scripts/apply-overlays.mjs",
+    "horca:verify": "node scripts/verify-overlay.mjs",
+    "horca:cleanup": "bash scripts/cleanup-worktrees.sh",
+    "horca:guard:deps": "node scripts/guard-dependency-domain.mjs"
   },
   "dependencies": {
     "@anthropic-ai/claude-agent-sdk": "0.3.251",

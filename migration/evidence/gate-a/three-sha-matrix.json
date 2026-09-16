@@ -1,0 +1,60 @@
+{
+  "experiment": "Gate A three-SHA differential",
+  "harness": "scripts/gate-a-three-sha.sh",
+  "toolchain": {
+    "node": "v24.20.0 (declared by Orca: engines.node=24; harness fails closed on mismatch)",
+    "pnpm": "12.0.0 (declared by Orca: packageManager)",
+    "packaging_signing": "ad-hoc (CSC_NAME=-, CSC_IDENTITY_AUTO_DISCOVERY=false); no Developer ID, no release secrets"
+  },
+  "shas": {
+    "pre-regression": "07b7687a2e6468ca699e1baf2415d479a9aca318",
+    "regression": "15cac68802361f3b9075630335d3e6d379c2a909",
+    "repair": "a7e34d5695fda152a9ca441f0a496a89359bae91"
+  },
+  "results": {
+    "pre-regression": {
+      "fetch": "PASS", "materialize": "PASS", "engine": "PASS (node 24)",
+      "apply-overlays": "PASS", "verify-overlay": "PASS",
+      "install(frozen)": "PASS",
+      "tc:node": "PASS", "tc:cli": "PASS", "tc:web": "PASS", "tc(aggregate)": "PASS",
+      "test(smoke)": "PASS (9 tests)",
+      "test(packaging-resources)": "PASS (21 tests)",
+      "build:desktop": "PASS",
+      "ensure:electron-runtime": "PASS",
+      "electron-builder --dir (unsigned)": "PASS",
+      "packaged artifact": "PASS (538M Orca.app)",
+      "cleanup": "PASS", "cleanup-verify": "PASS",
+      "gateA": "PASS"
+    },
+    "regression": {
+      "fetch": "PASS", "materialize": "PASS", "engine": "PASS (node 24)",
+      "apply-overlays": "PASS", "verify-overlay": "PASS",
+      "install(frozen)": "PASS",
+      "tc:node": "PASS", "tc:cli": "PASS", "tc:web": "FAIL", "tc(aggregate)": "FAIL",
+      "tc:web_error": "NativeChatMessageList.windowing.test.tsx(12,15): error TS6196: 'NativeChatMessage' is declared but never used.",
+      "test(smoke)": "PASS (9 tests)",
+      "test(packaging-resources)": "PASS (21 tests)",
+      "build:desktop": "FAIL (typecheck cascade)",
+      "ensure:electron-runtime": "PASS",
+      "electron-builder --dir (unsigned)": "FAIL (missing unpacked CLI package boundary, downstream of failed build:desktop)",
+      "packaged artifact": "stale/incomplete (523M, not a valid pass)",
+      "cleanup": "PASS", "cleanup-verify": "PASS",
+      "gateA": "FAIL"
+    },
+    "repair": {
+      "fetch": "PASS", "materialize": "PASS", "engine": "PASS (node 24)",
+      "apply-overlays": "PASS", "verify-overlay": "PASS",
+      "install(frozen)": "PASS",
+      "tc:node": "PASS", "tc:cli": "PASS", "tc:web": "PASS", "tc(aggregate)": "PASS",
+      "test(smoke)": "PASS (9 tests)",
+      "test(packaging-resources)": "PASS (21 tests)",
+      "build:desktop": "PASS",
+      "ensure:electron-runtime": "PASS",
+      "electron-builder --dir (unsigned)": "PASS (skipped macOS application code signing)",
+      "packaged artifact": "PASS (527M Orca.app)",
+      "cleanup": "PASS", "cleanup-verify": "PASS",
+      "gateA": "PASS"
+    }
+  },
+  "differential_conclusion": "Under the declared Node 24 toolchain, Horca's orchestration reproduces upstream faithfully: pre-regression and repair pass the complete Gate A contract including unsigned packaging; the regression fails only on the upstream TypeScript defect introduced by PR #20898. No Horca-induced failure appears."
+}
