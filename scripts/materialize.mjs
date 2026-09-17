@@ -21,7 +21,7 @@ function computeHorcaDependencyLockDigest() {
   // separately pinned Horca dependency domain). Absent => 'none'.
   const depLock = process.env.HORCA_DEPENDENCY_LOCK
     ? resolve(process.env.HORCA_DEPENDENCY_LOCK)
-    : resolve(ROOT, 'migration/probes/gate-b2/horca-probe/pnpm-lock.yaml')
+    : resolve(ROOT, 'pnpm-lock.yaml')
   if (!existsSync(depLock)) return 'none'
   return readFileSync(depLock).toString('utf8') && createHash('sha256').update(readFileSync(depLock)).digest('hex').slice(0, 12)
 }

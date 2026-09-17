@@ -1,25 +1,5 @@
 {
   "version": 1,
   "schemaVersion": 1,
-  "overrides": [
-    {
-      "id": "gate-b-probe-renderer-title",
-      "target": "src/renderer/index.html",
-      "mode": "substitute",
-      "find": "    <title>Orca</title>",
-      "replace": "    <title>Horca Gate B Probe</title>",
-      "precondition": {
-        "kind": "text-sentinel",
-        "find": "    <title>Orca</title>",
-        "occursExactly": 1
-      },
-      "postcondition": {
-        "kind": "text-sentinels+blob-sha256",
-        "mustOccurExactlyOnce": "    <title>Horca Gate B Probe</title>",
-        "mustNotOccur": "    <title>Orca</title>",
-        "resultingBlobSha256": "119c49abc075b8a81c940e3a794ac9f4a56c6c95acb16b6f8cbf34b35036ff7b"
-      },
-      "reason": "Gate B probe only: proves the deterministic overlay mechanism end to end. Not a product migration."
-    }
-  ]
+  "overrides": []
 }

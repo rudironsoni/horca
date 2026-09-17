@@ -1,0 +1,11 @@
+{
+  "checkpointCommit": "21c458f65155ed2c6d4846fc1e5d27e1b047dc09",
+  "checkpointMessage": "chore(migration): establish pinned Orca build architecture",
+  "annotatedTag": "pre-c0-embedded-orca",
+  "annotatedTagObject": "37c1f0edb7d681bb11736c61bc9b6769eaf08eb8",
+  "tagTargetCommit": "21c458f65155ed2c6d4846fc1e5d27e1b047dc09",
+  "tagResolvesToCheckpoint": true,
+  "upstreamPin": "85d1ffc0726d8403f9494436c421c5e3d7932c47",
+  "selectedArchitecture": "A: separate Horca dependency workspace + Horca-owned lock",
+  "stagedFileCount": 33
+}
