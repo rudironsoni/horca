@@ -1,0 +1,113 @@
+{
+  "gate": "C0",
+  "status": "PASS",
+  "purpose": "Stop storing the Orca application source inside Horca; Orca becomes an immutable pinned build input only.",
+  "upstreamPin": "85d1ffc0726d8403f9494436c421c5e3d7932c47",
+  "checkpoint": {
+    "commit": "21c458f65155ed2c6d4846fc1e5d27e1b047dc09",
+    "message": "chore(migration): establish pinned Orca build architecture",
+    "annotatedTag": "pre-c0-embedded-orca",
+    "tagObject": "37c1f0edb7d681bb11736c61bc9b6769eaf08eb8",
+    "tagResolves": true
+  },
+  "cutover": {
+    "commit": "cb3380006e",
+    "message": "refactor: consume Orca as pinned upstream input",
+    "separateFromCheckpoint": true
+  },
+  "inventory": {
+    "file": "migration/evidence/c0/pre-cutover-inventory.json",
+    "totalTracked": 26235,
+    "UPSTREAM_EMBEDDED": 25813,
+    "HORCA_OWNED_KEEP": 390,
+    "MIGRATION_EVIDENCE_KEEP": 31,
+    "LEGAL_KEEP": 1,
+    "UNKNOWN": 0
+  },
+  "legalAttribution": {
+    "LICENSE": "kept",
+    "licenseIdenticalToUpstream": true,
+    "copyright": "Copyright (c) 2026 Lovecast Inc.",
+    "upstreamSource": "https://github.com/stablyai/orca",
+    "note": "Upstream MIT license and attribution preserved unmodified."
+  },
+  "deletion": {
+    "stagedDeletions": 25809,
+    "addedTrackedFiles": 3,
+    "modifiedTrackedFiles": 6
+  },
+  "ownershipProof": {
+    "rootPackageJsonName": "horca",
+    "horcaMetadataTracked": ["package.json", "pnpm-workspace.yaml", "pnpm-lock.yaml"],
+    "orcaMetadataAbsentFromHorcaTree": true,
+    "orcaMetadataSource": "materialized upstream worktree only",
+    "horcaDependencyDomain": "root (pnpm-workspace.yaml packages: ['.'])",
+    "orcaDependencyDomain": "materialized upstream worktree (Orca pnpm-lock.yaml)"
+  },
+  "probeIsolation": {
+    "productionOverlaySet": [],
+    "gateBAndB2ProbeBehaviorActiveInProductBuild": false,
+    "probeSourcePreservedUnder": ["migration/probes/", "migration/evidence/"]
+  },
+  "postC0BuildProof": {
+    "fetch": "PASS",
+    "materialize": "PASS",
+    "applyProductionOverlay": "PASS (empty)",
+    "verifyOverlay": "PASS",
+    "horcaFrozenInstall": "PASS (guarded; root metadata byte-identical)",
+    "orcaFrozenInstall": "PASS (guarded; worktree metadata byte-identical)",
+    "typecheck": "PASS",
+    "architectureTest": "PASS (config/scripts/electron-builder-runtime-resources.test.mjs)",
+    "buildDesktop": "PASS",
+    "ensureElectronRuntime": "PASS",
+    "electronBuilderDirUnsigned": "PASS",
+    "packagedApp": "523M Orca.app",
+    "cleanup": "PASS",
+    "staleWorktreeMetadata": "none",
+    "conclusion": "The build succeeds with no embedded Orca file present in the Horca repository."
+  },
+  "fetchIndependence": {
+    "secondMaterializationDifferentPath": true,
+    "upstreamSha": "85d1ffc0726d8403f9494436c421c5e3d7932c47",
+    "overlayDigest": "a53581a046ba",
+    "horcaDependencyLockDigest": "094a0411d6ee",
+    "buildIdentity": "31f78ef70f59ee04",
+    "identicalAcrossPaths": true,
+    "generatedSourceDelta": "0 tracked changes (empty production overlay)"
+  },
+  "forbiddenEmbeddingVerifier": {
+    "script": "scripts/verify-no-upstream-embedding.mjs",
+    "input": "pre-C0 inventory UPSTREAM_EMBEDDED class",
+    "result": "PASS",
+    "checkedTrackedFiles": 429,
+    "forbiddenUpstreamPaths": 25813
+  },
+  "metrics": {
+    "preC0TrackedFiles": 26235,
+    "preC0TrackedBytes": 209137752,
+    "postC0TrackedFiles": 429,
+    "postC0TrackedBytes": 10779488,
+    "bytesReduced": 198358264,
+    "file": "migration/evidence/c0/repo-metrics.json",
+    "historyUntouched": true
+  },
+  "passCriteria": {
+    "acceptedPreC0Committed": true,
+    "annotatedRecoveryTagResolves": true,
+    "everyTrackedFileClassified": true,
+    "noUnknownClassifications": true,
+    "legalAttributionPreserved": true,
+    "embeddedOrcaCurrentTreeRemoved": true,
+    "horcaDependencyDomainPreserved": true,
+    "orcaMetadataOnlyFromMaterializedUpstream": true,
+    "gateBAndB2AbsentFromProductBuild": true,
+    "postC0BuildsFromPinnedUpstreamFromScratch": true,
+    "unsignedPackagedAppSucceeds": true,
+    "secondMaterializationReproducesBuildIdentity": true,
+    "forbiddenEmbeddingVerifierPasses": true,
+    "cleanupNoStaleWorktreeMetadata": true,
+    "beforeAfterMetricsRecorded": true,
+    "structuralCutoverCommittedSeparately": true
+  },
+  "nextStep": "Gate C may begin. Do not start product rebranding, Ghostty, or Herdr in this run."
+}
