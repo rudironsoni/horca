@@ -1,0 +1,22 @@
+{
+  "preC0": {
+    "trackedFiles": 26235,
+    "trackedBytes": 209137752,
+    "embeddedOrcaFiles": 25813,
+    "horcaOwnedFiles": 390,
+    "legalFiles": 1,
+    "migrationMachineryFiles": 31
+  },
+  "postC0": {
+    "trackedFiles": 429,
+    "trackedBytes": 10779488,
+    "embeddedOrcaFiles": 0
+  },
+  "deletedFiles": 25806,
+  "note": "C0 changes the current tree only; historical Git objects remain.",
+  "deletedTrackedFiles": 25809,
+  "addedTrackedFiles": 3,
+  "modifiedTrackedFiles": 6,
+  "netTrackedFileDelta": -25806,
+  "bytesReduced": 198358264
+}
