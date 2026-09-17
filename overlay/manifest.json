@@ -629,6 +629,1112 @@
         "mustOccurExactlyOnce": "return asHorcaProductCopy(formatCliErrorUnmapped(error, context))"
       },
       "reason": "Gate C: map every CLI error path, including recovery appends, through the product-copy seam."
+    },
+    {
+      "id": "gate-d0-add-headless-parser",
+      "target": "src/shared/headless-parser.ts",
+      "mode": "add",
+      "source": "src/shared/headless-parser.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D0-H: implementation-neutral parser type"
+    },
+    {
+      "id": "gate-d0-add-pane-terminal",
+      "target": "src/renderer/src/lib/pane-manager/pane-terminal.ts",
+      "mode": "add",
+      "source": "src/renderer/src/lib/pane-manager/pane-terminal.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D0-R: renderer terminal behavior interface"
+    },
+    {
+      "id": "gate-d0-add-xterm-pane-terminal",
+      "target": "src/renderer/src/lib/pane-manager/xterm-renderer/xterm-pane-terminal.ts",
+      "mode": "add",
+      "source": "src/renderer/src/lib/pane-manager/xterm-renderer/xterm-pane-terminal.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D0-R: xterm renderer adapter"
+    },
+    {
+      "id": "gate-d0-h-parser-import",
+      "target": "src/main/daemon/headless-emulator.ts",
+      "mode": "substitute",
+      "find": "import { Terminal } from '@xterm/headless'",
+      "replace": "import { Terminal } from '@xterm/headless'\nimport type { HeadlessParser } from '../../shared/headless-parser'",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "import { Terminal } from '@xterm/headless'",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "import type { HeadlessParser } from '../../shared/headless-parser'"
+      },
+      "reason": "D0-H: HeadlessEmulator.responderParser is HeadlessParser, not xterm Terminal['parser']"
+    },
+    {
+      "id": "gate-d0-h-parser-type",
+      "target": "src/main/daemon/headless-emulator.ts",
+      "mode": "substitute",
+      "find": "  get responderParser(): Terminal['parser'] {",
+      "replace": "  get responderParser(): HeadlessParser {",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "  get responderParser(): Terminal['parser'] {",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "  get responderParser(): HeadlessParser {"
+      },
+      "reason": "D0-H: HeadlessEmulator.responderParser is HeadlessParser, not xterm Terminal['parser']"
+    },
+    {
+      "id": "gate-d0-h-output-plane-import",
+      "target": "src/main/daemon/session-output-plane.ts",
+      "mode": "substitute",
+      "find": "import { HeadlessEmulator } from './headless-emulator'",
+      "replace": "import { HeadlessEmulator } from './headless-emulator'\nimport type { HeadlessParser } from '../../shared/headless-parser'",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "import { HeadlessEmulator } from './headless-emulator'",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "import { HeadlessEmulator } from './headless-emulator'\nimport type { HeadlessParser } from '../../shared/headless-parser'"
+      },
+      "reason": "D0-H: daemon callers use HeadlessParser, not xterm parser types"
+    },
+    {
+      "id": "gate-d0-h-output-plane-type",
+      "target": "src/main/daemon/session-output-plane.ts",
+      "mode": "substitute",
+      "find": "  get responderParser(): HeadlessEmulator['responderParser'] {",
+      "replace": "  get responderParser(): HeadlessParser {",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "  get responderParser(): HeadlessEmulator['responderParser'] {",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "  get responderParser(): HeadlessParser {"
+      },
+      "reason": "D0-H: daemon callers use HeadlessParser, not xterm parser types"
+    },
+    {
+      "id": "gate-d0-h-barrier-import",
+      "target": "src/main/daemon/session-shell-ready-barrier.ts",
+      "mode": "substitute",
+      "find": "import type { HeadlessEmulator } from './headless-emulator'",
+      "replace": "import type { HeadlessParser } from '../../shared/headless-parser'",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "import type { HeadlessEmulator } from './headless-emulator'",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "import type { HeadlessParser } from '../../shared/headless-parser'"
+      },
+      "reason": "D0-H: daemon callers use HeadlessParser, not xterm parser types"
+    },
+    {
+      "id": "gate-d0-h-barrier-type",
+      "target": "src/main/daemon/session-shell-ready-barrier.ts",
+      "mode": "substitute",
+      "find": "  responderParser: HeadlessEmulator['responderParser']",
+      "replace": "  responderParser: HeadlessParser",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "  responderParser: HeadlessEmulator['responderParser']",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "  responderParser: HeadlessParser"
+      },
+      "reason": "D0-H: daemon callers use HeadlessParser, not xterm parser types"
+    },
+    {
+      "id": "gate-d0-r-managed-pane-types",
+      "target": "src/renderer/src/lib/pane-manager/pane-manager-types.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/lib/pane-manager/pane-manager-types.ts",
+      "reason": "D0-R: public ManagedPane exposes PaneTerminal, not xterm addons"
+    },
+    {
+      "id": "gate-d0-r-public-view",
+      "target": "src/renderer/src/lib/pane-manager/pane-public-view.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/lib/pane-manager/pane-public-view.ts",
+      "reason": "D0-R: public ManagedPane exposes PaneTerminal, not xterm addons"
+    },
+    {
+      "id": "gate-d0-add-xterm-pane-state",
+      "target": "src/renderer/src/lib/pane-manager/xterm-renderer/xterm-pane-state.ts",
+      "mode": "add",
+      "source": "src/renderer/src/lib/pane-manager/xterm-renderer/xterm-pane-state.ts",
+      "reason": "D0-R: implementation-private xterm pane state",
+      "precondition": {
+        "kind": "file-absent"
+      }
+    },
+    {
+      "id": "gate-d0-r-pane-dom-creation",
+      "target": "src/renderer/src/lib/pane-manager/pane-dom-creation.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/lib/pane-manager/pane-dom-creation.ts",
+      "reason": "D0-R: create XtermPaneTerminal, do not store addons on pane"
+    },
+    {
+      "id": "gate-d0-add-xterm-pane-state-test",
+      "target": "src/renderer/src/lib/pane-manager/xterm-renderer/xterm-pane-state.test.ts",
+      "mode": "add",
+      "source": "src/renderer/src/lib/pane-manager/xterm-renderer/xterm-pane-state.test.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D0-R: XtermPaneState lifecycle tests"
+    },
+    {
+      "id": "gate-d0-add-orca-terminal-surface",
+      "target": "src/shared/orca-terminal-surface.ts",
+      "mode": "add",
+      "source": "src/shared/orca-terminal-surface.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D0-R: shared disposable/grid types without @xterm"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-TerminalSearch.test.tsx",
+      "target": "src/renderer/src/components/TerminalSearch.test.tsx",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/TerminalSearch.test.tsx",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-TerminalSearch.tsx",
+      "target": "src/renderer/src/components/TerminalSearch.tsx",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/TerminalSearch.tsx",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-dashboard-popout-preview-grid-claim.ts",
+      "target": "src/renderer/src/components/dashboard-popout/preview-grid-claim.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/dashboard-popout/preview-grid-claim.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-TerminalPaneHeaderOverlay.test.tsx",
+      "target": "src/renderer/src/components/terminal-pane/TerminalPaneHeaderOverlay.test.tsx",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/TerminalPaneHeaderOverlay.test.tsx",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-TerminalPaneSurface.tsx",
+      "target": "src/renderer/src/components/terminal-pane/TerminalPaneSurface.tsx",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/TerminalPaneSurface.tsx",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-fish-color-scheme-child-stdin.node-pty",
+      "target": "src/renderer/src/components/terminal-pane/fish-color-scheme-child-stdin.node-pty.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/fish-color-scheme-child-stdin.node-pty.test.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-pty-connection-cold-restore-repaint.te",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection-cold-restore-repaint.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/pty-connection-cold-restore-repaint.test.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-pty-connection-daemon-snapshot-replay.",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection-daemon-snapshot-replay.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/pty-connection-daemon-snapshot-replay.test.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-pty-connection-hidden-delivery-gate.te",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection-hidden-delivery-gate.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/pty-connection-hidden-delivery-gate.test.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-pty-connection-parked-ssh-snapshot.tes",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection-parked-ssh-snapshot.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/pty-connection-parked-ssh-snapshot.test.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-pty-connection-reattach-binding.test.t",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection-reattach-binding.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/pty-connection-reattach-binding.test.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-pty-connection-remote-snapshot-source-",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection-remote-snapshot-source-grid.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/pty-connection-remote-snapshot-source-grid.test.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-pty-connection-setup-split-spawn.test.",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection-setup-split-spawn.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/pty-connection-setup-split-spawn.test.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-pty-connection-test-pane-fixtures.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection-test-pane-fixtures.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/pty-connection-test-pane-fixtures.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-pty-connection-visibility-resume-size.",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection-visibility-resume-size.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/pty-connection-visibility-resume-size.test.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-pty-connection-apply-reattach-payload.",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/apply-reattach-payload.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/pty-connection/apply-reattach-payload.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-pty-connection-direct-ssh-retry-status",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/direct-ssh-retry-status.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/pty-connection/direct-ssh-retry-status.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-pty-connection-foreground-output-refre",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/foreground-output-refresh.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/pty-connection/foreground-output-refresh.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-pty-connection-hidden-output-restore-a",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/hidden-output-restore-abandon.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/pty-connection/hidden-output-restore-abandon.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-pty-connection-hidden-output-restore-d",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/hidden-output-restore-drain.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/pty-connection/hidden-output-restore-drain.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-pty-connection-hidden-output-restore-r",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/hidden-output-restore-request.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/pty-connection/hidden-output-restore-request.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-pty-connection-hidden-output-restore-s",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/hidden-output-restore-snapshot.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/pty-connection/hidden-output-restore-snapshot.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-pty-connection-hidden-output-seq-and-s",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/hidden-output-seq-and-skip.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/pty-connection/hidden-output-seq-and-skip.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-pty-connection-hidden-startup-renderer",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/hidden-startup-renderer-query-write.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/pty-connection/hidden-startup-renderer-query-write.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-pty-connection-interrupt-input-intent.",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/interrupt-input-intent.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/pty-connection/interrupt-input-intent.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-pty-connection-live-data-callback.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/live-data-callback.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/pty-connection/live-data-callback.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-pty-connection-pane-serializer-registe",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/pane-serializer-register.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/pty-connection/pane-serializer-register.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-pty-connection-pty-input-forward.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/pty-input-forward.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/pty-connection/pty-input-forward.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-pty-connection-pty-input-recovery.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/pty-input-recovery.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/pty-connection/pty-input-recovery.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-pty-connection-pty-resize-geometry.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/pty-resize-geometry.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/pty-connection/pty-resize-geometry.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-pty-connection-reattach-payload-ssh-re",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/reattach-payload-ssh-reconnect-model-paint.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/pty-connection/reattach-payload-ssh-reconnect-model-paint.test.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-pty-connection-replay-data-drain.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/replay-data-drain.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/pty-connection/replay-data-drain.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-pty-connection-setup-split-geometry.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/setup-split-geometry.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/pty-connection/setup-split-geometry.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-pty-connection-shell-command-inference",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/shell-command-inference.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/pty-connection/shell-command-inference.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-pty-connection-ssh-snapshot-prepaint.t",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/ssh-snapshot-prepaint.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/pty-connection/ssh-snapshot-prepaint.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-replay-guard.test.ts",
+      "target": "src/renderer/src/components/terminal-pane/replay-guard.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/replay-guard.test.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-replay-guard.ts",
+      "target": "src/renderer/src/components/terminal-pane/replay-guard.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/replay-guard.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-terminal-agent-session-continuation.te",
+      "target": "src/renderer/src/components/terminal-pane/terminal-agent-session-continuation.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/terminal-agent-session-continuation.test.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-terminal-agent-session-continuation.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-agent-session-continuation.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/terminal-agent-session-continuation.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-terminal-agent-session-fork.test.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-agent-session-fork.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/terminal-agent-session-fork.test.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-terminal-agent-session-fork.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-agent-session-fork.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/terminal-agent-session-fork.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-terminal-appearance.test.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-appearance.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/terminal-appearance.test.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-terminal-appearance.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-appearance.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/terminal-appearance.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-terminal-keyboard-dependencies.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-keyboard-dependencies.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/terminal-keyboard-dependencies.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-terminal-keyboard-shortcut-matching.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-keyboard-shortcut-matching.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/terminal-keyboard-shortcut-matching.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-terminal-link-handlers.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-link-handlers.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/terminal-link-handlers.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-terminal-pane-lifecycle-primitives.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-pane-lifecycle-primitives.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/terminal-pane-lifecycle-primitives.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-terminal-pane-manager-options.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-pane-manager-options.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/terminal-pane-manager-options.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-terminal-pane-menu-paste.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-pane-menu-paste.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/terminal-pane-menu-paste.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-terminal-pane-pane-input.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-pane-pane-input.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/terminal-pane-pane-input.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-terminal-pane-pane-links.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-pane-pane-links.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/terminal-pane-pane-links.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-terminal-pane-paste-execution.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-pane-paste-execution.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/terminal-pane-paste-execution.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-terminal-programmatic-text-paste.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-programmatic-text-paste.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/terminal-programmatic-text-paste.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-terminal-render-desync-weight-probe.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-render-desync-weight-probe.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/terminal-render-desync-weight-probe.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-terminal-shutdown-layout-capture.test.",
+      "target": "src/renderer/src/components/terminal-pane/terminal-shutdown-layout-capture.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/terminal-shutdown-layout-capture.test.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-terminal-shutdown-layout-capture.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-shutdown-layout-capture.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/terminal-shutdown-layout-capture.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-terminal-startup-command-paste.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-startup-command-paste.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/terminal-startup-command-paste.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-terminal-visibility-resume.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-visibility-resume.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/terminal-visibility-resume.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-use-terminal-pane-chat-state.ts",
+      "target": "src/renderer/src/components/terminal-pane/use-terminal-pane-chat-state.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/use-terminal-pane-chat-state.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-use-terminal-pane-foundation.ts",
+      "target": "src/renderer/src/components/terminal-pane/use-terminal-pane-foundation.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/use-terminal-pane-foundation.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-use-terminal-pane-global-effects.ts",
+      "target": "src/renderer/src/components/terminal-pane/use-terminal-pane-global-effects.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/use-terminal-pane-global-effects.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-use-terminal-pane-layout-persistence.t",
+      "target": "src/renderer/src/components/terminal-pane/use-terminal-pane-layout-persistence.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/use-terminal-pane-layout-persistence.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-use-terminal-pane-lifecycle-refs.ts",
+      "target": "src/renderer/src/components/terminal-pane/use-terminal-pane-lifecycle-refs.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/use-terminal-pane-lifecycle-refs.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-use-terminal-pane-lifecycle.ts",
+      "target": "src/renderer/src/components/terminal-pane/use-terminal-pane-lifecycle.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/use-terminal-pane-lifecycle.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-use-terminal-pane-mobile-actions.ts",
+      "target": "src/renderer/src/components/terminal-pane/use-terminal-pane-mobile-actions.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/use-terminal-pane-mobile-actions.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-use-terminal-scroll-visibility-memory.",
+      "target": "src/renderer/src/components/terminal-pane/use-terminal-scroll-visibility-memory.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/use-terminal-scroll-visibility-memory.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-search-long-wrapped-line.test.ts",
+      "target": "src/renderer/src/components/terminal-search-long-wrapped-line.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-search-long-wrapped-line.test.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-search-safe-find.ts",
+      "target": "src/renderer/src/components/terminal-search-safe-find.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-search-safe-find.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-lib-pane-manager-pane-container-listener-lifecycle.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-container-listener-lifecycle.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/lib/pane-manager/pane-container-listener-lifecycle.test.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-lib-pane-manager-pane-cursor-blink-suspension.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-cursor-blink-suspension.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/lib/pane-manager/pane-cursor-blink-suspension.test.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-lib-pane-manager-pane-drag-reorder.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-drag-reorder.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/lib/pane-manager/pane-drag-reorder.test.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-lib-pane-manager-pane-drop-no-op.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-drop-no-op.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/lib/pane-manager/pane-drop-no-op.test.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-lib-pane-manager-pane-fit-measurability.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-fit-measurability.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/lib/pane-manager/pane-fit-measurability.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-lib-pane-manager-pane-fit-resize-observer.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-fit-resize-observer.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/lib/pane-manager/pane-fit-resize-observer.test.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-lib-pane-manager-pane-fit-resize-observer.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-fit-resize-observer.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/lib/pane-manager/pane-fit-resize-observer.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-lib-pane-manager-pane-fit.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-fit.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/lib/pane-manager/pane-fit.test.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-lib-pane-manager-pane-fit.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-fit.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/lib/pane-manager/pane-fit.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-lib-pane-manager-pane-initial-fit-lifecycle.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-initial-fit-lifecycle.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/lib/pane-manager/pane-initial-fit-lifecycle.test.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-lib-pane-manager-pane-lifecycle.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-lifecycle.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/lib/pane-manager/pane-lifecycle.test.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-lib-pane-manager-pane-lifecycle.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-lifecycle.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/lib/pane-manager/pane-lifecycle.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-lib-pane-manager-pane-manager-pane-creation.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-manager-pane-creation.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/lib/pane-manager/pane-manager-pane-creation.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-lib-pane-manager-pane-manager.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-manager.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/lib/pane-manager/pane-manager.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-lib-pane-manager-pane-metric-options-deferral.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-metric-options-deferral.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/lib/pane-manager/pane-metric-options-deferral.test.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-lib-pane-manager-pane-metric-options-deferral.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-metric-options-deferral.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/lib/pane-manager/pane-metric-options-deferral.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-lib-pane-manager-pane-rendering-control.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-rendering-control.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/lib/pane-manager/pane-rendering-control.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-lib-pane-manager-pane-rendering-diagnostics.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-rendering-diagnostics.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/lib/pane-manager/pane-rendering-diagnostics.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-lib-pane-manager-pane-reveal-fit.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-reveal-fit.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/lib/pane-manager/pane-reveal-fit.test.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-lib-pane-manager-pane-reveal-fit.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-reveal-fit.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/lib/pane-manager/pane-reveal-fit.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-lib-pane-manager-pane-reveal-repaint.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-reveal-repaint.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/lib/pane-manager/pane-reveal-repaint.test.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-lib-pane-manager-pane-split-close.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-split-close.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/lib/pane-manager/pane-split-close.test.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-lib-pane-manager-pane-split-close.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-split-close.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/lib/pane-manager/pane-split-close.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-lib-pane-manager-pane-split-scroll.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-split-scroll.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/lib/pane-manager/pane-split-scroll.test.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-lib-pane-manager-pane-split-scroll.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-split-scroll.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/lib/pane-manager/pane-split-scroll.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-lib-pane-manager-pane-terminal-gpu-acceleration.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-terminal-gpu-acceleration.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/lib/pane-manager/pane-terminal-gpu-acceleration.test.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-lib-pane-manager-pane-terminal-gpu-acceleration.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-terminal-gpu-acceleration.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/lib/pane-manager/pane-terminal-gpu-acceleration.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-lib-pane-manager-pane-tree-ops.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-tree-ops.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/lib/pane-manager/pane-tree-ops.test.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-lib-pane-manager-pane-tree-ops.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-tree-ops.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/lib/pane-manager/pane-tree-ops.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-lib-pane-manager-pane-tree-reparent-frame.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-tree-reparent-frame.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/lib/pane-manager/pane-tree-reparent-frame.test.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-lib-pane-manager-pane-webgl-context-recovery.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-webgl-context-recovery.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/lib/pane-manager/pane-webgl-context-recovery.test.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-lib-pane-manager-pane-webgl-reattach.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-webgl-reattach.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/lib/pane-manager/pane-webgl-reattach.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-lib-pane-manager-pane-webgl-refresh-lifecycle.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-webgl-refresh-lifecycle.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/lib/pane-manager/pane-webgl-refresh-lifecycle.test.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-lib-pane-manager-pane-webgl-renderer.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-webgl-renderer.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/lib/pane-manager/pane-webgl-renderer.test.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-lib-pane-manager-pane-webgl-renderer.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-webgl-renderer.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/lib/pane-manager/pane-webgl-renderer.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-lib-pane-manager-terminal-scroll-intent-key-retention.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/terminal-scroll-intent-key-retention.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/lib/pane-manager/terminal-scroll-intent-key-retention.test.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-lib-pane-manager-terminal-webgl-hidden-retention.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/terminal-webgl-hidden-retention.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/lib/pane-manager/terminal-webgl-hidden-retention.test.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-lib-pane-manager-terminal-webgl-hidden-retention.ts",
+      "target": "src/renderer/src/lib/pane-manager/terminal-webgl-hidden-retention.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/lib/pane-manager/terminal-webgl-hidden-retention.ts",
+      "reason": "D0-R: contain xterm behind PaneTerminal / XtermPaneState"
+    },
+    {
+      "id": "gate-d0-add-src-renderer-src-lib-pane-manager-fake-pane-terminal-ts",
+      "target": "src/renderer/src/lib/pane-manager/fake-pane-terminal.ts",
+      "mode": "add",
+      "source": "src/renderer/src/lib/pane-manager/fake-pane-terminal.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D0-R: added xterm-neutral or implementation file"
+    },
+    {
+      "id": "gate-d0-add-xterm-pane-test-harness",
+      "target": "src/renderer/src/lib/pane-manager/xterm-renderer/xterm-pane-test-harness.ts",
+      "mode": "add",
+      "source": "src/renderer/src/lib/pane-manager/xterm-renderer/xterm-pane-test-harness.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D0-R: implementation-test harness for XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-layout-serialization-test",
+      "target": "src/renderer/src/components/terminal-pane/layout-serialization.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/layout-serialization.test.ts",
+      "reason": "D0-R: snapshot restore fixture registers XtermPaneState"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-issue-4631-terminal-hover-link-provide",
+      "target": "src/renderer/src/components/terminal-pane/issue-4631-terminal-hover-link-provider.repro.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/issue-4631-terminal-hover-link-provider.repro.test.ts",
+      "reason": "D0-R: migrate renderer test fixtures to XtermPaneState harness"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-keyboard-handlers.test.ts",
+      "target": "src/renderer/src/components/terminal-pane/keyboard-handlers.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/keyboard-handlers.test.ts",
+      "reason": "D0-R: migrate renderer test fixtures to XtermPaneState harness"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-remote-hidden-output-restore-outcomes.",
+      "target": "src/renderer/src/components/terminal-pane/remote-hidden-output-restore-outcomes.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/remote-hidden-output-restore-outcomes.test.ts",
+      "reason": "D0-R: migrate renderer test fixtures to XtermPaneState harness"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-remote-hidden-output-restore-unavailab",
+      "target": "src/renderer/src/components/terminal-pane/remote-hidden-output-restore-unavailable-banner.repro.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/remote-hidden-output-restore-unavailable-banner.repro.test.ts",
+      "reason": "D0-R: migrate renderer test fixtures to XtermPaneState harness"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-terminal-cursor-inactive-style.test.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-cursor-inactive-style.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/terminal-cursor-inactive-style.test.ts",
+      "reason": "D0-R: migrate renderer test fixtures to XtermPaneState harness"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-terminal-link-provider-batching.test.t",
+      "target": "src/renderer/src/components/terminal-pane/terminal-link-provider-batching.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/terminal-link-provider-batching.test.ts",
+      "reason": "D0-R: migrate renderer test fixtures to XtermPaneState harness"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-terminal-link-provider-buffer-fixtures",
+      "target": "src/renderer/src/components/terminal-pane/terminal-link-provider-buffer-fixtures.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/terminal-link-provider-buffer-fixtures.ts",
+      "reason": "D0-R: migrate renderer test fixtures to XtermPaneState harness"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-terminal-link-provider-link-detection.",
+      "target": "src/renderer/src/components/terminal-pane/terminal-link-provider-link-detection.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/terminal-link-provider-link-detection.test.ts",
+      "reason": "D0-R: migrate renderer test fixtures to XtermPaneState harness"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-terminal-link-worktree-root-activation",
+      "target": "src/renderer/src/components/terminal-pane/terminal-link-worktree-root-activation.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/terminal-link-worktree-root-activation.test.ts",
+      "reason": "D0-R: migrate renderer test fixtures to XtermPaneState harness"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-terminal-link-wsl-path-mapping.test.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-link-wsl-path-mapping.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/terminal-link-wsl-path-mapping.test.ts",
+      "reason": "D0-R: migrate renderer test fixtures to XtermPaneState harness"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-terminal-programmatic-text-paste.test.",
+      "target": "src/renderer/src/components/terminal-pane/terminal-programmatic-text-paste.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/terminal-programmatic-text-paste.test.ts",
+      "reason": "D0-R: migrate renderer test fixtures to XtermPaneState harness"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-terminal-render-desync-weight-probe.te",
+      "target": "src/renderer/src/components/terminal-pane/terminal-render-desync-weight-probe.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/terminal-render-desync-weight-probe.test.ts",
+      "reason": "D0-R: migrate renderer test fixtures to XtermPaneState harness"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-terminal-restore-sgr-latch.test.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-restore-sgr-latch.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/terminal-restore-sgr-latch.test.ts",
+      "reason": "D0-R: migrate renderer test fixtures to XtermPaneState harness"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-terminal-view-attributes-publisher.tes",
+      "target": "src/renderer/src/components/terminal-pane/terminal-view-attributes-publisher.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/terminal-view-attributes-publisher.test.ts",
+      "reason": "D0-R: migrate renderer test fixtures to XtermPaneState harness"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-terminal-visibility-resume.test.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-visibility-resume.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/terminal-visibility-resume.test.ts",
+      "reason": "D0-R: migrate renderer test fixtures to XtermPaneState harness"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-use-terminal-pane-global-effects-activ",
+      "target": "src/renderer/src/components/terminal-pane/use-terminal-pane-global-effects-active-pty-reporting.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/use-terminal-pane-global-effects-active-pty-reporting.test.ts",
+      "reason": "D0-R: migrate renderer test fixtures to XtermPaneState harness"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-use-terminal-pane-global-effects-paste",
+      "target": "src/renderer/src/components/terminal-pane/use-terminal-pane-global-effects-paste-events.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/use-terminal-pane-global-effects-paste-events.test.ts",
+      "reason": "D0-R: migrate renderer test fixtures to XtermPaneState harness"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-use-terminal-pane-global-effects-visib",
+      "target": "src/renderer/src/components/terminal-pane/use-terminal-pane-global-effects-visibility-resume.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/use-terminal-pane-global-effects-visibility-resume.test.ts",
+      "reason": "D0-R: migrate renderer test fixtures to XtermPaneState harness"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-use-terminal-pane-global-effects-windo",
+      "target": "src/renderer/src/components/terminal-pane/use-terminal-pane-global-effects-window-focus-recovery.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/use-terminal-pane-global-effects-window-focus-recovery.test.ts",
+      "reason": "D0-R: migrate renderer test fixtures to XtermPaneState harness"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-components-terminal-pane-use-terminal-scroll-visibility-memory.",
+      "target": "src/renderer/src/components/terminal-pane/use-terminal-scroll-visibility-memory.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/components/terminal-pane/use-terminal-scroll-visibility-memory.test.ts",
+      "reason": "D0-R: migrate renderer test fixtures to XtermPaneState harness"
+    },
+    {
+      "id": "gate-d0-r-src-renderer-src-lib-launch-agent-in-new-tab-host-resolution.test.ts",
+      "target": "src/renderer/src/lib/launch-agent-in-new-tab-host-resolution.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/renderer/src/lib/launch-agent-in-new-tab-host-resolution.test.ts",
+      "reason": "D0-R: migrate renderer test fixtures to XtermPaneState harness"
+    },
+    {
+      "id": "gate-d0-r-tui-agent-startup-test",
+      "target": "src/shared/tui-agent-startup.test.ts",
+      "mode": "replace",
+      "source": "overlay/d0-r/src/shared/tui-agent-startup.test.ts",
+      "reason": "D0-R: Horca CLI name in agent startup fixture"
     }
   ]
 }

@@ -1,0 +1,63 @@
+{
+  "errorCountInitial": 187,
+  "errorCountAfterNeutralPane": 280,
+  "distinctArchitecturalCauses": 7,
+  "buckets": [
+    {
+      "cause": "PaneTerminal passed where implementation helper expects @xterm Terminal",
+      "diagnosticCount": 116,
+      "distinctProductionFiles": 18,
+      "distinctTestFiles": 14,
+      "ownership": "TERMINAL_IMPLEMENTATION helpers still typed to Terminal; call sites pass pane.terminal",
+      "fixStrategy": "Implementation helpers keep Terminal/XtermPaneState parameters. Call sites inside the enclave pass requireXtermPaneState(pane.terminal).term. Do not add PaneTerminal methods for this."
+    },
+    {
+      "cause": "test fixtures still shape ManagedPane with fitAddon/searchAddon/serializeAddon or incomplete MockPaneTerminal",
+      "diagnosticCount": 80,
+      "distinctProductionFiles": 0,
+      "distinctTestFiles": 20,
+      "ownership": "TEST_ONLY",
+      "fixStrategy": "Implementation tests construct XtermPaneState. External tests use FakePaneTerminal with only behavioral methods. No fake addons."
+    },
+    {
+      "cause": "fitAddon/searchAddon/serializeAddon still read from ManagedPane",
+      "diagnosticCount": 33,
+      "distinctProductionFiles": 15,
+      "distinctTestFiles": 8,
+      "ownership": "mix of IMPLEMENTATION (use requireXtermPaneState) and CALLER (use PaneTerminal.fit/find/serialize)",
+      "fixStrategy": "Implementation: requireXtermPaneState(pane.terminal).fitAddon. Callers: pane.terminal.proposeDimensions/fit/findNext/serialize."
+    },
+    {
+      "cause": "pane.terminal.loadAddon and other Terminal-only members on PaneTerminal",
+      "diagnosticCount": 31,
+      "distinctProductionFiles": 8,
+      "distinctTestFiles": 4,
+      "ownership": "TERMINAL_IMPLEMENTATION",
+      "fixStrategy": "Use requireXtermPaneState(pane.terminal).term.loadAddon. Not a PaneTerminal method."
+    },
+    {
+      "cause": "webglAddon/ligaturesAddon/unicode11Addon/webLinksAddon still on ManagedPaneInternal",
+      "diagnosticCount": 24,
+      "distinctProductionFiles": 6,
+      "distinctTestFiles": 4,
+      "ownership": "TERMINAL_IMPLEMENTATION",
+      "fixStrategy": "Those fields live only on XtermPaneState."
+    },
+    {
+      "cause": "UNRELATED_LEAK IDisposable from @xterm in keyboard deps",
+      "diagnosticCount": 1,
+      "distinctProductionFiles": 1,
+      "distinctTestFiles": 0,
+      "ownership": "UNRELATED_LEAK",
+      "fixStrategy": "Use { dispose(): void } / OrcaDisposable. Do not move the file into the terminal module."
+    },
+    {
+      "cause": "other / substring rewrite fallout",
+      "diagnosticCount": 6,
+      "distinctProductionFiles": 4,
+      "distinctTestFiles": 2,
+      "ownership": "UNKNOWN",
+      "fixStrategy": "Fix remaining identifier mistakes; do not add interface methods."
+    }
+  ]
+}

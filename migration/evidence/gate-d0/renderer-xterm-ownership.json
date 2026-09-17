@@ -1,0 +1,2163 @@
+{
+  "note": "Ownership of every renderer production/test file that imports @xterm. Classification is ownership, not import-count.",
+  "summary": {
+    "TERMINAL_CALLER": 8,
+    "TERMINAL_IMPLEMENTATION": 84,
+    "TEST_ONLY": 81,
+    "UNRELATED_LEAK": 1
+  },
+  "files": [
+    {
+      "path": "src/renderer/src/components/TerminalSearch.tsx",
+      "classification": "TERMINAL_CALLER",
+      "reason": "search UI should consume PaneTerminal.findNext/findPrevious, not SearchAddon",
+      "xtermSymbolsConsumed": [
+        "SearchAddon"
+      ],
+      "packages": [
+        "@xterm/addon-search"
+      ],
+      "behaviorOwned": "search UI should consume PaneTerminal.findNext/findPrevious, not SearchAddon"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/use-terminal-pane-foundation.ts",
+      "classification": "TERMINAL_CALLER",
+      "reason": "React pane hook reaches xterm types",
+      "xtermSymbolsConsumed": [
+        "IDisposable"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "React pane hook reaches xterm types"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/use-terminal-pane-global-effects.ts",
+      "classification": "TERMINAL_CALLER",
+      "reason": "React pane hook reaches xterm types",
+      "xtermSymbolsConsumed": [
+        "IDisposable"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "React pane hook reaches xterm types"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/use-terminal-pane-lifecycle-refs.ts",
+      "classification": "TERMINAL_CALLER",
+      "reason": "pane React lifecycle orchestrates xterm disposables and should call PaneTerminal",
+      "xtermSymbolsConsumed": [
+        "IDisposable"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "pane React lifecycle orchestrates xterm disposables and should call PaneTerminal"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/use-terminal-pane-lifecycle.ts",
+      "classification": "TERMINAL_CALLER",
+      "reason": "pane React lifecycle orchestrates xterm disposables and should call PaneTerminal",
+      "xtermSymbolsConsumed": [
+        "IDisposable"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "pane React lifecycle orchestrates xterm disposables and should call PaneTerminal"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-search-safe-find.ts",
+      "classification": "TERMINAL_CALLER",
+      "reason": "search UI should consume PaneTerminal.findNext/findPrevious, not SearchAddon",
+      "xtermSymbolsConsumed": [
+        "SearchAddon"
+      ],
+      "packages": [
+        "@xterm/addon-search"
+      ],
+      "behaviorOwned": "search UI should consume PaneTerminal.findNext/findPrevious, not SearchAddon"
+    },
+    {
+      "path": "src/renderer/src/lib/pane-manager/pane-manager-types.ts",
+      "classification": "TERMINAL_CALLER",
+      "reason": "public pane types currently leak xterm addon classes; D0-R cut",
+      "xtermSymbolsConsumed": [
+        "FitAddon",
+        "IDisposable",
+        "IMarker",
+        "ITerminalOptions",
+        "LigaturesAddon",
+        "SearchAddon",
+        "SerializeAddon",
+        "Terminal",
+        "Unicode11Addon",
+        "WebLinksAddon",
+        "WebglAddon"
+      ],
+      "packages": [
+        "@xterm/addon-fit",
+        "@xterm/addon-ligatures",
+        "@xterm/addon-search",
+        "@xterm/addon-serialize",
+        "@xterm/addon-unicode11",
+        "@xterm/addon-web-links",
+        "@xterm/addon-webgl",
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "public pane types currently leak xterm addon classes; D0-R cut"
+    },
+    {
+      "path": "src/renderer/src/components/dashboard-popout/AgentTerminalPreview.tsx",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "constructs and owns an xterm instance for preview",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "constructs and owns an xterm instance for preview"
+    },
+    {
+      "path": "src/renderer/src/components/dashboard-popout/preview-terminal-app-menu-clipboard.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "preview terminal xterm wiring",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "preview terminal xterm wiring"
+    },
+    {
+      "path": "src/renderer/src/components/dashboard-popout/preview-terminal-box-fit.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "preview terminal xterm wiring",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "preview terminal xterm wiring"
+    },
+    {
+      "path": "src/renderer/src/components/dashboard-popout/preview-terminal-compatibility.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "preview terminal xterm wiring",
+      "xtermSymbolsConsumed": [
+        "Terminal",
+        "Unicode11Addon"
+      ],
+      "packages": [
+        "@xterm/addon-unicode11",
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "preview terminal xterm wiring"
+    },
+    {
+      "path": "src/renderer/src/components/dashboard-popout/preview-terminal-ime-bridge.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "preview terminal xterm wiring",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "preview terminal xterm wiring"
+    },
+    {
+      "path": "src/renderer/src/components/dashboard-popout/preview-terminal-key-handler.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "preview terminal xterm wiring",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "preview terminal xterm wiring"
+    },
+    {
+      "path": "src/renderer/src/components/dashboard-popout/preview-terminal-ligatures.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "preview terminal xterm wiring",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "preview terminal xterm wiring"
+    },
+    {
+      "path": "src/renderer/src/components/dashboard-popout/preview-terminal-links.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "preview terminal xterm wiring",
+      "xtermSymbolsConsumed": [
+        "Terminal",
+        "WebLinksAddon"
+      ],
+      "packages": [
+        "@xterm/addon-web-links",
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "preview terminal xterm wiring"
+    },
+    {
+      "path": "src/renderer/src/components/dashboard-popout/preview-terminal-options.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "preview terminal xterm wiring",
+      "xtermSymbolsConsumed": [
+        "ITerminalInitOnlyOptions",
+        "ITerminalOptions",
+        "ITheme"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "preview terminal xterm wiring"
+    },
+    {
+      "path": "src/renderer/src/components/dashboard-popout/preview-terminal-paste.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "preview terminal xterm wiring",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "preview terminal xterm wiring"
+    },
+    {
+      "path": "src/renderer/src/components/dashboard-popout/preview-terminal-right-click-paste.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "preview terminal xterm wiring",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "preview terminal xterm wiring"
+    },
+    {
+      "path": "src/renderer/src/components/settings/TerminalSettingsPreview.tsx",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "constructs and owns an xterm instance for preview",
+      "xtermSymbolsConsumed": [
+        "LigaturesAddon",
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/addon-ligatures",
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "constructs and owns an xterm instance for preview"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/edge-wrapped-terminal-http-links.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "IBufferLine"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/hard-wrapped-terminal-http-links.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "IBufferLine"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/hidden-output-restore-scheduler.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/mouse-hide-while-typing.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "IDisposable"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/pty-buffer-serializer.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "IDisposable"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/pty-connection-test-async.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/headless"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/pty-connection/cursor-agent-reattach-screen.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "IBuffer"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/pty-connection/pane-pty-binding.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "IDisposable"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-appearance.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "ITheme"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-bracketed-paste.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-capability-replies.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "IDisposable",
+        "IParser",
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-captured-input-dispatch.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "IDisposable"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-clipboard-selection-text.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-command-lifecycle.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "IDisposable",
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-file-link-hit-testing.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "IBufferLine",
+        "IBufferRange"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-freeze-breadcrumbs.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [],
+      "packages": [],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-handle-links.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "ILink",
+        "ILinkProvider",
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-ime-composer-placeholder-mask.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "IDisposable",
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-ime-composition-route.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "IDisposable",
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-ime-composition-tracker.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "IDisposable"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-ime-native-text-forwarder.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "IDisposable"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-ios-hangul-preedit-fixture.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-ios-hangul-preedit-overlay.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-ios-hangul-preedit.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "IDisposable"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-keyboard-runtime.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "IDisposable"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-link-handlers.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "IDisposable",
+        "ILink",
+        "ILinkProvider",
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-link-pointer-gesture.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "IDisposable",
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-link-provider-buffer-fixtures.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "IDisposable",
+        "ILink"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-link-pty-mouse-suppression.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "IDisposable",
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-linkifier-click-priming.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "IDisposable",
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-mouse-buffer-position.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-native-copy-gutter.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "IDisposable",
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-pane-lifecycle-primitives.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-pane-lifecycle-types.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "IDisposable"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-pane-manager-options.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "IDisposable"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-pane-pane-input.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "IDisposable"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-render-desync-weight-probe.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [],
+      "packages": [],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-selection-copy.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-url-link-hit-testing.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "IBufferLine",
+        "IBufferRange",
+        "IDisposable",
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-user-input-signal.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-view-attributes-publisher.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "ITheme"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-web-link-click.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/use-terminal-scroll-visibility-memory.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/use-terminal-window-wake-recovery.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "IDisposable"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/wrapped-terminal-link-ranges.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "IBufferLine",
+        "IBufferRange"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/lib/pane-manager/pane-cursor-blink-suspension.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/lib/pane-manager/pane-dom-creation.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "FitAddon",
+        "ITerminalOptions",
+        "SearchAddon",
+        "SerializeAddon",
+        "Terminal",
+        "Unicode11Addon",
+        "WebLinksAddon"
+      ],
+      "packages": [
+        "@xterm/addon-fit",
+        "@xterm/addon-search",
+        "@xterm/addon-serialize",
+        "@xterm/addon-unicode11",
+        "@xterm/addon-web-links",
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/lib/pane-manager/pane-scroll.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/lib/pane-manager/pane-split-scroll.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "IBuffer",
+        "IDisposable"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/lib/pane-manager/pane-terminal-mouse-wheel.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/lib/pane-manager/pane-terminal-options.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "ITerminalOptions"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/lib/pane-manager/pane-webgl-renderer.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "WebglAddon"
+      ],
+      "packages": [
+        "@xterm/addon-webgl"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/lib/pane-manager/terminal-arabic-shaping-joiner.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/lib/pane-manager/terminal-ime-anchor.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "IBuffer",
+        "IBufferCell",
+        "IBufferLine"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/lib/pane-manager/terminal-ime-candidate-anchor.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/lib/pane-manager/terminal-keyboard-protocol.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "ITerminalOptions"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/lib/pane-manager/terminal-ligatures-addon.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "LigaturesAddon",
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/addon-ligatures",
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/lib/pane-manager/terminal-link-provider-guard.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "ILinkProvider",
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/lib/pane-manager/terminal-linkifier-hover-reset-on-mouseleave.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "IDisposable",
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/lib/pane-manager/terminal-linkifier-hover-reset-on-write.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "IDisposable",
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/lib/pane-manager/terminal-linkifier-hover-reset.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/lib/pane-manager/terminal-reflow-scroll-anchor.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/lib/pane-manager/terminal-scroll-intent-dom-tracking.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "IDisposable"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/lib/pane-manager/terminal-viewport-scrollbar-sync.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/lib/pane-manager/terminal-webgl-addon-loader.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "WebglAddon"
+      ],
+      "packages": [
+        "@xterm/addon-webgl"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/lib/pane-manager/terminal-windows-ctrl-alt-chord-classification.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/lib/pane-manager/windows-pty-compatibility.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "ITerminalOptions"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/lib/pane-manager/xterm-renderer/xterm-pane-terminal.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "renderer terminal module",
+      "xtermSymbolsConsumed": [
+        "FitAddon",
+        "ITerminalOptions",
+        "SearchAddon",
+        "SerializeAddon",
+        "Terminal",
+        "Unicode11Addon",
+        "WebLinksAddon"
+      ],
+      "packages": [
+        "@xterm/addon-fit",
+        "@xterm/addon-search",
+        "@xterm/addon-serialize",
+        "@xterm/addon-unicode11",
+        "@xterm/addon-web-links",
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "renderer terminal module"
+    },
+    {
+      "path": "src/renderer/src/lib/terminal-theme.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "ITheme"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/lib/terminal-themes-data.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "ITheme"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/lib/terminal-themes/types.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "ITheme"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/lib/typing-latency/echo-instrumentation.ts",
+      "classification": "TERMINAL_IMPLEMENTATION",
+      "reason": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "implements terminal behavior (fit/search/links/ime/scroll/renderer/addon lifecycle or input translation)"
+    },
+    {
+      "path": "src/renderer/src/components/TerminalSearch.test.tsx",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "SearchAddon"
+      ],
+      "packages": [
+        "@xterm/addon-search"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/dashboard-popout/AgentTerminalPreview.clipboard-routes.test.tsx",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [],
+      "packages": [],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/dashboard-popout/AgentTerminalPreview.option-dead-key.test.tsx",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [],
+      "packages": [],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/dashboard-popout/AgentTerminalPreview.test.tsx",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [],
+      "packages": [],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/dashboard-popout/preview-terminal-ime-bridge-kitty-bytes.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/native-chat/claude-terminal-session-options.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [],
+      "packages": [],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/settings/TerminalSettingsPreview.lifecycle.test.tsx",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [],
+      "packages": [],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/edge-wrapped-terminal-http-links.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "IBufferLine"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/hard-wrapped-terminal-http-links.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "IBufferLine"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/issue-12112-agent-pane-startup-color-reply-leak.repro.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/headless"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/issue-4631-terminal-hover-link-provider.repro.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "IDisposable",
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/headless",
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/pty-buffer-serializer.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "IDisposable"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/pty-connection-cold-restore-repaint.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/headless"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/pty-connection-daemon-snapshot-replay.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/headless"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/pty-connection-remote-snapshot-source-grid.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [],
+      "packages": [],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/pty-input-write-queue.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/headless"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/remote-runtime-pty-transport-snapshot-replay.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/headless"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/repro-8832-url-next-line.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "IBufferLine"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-alternate-screen-parse.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/headless"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-capability-replies.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/headless"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-cjk-cursor-cell-placement.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-cursor-appearance-precedence.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-handle-links.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "ILink"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-ime-composer-placeholder-mask.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-ime-forwarder-space-claim.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-ime-hangul-syllable-flush.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-ime-macos-keybinding-dict-trace.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-ime-substituted-text-commit.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-ime-won-composition-order.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-ime-xterm-adversarial.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-ime-xterm-cancelled-preedit-visibility.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-ime-xterm-composition-cancel.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-ime-xterm-composition-deduplication.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-ime-xterm-consumed-key-commit.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-ime-xterm-korean-enter-commit-order.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-ime-xterm-linux-native-trace-replay.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-ime-xterm-midline-preedit-tail.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-ime-xterm-resumed-preedit-visibility.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-ime-xterm-trailing-preedit-occlusion.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-ime-xterm-transaction-events.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-ime-xterm-windows-resumed-preedit-trace.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-link-click-fallback.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "IDisposable"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-link-pointer-gesture.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-link-provider-batching.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "ILink"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-link-provider-link-detection.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "IDisposable",
+        "ILink"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-link-pty-mouse-suppression.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-link-worktree-root-activation.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "ILink"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-link-wsl-path-mapping.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "ILink"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-linkifier-click-priming.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-parser-handler-guard.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/headless"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-replay-application-continuity.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/headless"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-replay-cursor-state.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/headless"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-restore-sgr-latch.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "SerializeAddon",
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/addon-serialize",
+        "@xterm/headless"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-restored-viewport.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/headless"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-runtime-host-link-routing.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "IBufferLine",
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-snapshot-replay-paint.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/headless"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-url-link-click.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "IBufferLine",
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-user-input-signal.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/xterm-write-buffer-stall.repro.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/headless"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-scrollback-decoration-eviction.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "SearchAddon",
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/addon-search",
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-search-decoration-leak.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "SearchAddon",
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/addon-search",
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-search-long-wrapped-line.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "ISearchOptions",
+        "SearchAddon",
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/addon-search",
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-search-safe-find.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [],
+      "packages": [],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/lib/pane-manager/pane-cursor-blink-suspension.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/lib/pane-manager/pane-dom-creation.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [],
+      "packages": [],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/lib/pane-manager/pane-lifecycle.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "ITerminalAddon",
+        "WebglAddon"
+      ],
+      "packages": [
+        "@xterm/addon-webgl",
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/lib/pane-manager/pane-scroll.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "IMarker",
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/headless",
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/lib/pane-manager/pane-webgl-renderer.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "WebglAddon"
+      ],
+      "packages": [
+        "@xterm/addon-webgl"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/lib/pane-manager/terminal-foreground-repair-convergence.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/headless"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/lib/pane-manager/terminal-ime-anchor.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "IBuffer",
+        "IBufferCell",
+        "IBufferLine"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/lib/pane-manager/terminal-ime-candidate-anchor.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "IBuffer",
+        "IBufferCell",
+        "IBufferLine",
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/lib/pane-manager/terminal-ligatures-addon.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/lib/pane-manager/terminal-link-provider-guard.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "ILink",
+        "ILinkProvider",
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/lib/pane-manager/terminal-linkifier-hover-reset-on-mouseleave.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/lib/pane-manager/terminal-linkifier-hover-reset-on-write.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/lib/pane-manager/terminal-linkifier-hover-reset.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/lib/pane-manager/terminal-windows-ctrl-alt-chord-classification.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/lib/pane-manager/windows-pty-compatibility.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/headless"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/lib/pane-manager/xterm-instance-disposed.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/lib/pane-manager/xterm-user-scrolling-contract.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal",
+        "headlessPackageJson",
+        "xtermPackageJson"
+      ],
+      "packages": [
+        "@xterm/headless",
+        "@xterm/headless/package.json",
+        "@xterm/xterm/package.json"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/lib/typing-latency/echo-instrumentation.test.ts",
+      "classification": "TEST_ONLY",
+      "reason": "tests the xterm implementation or fixtures",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "tests the xterm implementation or fixtures"
+    },
+    {
+      "path": "src/renderer/src/components/dashboard-popout/preview-grid-claim.ts",
+      "classification": "TERMINAL_CALLER",
+      "reason": "Measures preview PTY grid via xterm Terminal and .xterm-screen DOM. Should call PaneTerminal.proposeDimensions().",
+      "xtermSymbolsConsumed": [
+        "Terminal"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "preview grid claim; xterm DOM leak"
+    },
+    {
+      "path": "src/renderer/src/components/terminal-pane/terminal-keyboard-dependencies.ts",
+      "classification": "UNRELATED_LEAK",
+      "reason": "Only uses IDisposable as a dispose handle for PTY bindings. Replace with a local { dispose(): void } / OrcaDisposable.",
+      "xtermSymbolsConsumed": [
+        "IDisposable"
+      ],
+      "packages": [
+        "@xterm/xterm"
+      ],
+      "behaviorOwned": "keyboard deps bag; not terminal behavior"
+    }
+  ]
+}

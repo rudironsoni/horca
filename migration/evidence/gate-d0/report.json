@@ -1,0 +1,22 @@
+{
+  "D0-H": "PASS",
+  "D0-R": "PASS",
+  "Gate D0": "PASS",
+  "typecheckWeb": 0,
+  "typecheckNode": 0,
+  "containmentRenderer": "PASS",
+  "containmentHeadless": "PASS",
+  "productIdentity": "PASS",
+  "buildIdentitySchema": "schema-4",
+  "app": "Horca.app",
+  "bundleId": "com.rudironsoni.horca",
+  "rendererSuite": {
+    "filesPassed": 3800,
+    "filesSkipped": 2,
+    "testsPassed": 31905,
+    "testsSkipped": 7
+  },
+  "ghostty": false,
+  "herdr": false,
+  "committed": true
+}

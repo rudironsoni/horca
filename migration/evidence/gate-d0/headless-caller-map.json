@@ -1,0 +1,60 @@
+{
+  "note": "Production HeadlessEmulator callers and xterm type leakage. Tests excluded.",
+  "constructors": [
+    "src/main/daemon/session-output-plane.ts",
+    "src/main/daemon/history-reader.ts",
+    "src/main/daemon/terminal-checkpoint-serializer.ts",
+    "src/main/daemon/daemon-durable-history-snapshot.ts",
+    "src/main/runtime/orca-runtime-visible-snapshot-preview.ts",
+    "src/main/runtime/orca-runtime-create-pty-headless-terminal-state.ts",
+    "src/main/runtime/orca-runtime-capture-provider-terminal-buffer.ts"
+  ],
+  "typeOnlyImporters": [
+    "src/main/runtime/orca-runtime-terminal-projection.ts",
+    "src/main/runtime/runtime-terminal-state-records.ts",
+    "src/main/daemon/session-shell-ready-barrier.ts",
+    "src/main/daemon/cold-restore-replay-writer.ts"
+  ],
+  "operationsCallersUse": [
+    "write",
+    "writeSync",
+    "resize",
+    "getAppliedSize",
+    "getSnapshot",
+    "isAlternateScreen",
+    "partialEscapeTailAnsi",
+    "getVisibleLines",
+    "getCursorLineContext",
+    "getBufferTailLines",
+    "getCwd",
+    "setCwd",
+    "setLastTitle",
+    "setRestoredOscLinks",
+    "clearScrollback",
+    "dispose",
+    "applyPushedViewAttributes",
+    "applyKittyKeyboardFlags",
+    "installViewAttributeResponder",
+    "installConptyPrimaryDeviceAttributesOverride",
+    "disableQueryReplyForwarding",
+    "responderParser"
+  ],
+  "xtermLeak": {
+    "symbol": "HeadlessEmulator.responderParser",
+    "type": "Terminal['parser'] from @xterm/headless",
+    "escapedThrough": [
+      "src/main/daemon/session-output-plane.ts",
+      "src/main/daemon/session-shell-ready-barrier.ts",
+      "src/main/daemon/session.ts"
+    ]
+  },
+  "adapterInternalOnly": [
+    "src/main/daemon/headless-emulator.ts",
+    "src/main/daemon/xterm-env-polyfill.ts",
+    "src/main/daemon/headless-emulator-modes.ts",
+    "src/main/daemon/headless-osc-link-ranges.ts",
+    "src/main/daemon/terminal-frame-restore-sequences.ts",
+    "src/main/daemon/terminal-view-attribute-responder.ts",
+    "src/main/daemon/startup-device-attributes-responder.ts"
+  ]
+}

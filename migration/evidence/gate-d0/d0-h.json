@@ -1,0 +1,11 @@
+{
+  "verdict": "PASS",
+  "question": "Does any production daemon caller outside the headless-terminal implementation consume an @xterm type, object, parser, buffer, addon, or private-core detail?",
+  "answer": "NO",
+  "evidence": {
+    "responderParserType": "HeadlessParser",
+    "headlessVerifier": "PASS",
+    "negativeControl": "import @xterm/headless from session-output-plane.ts -> FAIL; restore -> PASS",
+    "xtermInsideEmulator": "EXPECTED"
+  }
+}

@@ -1,0 +1,1128 @@
+{
+  "note": "Compiler queue after ManagedPane dropped xterm addon fields and typed terminal as PaneTerminal. Next D0-R clusters follow these errors. Do not sweep 90 files.",
+  "errorCount": 187,
+  "errors": [
+    {
+      "file": "src/renderer/src/components/terminal-pane/TerminalPaneHeaderOverlay.test.tsx",
+      "line": 36,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'fitAddon' does not exist in type 'ManagedPane'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/TerminalPaneHeaderOverlay.test.tsx",
+      "line": 36,
+      "code": "TS2339",
+      "message": "Property 'fitAddon' does not exist on type 'ManagedPane'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/TerminalPaneHeaderOverlay.test.tsx",
+      "line": 37,
+      "code": "TS2339",
+      "message": "Property 'searchAddon' does not exist on type 'ManagedPane'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/TerminalPaneHeaderOverlay.test.tsx",
+      "line": 38,
+      "code": "TS2339",
+      "message": "Property 'serializeAddon' does not exist on type 'ManagedPane'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/TerminalPaneSurface.tsx",
+      "line": 212,
+      "code": "TS2339",
+      "message": "Property 'searchAddon' does not exist on type 'ManagedPane'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/pty-connection/apply-reattach-payload.ts",
+      "line": 247,
+      "code": "TS2339",
+      "message": "Property 'fitAddon' does not exist on type 'ManagedPane'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/pty-connection/deferred-cold-restore-and-snapshot.ts",
+      "line": 78,
+      "code": "TS2322",
+      "message": "Type 'ManagedPane' is not assignable to type 'StartupCommandPane'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/pty-connection/direct-ssh-retry-status.ts",
+      "line": 297,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/pty-connection/foreground-output-refresh.ts",
+      "line": 193,
+      "code": "TS2739",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'ArabicShapingTerminal': registerCharacterJoiner, deregisterCharacterJoiner"
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/pty-connection/foreground-output-refresh.ts",
+      "line": 194,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/pty-connection/hidden-output-restore-abandon.ts",
+      "line": 48,
+      "code": "TS2345",
+      "message": "Argument of type 'PaneTerminal' is not assignable to parameter of type 'Partial<Terminal>'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/pty-connection/hidden-output-restore-drain.ts",
+      "line": 77,
+      "code": "TS2345",
+      "message": "Argument of type 'PaneTerminal' is not assignable to parameter of type 'Partial<Terminal>'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/pty-connection/hidden-output-restore-request.ts",
+      "line": 70,
+      "code": "TS2345",
+      "message": "Argument of type 'PaneTerminal' is not assignable to parameter of type 'Partial<Terminal>'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/pty-connection/hidden-output-restore-request.ts",
+      "line": 94,
+      "code": "TS2345",
+      "message": "Argument of type 'PaneTerminal' is not assignable to parameter of type 'Partial<Terminal>'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/pty-connection/hidden-output-restore-snapshot.ts",
+      "line": 166,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/pty-connection/hidden-output-seq-and-skip.ts",
+      "line": 62,
+      "code": "TS2345",
+      "message": "Argument of type 'PaneTerminal' is not assignable to parameter of type 'TerminalLiveScrollbackRestoreTarget'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/pty-connection/hidden-output-seq-and-skip.ts",
+      "line": 117,
+      "code": "TS2345",
+      "message": "Argument of type 'PaneTerminal' is not assignable to parameter of type 'Pick<Terminal, \"options\">'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/pty-connection/hidden-startup-renderer-query-write.ts",
+      "line": 121,
+      "code": "TS2345",
+      "message": "Argument of type 'PaneTerminal' is not assignable to parameter of type 'Pick<Terminal, \"options\">'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/pty-connection/interrupt-input-intent.ts",
+      "line": 150,
+      "code": "TS2345",
+      "message": "Argument of type 'PaneTerminal' is not assignable to parameter of type 'BracketedPasteTerminal'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/pty-connection/live-data-callback.ts",
+      "line": 58,
+      "code": "TS2345",
+      "message": "Argument of type 'PaneTerminal' is not assignable to parameter of type 'BracketedPasteTerminal'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/pty-connection/live-data-callback.ts",
+      "line": 130,
+      "code": "TS2345",
+      "message": "Argument of type 'PaneTerminal' is not assignable to parameter of type 'Pick<Terminal, \"options\">'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/pty-connection/pane-serializer-register.ts",
+      "line": 47,
+      "code": "TS2339",
+      "message": "Property 'serializeAddon' does not exist on type 'ManagedPane'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/pty-connection/pane-serializer-register.ts",
+      "line": 76,
+      "code": "TS2345",
+      "message": "Argument of type 'PaneTerminal' is not assignable to parameter of type 'TerminalScrollbackClearTarget'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/pty-connection/pty-input-forward.ts",
+      "line": 179,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/pty-connection/pty-input-forward.ts",
+      "line": 323,
+      "code": "TS2339",
+      "message": "Property 'fitAddon' does not exist on type 'ManagedPane'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/pty-connection/pty-input-recovery.ts",
+      "line": 188,
+      "code": "TS2322",
+      "message": "Type 'PaneTerminal' is not assignable to type 'Pick<Terminal, \"cols\" | \"element\" | \"options\" | \"rows\">'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/pty-connection/pty-input-recovery.ts",
+      "line": 189,
+      "code": "TS2741",
+      "message": "Property 'registerCsiHandler' is missing in type '{ registerOscHandler: (ident: number, handler: (data: string) => boolean) => OrcaDisposable; }' but required in type 'Pick<IParser, \"registerCsiHandle"
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/pty-connection/pty-input-recovery.ts",
+      "line": 209,
+      "code": "TS2339",
+      "message": "Property 'fitAddon' does not exist on type 'ManagedPane'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/pty-connection/pty-resize-geometry.ts",
+      "line": 64,
+      "code": "TS2339",
+      "message": "Property 'fitAddon' does not exist on type 'ManagedPane'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/pty-connection/reattach-payload-ssh-reconnect-model-paint.test.ts",
+      "line": 113,
+      "code": "TS2339",
+      "message": "Property 'fitAddon' does not exist on type 'ManagedPane'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/pty-connection/reattach-payload-ssh-reconnect-model-paint.test.ts",
+      "line": 134,
+      "code": "TS2339",
+      "message": "Property 'fitAddon' does not exist on type 'ManagedPane'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/pty-connection/reattach-payload-ssh-reconnect-model-paint.test.ts",
+      "line": 154,
+      "code": "TS2339",
+      "message": "Property 'fitAddon' does not exist on type 'ManagedPane'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/pty-connection/reattach-payload-ssh-reconnect-model-paint.test.ts",
+      "line": 177,
+      "code": "TS2339",
+      "message": "Property 'fitAddon' does not exist on type 'ManagedPane'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/pty-connection/replay-data-drain.ts",
+      "line": 62,
+      "code": "TS2345",
+      "message": "Argument of type 'PaneTerminal' is not assignable to parameter of type 'TerminalWithFocusMode'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/pty-connection/setup-split-geometry.ts",
+      "line": 22,
+      "code": "TS2339",
+      "message": "Property 'fitAddon' does not exist on type 'ManagedPane'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/pty-connection/shell-command-inference.ts",
+      "line": 259,
+      "code": "TS2345",
+      "message": "Argument of type 'PaneTerminal' is not assignable to parameter of type 'TerminalWithFocusMode'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/pty-connection/ssh-snapshot-prepaint.ts",
+      "line": 67,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/replay-guard.test.ts",
+      "line": 427,
+      "code": "TS2345",
+      "message": "Argument of type 'FakeTerminal' is not assignable to parameter of type 'ReplayGuardWriteTarget'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/replay-guard.ts",
+      "line": 186,
+      "code": "TS2739",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'ArabicShapingTerminal': registerCharacterJoiner, deregisterCharacterJoiner"
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/replay-guard.ts",
+      "line": 218,
+      "code": "TS2739",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'ArabicShapingTerminal': registerCharacterJoiner, deregisterCharacterJoiner"
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/terminal-agent-session-continuation.test.ts",
+      "line": 94,
+      "code": "TS2339",
+      "message": "Property 'serializeAddon' does not exist on type 'ManagedPane'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/terminal-agent-session-continuation.test.ts",
+      "line": 120,
+      "code": "TS2339",
+      "message": "Property 'serializeAddon' does not exist on type 'ManagedPane'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/terminal-agent-session-continuation.ts",
+      "line": 57,
+      "code": "TS2339",
+      "message": "Property 'serializeAddon' does not exist on type 'ManagedPane'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/terminal-agent-session-fork.ts",
+      "line": 105,
+      "code": "TS2339",
+      "message": "Property 'serializeAddon' does not exist on type 'ManagedPane'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/terminal-agent-session-fork.ts",
+      "line": 140,
+      "code": "TS2339",
+      "message": "Property 'serializeAddon' does not exist on type 'ManagedPane'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/terminal-appearance.test.ts",
+      "line": 202,
+      "code": "TS2339",
+      "message": "Property 'fontWeight' does not exist on type 'PaneTerminalOptions'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/terminal-appearance.test.ts",
+      "line": 203,
+      "code": "TS2339",
+      "message": "Property 'fontWeightBold' does not exist on type 'PaneTerminalOptions'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/terminal-appearance.ts",
+      "line": 187,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/terminal-keyboard-event-handlers.ts",
+      "line": 175,
+      "code": "TS2741",
+      "message": "Property 'searchAddon' is missing in type 'ManagedPane' but required in type 'Pick<ManagedPane, \"searchAddon\">'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/terminal-keyboard-shortcut-matching.ts",
+      "line": 91,
+      "code": "TS2344",
+      "message": "Type '\"searchAddon\"' does not satisfy the constraint 'keyof ManagedPane'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/terminal-keyboard-shortcut-matching.ts",
+      "line": 98,
+      "code": "TS18046",
+      "message": "'pane.searchAddon' is of type 'unknown'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/terminal-keyboard-shortcut-matching.ts",
+      "line": 103,
+      "code": "TS18046",
+      "message": "'pane.searchAddon' is of type 'unknown'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/terminal-pane-manager-options.ts",
+      "line": 165,
+      "code": "TS2322",
+      "message": "Type 'PaneTerminal | null' is not assignable to type 'Terminal | null'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/terminal-pane-menu-paste.ts",
+      "line": 91,
+      "code": "TS2345",
+      "message": "Argument of type 'PaneTerminal' is not assignable to parameter of type 'PasteTerminal'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/terminal-pane-pane-input.ts",
+      "line": 66,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/terminal-pane-pane-input.ts",
+      "line": 71,
+      "code": "TS2339",
+      "message": "Property 'screenReaderMode' does not exist on type 'PaneTerminalOptions'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/terminal-pane-pane-input.ts",
+      "line": 73,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/terminal-pane-pane-input.ts",
+      "line": 142,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/terminal-pane-pane-links.ts",
+      "line": 78,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/terminal-pane-pane-links.ts",
+      "line": 91,
+      "code": "TS2322",
+      "message": "Type 'PaneTerminal | null' is not assignable to type 'Terminal | null'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/terminal-pane-pane-links.ts",
+      "line": 101,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/terminal-pane-pane-links.ts",
+      "line": 105,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/terminal-pane-pane-links.ts",
+      "line": 109,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/terminal-pane-pane-links.ts",
+      "line": 137,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/terminal-pane-pane-links.ts",
+      "line": 151,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/terminal-pane-pane-links.ts",
+      "line": 179,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'allowNonHttpProtocols' does not exist in type '{ activate: (event: MouseEvent, uri: string) => void; hover?: ((event: MouseEvent, uri: string) =>"
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/terminal-pane-paste-execution.ts",
+      "line": 95,
+      "code": "TS2345",
+      "message": "Argument of type 'PaneTerminal' is not assignable to parameter of type 'PasteTerminal'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/terminal-programmatic-text-paste.ts",
+      "line": 68,
+      "code": "TS2345",
+      "message": "Argument of type 'PaneTerminal' is not assignable to parameter of type 'PasteTerminal'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/terminal-render-desync-weight-probe.ts",
+      "line": 116,
+      "code": "TS2339",
+      "message": "Property 'fontWeight' does not exist on type 'PaneTerminalOptions'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/terminal-render-desync-weight-probe.ts",
+      "line": 117,
+      "code": "TS2339",
+      "message": "Property 'fontWeightBold' does not exist on type 'PaneTerminalOptions'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/terminal-shutdown-layout-capture.ts",
+      "line": 14,
+      "code": "TS2344",
+      "message": "Type '\"id\" | \"leafId\" | \"serializeAddon\" | \"terminal\"' does not satisfy the constraint 'keyof ManagedPane'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/terminal-shutdown-layout-capture.ts",
+      "line": 77,
+      "code": "TS2345",
+      "message": "Argument of type 'unknown' is not assignable to parameter of type 'BufferSerializer<{ scrollback: number; }>'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/terminal-shutdown-layout-capture.ts",
+      "line": 116,
+      "code": "TS2345",
+      "message": "Argument of type 'unknown' is not assignable to parameter of type 'BufferSerializer<{ scrollback: number; }>'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/terminal-visibility-resume.ts",
+      "line": 75,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/terminal-visibility-resume.ts",
+      "line": 201,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/terminal-visibility-resume.ts",
+      "line": 202,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/use-terminal-pane-chat-state.ts",
+      "line": 260,
+      "code": "TS2339",
+      "message": "Property 'serializeAddon' does not exist on type 'ManagedPane'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/use-terminal-pane-layout-persistence.ts",
+      "line": 128,
+      "code": "TS2345",
+      "message": "Argument of type 'PaneTerminal' is not assignable to parameter of type 'TerminalScrollbackClearTarget'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/use-terminal-pane-lifecycle.ts",
+      "line": 173,
+      "code": "TS2345",
+      "message": "Argument of type 'PaneManager' is not assignable to parameter of type 'TerminalScrollbackPaneManager'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/use-terminal-pane-mobile-actions.ts",
+      "line": 106,
+      "code": "TS2339",
+      "message": "Property 'mouseTrackingMode' does not exist on type '{ bracketedPasteMode?: boolean | undefined; }'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/use-terminal-pane-mobile-actions.ts",
+      "line": 175,
+      "code": "TS2345",
+      "message": "Argument of type 'PaneTerminal' is not assignable to parameter of type 'PasteTerminal'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/use-terminal-pane-title-effects.ts",
+      "line": 207,
+      "code": "TS2322",
+      "message": "Type 'PaneManager' is not assignable to type 'ShutdownPaneManager'."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/use-terminal-scroll-visibility-memory.ts",
+      "line": 75,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/use-terminal-scroll-visibility-memory.ts",
+      "line": 79,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/use-terminal-scroll-visibility-memory.ts",
+      "line": 120,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/use-terminal-scroll-visibility-memory.ts",
+      "line": 129,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-cursor-blink-suspension.test.ts",
+      "line": 116,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-cursor-blink-suspension.test.ts",
+      "line": 121,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-cursor-blink-suspension.test.ts",
+      "line": 127,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-cursor-blink-suspension.test.ts",
+      "line": 132,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-cursor-blink-suspension.test.ts",
+      "line": 146,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-cursor-blink-suspension.test.ts",
+      "line": 150,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-cursor-blink-suspension.test.ts",
+      "line": 170,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-cursor-blink-suspension.test.ts",
+      "line": 180,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-cursor-blink-suspension.test.ts",
+      "line": 187,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-cursor-blink-suspension.test.ts",
+      "line": 199,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-cursor-blink-suspension.test.ts",
+      "line": 200,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-cursor-blink-suspension.test.ts",
+      "line": 228,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-cursor-blink-suspension.test.ts",
+      "line": 230,
+      "code": "TS2339",
+      "message": "Property 'cursorBlink' does not exist on type 'PaneTerminalOptions'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-cursor-blink-suspension.test.ts",
+      "line": 293,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-dom-creation.ts",
+      "line": 115,
+      "code": "TS2739",
+      "message": "Type 'Terminal' is missing the following properties from type 'PaneTerminal': fit, proposeDimensions, serialize, findNext, findPrevious"
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-fit-measurability.ts",
+      "line": 17,
+      "code": "TS2339",
+      "message": "Property 'fitAddon' does not exist on type 'ManagedPane'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-fit-resize-observer.ts",
+      "line": 38,
+      "code": "TS2339",
+      "message": "Property 'fitAddon' does not exist on type 'StableFitPane'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-fit.test.ts",
+      "line": 545,
+      "code": "TS2339",
+      "message": "Property 'fitAddon' does not exist on type 'ManagedPane'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-fit.ts",
+      "line": 107,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-fit.ts",
+      "line": 121,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-fit.ts",
+      "line": 129,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-fit.ts",
+      "line": 135,
+      "code": "TS2339",
+      "message": "Property 'fitAddon' does not exist on type 'ManagedPane'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-fit.ts",
+      "line": 143,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-fit.ts",
+      "line": 148,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-initial-fit-lifecycle.test.ts",
+      "line": 70,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-lifecycle.test.ts",
+      "line": 230,
+      "code": "TS2339",
+      "message": "Property 'loadAddon' does not exist on type 'PaneTerminal'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-lifecycle.test.ts",
+      "line": 243,
+      "code": "TS2339",
+      "message": "Property 'loadAddon' does not exist on type 'PaneTerminal'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-lifecycle.test.ts",
+      "line": 291,
+      "code": "TS2339",
+      "message": "Property 'loadAddon' does not exist on type 'PaneTerminal'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-lifecycle.test.ts",
+      "line": 301,
+      "code": "TS2339",
+      "message": "Property 'loadAddon' does not exist on type 'PaneTerminal'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-lifecycle.test.ts",
+      "line": 310,
+      "code": "TS2339",
+      "message": "Property 'loadAddon' does not exist on type 'PaneTerminal'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-lifecycle.test.ts",
+      "line": 323,
+      "code": "TS2339",
+      "message": "Property 'loadAddon' does not exist on type 'PaneTerminal'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-lifecycle.test.ts",
+      "line": 365,
+      "code": "TS2339",
+      "message": "Property 'loadAddon' does not exist on type 'PaneTerminal'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-lifecycle.test.ts",
+      "line": 378,
+      "code": "TS2339",
+      "message": "Property 'loadAddon' does not exist on type 'PaneTerminal'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-lifecycle.test.ts",
+      "line": 385,
+      "code": "TS2339",
+      "message": "Property 'loadAddon' does not exist on type 'PaneTerminal'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-lifecycle.test.ts",
+      "line": 386,
+      "code": "TS2339",
+      "message": "Property 'loadAddon' does not exist on type 'PaneTerminal'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-lifecycle.test.ts",
+      "line": 397,
+      "code": "TS2339",
+      "message": "Property 'loadAddon' does not exist on type 'PaneTerminal'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-lifecycle.test.ts",
+      "line": 412,
+      "code": "TS2339",
+      "message": "Property 'loadAddon' does not exist on type 'PaneTerminal'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-lifecycle.test.ts",
+      "line": 422,
+      "code": "TS2339",
+      "message": "Property 'loadAddon' does not exist on type 'PaneTerminal'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-lifecycle.test.ts",
+      "line": 432,
+      "code": "TS2339",
+      "message": "Property 'loadAddon' does not exist on type 'PaneTerminal'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-lifecycle.test.ts",
+      "line": 607,
+      "code": "TS2339",
+      "message": "Property 'loadAddon' does not exist on type 'PaneTerminal'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-lifecycle.test.ts",
+      "line": 650,
+      "code": "TS2739",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'ArabicShapingTerminal': registerCharacterJoiner, deregisterCharacterJoiner"
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-lifecycle.test.ts",
+      "line": 676,
+      "code": "TS2339",
+      "message": "Property 'onWriteParsed' does not exist on type 'PaneTerminal'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-lifecycle.test.ts",
+      "line": 715,
+      "code": "TS2739",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'ArabicShapingTerminal': registerCharacterJoiner, deregisterCharacterJoiner"
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-lifecycle.ts",
+      "line": 46,
+      "code": "TS2339",
+      "message": "Property 'open' does not exist on type 'PaneTerminal'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-lifecycle.ts",
+      "line": 52,
+      "code": "TS2339",
+      "message": "Property 'loadAddon' does not exist on type 'PaneTerminal'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-lifecycle.ts",
+      "line": 53,
+      "code": "TS2339",
+      "message": "Property 'loadAddon' does not exist on type 'PaneTerminal'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-lifecycle.ts",
+      "line": 54,
+      "code": "TS2339",
+      "message": "Property 'loadAddon' does not exist on type 'PaneTerminal'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-lifecycle.ts",
+      "line": 55,
+      "code": "TS2339",
+      "message": "Property 'loadAddon' does not exist on type 'PaneTerminal'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-lifecycle.ts",
+      "line": 56,
+      "code": "TS2339",
+      "message": "Property 'loadAddon' does not exist on type 'PaneTerminal'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-lifecycle.ts",
+      "line": 57,
+      "code": "TS2345",
+      "message": "Argument of type 'PaneTerminal' is not assignable to parameter of type 'TerminalWheelTarget'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-lifecycle.ts",
+      "line": 69,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-lifecycle.ts",
+      "line": 71,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-lifecycle.ts",
+      "line": 75,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-lifecycle.ts",
+      "line": 88,
+      "code": "TS2741",
+      "message": "Property 'unicode' is missing in type 'PaneTerminal' but required in type 'XtermTerminalWithUnicodeCore'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-lifecycle.ts",
+      "line": 94,
+      "code": "TS2739",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'ArabicShapingTerminal': registerCharacterJoiner, deregisterCharacterJoiner"
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-lifecycle.ts",
+      "line": 99,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-lifecycle.ts",
+      "line": 140,
+      "code": "TS2339",
+      "message": "Property 'loadAddon' does not exist on type 'PaneTerminal'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-manager-pane-creation.ts",
+      "line": 60,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-manager-types.ts",
+      "line": 149,
+      "code": "TS2300",
+      "message": "Duplicate identifier 'serializeAddon'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-manager-types.ts",
+      "line": 182,
+      "code": "TS2300",
+      "message": "Duplicate identifier 'serializeAddon'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-metric-options-deferral.test.ts",
+      "line": 66,
+      "code": "TS2339",
+      "message": "Property 'lineHeight' does not exist on type 'PaneTerminalOptions'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-metric-options-deferral.test.ts",
+      "line": 70,
+      "code": "TS2339",
+      "message": "Property 'lineHeight' does not exist on type 'PaneTerminalOptions'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-metric-options-deferral.test.ts",
+      "line": 71,
+      "code": "TS2339",
+      "message": "Property 'fontWeight' does not exist on type 'PaneTerminalOptions'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-metric-options-deferral.test.ts",
+      "line": 132,
+      "code": "TS2339",
+      "message": "Property 'lineHeight' does not exist on type 'PaneTerminalOptions'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-metric-options-deferral.test.ts",
+      "line": 178,
+      "code": "TS2339",
+      "message": "Property 'fontWeight' does not exist on type 'PaneTerminalOptions'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-metric-options-deferral.test.ts",
+      "line": 203,
+      "code": "TS2339",
+      "message": "Property 'fontWeight' does not exist on type 'PaneTerminalOptions'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-metric-options-deferral.test.ts",
+      "line": 204,
+      "code": "TS2339",
+      "message": "Property 'fontWeightBold' does not exist on type 'PaneTerminalOptions'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-metric-options-deferral.test.ts",
+      "line": 220,
+      "code": "TS2339",
+      "message": "Property 'fontWeight' does not exist on type 'PaneTerminalOptions'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-metric-options-deferral.ts",
+      "line": 76,
+      "code": "TS2339",
+      "message": "Property 'fontWeight' does not exist on type 'PaneTerminalOptions'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-metric-options-deferral.ts",
+      "line": 77,
+      "code": "TS2339",
+      "message": "Property 'fontWeightBold' does not exist on type 'PaneTerminalOptions'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-metric-options-deferral.ts",
+      "line": 78,
+      "code": "TS2339",
+      "message": "Property 'lineHeight' does not exist on type 'PaneTerminalOptions'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-metric-options-deferral.ts",
+      "line": 110,
+      "code": "TS2339",
+      "message": "Property 'fontWeight' does not exist on type 'PaneTerminalOptions'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-metric-options-deferral.ts",
+      "line": 111,
+      "code": "TS2339",
+      "message": "Property 'fontWeight' does not exist on type 'PaneTerminalOptions'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-metric-options-deferral.ts",
+      "line": 111,
+      "code": "TS2339",
+      "message": "Property 'fontWeight' does not exist on type 'PaneTerminalOptions'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-metric-options-deferral.ts",
+      "line": 117,
+      "code": "TS2339",
+      "message": "Property 'fontWeightBold' does not exist on type 'PaneTerminalOptions'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-metric-options-deferral.ts",
+      "line": 121,
+      "code": "TS2339",
+      "message": "Property 'fontWeightBold' does not exist on type 'PaneTerminalOptions'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-metric-options-deferral.ts",
+      "line": 121,
+      "code": "TS2339",
+      "message": "Property 'fontWeightBold' does not exist on type 'PaneTerminalOptions'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-metric-options-deferral.ts",
+      "line": 124,
+      "code": "TS2339",
+      "message": "Property 'lineHeight' does not exist on type 'PaneTerminalOptions'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-rendering-control.ts",
+      "line": 82,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-rendering-control.ts",
+      "line": 105,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-reveal-fit.ts",
+      "line": 31,
+      "code": "TS2339",
+      "message": "Property 'fitAddon' does not exist on type 'ManagedPane'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-reveal-fit.ts",
+      "line": 48,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-split-close.ts",
+      "line": 98,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-split-scroll.ts",
+      "line": 49,
+      "code": "TS2339",
+      "message": "Property 'onBufferChange' does not exist on type '{ active: OrcaTerminalGrid; }'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-split-scroll.ts",
+      "line": 79,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-split-scroll.ts",
+      "line": 127,
+      "code": "TS2740",
+      "message": "Type 'PaneTerminal' is missing the following properties from type 'Terminal': screenElement, markers, unicode, dimensions, and 26 more."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-terminal.ts",
+      "line": 1,
+      "code": "TS2307",
+      "message": "Cannot find module '../../../../shared/orca-terminal-surface' or its corresponding type declarations."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-tree-ops.test.ts",
+      "line": 164,
+      "code": "TS2551",
+      "message": "Property 'scrollLines' does not exist on type 'PaneTerminal'. Did you mean 'scrollToLine'?"
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-webgl-context-recovery.test.ts",
+      "line": 88,
+      "code": "TS2339",
+      "message": "Property 'loadAddon' does not exist on type 'PaneTerminal'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-webgl-context-recovery.test.ts",
+      "line": 95,
+      "code": "TS2339",
+      "message": "Property 'loadAddon' does not exist on type 'PaneTerminal'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-webgl-context-recovery.test.ts",
+      "line": 104,
+      "code": "TS2339",
+      "message": "Property 'loadAddon' does not exist on type 'PaneTerminal'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-webgl-context-recovery.test.ts",
+      "line": 107,
+      "code": "TS2339",
+      "message": "Property 'loadAddon' does not exist on type 'PaneTerminal'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-webgl-context-recovery.test.ts",
+      "line": 136,
+      "code": "TS2339",
+      "message": "Property 'loadAddon' does not exist on type 'PaneTerminal'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-webgl-context-recovery.test.ts",
+      "line": 142,
+      "code": "TS2339",
+      "message": "Property 'loadAddon' does not exist on type 'PaneTerminal'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-webgl-context-recovery.test.ts",
+      "line": 163,
+      "code": "TS2339",
+      "message": "Property 'loadAddon' does not exist on type 'PaneTerminal'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-webgl-context-recovery.test.ts",
+      "line": 197,
+      "code": "TS2339",
+      "message": "Property 'loadAddon' does not exist on type 'PaneTerminal'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-webgl-context-recovery.test.ts",
+      "line": 214,
+      "code": "TS2339",
+      "message": "Property 'loadAddon' does not exist on type 'PaneTerminal'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-webgl-renderer.ts",
+      "line": 315,
+      "code": "TS2339",
+      "message": "Property 'loadAddon' does not exist on type 'PaneTerminal'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/xterm-renderer/xterm-pane-terminal.ts",
+      "line": 7,
+      "code": "TS2307",
+      "message": "Cannot find module '../../../../../shared/orca-terminal-surface' or its corresponding type declarations."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/xterm-renderer/xterm-pane-terminal.ts",
+      "line": 59,
+      "code": "TS2416",
+      "message": "Property 'options' in type 'XtermPaneTerminal' is not assignable to the same property in base type 'PaneTerminal'."
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/xterm-renderer/xterm-pane-terminal.ts",
+      "line": 62,
+      "code": "TS2416",
+      "message": "Property 'options' in type 'XtermPaneTerminal' is not assignable to the same property in base type 'PaneTerminal'."
+    }
+  ]
+}

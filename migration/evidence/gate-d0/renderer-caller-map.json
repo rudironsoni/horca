@@ -1,0 +1,1298 @@
+{
+  "note": "Production renderer accesses to pane.terminal and xterm addon fields. Tests excluded. i18n keys excluded.",
+  "accessCount": 430,
+  "fileCount": 98,
+  "operations": [
+    {
+      "operation": "terminal",
+      "count": 168,
+      "callerCount": 63,
+      "callers": [
+        "src/renderer/src/components/terminal-pane/desktop-fit-fallback.ts",
+        "src/renderer/src/components/terminal-pane/layout-serialization.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection-test-dom.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/apply-reattach-payload.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/connect-pane-pty.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/deferred-cold-restore-and-snapshot.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/direct-ssh-retry-status.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/foreground-output-refresh.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/fresh-spawn-follow-reset.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/fresh-spawn-start.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/hidden-output-restore-abandon.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/hidden-output-restore-drain.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/hidden-output-restore-request.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/hidden-output-restore-snapshot.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/hidden-output-seq-and-skip.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/hidden-output-snapshot-serialize.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/hidden-restore-state-and-ssh-probe.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/hidden-startup-renderer-query-write.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/interrupt-input-intent.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/live-data-callback.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/pane-agent-identity.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/pane-serializer-register.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/pane-serializer-settle.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/pty-input-forward.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/pty-input-recovery.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/pty-resize-geometry.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/reattach-live-data-deferral.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/replay-data-drain.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/session-reconcile-dispose.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/shell-command-inference.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/ssh-snapshot-prepaint.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/write-pty-output-to-xterm.ts",
+        "src/renderer/src/components/terminal-pane/replay-guard.ts",
+        "src/renderer/src/components/terminal-pane/terminal-appearance.ts",
+        "src/renderer/src/components/terminal-pane/terminal-keyboard-action-dispatch.ts",
+        "src/renderer/src/components/terminal-pane/terminal-pane-menu-copy-actions.ts",
+        "src/renderer/src/components/terminal-pane/terminal-pane-menu-paste.ts",
+        "src/renderer/src/components/terminal-pane/terminal-pane-pane-input.ts",
+        "src/renderer/src/components/terminal-pane/terminal-pane-pane-links.ts",
+        "src/renderer/src/components/terminal-pane/terminal-pane-paste-execution.ts",
+        "src/renderer/src/components/terminal-pane/terminal-pane-paste-listeners.ts",
+        "src/renderer/src/components/terminal-pane/terminal-programmatic-text-paste.ts",
+        "src/renderer/src/components/terminal-pane/terminal-shutdown-layout-capture.ts",
+        "src/renderer/src/components/terminal-pane/terminal-startup-command-paste.ts",
+        "src/renderer/src/components/terminal-pane/terminal-visibility-resume.ts",
+        "src/renderer/src/components/terminal-pane/use-terminal-pane-layout-persistence.ts",
+        "src/renderer/src/components/terminal-pane/use-terminal-pane-lifecycle.ts",
+        "src/renderer/src/components/terminal-pane/use-terminal-scroll-visibility-memory.ts",
+        "src/renderer/src/lib/pane-manager/pane-fit-deferred-continuations.ts",
+        "src/renderer/src/lib/pane-manager/pane-fit.ts",
+        "src/renderer/src/lib/pane-manager/pane-lifecycle.ts",
+        "src/renderer/src/lib/pane-manager/pane-manager-pane-creation.ts",
+        "src/renderer/src/lib/pane-manager/pane-manager-registry.ts",
+        "src/renderer/src/lib/pane-manager/pane-metric-options-deferral.ts",
+        "src/renderer/src/lib/pane-manager/pane-public-view.ts",
+        "src/renderer/src/lib/pane-manager/pane-rendering-control.ts",
+        "src/renderer/src/lib/pane-manager/pane-reveal-fit.ts",
+        "src/renderer/src/lib/pane-manager/pane-split-close.ts",
+        "src/renderer/src/lib/pane-manager/pane-split-scroll.ts",
+        "src/renderer/src/lib/pane-manager/pane-viewport-present.ts",
+        "src/renderer/src/lib/pane-manager/terminal-canvas-dpr-repair.ts",
+        "src/renderer/src/lib/typing-latency/census-probe.ts",
+        "src/renderer/src/lib/typing-latency/echo-instrumentation.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-rendering-control.ts",
+          "line": 82,
+          "code": "suspendTerminalCursorBlink(pane.terminal)"
+        },
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-rendering-control.ts",
+          "line": 105,
+          "code": "resumeTerminalCursorBlink(pane.terminal)"
+        },
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-fit-deferred-continuations.ts",
+          "line": 28,
+          "code": "deferredByTerminal.get(pane.terminal) ?? new Map<string, DeferredFitContinuation>()"
+        },
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-fit-deferred-continuations.ts",
+          "line": 31,
+          "code": "deferredByTerminal.set(pane.terminal, deferred)"
+        },
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-fit-deferred-continuations.ts",
+          "line": 35,
+          "code": "const deferred = deferredByTerminal.get(pane.terminal)"
+        }
+      ]
+    },
+    {
+      "operation": "terminal.rows",
+      "count": 45,
+      "callerCount": 26,
+      "callers": [
+        "src/renderer/src/components/terminal-pane/desktop-fit-fallback.ts",
+        "src/renderer/src/components/terminal-pane/override-affected-panes.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/apply-reattach-payload.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/fresh-spawn-follow-reset.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/hidden-output-restore-snapshot.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/hidden-restore-state-and-ssh-probe.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/hidden-startup-renderer-query-write.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/pane-serializer-register.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/pty-input-forward.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/pty-input-recovery.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/pty-resize-geometry.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/replay-data-drain.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/run-deferred-connect.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/setup-split-geometry.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/ssh-snapshot-prepaint.ts",
+        "src/renderer/src/components/terminal-pane/terminal-appearance.ts",
+        "src/renderer/src/components/terminal-pane/use-terminal-pane-global-listeners.ts",
+        "src/renderer/src/lib/pane-manager/pane-fit-resize-observer.ts",
+        "src/renderer/src/lib/pane-manager/pane-fit.ts",
+        "src/renderer/src/lib/pane-manager/pane-lifecycle.ts",
+        "src/renderer/src/lib/pane-manager/pane-manager-layout-sweeps.ts",
+        "src/renderer/src/lib/pane-manager/pane-reveal-fit.ts",
+        "src/renderer/src/lib/pane-manager/pane-split-scroll.ts",
+        "src/renderer/src/lib/pane-manager/pane-viewport-present.ts",
+        "src/renderer/src/lib/pane-manager/pane-webgl-renderer.ts",
+        "src/renderer/src/lib/pane-manager/terminal-canvas-dpr-repair.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-fit-resize-observer.ts",
+          "line": 49,
+          "code": "return pane.terminal.cols === dims.cols && pane.terminal.rows === dims.rows"
+        },
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-reveal-fit.ts",
+          "line": 35,
+          "code": "return proposed.cols === pane.terminal.cols && proposed.rows === pane.terminal.rows"
+        },
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-manager-layout-sweeps.ts",
+          "line": 16,
+          "code": "if (pane.terminal.rows > 0) {"
+        },
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-manager-layout-sweeps.ts",
+          "line": 17,
+          "code": "pane.terminal.refresh(0, pane.terminal.rows - 1)"
+        },
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-fit.ts",
+          "line": 115,
+          "code": "if (pane.terminal.cols !== override.cols || pane.terminal.rows !== override.rows) {"
+        }
+      ]
+    },
+    {
+      "operation": "terminal.cols",
+      "count": 33,
+      "callerCount": 20,
+      "callers": [
+        "src/renderer/src/components/terminal-pane/desktop-fit-fallback.ts",
+        "src/renderer/src/components/terminal-pane/override-affected-panes.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/apply-reattach-payload.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/hidden-output-restore-snapshot.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/hidden-restore-state-and-ssh-probe.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/hidden-startup-renderer-query-write.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/pane-serializer-register.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/pty-input-forward.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/pty-input-recovery.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/pty-resize-geometry.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/replay-data-drain.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/run-deferred-connect.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/setup-split-geometry.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/ssh-snapshot-prepaint.ts",
+        "src/renderer/src/components/terminal-pane/terminal-appearance.ts",
+        "src/renderer/src/components/terminal-pane/use-terminal-pane-global-listeners.ts",
+        "src/renderer/src/lib/pane-manager/pane-fit-resize-observer.ts",
+        "src/renderer/src/lib/pane-manager/pane-fit.ts",
+        "src/renderer/src/lib/pane-manager/pane-reveal-fit.ts",
+        "src/renderer/src/lib/pane-manager/terminal-canvas-dpr-repair.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-fit-resize-observer.ts",
+          "line": 49,
+          "code": "return pane.terminal.cols === dims.cols && pane.terminal.rows === dims.rows"
+        },
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-reveal-fit.ts",
+          "line": 35,
+          "code": "return proposed.cols === pane.terminal.cols && proposed.rows === pane.terminal.rows"
+        },
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-fit.ts",
+          "line": 115,
+          "code": "if (pane.terminal.cols !== override.cols || pane.terminal.rows !== override.rows) {"
+        },
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-fit.ts",
+          "line": 127,
+          "code": "if (dims && dims.cols === pane.terminal.cols && dims.rows === pane.terminal.rows) {"
+        },
+        {
+          "caller": "src/renderer/src/lib/pane-manager/terminal-canvas-dpr-repair.ts",
+          "line": 67,
+          "code": "renderer.handleResize?.(pane.terminal.cols, pane.terminal.rows)"
+        }
+      ]
+    },
+    {
+      "operation": "terminal.options",
+      "count": 23,
+      "callerCount": 12,
+      "callers": [
+        "src/renderer/src/components/terminal-pane/pty-connection/hidden-output-restore-request.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/hidden-restore-state-and-ssh-probe.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/pty-input-recovery.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/reattach-result-handler.ts",
+        "src/renderer/src/components/terminal-pane/terminal-appearance.ts",
+        "src/renderer/src/components/terminal-pane/terminal-pane-lifecycle-primitives.ts",
+        "src/renderer/src/components/terminal-pane/terminal-pane-pane-input.ts",
+        "src/renderer/src/components/terminal-pane/terminal-pane-pane-links.ts",
+        "src/renderer/src/components/terminal-pane/terminal-render-desync-weight-probe.ts",
+        "src/renderer/src/components/terminal-pane/terminal-shutdown-layout-capture.ts",
+        "src/renderer/src/components/terminal-pane/useTerminalFontZoom.ts",
+        "src/renderer/src/lib/pane-manager/pane-metric-options-deferral.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-metric-options-deferral.ts",
+          "line": 72,
+          "code": "const target = pane.terminal.options"
+        },
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-metric-options-deferral.ts",
+          "line": 102,
+          "code": "const target = pane.terminal.options"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/useTerminalFontZoom.ts",
+          "line": 60,
+          "code": "pane.terminal.options.fontSize = nextSize"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/terminal-shutdown-layout-capture.ts",
+          "line": 112,
+          "code": "let scrollback = pane.terminal.options.scrollback ?? 10_000"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/terminal-appearance.ts",
+          "line": 165,
+          "code": "if (theme && !composedTerminalThemesEqual(pane.terminal.options.theme, theme)) {"
+        }
+      ]
+    },
+    {
+      "operation": "terminal.focus",
+      "count": 23,
+      "callerCount": 13,
+      "callers": [
+        "src/renderer/src/components/terminal-pane/terminal-agent-session-continuation.ts",
+        "src/renderer/src/components/terminal-pane/terminal-agent-session-fork.ts",
+        "src/renderer/src/components/terminal-pane/terminal-drop-handler.ts",
+        "src/renderer/src/components/terminal-pane/terminal-keyboard-event-handlers.ts",
+        "src/renderer/src/components/terminal-pane/terminal-native-file-drop.ts",
+        "src/renderer/src/components/terminal-pane/terminal-pane-menu-copy-actions.ts",
+        "src/renderer/src/components/terminal-pane/terminal-pane-menu-paste.ts",
+        "src/renderer/src/components/terminal-pane/terminal-pane-mount-preparation.ts",
+        "src/renderer/src/components/terminal-pane/terminal-programmatic-text-paste.ts",
+        "src/renderer/src/components/terminal-pane/terminal-quick-command-dispatch.ts",
+        "src/renderer/src/components/terminal-pane/use-terminal-pane-context-menu.ts",
+        "src/renderer/src/components/terminal-pane/use-terminal-pane-mobile-actions.ts",
+        "src/renderer/src/lib/pane-manager/pane-overlay-focus.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-overlay-focus.ts",
+          "line": 17,
+          "code": "pane.terminal.focus()"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/terminal-agent-session-continuation.ts",
+          "line": 75,
+          "code": "pane.terminal.focus()"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/terminal-keyboard-event-handlers.ts",
+          "line": 176,
+          "code": "pane.terminal.focus()"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/terminal-quick-command-dispatch.ts",
+          "line": 43,
+          "code": "pane.terminal.focus()"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/use-terminal-pane-context-menu.ts",
+          "line": 168,
+          "code": "pane.terminal.focus()"
+        }
+      ]
+    },
+    {
+      "operation": "webglAddon",
+      "count": 19,
+      "callerCount": 8,
+      "callers": [
+        "src/renderer/src/lib/pane-manager/pane-lifecycle.ts",
+        "src/renderer/src/lib/pane-manager/pane-rendering-control.ts",
+        "src/renderer/src/lib/pane-manager/pane-rendering-diagnostics.ts",
+        "src/renderer/src/lib/pane-manager/pane-split-close.ts",
+        "src/renderer/src/lib/pane-manager/pane-terminal-gpu-acceleration.ts",
+        "src/renderer/src/lib/pane-manager/pane-webgl-reattach.ts",
+        "src/renderer/src/lib/pane-manager/pane-webgl-renderer.ts",
+        "src/renderer/src/lib/pane-manager/terminal-webgl-hidden-retention.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-terminal-gpu-acceleration.ts",
+          "line": 39,
+          "code": "!pane.webglAddon &&"
+        },
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-rendering-diagnostics.ts",
+          "line": 18,
+          "code": "hasWebgl: Boolean(pane.webglAddon)"
+        },
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-rendering-control.ts",
+          "line": 45,
+          "code": "if (!pane.webglAddon) {"
+        },
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-rendering-control.ts",
+          "line": 111,
+          "code": "if (pane.webglAddon && isPaneWebglContextLost(pane)) {"
+        },
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-rendering-control.ts",
+          "line": 114,
+          "code": "if (rebuildDeferred && pane.webglAddon) {"
+        }
+      ]
+    },
+    {
+      "operation": "terminal.element",
+      "count": 13,
+      "callerCount": 7,
+      "callers": [
+        "src/renderer/src/components/terminal-pane/pty-connection/pty-input-forward.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/terminal-keydown-fit.ts",
+        "src/renderer/src/components/terminal-pane/terminal-keyboard-event-handlers.ts",
+        "src/renderer/src/components/terminal-pane/terminal-keyboard-pane-resolution.ts",
+        "src/renderer/src/components/terminal-pane/terminal-keyboard-release-handlers.ts",
+        "src/renderer/src/components/terminal-pane/terminal-pane-pane-input.ts",
+        "src/renderer/src/lib/pane-manager/pane-lifecycle.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-lifecycle.ts",
+          "line": 211,
+          "code": "pane.terminal.element?.removeEventListener('compositionstart', pane.compositionHandler)"
+        },
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-lifecycle.ts",
+          "line": 212,
+          "code": "pane.terminal.element?.removeEventListener('compositionupdate', pane.compositionHandler)"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/terminal-keyboard-event-handlers.ts",
+          "line": 250,
+          "code": "deferredNewlineSender.defer(e, pane.terminal.element, sendResolvedInput)"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/terminal-keyboard-event-handlers.ts",
+          "line": 260,
+          "code": "deferredChordSender.defer(pane.terminal.element, sendResolvedInput)"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/terminal-keyboard-pane-resolution.ts",
+          "line": 11,
+          "code": ".find((pane) => pane.terminal.element?.contains(target) === true)"
+        }
+      ]
+    },
+    {
+      "operation": "terminal.resize",
+      "count": 9,
+      "callerCount": 7,
+      "callers": [
+        "src/renderer/src/components/terminal-pane/desktop-fit-fallback.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/apply-reattach-payload.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/hidden-output-restore-snapshot.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/pty-resize-geometry.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/replay-data-drain.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/ssh-snapshot-prepaint.ts",
+        "src/renderer/src/lib/pane-manager/pane-fit.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-fit.ts",
+          "line": 119,
+          "code": "pane.terminal.resize(override.cols, override.rows)"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/desktop-fit-fallback.ts",
+          "line": 28,
+          "code": "pane.terminal.resize(dimensions.cols, dimensions.rows)"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/pty-connection/apply-reattach-payload.ts",
+          "line": 59,
+          "code": "session.pane.terminal.resize(snapshotDimensions.cols, snapshotDimensions.rows)"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/pty-connection/apply-reattach-payload.ts",
+          "line": 163,
+          "code": "session.pane.terminal.resize(modelCols, modelRows)"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/pty-connection/apply-reattach-payload.ts",
+          "line": 276,
+          "code": "session.pane.terminal.resize(coldRestoreDimensions.cols, coldRestoreDimensions.rows)"
+        }
+      ]
+    },
+    {
+      "operation": "fitAddon.proposeDimensions",
+      "count": 8,
+      "callerCount": 8,
+      "callers": [
+        "src/renderer/src/components/terminal-pane/pty-connection/apply-reattach-payload.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/pty-input-forward.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/pty-input-recovery.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/pty-resize-geometry.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/setup-split-geometry.ts",
+        "src/renderer/src/lib/pane-manager/pane-fit-measurability.ts",
+        "src/renderer/src/lib/pane-manager/pane-fit-resize-observer.ts",
+        "src/renderer/src/lib/pane-manager/pane-reveal-fit.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-fit-resize-observer.ts",
+          "line": 38,
+          "code": "return pane.fitAddon.proposeDimensions() ?? null"
+        },
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-reveal-fit.ts",
+          "line": 31,
+          "code": "const proposed = pane.fitAddon.proposeDimensions()"
+        },
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-fit-measurability.ts",
+          "line": 17,
+          "code": "return pane.fitAddon.proposeDimensions() ?? null"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/pty-connection/setup-split-geometry.ts",
+          "line": 22,
+          "code": "const dimensions = pane.fitAddon.proposeDimensions()"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/pty-connection/pty-input-forward.ts",
+          "line": 323,
+          "code": "const proposed = session.pane.fitAddon.proposeDimensions()"
+        }
+      ]
+    },
+    {
+      "operation": "terminal.refresh",
+      "count": 8,
+      "callerCount": 6,
+      "callers": [
+        "src/renderer/src/lib/pane-manager/pane-lifecycle.ts",
+        "src/renderer/src/lib/pane-manager/pane-manager-layout-sweeps.ts",
+        "src/renderer/src/lib/pane-manager/pane-split-scroll.ts",
+        "src/renderer/src/lib/pane-manager/pane-viewport-present.ts",
+        "src/renderer/src/lib/pane-manager/pane-webgl-renderer.ts",
+        "src/renderer/src/lib/pane-manager/terminal-canvas-dpr-repair.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-manager-layout-sweeps.ts",
+          "line": 17,
+          "code": "pane.terminal.refresh(0, pane.terminal.rows - 1)"
+        },
+        {
+          "caller": "src/renderer/src/lib/pane-manager/terminal-canvas-dpr-repair.ts",
+          "line": 68,
+          "code": "pane.terminal.refresh(0, pane.terminal.rows - 1)"
+        },
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-split-scroll.ts",
+          "line": 7,
+          "code": "pane.terminal.refresh(0, pane.terminal.rows - 1)"
+        },
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-viewport-present.ts",
+          "line": 76,
+          "code": "pane.terminal.refresh(0, pane.terminal.rows - 1)"
+        },
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-viewport-present.ts",
+          "line": 92,
+          "code": "pane.terminal.refresh(0, pane.terminal.rows - 1)"
+        }
+      ]
+    },
+    {
+      "operation": "ligaturesAddon",
+      "count": 7,
+      "callerCount": 1,
+      "callers": [
+        "src/renderer/src/lib/pane-manager/pane-lifecycle.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-lifecycle.ts",
+          "line": 124,
+          "code": "if (pane.ligaturesAddon) {"
+        },
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-lifecycle.ts",
+          "line": 130,
+          "code": "pane.ligaturesAddon = null"
+        },
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-lifecycle.ts",
+          "line": 135,
+          "code": "if (pane.ligaturesAddon) {"
+        },
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-lifecycle.ts",
+          "line": 141,
+          "code": "pane.ligaturesAddon = ligaturesAddon"
+        },
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-lifecycle.ts",
+          "line": 155,
+          "code": "pane.ligaturesAddon = null"
+        }
+      ]
+    },
+    {
+      "operation": "terminal.buffer",
+      "count": 6,
+      "callerCount": 6,
+      "callers": [
+        "src/renderer/src/components/terminal-pane/pty-connection/hidden-output-seq-and-skip.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/hidden-startup-renderer-query-write.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/live-data-callback.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/pty-input-forward.ts",
+        "src/renderer/src/components/terminal-pane/terminal-link-handlers.ts",
+        "src/renderer/src/lib/pane-manager/pane-split-scroll.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-split-scroll.ts",
+          "line": 49,
+          "code": "disposable = pane.terminal.buffer.onBufferChange((buffer: IBuffer) => {"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/terminal-link-handlers.ts",
+          "line": 114,
+          "code": "const buffer = pane.terminal.buffer.active"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/pty-connection/hidden-startup-renderer-query-write.ts",
+          "line": 131,
+          "code": "const buffer = session.pane.terminal.buffer.active"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/pty-connection/hidden-output-seq-and-skip.ts",
+          "line": 75,
+          "code": "return session.pane.terminal.buffer.active.type === 'alternate'"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/pty-connection/pty-input-forward.ts",
+          "line": 42,
+          "code": "(isXtermWheelCursorKey(data) && session.pane.terminal.buffer.active.type === 'alternate'))"
+        }
+      ]
+    },
+    {
+      "operation": "terminal.hasSelection",
+      "count": 6,
+      "callerCount": 3,
+      "callers": [
+        "src/renderer/src/components/terminal-pane/pty-connection/terminal-keydown-fit.ts",
+        "src/renderer/src/components/terminal-pane/terminal-pane-pane-input.ts",
+        "src/renderer/src/components/terminal-pane/terminal-pane-pane-links.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/components/terminal-pane/terminal-pane-pane-links.ts",
+          "line": 131,
+          "code": "if (!pane.terminal.hasSelection()) {"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/terminal-pane-pane-links.ts",
+          "line": 148,
+          "code": "if (!isPrimarySelectionEnabled() || !pane.terminal.hasSelection()) {"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/terminal-pane-pane-input.ts",
+          "line": 136,
+          "code": "hasSelection: pane.terminal.hasSelection()"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/terminal-pane-pane-input.ts",
+          "line": 197,
+          "code": "hasSelection: pane.terminal.hasSelection(),"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/pty-connection/terminal-keydown-fit.ts",
+          "line": 34,
+          "code": "if (!navigator.userAgent.includes('Mac') && session.pane.terminal.hasSelection()) {"
+        }
+      ]
+    },
+    {
+      "operation": "terminal.modes",
+      "count": 5,
+      "callerCount": 5,
+      "callers": [
+        "src/renderer/src/components/terminal-pane/pty-connection-test-dom.ts",
+        "src/renderer/src/components/terminal-pane/terminal-pane-menu-paste.ts",
+        "src/renderer/src/components/terminal-pane/terminal-pane-paste-execution.ts",
+        "src/renderer/src/components/terminal-pane/terminal-programmatic-text-paste.ts",
+        "src/renderer/src/components/terminal-pane/terminal-startup-command-paste.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/components/terminal-pane/terminal-startup-command-paste.ts",
+          "line": 45,
+          "code": "terminalBracketedPasteMode: pane.terminal.modes?.bracketedPasteMode === true"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/terminal-pane-paste-execution.ts",
+          "line": 91,
+          "code": "terminalBracketedPasteMode: pane.terminal.modes.bracketedPasteMode"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/terminal-pane-menu-paste.ts",
+          "line": 87,
+          "code": "terminalBracketedPasteMode: pane.terminal.modes.bracketedPasteMode"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/pty-connection-test-dom.ts",
+          "line": 26,
+          "code": "Object.assign(pane.terminal.modes, { sendFocusMode: true })"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/terminal-programmatic-text-paste.ts",
+          "line": 64,
+          "code": "terminalBracketedPasteMode: pane.terminal.modes?.bracketedPasteMode === true"
+        }
+      ]
+    },
+    {
+      "operation": "terminal.input",
+      "count": 5,
+      "callerCount": 1,
+      "callers": [
+        "src/renderer/src/components/terminal-pane/terminal-pane-pane-input.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/components/terminal-pane/terminal-pane-pane-input.ts",
+          "line": 72,
+          "code": "sendInput: (data) => pane.terminal.input(data),"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/terminal-pane-pane-input.ts",
+          "line": 89,
+          "code": "sendInput: (data) => pane.terminal.input(data),"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/terminal-pane-pane-input.ts",
+          "line": 141,
+          "code": "pane.terminal.input(TERMINAL_INTERRUPT_INPUT)"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/terminal-pane-pane-input.ts",
+          "line": 157,
+          "code": "pane.terminal.input(nonLatinControlChord)"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/terminal-pane-pane-input.ts",
+          "line": 171,
+          "code": "pane.terminal.input(jisYenInput.data)"
+        }
+      ]
+    },
+    {
+      "operation": "serializeAddon",
+      "count": 4,
+      "callerCount": 3,
+      "callers": [
+        "src/renderer/src/components/terminal-pane/pty-connection/pane-serializer-register.ts",
+        "src/renderer/src/components/terminal-pane/terminal-shutdown-layout-capture.ts",
+        "src/renderer/src/lib/pane-manager/pane-public-view.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-public-view.ts",
+          "line": 13,
+          "code": "serializeAddon: pane.serializeAddon"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/terminal-shutdown-layout-capture.ts",
+          "line": 77,
+          "code": "const attempt = serializeWithAbsoluteCursor(pane.serializeAddon, pane.terminal, {"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/terminal-shutdown-layout-capture.ts",
+          "line": 116,
+          "code": "let serialized = serializeWithAbsoluteCursor(pane.serializeAddon, pane.terminal, {"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/pty-connection/pane-serializer-register.ts",
+          "line": 47,
+          "code": "session.pane.serializeAddon,"
+        }
+      ]
+    },
+    {
+      "operation": "terminal.clearSelection",
+      "count": 3,
+      "callerCount": 3,
+      "callers": [
+        "src/renderer/src/components/terminal-pane/terminal-link-handlers.ts",
+        "src/renderer/src/components/terminal-pane/terminal-pane-pane-links.ts",
+        "src/renderer/src/lib/pane-manager/pane-lifecycle.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-lifecycle.ts",
+          "line": 260,
+          "code": "pane.terminal.clearSelection()"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/terminal-link-handlers.ts",
+          "line": 205,
+          "code": "pane.terminal.clearSelection?.()"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/terminal-pane-pane-links.ts",
+          "line": 191,
+          "code": "pane.terminal.clearSelection()"
+        }
+      ]
+    },
+    {
+      "operation": "serializeAddon.serialize",
+      "count": 3,
+      "callerCount": 2,
+      "callers": [
+        "src/renderer/src/components/terminal-pane/terminal-agent-session-continuation.ts",
+        "src/renderer/src/components/terminal-pane/terminal-agent-session-fork.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/components/terminal-pane/terminal-agent-session-continuation.ts",
+          "line": 57,
+          "code": "const capturedText = transcriptPath ? '' : pane.serializeAddon.serialize({ scrollback: 800 })"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/terminal-agent-session-fork.ts",
+          "line": 105,
+          "code": "capturedText: pane.serializeAddon.serialize({ scrollback: 800 }),"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/terminal-agent-session-fork.ts",
+          "line": 140,
+          "code": "pane.serializeAddon.serialize({ scrollback: 800 })"
+        }
+      ]
+    },
+    {
+      "operation": "terminal.selectAll",
+      "count": 3,
+      "callerCount": 3,
+      "callers": [
+        "src/renderer/src/components/terminal-pane/terminal-keyboard-action-dispatch.ts",
+        "src/renderer/src/components/terminal-pane/terminal-pane-paste-listeners.ts",
+        "src/renderer/src/components/terminal-pane/use-terminal-pane-context-menu.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/components/terminal-pane/terminal-pane-paste-listeners.ts",
+          "line": 231,
+          "code": "pane.terminal.selectAll()"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/use-terminal-pane-context-menu.ts",
+          "line": 167,
+          "code": "pane.terminal.selectAll()"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/terminal-keyboard-action-dispatch.ts",
+          "line": 72,
+          "code": "pane.terminal.selectAll()"
+        }
+      ]
+    },
+    {
+      "operation": "terminal.write",
+      "count": 3,
+      "callerCount": 2,
+      "callers": [
+        "src/renderer/src/components/terminal-pane/pty-connection-test-dom.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection-test-pane-fixtures.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/components/terminal-pane/pty-connection-test-pane-fixtures.ts",
+          "line": 217,
+          "code": "pane.terminal.write = function write(data: string, callback?: () => void): void {"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/pty-connection-test-pane-fixtures.ts",
+          "line": 222,
+          "code": "} as typeof pane.terminal.write"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/pty-connection-test-dom.ts",
+          "line": 27,
+          "code": "pane.terminal.write.mockImplementation((_data: string, callback?: () => void) => {"
+        }
+      ]
+    },
+    {
+      "operation": "terminal.parser",
+      "count": 3,
+      "callerCount": 2,
+      "callers": [
+        "src/renderer/src/components/terminal-pane/pty-connection/pty-input-recovery.ts",
+        "src/renderer/src/components/terminal-pane/terminal-pane-pane-created.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/components/terminal-pane/terminal-pane-pane-created.ts",
+          "line": 76,
+          "code": "const osc52Disposable = pane.terminal.parser.registerOscHandler("
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/terminal-pane-pane-created.ts",
+          "line": 128,
+          "code": "const osc7Disposable = pane.terminal.parser.registerOscHandler("
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/pty-connection/pty-input-recovery.ts",
+          "line": 189,
+          "code": "parser: session.pane.terminal.parser,"
+        }
+      ]
+    },
+    {
+      "operation": "terminal.scrollToBottom",
+      "count": 3,
+      "callerCount": 3,
+      "callers": [
+        "src/renderer/src/components/terminal-pane/pty-connection/fresh-spawn-follow-reset.ts",
+        "src/renderer/src/components/terminal-pane/terminal-keyboard-action-dispatch.ts",
+        "src/renderer/src/components/terminal-pane/use-terminal-scroll-visibility-memory.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/components/terminal-pane/terminal-keyboard-action-dispatch.ts",
+          "line": 122,
+          "code": "pane.terminal.scrollToBottom()"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/use-terminal-scroll-visibility-memory.ts",
+          "line": 126,
+          "code": "pane.terminal.scrollToBottom()"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/pty-connection/fresh-spawn-follow-reset.ts",
+          "line": 42,
+          "code": "session.pane.terminal.scrollToBottom()"
+        }
+      ]
+    },
+    {
+      "operation": "searchAddon",
+      "count": 2,
+      "callerCount": 2,
+      "callers": [
+        "src/renderer/src/components/terminal-pane/TerminalPaneSurface.tsx",
+        "src/renderer/src/lib/pane-manager/pane-public-view.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-public-view.ts",
+          "line": 12,
+          "code": "searchAddon: pane.searchAddon,"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/TerminalPaneSurface.tsx",
+          "line": 212,
+          "code": "searchAddon={activePane.searchAddon ?? null}"
+        }
+      ]
+    },
+    {
+      "operation": "terminal.loadAddon",
+      "count": 2,
+      "callerCount": 2,
+      "callers": [
+        "src/renderer/src/lib/pane-manager/pane-lifecycle.ts",
+        "src/renderer/src/lib/pane-manager/pane-webgl-renderer.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-webgl-renderer.ts",
+          "line": 315,
+          "code": "pane.terminal.loadAddon(addon)"
+        },
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-lifecycle.ts",
+          "line": 140,
+          "code": "pane.terminal.loadAddon(ligaturesAddon)"
+        }
+      ]
+    },
+    {
+      "operation": "terminal.getSelection",
+      "count": 2,
+      "callerCount": 2,
+      "callers": [
+        "src/renderer/src/components/terminal-pane/terminal-keyboard-action-dispatch.ts",
+        "src/renderer/src/components/terminal-pane/terminal-pane-paste-listeners.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/components/terminal-pane/terminal-pane-paste-listeners.ts",
+          "line": 219,
+          "code": "if (!pane.terminal.getSelection()) {"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/terminal-keyboard-action-dispatch.ts",
+          "line": 84,
+          "code": "if (!pane || !pane.terminal.getSelection()) {"
+        }
+      ]
+    },
+    {
+      "operation": "terminal.registerLinkProvider",
+      "count": 2,
+      "callerCount": 1,
+      "callers": [
+        "src/renderer/src/components/terminal-pane/terminal-pane-pane-links.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/components/terminal-pane/terminal-pane-pane-links.ts",
+          "line": 82,
+          "code": "pane.terminal.registerLinkProvider("
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/terminal-pane-pane-links.ts",
+          "line": 88,
+          "code": "pane.terminal.registerLinkProvider("
+        }
+      ]
+    },
+    {
+      "operation": "terminal.onResize",
+      "count": 2,
+      "callerCount": 2,
+      "callers": [
+        "src/renderer/src/components/terminal-pane/pty-connection/fresh-spawn-follow-reset.ts",
+        "src/renderer/src/components/terminal-pane/pty-connection/pty-input-forward.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/components/terminal-pane/pty-connection/pty-input-forward.ts",
+          "line": 246,
+          "code": "session.onResizeDisposable = session.pane.terminal.onResize(({ cols, rows }) => {"
+        },
+        {
+          "caller": "src/renderer/src/components/terminal-pane/pty-connection/fresh-spawn-follow-reset.ts",
+          "line": 58,
+          "code": "session.pane.terminal.onResize(tryResetNativeFollow)"
+        }
+      ]
+    },
+    {
+      "operation": "terminal.clear",
+      "count": 1,
+      "callerCount": 1,
+      "callers": [
+        "src/renderer/src/runtime/web-runtime-terminal-actions.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/runtime/web-runtime-terminal-actions.ts",
+          "line": 281,
+          "code": "// Why: local pane.terminal.clear() is undone by the next host snapshot replay; clear the host buffer so it sticks."
+        }
+      ]
+    },
+    {
+      "operation": "terminal.blur",
+      "count": 1,
+      "callerCount": 1,
+      "callers": [
+        "src/renderer/src/lib/pane-manager/pane-rendering-control.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-rendering-control.ts",
+          "line": 76,
+          "code": "pane.terminal.blur()"
+        }
+      ]
+    },
+    {
+      "operation": "fitAddon",
+      "count": 1,
+      "callerCount": 1,
+      "callers": [
+        "src/renderer/src/lib/pane-manager/pane-public-view.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-public-view.ts",
+          "line": 11,
+          "code": "fitAddon: pane.fitAddon,"
+        }
+      ]
+    },
+    {
+      "operation": "fitAddon.fit",
+      "count": 1,
+      "callerCount": 1,
+      "callers": [
+        "src/renderer/src/lib/pane-manager/pane-fit.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-fit.ts",
+          "line": 135,
+          "code": "pane.fitAddon.fit()"
+        }
+      ]
+    },
+    {
+      "operation": "webglAddon.dispose",
+      "count": 1,
+      "callerCount": 1,
+      "callers": [
+        "src/renderer/src/lib/pane-manager/pane-webgl-renderer.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-webgl-renderer.ts",
+          "line": 139,
+          "code": "pane.webglAddon.dispose()"
+        }
+      ]
+    },
+    {
+      "operation": "ligaturesAddon.dispose",
+      "count": 1,
+      "callerCount": 1,
+      "callers": [
+        "src/renderer/src/lib/pane-manager/pane-lifecycle.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-lifecycle.ts",
+          "line": 126,
+          "code": "pane.ligaturesAddon.dispose()"
+        }
+      ]
+    },
+    {
+      "operation": "searchAddon.dispose",
+      "count": 1,
+      "callerCount": 1,
+      "callers": [
+        "src/renderer/src/lib/pane-manager/pane-lifecycle.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-lifecycle.ts",
+          "line": 234,
+          "code": "pane.searchAddon.dispose()"
+        }
+      ]
+    },
+    {
+      "operation": "serializeAddon.dispose",
+      "count": 1,
+      "callerCount": 1,
+      "callers": [
+        "src/renderer/src/lib/pane-manager/pane-lifecycle.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-lifecycle.ts",
+          "line": 239,
+          "code": "pane.serializeAddon.dispose()"
+        }
+      ]
+    },
+    {
+      "operation": "unicode11Addon.dispose",
+      "count": 1,
+      "callerCount": 1,
+      "callers": [
+        "src/renderer/src/lib/pane-manager/pane-lifecycle.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-lifecycle.ts",
+          "line": 244,
+          "code": "pane.unicode11Addon.dispose()"
+        }
+      ]
+    },
+    {
+      "operation": "webLinksAddon.dispose",
+      "count": 1,
+      "callerCount": 1,
+      "callers": [
+        "src/renderer/src/lib/pane-manager/pane-lifecycle.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-lifecycle.ts",
+          "line": 249,
+          "code": "pane.webLinksAddon.dispose()"
+        }
+      ]
+    },
+    {
+      "operation": "fitAddon.dispose",
+      "count": 1,
+      "callerCount": 1,
+      "callers": [
+        "src/renderer/src/lib/pane-manager/pane-lifecycle.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-lifecycle.ts",
+          "line": 254,
+          "code": "pane.fitAddon.dispose()"
+        }
+      ]
+    },
+    {
+      "operation": "terminal.dispose",
+      "count": 1,
+      "callerCount": 1,
+      "callers": [
+        "src/renderer/src/lib/pane-manager/pane-lifecycle.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/lib/pane-manager/pane-lifecycle.ts",
+          "line": 265,
+          "code": "pane.terminal.dispose()"
+        }
+      ]
+    },
+    {
+      "operation": "terminal.onSelectionChange",
+      "count": 1,
+      "callerCount": 1,
+      "callers": [
+        "src/renderer/src/components/terminal-pane/terminal-pane-pane-links.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/components/terminal-pane/terminal-pane-pane-links.ts",
+          "line": 125,
+          "code": "pane.terminal.onSelectionChange(() => {"
+        }
+      ]
+    },
+    {
+      "operation": "searchAddon.findNext",
+      "count": 1,
+      "callerCount": 1,
+      "callers": [
+        "src/renderer/src/components/terminal-pane/terminal-keyboard-shortcut-matching.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/components/terminal-pane/terminal-keyboard-shortcut-matching.ts",
+          "line": 98,
+          "code": "(term, findOptions) => pane.searchAddon.findNext(term, findOptions),"
+        }
+      ]
+    },
+    {
+      "operation": "searchAddon.findPrevious",
+      "count": 1,
+      "callerCount": 1,
+      "callers": [
+        "src/renderer/src/components/terminal-pane/terminal-keyboard-shortcut-matching.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/components/terminal-pane/terminal-keyboard-shortcut-matching.ts",
+          "line": 103,
+          "code": "(term, findOptions) => pane.searchAddon.findPrevious(term, findOptions),"
+        }
+      ]
+    },
+    {
+      "operation": "terminal.attachCustomKeyEventHandler",
+      "count": 1,
+      "callerCount": 1,
+      "callers": [
+        "src/renderer/src/components/terminal-pane/terminal-pane-pane-input.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/components/terminal-pane/terminal-pane-pane-input.ts",
+          "line": 95,
+          "code": "pane.terminal.attachCustomKeyEventHandler((event) => {"
+        }
+      ]
+    },
+    {
+      "operation": "terminal.scrollToLine",
+      "count": 1,
+      "callerCount": 1,
+      "callers": [
+        "src/renderer/src/components/terminal-pane/terminal-keyboard-action-dispatch.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/components/terminal-pane/terminal-keyboard-action-dispatch.ts",
+          "line": 119,
+          "code": "pane.terminal.scrollToLine(0)"
+        }
+      ]
+    },
+    {
+      "operation": "terminal.onData",
+      "count": 1,
+      "callerCount": 1,
+      "callers": [
+        "src/renderer/src/components/terminal-pane/pty-connection-test-dom.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/components/terminal-pane/pty-connection-test-dom.ts",
+          "line": 147,
+          "code": "const onDataMock = pane.terminal.onData as unknown as {"
+        }
+      ]
+    },
+    {
+      "operation": "terminal.onTitleChange",
+      "count": 1,
+      "callerCount": 1,
+      "callers": [
+        "src/renderer/src/components/terminal-pane/pty-connection/pane-serializer-register.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/components/terminal-pane/pty-connection/pane-serializer-register.ts",
+          "line": 80,
+          "code": "session.pane.terminal.onTitleChange(handler)"
+        }
+      ]
+    },
+    {
+      "operation": "terminal.onRender",
+      "count": 1,
+      "callerCount": 1,
+      "callers": [
+        "src/renderer/src/components/terminal-pane/pty-connection/fresh-spawn-follow-reset.ts"
+      ],
+      "samples": [
+        {
+          "caller": "src/renderer/src/components/terminal-pane/pty-connection/fresh-spawn-follow-reset.ts",
+          "line": 57,
+          "code": "session.pane.terminal.onRender(tryResetNativeFollow),"
+        }
+      ]
+    }
+  ]
+}
