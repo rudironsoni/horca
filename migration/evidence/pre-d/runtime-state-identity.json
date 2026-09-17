@@ -1,0 +1,28 @@
+{
+  "resolver": {
+    "module": "src/main/linear/linear-credential-paths.ts",
+    "functions": [
+      "ensureOrcaDir",
+      "getWorkspaceFilePath"
+    ]
+  },
+  "env": {
+    "HOME": "/var/folders/t6/jmkhfw452wx9x27cvtj03qmh0000gq/T/horca-state-kIUkVp",
+    "XDG_CONFIG_HOME": "/var/folders/t6/jmkhfw452wx9x27cvtj03qmh0000gq/T/horca-state-kIUkVp/xdg-config",
+    "XDG_CACHE_HOME": "/var/folders/t6/jmkhfw452wx9x27cvtj03qmh0000gq/T/horca-state-kIUkVp/xdg-cache"
+  },
+  "resolved": {
+    "home": "/var/folders/t6/jmkhfw452wx9x27cvtj03qmh0000gq/T/horca-state-kIUkVp",
+    "workspaceFilePath": "/var/folders/t6/jmkhfw452wx9x27cvtj03qmh0000gq/T/horca-state-kIUkVp/.horca/linear-workspaces.json"
+  },
+  "createdPaths": [
+    "/var/folders/t6/jmkhfw452wx9x27cvtj03qmh0000gq/T/horca-state-kIUkVp/xdg-config",
+    "/var/folders/t6/jmkhfw452wx9x27cvtj03qmh0000gq/T/horca-state-kIUkVp/.horca",
+    "/var/folders/t6/jmkhfw452wx9x27cvtj03qmh0000gq/T/horca-state-kIUkVp/xdg-cache"
+  ],
+  "orcaNamedPathsCreated": [],
+  "horcaNamedPathsCreated": [
+    "/var/folders/t6/jmkhfw452wx9x27cvtj03qmh0000gq/T/horca-state-kIUkVp/.horca"
+  ],
+  "pass": true
+}

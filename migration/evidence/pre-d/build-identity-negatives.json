@@ -1,0 +1,23 @@
+{
+  "before": "ea125269882b7a4f",
+  "changeProductionSource": "e7c6e97014ee617f",
+  "restoreProductionSource": "ea125269882b7a4f",
+  "changeMigrationEvidence": "ea125269882b7a4f",
+  "changeProductJson": "741fd077caccbe7c",
+  "changeDependencyLock": "03792516354fee5f",
+  "cwdEqualsRoot": true,
+  "sourceChanged": true,
+  "sourceRestored": true,
+  "evidenceUnchanged": true,
+  "productChanged": true,
+  "lockChanged": true,
+  "record": {
+    "schema": "schema-4",
+    "upstreamSha": "85d1ffc0726d8403f9494436c421c5e3d7932c47",
+    "overlayDigest": "156e7db04e73",
+    "depLockDigest": "094a0411d6ee",
+    "productDigest": "820da4422d08",
+    "productionDigest": "f26d6c5e17ac",
+    "buildIdentity": "ea125269882b7a4f"
+  }
+}

@@ -11,6 +11,14 @@
       "disposition": "NEUTRAL_FALSE_POSITIVE",
       "reason": "The upstream literals appear only as declared overlay find-sentinels that Gate C replaces; they are not emitted identity."
     },
+    "config/horca/identity-dispositions.json": {
+      "disposition": "NEUTRAL_FALSE_POSITIVE",
+      "reason": "Registry of identity dispositions; quotes upstream literals only as classification keys."
+    },
+    "scripts/verify-product-identity.mjs": {
+      "disposition": "NEUTRAL_FALSE_POSITIVE",
+      "reason": "Verifier scans for forbidden public Orca identity; the literals are checks, not emitted product identity."
+    },
     "docs/horca/distribution.md": {
       "disposition": "HISTORICAL_EVIDENCE",
       "reason": "Fork-era distribution documentation; describes the superseded dual-distribution model."

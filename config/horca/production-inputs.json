@@ -1,0 +1,39 @@
+{
+  "productionPrefixes": [
+    "src/",
+    "config/",
+    "scripts/",
+    "native/",
+    "resources/",
+    "mobile/"
+  ],
+  "productionFiles": [
+    "package.json",
+    "pnpm-workspace.yaml"
+  ],
+  "independentFiles": [
+    "upstream.lock.json",
+    "overlay/manifest.json",
+    "pnpm-lock.yaml",
+    "product.json"
+  ],
+  "nonProductionPrefixes": [
+    "migration/",
+    "docs/",
+    "tests/",
+    ".github/"
+  ],
+  "nonProductionFiles": [
+    "LICENSE",
+    ".gitignore"
+  ],
+  "nonProductionSuffixes": [
+    ".test.ts",
+    ".test.tsx",
+    ".test.mjs",
+    ".test.js"
+  ],
+  "nonProductionPathParts": [
+    "/test-support/"
+  ]
+}
