@@ -1,0 +1,9 @@
+{
+  "name": "Horca",
+  "packageName": "horca",
+  "appId": "com.rudironsoni.horca",
+  "protocol": "horca",
+  "cli": "horca",
+  "stateDirectory": ".horca",
+  "linuxExecutable": "horca"
+}

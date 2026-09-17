@@ -1,0 +1,31 @@
+{
+  "wrongAppId": {
+    "exit": 1,
+    "failedAsRequired": true,
+    "excerpt": [
+      "  FAIL  CFBundleIdentifier matches appId (com.stablyai.orca)",
+      "[verify-product-identity] FAIL (1)"
+    ]
+  },
+  "wrongProtocol": {
+    "exit": 1,
+    "failedAsRequired": true,
+    "excerpt": [
+      "  FAIL  registered URL scheme matches protocol ([\"orca\"])",
+      "[verify-product-identity] FAIL (1)"
+    ]
+  },
+  "wrongCli": {
+    "exit": 1,
+    "failedAsRequired": true,
+    "excerpt": [
+      "  PASS  product.json has cli",
+      "  FAIL  identity module cli matches product.json",
+      "[verify-product-identity] FAIL (1)"
+    ]
+  },
+  "restoredVerifier": {
+    "exit": 0,
+    "passed": true
+  }
+}

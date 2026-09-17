@@ -1,5 +1,634 @@
 {
   "version": 1,
   "schemaVersion": 1,
-  "overrides": []
+  "overrides": [
+    {
+      "id": "gate-c-add-product-json",
+      "target": "product.json",
+      "mode": "add",
+      "source": "product.json",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "Gate C: canonical product identity present in the build."
+    },
+    {
+      "id": "gate-c-add-product-identity-module",
+      "target": "config/horca/product-identity.cjs",
+      "mode": "add",
+      "source": "config/horca/product-identity.cjs",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "Gate C: single product configuration module."
+    },
+    {
+      "id": "gate-c-add-cli-product-copy",
+      "target": "src/shared/horca/horca-product-copy.ts",
+      "mode": "add",
+      "source": "src/shared/horca/horca-product-copy.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "Gate C: CLI product-copy adapter (one deep seam instead of hundreds of string edits)."
+    },
+    {
+      "id": "gate-c-packaging-appid",
+      "target": "config/electron-builder.config.cjs",
+      "mode": "substitute",
+      "find": "const appId = 'com.stablyai.orca'",
+      "replace": "const horcaIdentity = require('./horca/product-identity.cjs')\nconst appId = horcaIdentity.appId",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "const appId = 'com.stablyai.orca'",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "const appId = horcaIdentity.appId"
+      },
+      "reason": "bundle id from product.json"
+    },
+    {
+      "id": "gate-c-packaging-name",
+      "target": "config/electron-builder.config.cjs",
+      "mode": "substitute",
+      "find": "  productName: 'Orca',\n  protocols: [{ name: 'Orca', schemes: ['orca'] }],",
+      "replace": "  productName: horcaIdentity.name,\n  protocols: [{ name: horcaIdentity.name, schemes: [horcaIdentity.protocol] }],",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "  productName: 'Orca',\n  protocols: [{ name: 'Orca', schemes: ['orca'] }],",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "protocols: [{ name: horcaIdentity.name, schemes: [horcaIdentity.protocol] }],"
+      },
+      "reason": "product name + protocol from product.json"
+    },
+    {
+      "id": "gate-c-packaging-win",
+      "target": "config/electron-builder.config.cjs",
+      "mode": "substitute",
+      "find": "    executableName: 'Orca',",
+      "replace": "    executableName: horcaIdentity.windowsExecutable,",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "    executableName: 'Orca',",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "executableName: horcaIdentity.windowsExecutable,"
+      },
+      "reason": "Windows executable identity"
+    },
+    {
+      "id": "gate-c-packaging-linux",
+      "target": "config/electron-builder.config.cjs",
+      "mode": "substitute",
+      "find": "    executableName: 'orca-ide',",
+      "replace": "    executableName: horcaIdentity.linuxExecutable,",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "    executableName: 'orca-ide',",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "executableName: horcaIdentity.linuxExecutable,"
+      },
+      "reason": "Linux executable identity"
+    },
+    {
+      "id": "gate-c-packaging-cli",
+      "target": "config/electron-builder.config.cjs",
+      "mode": "substitute",
+      "find": "        from: 'resources/darwin/bin/orca',\n        to: 'bin/orca'",
+      "replace": "        from: 'resources/darwin/bin/orca',\n        to: `bin/${horcaIdentity.cli}`",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "        from: 'resources/darwin/bin/orca',\n        to: 'bin/orca'",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel+blob-sha256",
+        "mustOccurExactlyOnce": "to: `bin/${horcaIdentity.cli}`",
+        "resultingBlobSha256": "d474ded9bcaaa96e4cdbaf3a9e66db19c97b27802e5567be431c072a69b74dcc"
+      },
+      "reason": "public CLI launcher name from product.json"
+    },
+    {
+      "id": "gate-c-cli-launcher-exe",
+      "target": "resources/darwin/bin/orca",
+      "mode": "substitute",
+      "find": "ELECTRON=\"$CONTENTS/MacOS/Orca\"",
+      "replace": "ELECTRON=\"$CONTENTS/MacOS/Horca\"",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "ELECTRON=\"$CONTENTS/MacOS/Orca\"",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "ELECTRON=\"$CONTENTS/MacOS/Horca\""
+      },
+      "reason": "launcher resolves the packaged Horca executable"
+    },
+    {
+      "id": "gate-c-cli-launcher-msg",
+      "target": "resources/darwin/bin/orca",
+      "mode": "substitute",
+      "find": "Unable to determine Orca.app path",
+      "replace": "Unable to determine Horca.app path",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "Unable to determine Orca.app path",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel+blob-sha256",
+        "mustOccurExactlyOnce": "Unable to determine Horca.app path",
+        "resultingBlobSha256": "ec2dc1c72f3f839031733ed696177131af12acc20891ee7c2669c3ff98adda16"
+      },
+      "reason": "launcher error copy says Horca"
+    },
+    {
+      "id": "gate-c-cli-command-name",
+      "target": "src/shared/orca-cli-command-name.ts",
+      "mode": "substitute",
+      "find": "export function getOrcaCliCommandNameForPlatform(platform: NodeJS.Platform): string {\n  if (platform === 'linux') {\n    return 'orca-ide'\n  }\n  if (platform === 'win32') {\n    return 'orca.cmd'\n  }\n  return 'orca'\n}",
+      "replace": "import { HORCA_CLI_COMMAND_NAME } from './horca/horca-product-copy'\n\nexport function getOrcaCliCommandNameForPlatform(platform: NodeJS.Platform): string {\n  if (platform === 'win32') {\n    return `${HORCA_CLI_COMMAND_NAME}.cmd`\n  }\n  return HORCA_CLI_COMMAND_NAME\n}",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "export function getOrcaCliCommandNameForPlatform(platform: NodeJS.Platform): string {\n  if (platform === 'linux') {\n    return 'orca-ide'\n  }\n  if (platform === 'win32') {\n    return 'orca.cmd'\n  }\n  return 'orca'\n}",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel+blob-sha256",
+        "mustOccurExactlyOnce": "return HORCA_CLI_COMMAND_NAME",
+        "resultingBlobSha256": "8f4f8b8e076a0d246755e6f93b04cbef5be4630f5e68f1c28add23bd30453b91"
+      },
+      "reason": "CLI command name derives from the Horca product copy"
+    },
+    {
+      "id": "gate-c-cli-help-1",
+      "target": "src/cli/help.ts",
+      "mode": "substitute",
+      "find": "import { ROOT_HELP_TEXT_SECONDARY } from './root-help-text-secondary'",
+      "replace": "import { ROOT_HELP_TEXT_SECONDARY } from './root-help-text-secondary'\nimport { asHorcaProductCopy, HORCA_CLI_COMMAND_NAME } from '../shared/horca/horca-product-copy'",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "import { ROOT_HELP_TEXT_SECONDARY } from './root-help-text-secondary'",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "import { ROOT_HELP_TEXT_SECONDARY } from './root-help-text-secondary'"
+      },
+      "reason": "CLI help output identifies Horca via the product-copy adapter"
+    },
+    {
+      "id": "gate-c-cli-help-2",
+      "target": "src/cli/help.ts",
+      "mode": "substitute",
+      "find": "const ROOT_HELP_TEXT = [ROOT_HELP_TEXT_PRIMARY, ROOT_HELP_TEXT_SECONDARY].join('\\n')",
+      "replace": "const ROOT_HELP_TEXT = asHorcaProductCopy(\n  [ROOT_HELP_TEXT_PRIMARY, ROOT_HELP_TEXT_SECONDARY].join('\\n')\n)",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "const ROOT_HELP_TEXT = [ROOT_HELP_TEXT_PRIMARY, ROOT_HELP_TEXT_SECONDARY].join('\\n')",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "const ROOT_HELP_TEXT = asHorcaProductCopy("
+      },
+      "reason": "CLI help output identifies Horca via the product-copy adapter"
+    },
+    {
+      "id": "gate-c-cli-help-3",
+      "target": "src/cli/help.ts",
+      "mode": "substitute",
+      "find": "    console.log(formatCommandHelp(exactSpec))",
+      "replace": "    console.log(asHorcaProductCopy(formatCommandHelp(exactSpec)))",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "    console.log(formatCommandHelp(exactSpec))",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "    console.log(asHorcaProductCopy(formatCommandHelp(exactSpec)))"
+      },
+      "reason": "CLI help output identifies Horca via the product-copy adapter"
+    },
+    {
+      "id": "gate-c-cli-help-4",
+      "target": "src/cli/help.ts",
+      "mode": "substitute",
+      "find": "    console.log(formatGroupHelp(specs, commandPath))",
+      "replace": "    console.log(asHorcaProductCopy(formatGroupHelp(specs, commandPath)))",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "    console.log(formatGroupHelp(specs, commandPath))",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "    console.log(asHorcaProductCopy(formatGroupHelp(specs, commandPath)))"
+      },
+      "reason": "CLI help output identifies Horca via the product-copy adapter"
+    },
+    {
+      "id": "gate-c-cli-help-5",
+      "target": "src/cli/help.ts",
+      "mode": "substitute",
+      "find": "  const lines = [`orca ${spec.path.join(' ')}`, '', `Usage: ${spec.usage}`, '', spec.summary]",
+      "replace": "  const lines = [\n    `${HORCA_CLI_COMMAND_NAME} ${spec.path.join(' ')}`,\n    '',\n    `Usage: ${spec.usage}`,\n    '',\n    spec.summary\n  ]",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "  const lines = [`orca ${spec.path.join(' ')}`, '', `Usage: ${spec.usage}`, '', spec.summary]",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel+blob-sha256",
+        "mustOccurExactlyOnce": "    `${HORCA_CLI_COMMAND_NAME} ${spec.path.join(' ')}`,",
+        "resultingBlobSha256": "5f13c31348cd1d754821f04580e862fa6e53d71b9dbe713c0b304d9b8f816157"
+      },
+      "reason": "CLI help output identifies Horca via the product-copy adapter"
+    },
+    {
+      "id": "gate-c-state-1",
+      "target": "src/main/agent-hooks/installer-utils.ts",
+      "mode": "substitute",
+      "find": "join(homedir(), '.orca', 'agent-hooks', scriptFileName)",
+      "replace": "join(homedir(), '.horca', 'agent-hooks', scriptFileName)",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "join(homedir(), '.orca', 'agent-hooks', scriptFileName)",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "join(homedir(), '.horca', 'agent-hooks', scriptFileName)"
+      },
+      "reason": "Gate C: Horca home state namespace (.horca) instead of upstream .orca."
+    },
+    {
+      "id": "gate-c-state-2",
+      "target": "src/main/agent-hooks/managed-hook-install-lock.ts",
+      "mode": "substitute",
+      "find": "join(home, '.orca')",
+      "replace": "join(home, '.horca')",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "join(home, '.orca')",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "join(home, '.horca')"
+      },
+      "reason": "Gate C: Horca home state namespace (.horca) instead of upstream .orca."
+    },
+    {
+      "id": "gate-c-state-3",
+      "target": "src/main/bitbucket/credential-store.ts",
+      "mode": "substitute",
+      "find": "join(homedir(), '.orca')",
+      "replace": "join(homedir(), '.horca')",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "join(homedir(), '.orca')",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "join(homedir(), '.horca')"
+      },
+      "reason": "Gate C: Horca home state namespace (.horca) instead of upstream .orca."
+    },
+    {
+      "id": "gate-c-state-4",
+      "target": "src/main/grok/grok-hook-owners.ts",
+      "mode": "substitute",
+      "find": "join(homedir(), '.orca', 'agent-hooks', 'grok-owners')",
+      "replace": "join(homedir(), '.horca', 'agent-hooks', 'grok-owners')",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "join(homedir(), '.orca', 'agent-hooks', 'grok-owners')",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "join(homedir(), '.horca', 'agent-hooks', 'grok-owners')"
+      },
+      "reason": "Gate C: Horca home state namespace (.horca) instead of upstream .orca."
+    },
+    {
+      "id": "gate-c-state-5",
+      "target": "src/main/jira/site-credential-store.ts",
+      "mode": "substitute",
+      "find": "join(homedir(), '.orca')",
+      "replace": "join(homedir(), '.horca')",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "join(homedir(), '.orca')",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "join(homedir(), '.horca')"
+      },
+      "reason": "Gate C: Horca home state namespace (.horca) instead of upstream .orca."
+    },
+    {
+      "id": "gate-c-state-6",
+      "target": "src/main/keybindings/keybinding-file.ts",
+      "mode": "substitute",
+      "find": "join(homePath, '.orca', 'keybindings.json')",
+      "replace": "join(homePath, '.horca', 'keybindings.json')",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "join(homePath, '.orca', 'keybindings.json')",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "join(homePath, '.horca', 'keybindings.json')"
+      },
+      "reason": "Gate C: Horca home state namespace (.horca) instead of upstream .orca."
+    },
+    {
+      "id": "gate-c-state-7",
+      "target": "src/main/linear/linear-credential-paths.ts",
+      "mode": "substitute",
+      "find": "join(homedir(), '.orca')",
+      "replace": "join(homedir(), '.horca')",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "join(homedir(), '.orca')",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "join(homedir(), '.horca')"
+      },
+      "reason": "Gate C: Horca home state namespace (.horca) instead of upstream .orca."
+    },
+    {
+      "id": "gate-c-state-8",
+      "target": "src/main/minimax/minimax-api-key-store.ts",
+      "mode": "substitute",
+      "find": "join(homedir(), '.orca')",
+      "replace": "join(homedir(), '.horca')",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "join(homedir(), '.orca')",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "join(homedir(), '.horca')"
+      },
+      "reason": "Gate C: Horca home state namespace (.horca) instead of upstream .orca."
+    },
+    {
+      "id": "gate-c-state-9",
+      "target": "src/main/minimax/minimax-cookie-store.ts",
+      "mode": "substitute",
+      "find": "join(homedir(), '.orca')",
+      "replace": "join(homedir(), '.horca')",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "join(homedir(), '.orca')",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "join(homedir(), '.horca')"
+      },
+      "reason": "Gate C: Horca home state namespace (.horca) instead of upstream .orca."
+    },
+    {
+      "id": "gate-c-state-10",
+      "target": "src/main/orcad/orcad-app-paths.ts",
+      "mode": "substitute",
+      "find": "xdg ? join(xdg, 'Orca') : join(homedir(), '.orca')",
+      "replace": "xdg ? join(xdg, 'Horca') : join(homedir(), '.horca')",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "xdg ? join(xdg, 'Orca') : join(homedir(), '.orca')",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "xdg ? join(xdg, 'Horca') : join(homedir(), '.horca')"
+      },
+      "reason": "Gate C: Horca home state namespace (.horca) instead of upstream .orca."
+    },
+    {
+      "id": "gate-c-state-11",
+      "target": "src/main/runtime/claude-agent-teams-shim-env.ts",
+      "mode": "substitute",
+      "find": "join(homedir(), '.orca', 'claude-agent-teams-bin')",
+      "replace": "join(homedir(), '.horca', 'claude-agent-teams-bin')",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "join(homedir(), '.orca', 'claude-agent-teams-bin')",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "join(homedir(), '.horca', 'claude-agent-teams-bin')"
+      },
+      "reason": "Gate C: Horca home state namespace (.horca) instead of upstream .orca."
+    },
+    {
+      "id": "gate-c-state-12",
+      "target": "src/main/speech/openai-api-key-store.ts",
+      "mode": "substitute",
+      "find": "join(homedir(), '.orca')",
+      "replace": "join(homedir(), '.horca')",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "join(homedir(), '.orca')",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "join(homedir(), '.horca')"
+      },
+      "reason": "Gate C: Horca home state namespace (.horca) instead of upstream .orca."
+    },
+    {
+      "id": "gate-c-userdata-1",
+      "target": "src/main/codex/codex-home-paths.ts",
+      "mode": "substitute",
+      "find": "join(homedir(), 'Library', 'Application Support', 'orca')",
+      "replace": "join(homedir(), 'Library', 'Application Support', 'Horca')",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "join(homedir(), 'Library', 'Application Support', 'orca')",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "join(homedir(), 'Library', 'Application Support', 'Horca')"
+      },
+      "reason": "Gate C: CLI user-data path mirrors packaged app identity (Horca) instead of upstream orca."
+    },
+    {
+      "id": "gate-c-userdata-2",
+      "target": "src/main/codex/codex-home-paths.ts",
+      "mode": "substitute",
+      "find": "join(homedir(), 'AppData', 'Roaming'), 'orca')",
+      "replace": "join(homedir(), 'AppData', 'Roaming'), 'Horca')",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "join(homedir(), 'AppData', 'Roaming'), 'orca')",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "join(homedir(), 'AppData', 'Roaming'), 'Horca')"
+      },
+      "reason": "Gate C: CLI user-data path mirrors packaged app identity (Horca) instead of upstream orca."
+    },
+    {
+      "id": "gate-c-userdata-3",
+      "target": "src/main/codex/codex-home-paths.ts",
+      "mode": "substitute",
+      "find": "join(homedir(), '.config'), 'orca')",
+      "replace": "join(homedir(), '.config'), 'Horca')",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "join(homedir(), '.config'), 'orca')",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "join(homedir(), '.config'), 'Horca')"
+      },
+      "reason": "Gate C: CLI user-data path mirrors packaged app identity (Horca) instead of upstream orca."
+    },
+    {
+      "id": "gate-c-native-universal-buildsystem",
+      "target": "config/scripts/build-computer-macos.mjs",
+      "mode": "substitute",
+      "find": "run('swift', ['build', '-c', 'release', '--package-path', packagePath, '--triple', triple])",
+      "replace": "run('swift', ['build', '-c', 'release', '--build-system', 'native', '--package-path', packagePath, '--triple', triple])",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "run('swift', ['build', '-c', 'release', '--package-path', packagePath, '--triple', triple])",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "run('swift', ['build', '-c', 'release', '--build-system', 'native', '--package-path', packagePath, '--triple', triple])"
+      },
+      "reason": "Gate C build proof: Swift 6.4 (Xcode 27) swiftbuild ignores per-triple scratch dirs, so the script's universal lipo paths never exist; the legacy native build system restores them."
+    },
+    {
+      "id": "gate-c-cli-runtime-1",
+      "target": "src/cli/runtime/metadata.ts",
+      "mode": "substitute",
+      "find": "join(homeDir, 'Library', 'Application Support', 'orca')",
+      "replace": "join(homeDir, 'Library', 'Application Support', 'Horca')",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "join(homeDir, 'Library', 'Application Support', 'orca')",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "join(homeDir, 'Library', 'Application Support', 'Horca')"
+      },
+      "reason": "Gate C: CLI user-data path and error funnel use Horca identity (no 'Run orca open' directive)."
+    },
+    {
+      "id": "gate-c-cli-runtime-2",
+      "target": "src/cli/runtime/metadata.ts",
+      "mode": "substitute",
+      "find": "join(appData, 'orca')",
+      "replace": "join(appData, 'Horca')",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "join(appData, 'orca')",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "join(appData, 'Horca')"
+      },
+      "reason": "Gate C: CLI user-data path and error funnel use Horca identity (no 'Run orca open' directive)."
+    },
+    {
+      "id": "gate-c-cli-runtime-3",
+      "target": "src/cli/runtime/metadata.ts",
+      "mode": "substitute",
+      "find": "join(homeDir, '.config'), 'orca')",
+      "replace": "join(homeDir, '.config'), 'Horca')",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "join(homeDir, '.config'), 'orca')",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "join(homeDir, '.config'), 'Horca')"
+      },
+      "reason": "Gate C: CLI user-data path and error funnel use Horca identity (no 'Run orca open' directive)."
+    },
+    {
+      "id": "gate-c-cli-runtime-4",
+      "target": "src/cli/cli-error.ts",
+      "mode": "substitute",
+      "find": "import { computerUseErrorRecoveryData } from '../shared/computer-use-error-recovery'",
+      "replace": "import { computerUseErrorRecoveryData } from '../shared/computer-use-error-recovery'\nimport { asHorcaProductCopy } from '../shared/horca/horca-product-copy'",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "import { computerUseErrorRecoveryData } from '../shared/computer-use-error-recovery'",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "import { computerUseErrorRecoveryData } from '../shared/computer-use-error-recovery'\nimport { asHorcaProductCopy } from '../shared/horca/horca-product-copy'"
+      },
+      "reason": "Gate C: CLI user-data path and error funnel use Horca identity (no 'Run orca open' directive)."
+    },
+    {
+      "id": "gate-c-cli-runtime-5",
+      "target": "src/cli/cli-error.ts",
+      "mode": "substitute",
+      "find": "const message = error instanceof Error ? error.message : String(error)",
+      "replace": "const message = asHorcaProductCopy(error instanceof Error ? error.message : String(error))",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "const message = error instanceof Error ? error.message : String(error)",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel"
+      },
+      "reason": "Gate C: CLI user-data path and error funnel use Horca identity (no 'Run orca open' directive)."
+    },
+    {
+      "id": "gate-c-cli-runtime-6",
+      "target": "src/cli/cli-error.ts",
+      "mode": "substitute",
+      "find": "export function formatCliError(error: unknown, context: CliErrorContext = {}): string {\n  const message = asHorcaProductCopy(error instanceof Error ? error.message : String(error))",
+      "replace": "export function formatCliError(error: unknown, context: CliErrorContext = {}): string {\n  return asHorcaProductCopy(formatCliErrorUnmapped(error, context))\n}\nfunction formatCliErrorUnmapped(error: unknown, context: CliErrorContext = {}): string {\n  const message = error instanceof Error ? error.message : String(error)",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "export function formatCliError(error: unknown, context: CliErrorContext = {}): string {\n  const message = asHorcaProductCopy(error instanceof Error ? error.message : String(error))",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "return asHorcaProductCopy(formatCliErrorUnmapped(error, context))"
+      },
+      "reason": "Gate C: map every CLI error path, including recovery appends, through the product-copy seam."
+    }
+  ]
 }

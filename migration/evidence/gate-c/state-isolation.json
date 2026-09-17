@@ -1,0 +1,15 @@
+{
+  "isolatedHome": "/tmp/gc-state",
+  "command": "horca account list",
+  "output": [
+    "Could not read Horca runtime metadata at /tmp/gc-state/Library/Application Support/Horca/orca-runtime.json. Start the Horca app first.",
+    "Horca is not running. Run 'horca open' first."
+  ],
+  "createdPaths": [],
+  "orcaNamedPathsCreated": [],
+  "electronUserDataContract": "~/Library/Application Support/Horca (CFBundleName=Horca)",
+  "cliUserDataObserved": "/tmp/gc-state/Library/Application Support/Horca",
+  "homeStateContract": ".horca (12 local credential/hook/keybinding joins in packaged main)",
+  "packagedAsarHorcaStateCount": 30,
+  "privateMetadataFilename": "orca-runtime.json inside Horca userData; not created; PRIVATE_UPSTREAM_COMPATIBILITY"
+}

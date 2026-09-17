@@ -26,13 +26,23 @@ function computeHorcaDependencyLockDigest() {
   return readFileSync(depLock).toString('utf8') && createHash('sha256').update(readFileSync(depLock)).digest('hex').slice(0, 12)
 }
 
-function computeBuildIdentity(upstreamSha, overlayDigest, depLockDigest) {
+function computeProductDigest() {
+  // Gate C: product.json is a committed build input.
+  const productFile = process.env.HORCA_PRODUCT_JSON
+    ? resolve(process.env.HORCA_PRODUCT_JSON)
+    : resolve(ROOT, 'product.json')
+  if (!existsSync(productFile)) return 'none'
+  return createHash('sha256').update(readFileSync(productFile)).digest('hex').slice(0, 12)
+}
+
+function computeBuildIdentity(upstreamSha, overlayDigest, depLockDigest, productDigest) {
   // upstream SHA + overlay digest + materializer schema version + Horca dependency-lock digest
   const inputs = [
     upstreamSha.slice(0, 12),
     overlayDigest,
-    'schema-2',
-    depLockDigest
+    'schema-3',
+    depLockDigest,
+    productDigest
   ]
   return createHash('sha256').update(inputs.join('+')).digest('hex').slice(0, 16)
 }
@@ -47,7 +57,8 @@ function main() {
 
   const overlayDigest = computeOverlayDigest()
   const depLockDigest = computeHorcaDependencyLockDigest()
-  const buildIdentity = computeBuildIdentity(upstreamSha, overlayDigest, depLockDigest)
+  const productDigest = computeProductDigest()
+  const buildIdentity = computeBuildIdentity(upstreamSha, overlayDigest, depLockDigest, productDigest)
   const runId = process.env.GITHUB_RUN_ID || process.env.BUILD_ID || `local-${Date.now()}`
   const worktreePath = resolve(WORKTREES_DIR, upstreamSha, `${overlayDigest}-${runId}`)
 
@@ -97,7 +108,7 @@ function main() {
   // Write build identity file for downstream tooling
   writeFileSync(
     resolve(worktreePath, '.horca-build-identity.json'),
-    JSON.stringify({ upstreamSha, overlayDigest, depLockDigest, buildIdentity, runId }, null, 2)
+    JSON.stringify({ upstreamSha, overlayDigest, depLockDigest, productDigest, buildIdentity, runId }, null, 2)
   )
 
   console.log(`[materialize] Worktree created and verified at ${worktreePath}`)

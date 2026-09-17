@@ -1,0 +1,10 @@
+{
+  "app": "/Users/rudimar.ronsoni@feverup.com/src/rudironsoni/horca/.cache/worktrees/85d1ffc0726d8403f9494436c421c5e3d7932c47/8a5031cba14e-local-1789651162099/dist/mac-arm64/Horca.app",
+  "CFBundleIdentifier": "com.rudironsoni.horca",
+  "CFBundleName": "Horca",
+  "CFBundleDisplayName": "Horca",
+  "CFBundleExecutable": "Horca",
+  "urlScheme": "horca",
+  "publicCli": "Contents/Resources/bin/horca",
+  "cliVersion": "1.4.197"
+}

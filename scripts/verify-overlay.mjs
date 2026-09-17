@@ -10,7 +10,7 @@ const MANIFEST_FILE = process.env.HORCA_OVERLAY_MANIFEST
 const CACHE_DIR = resolve(ROOT, '.cache', 'upstream.git')
 
 function getWorktreeDelta(worktreePath) {
-  const status = execSync(`git status --porcelain=v2`, {
+  const status = execSync(`git status --porcelain=v2 --untracked-files=all`, {
     cwd: worktreePath,
     encoding: 'utf8'
   }).trim()

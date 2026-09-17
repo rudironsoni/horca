@@ -1,0 +1,51 @@
+{
+  "note": "Declared dispositions for Horca-owned tracked files that contain a public product-identity literal. scripts/verify-product-identity.mjs fails on any matching file absent from this registry.",
+  "patterns": [
+    "com\\.stablyai\\.orca",
+    "orca://",
+    "productName[\"'=: ]+Orca",
+    "\"schemes\": \\[\"orca\"\\]"
+  ],
+  "dispositions": {
+    "overlay/manifest.json": {
+      "disposition": "NEUTRAL_FALSE_POSITIVE",
+      "reason": "The upstream literals appear only as declared overlay find-sentinels that Gate C replaces; they are not emitted identity."
+    },
+    "docs/horca/distribution.md": {
+      "disposition": "HISTORICAL_EVIDENCE",
+      "reason": "Fork-era distribution documentation; describes the superseded dual-distribution model."
+    },
+    "src/shared/distribution-identity.json": {
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Describes upstream Orca's own identity alongside Horca's so the dormant fork machinery can keep them separate. Horca builds select the horca profile; the official profile is never selected. Not reachable from the pinned-input production build."
+    },
+    "src/shared/distribution-identity.ts": {
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Same dual-distribution identity contract as the JSON; Horca builds resolve the horca profile via distribution-build-profile."
+    },
+    "src/shared/distribution-identity.test.ts": {
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Test asserting the dual-distribution identity contract stays in sync."
+    },
+    "src/shared/distribution-product-copy.ts": {
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Per-distribution product copy; Horca selects the horca profile."
+    },
+    "src/shared/horca/distribution-translation-catalog-plugin.ts": {
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Per-distribution i18n catalog plugin; not part of the pinned-input production build."
+    },
+    "config/electron-builder-downstream.cjs": {
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Superseded fork-era downstream builder post-processor. Gate C replaces it with the product.json packaging seam; removal is tracked as identity/dead-code cleanup."
+    },
+    "src/main/horca/configure-horca-user-data.test.ts": {
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Test of the Horca user-data configuration against the dual-distribution contract."
+    },
+    "src/shared/horca-pairing.test.ts": {
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Asserts that the `orca:` deep-link wire format stays accepted for cross-client compatibility; OS-level registration is horca only."
+    }
+  }
+}

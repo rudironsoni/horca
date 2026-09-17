@@ -1,0 +1,1823 @@
+{
+  "note": "Remaining Orca/orca/ORCA_/.orca/orca:// outside immutable upstream caches. Zero unexplained.",
+  "unexplainedCount": 0,
+  "entries": [
+    {
+      "location": ".github/workflows/horca_ci.yml",
+      "literals": [
+        "ORCA_DOWNSTREAM_BUILD",
+        "ORCA_REQUIRE_UPSTREAM_ANCESTOR",
+        "ORCA_SKIP_CASTING_SCAN",
+        "ORCA_UPSTREAM_REF",
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Upstream-owned build env names still required by Orca packaging scripts."
+    },
+    {
+      "location": ".github/workflows/horca_release.yml",
+      "literals": [
+        "ORCA_APP_ID",
+        "ORCA_APP_PRIVATE_KEY",
+        "ORCA_DOWNSTREAM_BUILD",
+        "ORCA_LOCAL_BUILD_VERSION",
+        "ORCA_REUSE_PREPARED_NATIVE_RUNTIME"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Upstream-owned build env names still required by Orca packaging scripts."
+    },
+    {
+      "location": ".github/workflows/horca_sync.yml",
+      "literals": [
+        "ORCA_APP_ID",
+        "ORCA_APP_PRIVATE_KEY",
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Upstream-owned build env names still required by Orca packaging scripts."
+    },
+    {
+      "location": ".gitignore",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "config/electron-builder-downstream.cjs",
+      "literals": [
+        "ORCA_DOWNSTREAM_BUILD",
+        "ORCA_LOCAL_BUILD_VERSION",
+        "Orca",
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Fork-era packaging post-processor unused by pinned-input build."
+    },
+    {
+      "location": "config/horca/mobile/ghostty-terminal-boundary.test.mjs",
+      "literals": [
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Terminal/native identity belongs to later gates."
+    },
+    {
+      "location": "config/horca/mobile/retarget-google-services-package.mjs",
+      "literals": [
+        "ORCA_MOBILE_ANDROID_PACKAGE"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "config/horca/mobile/verify-mobile.mjs",
+      "literals": [
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "config/horca/overlay-policy.json",
+      "literals": [
+        "Orca",
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Fork overlay policy listing upstream paths."
+    },
+    {
+      "location": "config/horca/scripts/check-overlay-policy.mjs",
+      "literals": [
+        "ORCA_UPSTREAM_REF"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "config/horca/scripts/check-patch-stack.mjs",
+      "literals": [
+        "ORCA_REQUIRE_UPSTREAM_ANCESTOR",
+        "ORCA_UPSTREAM_REF"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "config/horca/scripts/download-herdr-release.mjs",
+      "literals": [
+        "ORCA_HERDR_BINARY_CACHE"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "config/horca/scripts/ensure-horca-commit-identity.mjs",
+      "literals": [
+        "ORCA_COAUTHOR_TRAILER",
+        "ORCA_COMMIT_AUTHOR_EMAIL",
+        "ORCA_COMMIT_AUTHOR_NAME"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "config/horca/scripts/prepare-release.mjs",
+      "literals": [
+        "Orca",
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "config/horca/scripts/prepare-release.test.mjs",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "config/horca/scripts/run-herdr-stock-integration.mjs",
+      "literals": [
+        "ORCA_HERDR_TEST_BINARY"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "config/horca/smoke-packaged-distribution.mjs",
+      "literals": [
+        ".orca",
+        "ORCA_E2E_HEADLESS",
+        "ORCA_E2E_HOME_DIR",
+        "ORCA_E2E_USER_DATA_DIR",
+        "ORCA_HERDR_SMOKE",
+        "ORCA_PANE_KEY",
+        "Orca",
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "config/horca/vitest-distribution-profile.ts",
+      "literals": [
+        "ORCA_DISTRIBUTION",
+        "ORCA_TEST_DISTRIBUTION"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "config/linux/after-install-horca.sh",
+      "literals": [
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "config/nsis/daemon-host-uninstall-horca.nsh",
+      "literals": [
+        "Orca",
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "config/scripts/horca-electron-builder-downstream.test.mjs",
+      "literals": [
+        "ORCA_DOWNSTREAM_BUILD"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "config/scripts/horca-sync-workflow.test.mjs",
+      "literals": [
+        "ORCA_APP_ID",
+        "ORCA_COAUTHOR_TRAILER",
+        "ORCA_COMMIT_AUTHOR_EMAIL",
+        "ORCA_COMMIT_AUTHOR_NAME",
+        "ORCA_REUSE_PREPARED_NATIVE_RUNTIME",
+        "ORCA_SKIP_CASTING_SCAN_ENV"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "config/scripts/package-electron-native-addon-contract.mjs",
+      "literals": [
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "docs/horca/distribution.md",
+      "literals": [
+        ".orca",
+        "ORCA_DOWNSTREAM_BUILD",
+        "Orca",
+        "orca"
+      ],
+      "disposition": "HISTORICAL_EVIDENCE",
+      "reason": "Fork-era distribution doc."
+    },
+    {
+      "location": "docs/horca/maintenance.md",
+      "literals": [
+        "ORCA_APP_ID",
+        "ORCA_APP_PRIVATE_KEY",
+        "Orca",
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "docs/horca/releases.md",
+      "literals": [
+        "ORCA_APP_ID",
+        "ORCA_APP_PRIVATE_KEY",
+        "Orca",
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "migration/evidence/baseline.json",
+      "literals": [
+        "Orca",
+        "orca"
+      ],
+      "disposition": "HISTORICAL_EVIDENCE",
+      "reason": "Gate evidence quoting historical Orca values."
+    },
+    {
+      "location": "migration/evidence/c0/checkpoint.json",
+      "literals": [
+        "Orca",
+        "orca"
+      ],
+      "disposition": "HISTORICAL_EVIDENCE",
+      "reason": "Gate evidence quoting historical Orca values."
+    },
+    {
+      "location": "migration/evidence/c0/evidence.json",
+      "literals": [
+        "ORCA_OWNED_KEEP",
+        "Orca",
+        "orca"
+      ],
+      "disposition": "HISTORICAL_EVIDENCE",
+      "reason": "Gate evidence quoting historical Orca values."
+    },
+    {
+      "location": "migration/evidence/c0/pre-cutover-inventory.json",
+      "literals": [
+        ".orca",
+        "ORCA_OWNED_KEEP",
+        "Orca",
+        "orca"
+      ],
+      "disposition": "HISTORICAL_EVIDENCE",
+      "reason": "Gate evidence quoting historical Orca values."
+    },
+    {
+      "location": "migration/evidence/c0/repo-metrics.json",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "HISTORICAL_EVIDENCE",
+      "reason": "Gate evidence quoting historical Orca values."
+    },
+    {
+      "location": "migration/evidence/gate-a-current/evidence.json",
+      "literals": [
+        "Orca",
+        "orca"
+      ],
+      "disposition": "HISTORICAL_EVIDENCE",
+      "reason": "Gate evidence quoting historical Orca values."
+    },
+    {
+      "location": "migration/evidence/gate-a-current/t0-target.txt",
+      "literals": [
+        "orca"
+      ],
+      "disposition": "HISTORICAL_EVIDENCE",
+      "reason": "Gate evidence quoting historical Orca values."
+    },
+    {
+      "location": "migration/evidence/gate-a/evidence.json",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "HISTORICAL_EVIDENCE",
+      "reason": "Gate evidence quoting historical Orca values."
+    },
+    {
+      "location": "migration/evidence/gate-a/packaging-environment.md",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "HISTORICAL_EVIDENCE",
+      "reason": "Gate evidence quoting historical Orca values."
+    },
+    {
+      "location": "migration/evidence/gate-a/three-sha-matrix.json",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "HISTORICAL_EVIDENCE",
+      "reason": "Gate evidence quoting historical Orca values."
+    },
+    {
+      "location": "migration/evidence/gate-a/upstream-observations.json",
+      "literals": [
+        "orca"
+      ],
+      "disposition": "HISTORICAL_EVIDENCE",
+      "reason": "Gate evidence quoting historical Orca values."
+    },
+    {
+      "location": "migration/evidence/gate-b/evidence.json",
+      "literals": [
+        "ORCA_OVERLAY_ALREADY_APPLIED",
+        "Orca"
+      ],
+      "disposition": "HISTORICAL_EVIDENCE",
+      "reason": "Gate evidence quoting historical Orca values."
+    },
+    {
+      "location": "migration/evidence/gate-b2/README.md",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "HISTORICAL_EVIDENCE",
+      "reason": "Gate evidence quoting historical Orca values."
+    },
+    {
+      "location": "migration/evidence/gate-b2/comparison.json",
+      "literals": [
+        "ORCA_GATE_B2_PROBE_ENTRY",
+        "Orca",
+        "orca"
+      ],
+      "disposition": "HISTORICAL_EVIDENCE",
+      "reason": "Gate evidence quoting historical Orca values."
+    },
+    {
+      "location": "migration/evidence/gate-b2/hardening/evidence.json",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "HISTORICAL_EVIDENCE",
+      "reason": "Gate evidence quoting historical Orca values."
+    },
+    {
+      "location": "migration/probes/gate-b2/candidate-a/manifest.json",
+      "literals": [
+        "ORCA_GATE_B2_PROBE_ENTRY"
+      ],
+      "disposition": "HISTORICAL_EVIDENCE",
+      "reason": "Gate evidence quoting historical Orca values."
+    },
+    {
+      "location": "mobile/src/test-support/rpc-recording/settings-mount-adapters.ts",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "mobile/src/test-support/rpc-recording/workspace-settings-mounts.ts",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "native/ghostty-surface/binding.gyp",
+      "literals": [
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Terminal/native identity belongs to later gates."
+    },
+    {
+      "location": "native/ghostty-surface/index.js",
+      "literals": [
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Terminal/native identity belongs to later gates."
+    },
+    {
+      "location": "native/ghostty-surface/package.json",
+      "literals": [
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Terminal/native identity belongs to later gates."
+    },
+    {
+      "location": "native/ghostty-surface/src/ghostty_surface.cc",
+      "literals": [
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Terminal/native identity belongs to later gates."
+    },
+    {
+      "location": "native/ghostty-surface/src/ghostty_surface_macos.mm",
+      "literals": [
+        "ORCA_GHOSTTY_LIB",
+        "Orca",
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Terminal/native identity belongs to later gates."
+    },
+    {
+      "location": "overlay/manifest.json",
+      "literals": [
+        ".orca",
+        "ORCA_CLI_COMMAND_NAME",
+        "Orca",
+        "orca"
+      ],
+      "disposition": "NEUTRAL_FALSE_POSITIVE",
+      "reason": "Find sentinels for overlays that replace Orca public identity."
+    },
+    {
+      "location": "package.json",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "pnpm-workspace.yaml",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "resources/linux/bin/horca",
+      "literals": [
+        "ORCA_NODE_OPTIONS",
+        "ORCA_NODE_REPL_EXTERNAL_MODULE"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "scripts/apply-overlays.mjs",
+      "literals": [
+        "ORCA_OVERLAY_ALREADY_APPLIED",
+        "ORCA_OVERLAY_MANIFEST",
+        "ORCA_OVERLAY_POSTCONDITION_FAILED",
+        "ORCA_OVERLAY_PRECONDITION_FAILED"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "scripts/cleanup-worktrees.sh",
+      "literals": [
+        "ORCA_CLEANUP_ALLOW",
+        "ORCA_OVERLAY_MANIFEST"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "scripts/compose-candidate-b.mjs",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "scripts/gate-a-current.sh",
+      "literals": [
+        "Orca",
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "scripts/gate-a-three-sha.sh",
+      "literals": [
+        "Orca",
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "scripts/materialize.mjs",
+      "literals": [
+        "ORCA_DEPENDENCY_LOCK",
+        "ORCA_OVERLAY_MANIFEST",
+        "ORCA_PRODUCT_JSON"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "scripts/verify-no-upstream-embedding.mjs",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "scripts/verify-overlay.mjs",
+      "literals": [
+        "ORCA_OVERLAY_MANIFEST"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/ghostty-vt/ghostty-color-theme.test.ts",
+      "literals": [
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Terminal/native identity belongs to later gates."
+    },
+    {
+      "location": "src/ghostty-vt/ghostty-color-theme.ts",
+      "literals": [
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Terminal/native identity belongs to later gates."
+    },
+    {
+      "location": "src/ghostty-vt/ghostty-key-encode.ts",
+      "literals": [
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Terminal/native identity belongs to later gates."
+    },
+    {
+      "location": "src/ghostty-vt/headless-vt-query-parser.ts",
+      "literals": [
+        "Orca",
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Terminal/native identity belongs to later gates."
+    },
+    {
+      "location": "src/main/daemon/ghostty-vt-terminal.test.ts",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Terminal/native identity belongs to later gates."
+    },
+    {
+      "location": "src/main/hook-archive-termination-safety.test.ts",
+      "literals": [
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/main/horca/assert-horca-packaged-distribution.test.ts",
+      "literals": [
+        ".orca",
+        "Orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned module; remaining Orca tokens are dormant dual-distribution or comments."
+    },
+    {
+      "location": "src/main/horca/assert-horca-packaged-distribution.ts",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned module; remaining Orca tokens are dormant dual-distribution or comments."
+    },
+    {
+      "location": "src/main/horca/configure-horca-user-data.test.ts",
+      "literals": [
+        ".orca",
+        "Orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned module; remaining Orca tokens are dormant dual-distribution or comments."
+    },
+    {
+      "location": "src/main/horca/configure-horca-user-data.ts",
+      "literals": [
+        "ORCA_PACKAGED_ELECTRON_PROFILE"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned module; remaining Orca tokens are dormant dual-distribution or comments."
+    },
+    {
+      "location": "src/main/horca/ghostty-surface-host.ts",
+      "literals": [
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned module; remaining Orca tokens are dormant dual-distribution or comments."
+    },
+    {
+      "location": "src/main/horca/ghostty-surface-ipc.ts",
+      "literals": [
+        "ORCA_GHOSTTY_SURFACE_CHANNELS"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned module; remaining Orca tokens are dormant dual-distribution or comments."
+    },
+    {
+      "location": "src/main/horca/terminal-backend/horca-terminal-settings-ipc.ts",
+      "literals": [
+        "ORCA_TERMINAL_SETTINGS_CHANNELS"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned module; remaining Orca tokens are dormant dual-distribution or comments."
+    },
+    {
+      "location": "src/main/horca/terminal-backend/horca-terminal-settings.test.ts",
+      "literals": [
+        "ORCA_DISTRIBUTION",
+        "Orca",
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned module; remaining Orca tokens are dormant dual-distribution or comments."
+    },
+    {
+      "location": "src/main/horca/terminal-backend/horca-terminal-settings.ts",
+      "literals": [
+        "ORCA_FLOATING_PROJECT_ID",
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned module; remaining Orca tokens are dormant dual-distribution or comments."
+    },
+    {
+      "location": "src/main/local-state-root.test.ts",
+      "literals": [
+        ".orca",
+        "ORCA_DISTRIBUTION",
+        "Orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/main/local-state-root.ts",
+      "literals": [
+        ".orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/ensure-herdr-workspace.ts",
+      "literals": [
+        "ORCA_BINDING_TOKEN",
+        "Orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-agent-kind.test.ts",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-binding-metadata.test.ts",
+      "literals": [
+        "ORCA_BINDING_TOKEN",
+        "Orca",
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-binding-metadata.ts",
+      "literals": [
+        "ORCA_BINDING_TOKEN",
+        "ORCA_METADATA_SOURCE",
+        "Orca",
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-cli-host-transport.test.ts",
+      "literals": [
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-layout-reconcile.test.ts",
+      "literals": [
+        "ORCA_BINDING_TOKEN",
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-leaf-materialize.ts",
+      "literals": [
+        "ORCA_BINDING_TOKEN",
+        "Orca",
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-orca-surface-actions.ts",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-orca-surface-import.test.ts",
+      "literals": [
+        "ORCA_BINDING_TOKEN",
+        "Orca",
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-orca-surface-import.ts",
+      "literals": [
+        "ORCA_BINDING_TOKEN",
+        "Orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-orca-surface-sync.test.ts",
+      "literals": [
+        "Orca",
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-process-restart.integration.test.ts",
+      "literals": [
+        "ORCA_BINDING_TOKEN",
+        "Orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-project-pty-target.test.ts",
+      "literals": [
+        "Orca",
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-project-pty-target.ts",
+      "literals": [
+        "Orca",
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-provider-factory.test.ts",
+      "literals": [
+        "Orca",
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-provider-factory.ts",
+      "literals": [
+        "ORCA_HERDR_BUNDLED_BINARY",
+        "Orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-pty-attach.test.ts",
+      "literals": [
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-pty-binding-queries.ts",
+      "literals": [
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-pty-codec.test.ts",
+      "literals": [
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-pty-fallback-inspection.test.ts",
+      "literals": [
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-pty-orca-fallback.ts",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-pty-provider-input-order.test.ts",
+      "literals": [
+        "Orca",
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-pty-provider-io.ts",
+      "literals": [
+        "Orca",
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-pty-provider-test-transport.ts",
+      "literals": [
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-pty-provider.test.ts",
+      "literals": [
+        "Orca",
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-pty-provider.ts",
+      "literals": [
+        "Orca",
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-pty-scrollback-drain.test.ts",
+      "literals": [
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-pty-title-forward.test.ts",
+      "literals": [
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-pty-title-forward.ts",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-pty-types.ts",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-real-runtime.integration.test.ts",
+      "literals": [
+        "Orca",
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-runtime-event-refresh.ts",
+      "literals": [
+        "Orca",
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-runtime-manager-startup-pane-authority.test.ts",
+      "literals": [
+        "ORCA_BINDING_TOKEN",
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-runtime-manager.test.ts",
+      "literals": [
+        "ORCA_BINDING_TOKEN",
+        "Orca",
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-runtime-manager.ts",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-sdk-ops.ts",
+      "literals": [
+        "ORCA_METADATA_SOURCE",
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-session-control.test.ts",
+      "literals": [
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-session-process.test.ts",
+      "literals": [
+        "ORCA_E2E_HOME_DIR",
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-socket-relay.test.ts",
+      "literals": [
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-ssh-session.test.ts",
+      "literals": [
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-ssh-socket-relay.ts",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-stock-binary-candidates.test.ts",
+      "literals": [
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-stock-binary.ts",
+      "literals": [
+        "ORCA_HERDR_TEST_BINARY",
+        "Orca",
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-stock-session.test.ts",
+      "literals": [
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-surface-presentation.ts",
+      "literals": [
+        "Orca",
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-tab-layout-apply.ts",
+      "literals": [
+        "ORCA_BINDING_TOKEN",
+        "Orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-tab-layout.ts",
+      "literals": [
+        "ORCA_BINDING_TOKEN",
+        "Orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-tab-title.ts",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-workspace-dedupe.test.ts",
+      "literals": [
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-wsl-executable.ts",
+      "literals": [
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/providers/multiplexer/herdr/herdr-wsl-socket-relay.ts",
+      "literals": [
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "src/main/runtime/orca-runtime-structured-agent-session-launch-args.test.ts",
+      "literals": [
+        "ORCA_CLAUDE_OVERLAY",
+        "ORCA_CODEX_OVERLAY",
+        "Orca",
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/main/updater-distribution-gate.test.ts",
+      "literals": [
+        "ORCA_DISTRIBUTION"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/main/updater-distribution-gate.ts",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/preload/horca-ghostty-surface-api.ts",
+      "literals": [
+        "ORCA_GHOSTTY_SURFACE_CHANNELS"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Terminal/native identity belongs to later gates."
+    },
+    {
+      "location": "src/preload/horca-terminal-settings-api.ts",
+      "literals": [
+        "ORCA_TERMINAL_SETTINGS_CHANNELS"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/components/dashboard-popout/AgentMap.test.tsx",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/components/dashboard-popout/AgentMapCanvas.performance.test.tsx",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/components/dashboard-popout/AgentMapFilterPanel.test.tsx",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/components/dashboard-popout/AgentMapMotion.test.tsx",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/components/dashboard-popout/AgentMapProjectLabel.test.tsx",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/components/dashboard-popout/AgentMapTimeRangeField.test.tsx",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/components/dashboard-popout/AgentMapWorkspaceContextMenu.test.tsx",
+      "literals": [
+        "Orca",
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/components/dashboard-popout/agent-map-filter.test.ts",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/components/dashboard-popout/agent-map-label-declutter.test.ts",
+      "literals": [
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/components/dashboard-popout/agent-map-layout.test.ts",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/components/dashboard-popout/agent-map-navigation.test.ts",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/components/dashboard-popout/agent-map-node-metadata.test.ts",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/components/dashboard-popout/agent-map-quick-views.test.ts",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/components/dashboard-popout/agent-map-render-test-harness.tsx",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/components/dashboard-popout/agent-map-time-filter.test.ts",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/components/dashboard-popout/agent-map-workspace-visibility.test.ts",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/components/terminal-pane/terminal-bypass-policy-ios.test.ts",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/components/terminal-pane/terminal-bypass-policy.test.ts",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/components/terminal-pane/terminal-bypass-policy.ts",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/components/terminal-pane/terminal-link-range-overlap.ts",
+      "literals": [
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/hooks/composer-drop-upload-result.test.ts",
+      "literals": [
+        ".orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/hooks/useIpcEvents-zoom-routing.test.ts",
+      "literals": [
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/horca/terminal-settings/HorcaProjectTerminalBackendSetting.tsx",
+      "literals": [
+        "Orca",
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/horca/terminal-settings/HorcaTerminalBackendSection.test.tsx",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/horca/terminal-settings/HorcaTerminalBackendSection.tsx",
+      "literals": [
+        "Orca",
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/lib/pane-manager/orca-pane-appearance.ts",
+      "literals": [
+        "Orca",
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/lib/pane-manager/orca-pane-buffer.test.ts",
+      "literals": [
+        "Orca",
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/lib/pane-manager/orca-pane-buffer.ts",
+      "literals": [
+        "Orca",
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/lib/pane-manager/orca-pane-cursor-blink.ts",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/lib/pane-manager/orca-pane-ghostty-appearance.test.ts",
+      "literals": [
+        "Orca",
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Terminal/native identity belongs to later gates."
+    },
+    {
+      "location": "src/renderer/src/lib/pane-manager/orca-pane-ghostty-appearance.ts",
+      "literals": [
+        "Orca",
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Terminal/native identity belongs to later gates."
+    },
+    {
+      "location": "src/renderer/src/lib/pane-manager/orca-pane-host-chrome.ts",
+      "literals": [
+        "Orca",
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/lib/pane-manager/orca-pane-links.ts",
+      "literals": [
+        "Orca",
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/lib/pane-manager/orca-pane-native-ghostty.test.ts",
+      "literals": [
+        "Orca",
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Terminal/native identity belongs to later gates."
+    },
+    {
+      "location": "src/renderer/src/lib/pane-manager/orca-pane-native-ghostty.ts",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Terminal/native identity belongs to later gates."
+    },
+    {
+      "location": "src/renderer/src/lib/pane-manager/orca-pane-overlay-scrollbar.test.ts",
+      "literals": [
+        ".orca",
+        "Orca",
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/lib/pane-manager/orca-pane-overlay-scrollbar.ts",
+      "literals": [
+        "Orca",
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/lib/pane-manager/orca-pane-paint.test.ts",
+      "literals": [
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/lib/pane-manager/orca-pane-paint.ts",
+      "literals": [
+        "Orca",
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/lib/pane-manager/orca-pane-parser.test.ts",
+      "literals": [
+        "Orca",
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/lib/pane-manager/orca-pane-surface.ts",
+      "literals": [
+        "Orca",
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/lib/pane-manager/orca-pane-terminal-events.ts",
+      "literals": [
+        "Orca",
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/lib/pane-manager/orca-pane-terminal-io.test.ts",
+      "literals": [
+        "Orca",
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/lib/pane-manager/orca-pane-terminal-io.ts",
+      "literals": [
+        "Orca",
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/lib/pane-manager/orca-pane-terminal.ts",
+      "literals": [
+        "Orca",
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/lib/pane-manager/orca-pane-viewport-nav.ts",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/lib/pane-manager/orca-pane-wheel.test.ts",
+      "literals": [
+        "Orca",
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/lib/pane-manager/orca-pane-wheel.ts",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/lib/pane-manager/orca-terminal-canvas-element.test.ts",
+      "literals": [
+        ".orca",
+        "Orca",
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/renderer/src/lib/pane-manager/orca-terminal-canvas-element.ts",
+      "literals": [
+        ".orca",
+        "Orca",
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/shared/distribution-identity.json",
+      "literals": [
+        ".orca",
+        "Orca",
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Dormant dual-distribution contract."
+    },
+    {
+      "location": "src/shared/distribution-identity.test.ts",
+      "literals": [
+        ".orca",
+        "ORCA_DISTRIBUTION",
+        "Orca",
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Dormant dual-distribution tests."
+    },
+    {
+      "location": "src/shared/distribution-identity.ts",
+      "literals": [
+        ".orca",
+        "ORCA_DISTRIBUTION",
+        "ORCA_DOWNSTREAM_BUILD",
+        "Orca",
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Dormant dual-distribution contract."
+    },
+    {
+      "location": "src/shared/distribution-product-copy.ts",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Dormant product copy."
+    },
+    {
+      "location": "src/shared/distribution-update-copy.test.ts",
+      "literals": [
+        "ORCA_DISTRIBUTION"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/shared/horca-pairing.test.ts",
+      "literals": [
+        "ORCA_DISTRIBUTION",
+        "Orca",
+        "orca",
+        "orca://"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/shared/horca-vite-distribution.cjs",
+      "literals": [
+        "ORCA_DEV_USER_DATA_DIR",
+        "ORCA_DEV_USER_DATA_PATH",
+        "ORCA_DOWNSTREAM_BUILD"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/shared/horca-vite-distribution.test.ts",
+      "literals": [
+        "ORCA_DEV_USER_DATA_PATH",
+        "ORCA_DOWNSTREAM_BUILD"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/shared/horca-vite-distribution.ts",
+      "literals": [
+        "ORCA_DEV_USER_DATA_DIR",
+        "ORCA_DEV_USER_DATA_PATH",
+        "ORCA_DOWNSTREAM_BUILD",
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "src/shared/horca/distribution-build-profile.ts",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned module; remaining Orca tokens are dormant dual-distribution or comments."
+    },
+    {
+      "location": "src/shared/horca/distribution-translation-catalog-plugin.test.ts",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned module; remaining Orca tokens are dormant dual-distribution or comments."
+    },
+    {
+      "location": "src/shared/horca/distribution-translation-catalog-plugin.ts",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned module; remaining Orca tokens are dormant dual-distribution or comments."
+    },
+    {
+      "location": "src/shared/horca/ghostty-surface-api.ts",
+      "literals": [
+        "ORCA_GHOSTTY_SURFACE_CHANNELS"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned module; remaining Orca tokens are dormant dual-distribution or comments."
+    },
+    {
+      "location": "src/shared/horca/herdr-session-identity.test.ts",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned module; remaining Orca tokens are dormant dual-distribution or comments."
+    },
+    {
+      "location": "src/shared/horca/terminal-backend.test.ts",
+      "literals": [
+        "Orca",
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned module; remaining Orca tokens are dormant dual-distribution or comments."
+    },
+    {
+      "location": "src/shared/horca/terminal-backend.ts",
+      "literals": [
+        "ORCA_FLOATING_PROJECT_ID",
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned module; remaining Orca tokens are dormant dual-distribution or comments."
+    },
+    {
+      "location": "src/shared/horca/terminal-settings-api.ts",
+      "literals": [
+        "ORCA_TERMINAL_SETTINGS_CHANNELS"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned module; remaining Orca tokens are dormant dual-distribution or comments."
+    },
+    {
+      "location": "src/shared/orca-terminal-surface.ts",
+      "literals": [
+        "Orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": "tests/e2e/helpers/e2e-herdr-pin.ts",
+      "literals": [
+        "ORCA_E2E_HERDR_BINARY",
+        "ORCA_E2E_HERDR_BINARY_PATH_FILE",
+        "ORCA_HERDR_BUNDLED_BINARY",
+        "orca"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Herdr identifiers belong to Gate E."
+    },
+    {
+      "location": "upstream.lock.json",
+      "literals": [
+        "orca"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Horca-owned file; Orca token is not a public launcher/protocol/appId."
+    },
+    {
+      "location": ".cache/worktrees (immutable materialized Orca)",
+      "literals": [
+        "Orca internals outside overlay targets"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Not Horca-owned; not a public Horca launcher."
+    },
+    {
+      "location": "Horca.app/Contents/MacOS/orca-keyboard-layout and orca-notification-status",
+      "literals": [
+        "orca-keyboard-layout",
+        "orca-notification-status"
+      ],
+      "disposition": "LATER_GATE_DEBT",
+      "reason": "Private helper executables inside the app bundle; public CLI is bin/horca. Renaming helpers is not required for Gate C public identity."
+    },
+    {
+      "location": "CLI message Application Support/Horca/orca-runtime.json",
+      "literals": [
+        "orca-runtime.json"
+      ],
+      "disposition": "PRIVATE_UPSTREAM_COMPATIBILITY",
+      "reason": "Private runtime metadata filename inside the Horca user-data directory. Not a user-facing state root."
+    }
+  ]
+}

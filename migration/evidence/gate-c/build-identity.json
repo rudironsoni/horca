@@ -1,0 +1,20 @@
+{
+  "schema": "schema-3",
+  "upstreamSha": "85d1ffc0726d8403f9494436c421c5e3d7932c47",
+  "overlayDigest": "156e7db04e73",
+  "depLockDigest": "094a0411d6ee",
+  "productDigest": "820da4422d08",
+  "sameProductJson": "3ecc1bbcc1911f15",
+  "changedProductJson": "b488199d2dc1dfd5",
+  "restoredProductJson": "3ecc1bbcc1911f15",
+  "determinism": {
+    "sameThenRestoreEqual": true,
+    "changeDiffers": true
+  },
+  "excludes": [
+    "path",
+    "timestamp",
+    "runId",
+    "pid"
+  ]
+}
