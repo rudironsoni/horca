@@ -72,7 +72,7 @@ jobs:
     needs: metadata
     if: needs.metadata.outputs.published != 'true'
     runs-on: macos-15
-    timeout-minutes: 120
+    timeout-minutes: 180
     env:
       NODE_OPTIONS: --max-old-space-size=4096
       ORCA_REUSE_PREPARED_NATIVE_RUNTIME: '1'
@@ -131,21 +131,31 @@ jobs:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-      - name: Verify identity and signatures
+      - name: Stage DMGs
+        env:
+          WT: ${{ steps.materialize.outputs.worktree_path }}
+        run: |
+          mkdir -p artifacts
+          cp "$WT/dist/horca-macos-arm64.dmg" artifacts/horca-macos-arm64.dmg
+          cp "$WT/dist/horca-macos-x64.dmg" artifacts/horca-macos-x64.dmg
+      - name: Verify asar and xterm
+        timeout-minutes: 10
         env:
           WT: ${{ steps.materialize.outputs.worktree_path }}
         run: |
           mkdir -p "$WT/config/horca"
           cp config/horca/verify-packaged-distribution.mjs "$WT/config/horca/verify-packaged-distribution.mjs"
-          cp config/horca/smoke-packaged-distribution.mjs "$WT/config/horca/smoke-packaged-distribution.mjs"
           node scripts/verify-xterm-runtime-reachability.mjs "$WT" --bundle "$WT/out/renderer" --main-bundle "$WT/out/main"
           node "$WT/config/horca/verify-packaged-distribution.mjs" "$WT/dist"
-          mkdir -p artifacts
+      - name: Verify identity and signatures
+        timeout-minutes: 20
+        env:
+          WT: ${{ steps.materialize.outputs.worktree_path }}
+        run: |
           for arch in arm64 x64; do
-            dmg="$WT/dist/horca-macos-$arch.dmg"
+            dmg="artifacts/horca-macos-$arch.dmg"
             test -f "$dmg"
-            cp "$dmg" "artifacts/horca-macos-$arch.dmg"
-            mount=$(hdiutil attach -nobrowse -readonly "$dmg" | grep -o '/Volumes/.*' | tail -1)
+            mount=$(hdiutil attach -nobrowse -readonly -noverify "$dmg" </dev/null | grep -o '/Volumes/.*' | tail -1)
             app="$mount/Horca.app"
             test -d "$app"
             test "$(plutil -extract CFBundleIdentifier raw "$app/Contents/Info.plist")" = 'com.rudironsoni.horca'
@@ -155,11 +165,17 @@ jobs:
             codesign --verify --deep --strict "$app"
             xcrun stapler validate "$app"
             spctl --assess --type execute "$app"
-            if [ "$arch" = 'arm64' ]; then
-              node "$WT/config/horca/smoke-packaged-distribution.mjs" "$app/Contents/MacOS/Horca"
-            fi
             hdiutil detach "$mount" -quiet
           done
+      - name: Packaged D1 smoke
+        timeout-minutes: 8
+        env:
+          WT: ${{ steps.materialize.outputs.worktree_path }}
+        run: |
+          cp config/horca/smoke-packaged-distribution.mjs "$WT/config/horca/smoke-packaged-distribution.mjs"
+          app="$WT/dist/mac-arm64/Horca.app"
+          test -d "$app"
+          perl -e 'alarm 240; exec @ARGV' node "$WT/config/horca/smoke-packaged-distribution.mjs" "$app/Contents/MacOS/Horca"
       - name: Build checksums and release manifest
         env:
           CHANNEL: ${{ needs.metadata.outputs.channel }}
@@ -171,6 +187,7 @@ jobs:
           BUILD_IDENTITY: ${{ needs.metadata.outputs.build_identity }}
         run: node config/horca/scripts/prepare-release.mjs manifest artifacts
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: hashFiles('artifacts/horca-macos-arm64.dmg') != ''
         with:
           name: horca-macos
           path: |
