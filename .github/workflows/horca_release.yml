@@ -104,6 +104,7 @@ jobs:
           node scripts/apply-overlays.mjs "$WT"
           node scripts/verify-overlay.mjs "$WT"
           node scripts/verify-product-identity.mjs
+          node scripts/verify-xterm-runtime-reachability.mjs "$WT"
           actual=$(node -e "const fs=require('fs'); process.stdout.write(JSON.parse(fs.readFileSync(process.argv[1],'utf8')).buildIdentity)" "$WT/.horca-build-identity.json")
           test "$actual" = "$EXPECTED_IDENTITY"
           echo "worktree_path=$WT" >> "$GITHUB_OUTPUT"
@@ -137,6 +138,7 @@ jobs:
           mkdir -p "$WT/config/horca"
           cp config/horca/verify-packaged-distribution.mjs "$WT/config/horca/verify-packaged-distribution.mjs"
           cp config/horca/smoke-packaged-distribution.mjs "$WT/config/horca/smoke-packaged-distribution.mjs"
+          node scripts/verify-xterm-runtime-reachability.mjs "$WT" --bundle "$WT/out/renderer" --main-bundle "$WT/out/main"
           node "$WT/config/horca/verify-packaged-distribution.mjs" "$WT/dist"
           mkdir -p artifacts
           for arch in arm64 x64; do

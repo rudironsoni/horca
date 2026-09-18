@@ -35,8 +35,26 @@ function readMatchingEntries(asarPath, predicate) {
     .join('\n')
 }
 
-export function evaluateHorcaAsarContents({ shared, main, renderer }) {
+const XTERM_SIGNATURES = [
+  'XtermHeadlessEmulator',
+  'XtermPaneTerminal',
+  'registerXtermPaneState',
+  'xterm-headless-emulator',
+  'xterm-renderer/',
+  '@xterm/headless',
+  '@xterm/addon-serialize',
+  '@xterm/addon-unicode11'
+]
+
+export function evaluateHorcaAsarContents({ shared, main, renderer, entries = [] }) {
   const bundled = [shared, main, renderer].join('\n')
+  const xtermHits = XTERM_SIGNATURES.filter((sig) => bundled.includes(sig))
+  const xtermPaths = entries.filter((entry) =>
+    /xterm/i.test(entry) &&
+    /headless|addon-serialize|addon-unicode11|addon-fit|addon-search|addon-webgl|addon-ligatures|xterm-renderer|@xterm/.test(
+      entry
+    )
+  )
   const checks = [
     ['state root is .horca', bundled.includes('.horca')],
     ['Horca product copy is packaged', /Horca/.test(bundled)],
@@ -45,19 +63,29 @@ export function evaluateHorcaAsarContents({ shared, main, renderer }) {
       bundled.includes('libghostty-vt WASM host is not primed') ||
         bundled.includes('GhosttyTerminal is not bound') ||
         bundled.includes('GhosttyPaneTerminal')
-    ]
+    ],
+    [
+      'Ghostty headless path is packaged',
+      main.includes('GhosttyHeadlessEmulator') ||
+        main.includes('HeadlessVtQueryParser') ||
+        main.includes('ghostty-vt-node-host')
+    ],
+    ['zero xterm runtime signatures', xtermHits.length === 0],
+    ['zero xterm asar paths', xtermPaths.length === 0]
   ]
   return {
     checks: checks.map(([label]) => label),
-    failures: checks.filter(([, passed]) => !passed).map(([label]) => label)
+    failures: checks.filter(([, passed]) => !passed).map(([label]) => label),
+    xtermHits,
+    xtermPaths
   }
 }
 
 export function evaluateGhosttyHeadless(main) {
   if (
-    main.includes('ghostty-vt-node-host') ||
-    main.includes('GhosttyVtNodeHost') ||
-    main.includes('headless-vt-query-parser')
+    main.includes('GhosttyHeadlessEmulator') ||
+    main.includes('HeadlessVtQueryParser') ||
+    main.includes('ghostty-vt-node-host')
   ) {
     return 'present'
   }
@@ -65,6 +93,7 @@ export function evaluateGhosttyHeadless(main) {
 }
 
 export function verifyHorcaAsar(asarPath) {
+  const entries = asarApi().listPackage(asarPath)
   const shared = readMatchingEntries(
     asarPath,
     (entry) => entry.startsWith('/out/shared/') && entry.endsWith('.js')
@@ -77,13 +106,17 @@ export function verifyHorcaAsar(asarPath) {
     asarPath,
     (entry) => entry.startsWith('/out/renderer/') && entry.endsWith('.js')
   )
-  const { checks, failures } = evaluateHorcaAsarContents({ shared, main, renderer })
+  const { checks, failures, xtermHits, xtermPaths } = evaluateHorcaAsarContents({
+    shared,
+    main,
+    renderer,
+    entries
+  })
   if (failures.length > 0) {
-    throw new Error(`${basename(asarPath)} failed Horca checks: ${failures.join(', ')}`)
-  }
-  const headless = evaluateGhosttyHeadless(main)
-  if (headless === 'present') {
-    checks.push('Ghostty headless path is packaged')
+    const detail = [...xtermHits, ...xtermPaths].join(', ')
+    throw new Error(
+      `${basename(asarPath)} failed Horca checks: ${failures.join(', ')}${detail ? ` (${detail})` : ''}`
+    )
   }
   return checks
 }

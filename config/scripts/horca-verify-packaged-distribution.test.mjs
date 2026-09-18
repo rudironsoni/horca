@@ -17,7 +17,7 @@ test.afterEach(async () => {
 
 const passing = {
   shared: "stateRootDirName: '.horca'\nproductName: 'Horca'",
-  main: "join(homedir(), '.horca')",
+  main: "join(homedir(), '.horca')\nGhosttyHeadlessEmulator\nHeadlessVtQueryParser",
   renderer: 'GhosttyTerminal is not bound\nHorca'
 }
 
@@ -45,11 +45,25 @@ test('rejects a package that still owns .orca state', () => {
   )
 })
 
-test('treats Ghostty headless as optional until D1-H lands', () => {
+test('requires Ghostty headless after FINAL_D1', () => {
   assert.equal(evaluateGhosttyHeadless('HeadlessEmulator from xterm'), 'absent')
-  assert.equal(
-    evaluateGhosttyHeadless('import { createGhosttyVtNodeHost } from "./ghostty-vt-node-host"'),
-    'present'
+  assert.equal(evaluateGhosttyHeadless('class GhosttyHeadlessEmulator {}'), 'present')
+  assert.deepEqual(
+    evaluateHorcaAsarContents({
+      ...passing,
+      main: "join(homedir(), '.horca')"
+    }).failures,
+    ['Ghostty headless path is packaged']
+  )
+})
+
+test('rejects packaged xterm renderer or headless signatures', () => {
+  assert.deepEqual(
+    evaluateHorcaAsarContents({
+      ...passing,
+      main: `${passing.main}\nXtermHeadlessEmulator`
+    }).failures,
+    ['zero xterm runtime signatures']
   )
 })
 
