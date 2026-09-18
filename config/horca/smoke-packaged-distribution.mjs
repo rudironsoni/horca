@@ -137,13 +137,18 @@ async function launch() {
   })
   let browser
   let connectionError
-  const deadline = Date.now() + 10_000
+  const deadline = Date.now() + 15_000
   while (!browser && Date.now() < deadline) {
     try {
-      browser = await chromium.connectOverCDP(endpoint)
+      browser = await Promise.race([
+        chromium.connectOverCDP(endpoint),
+        new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('CDP connect timed out')), 2_000)
+        })
+      ])
     } catch (error) {
       connectionError = error
-      await new Promise((resolveDelay) => setTimeout(resolveDelay, 100))
+      await new Promise((resolveDelay) => setTimeout(resolveDelay, 200))
     }
   }
   if (!browser) {
