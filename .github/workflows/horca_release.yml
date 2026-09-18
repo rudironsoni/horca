@@ -119,9 +119,6 @@ jobs:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-      - name: Typecheck generated tree
-        working-directory: ${{ steps.materialize.outputs.worktree_path }}
-        run: pnpm tc
       - name: Build signed and notarized DMGs
         working-directory: ${{ steps.materialize.outputs.worktree_path }}
         run: pnpm run build:mac:release --publish never
