@@ -1,0 +1,684 @@
+{
+  "pinnedOrca": "85d1ffc0726d8403f9494436c421c5e3d7932c47",
+  "replaceCount": 113,
+  "entries": [
+    {
+      "id": "gate-d1-r-config-tsconfig.tc.web.json",
+      "target": "config/tsconfig.tc.web.json",
+      "expectedBlobSha256": "2b604c1d8b2a661076f2bda9811afe3688b09636005d0041ecd2f51d376d060a",
+      "resultingBlobSha256": "ed9f9a782c0fb2bc7f09674dd1b2490bce6de82cc91a69875120b9234c392763"
+    },
+    {
+      "id": "gate-d1-r-config-tsconfig.web.json",
+      "target": "config/tsconfig.web.json",
+      "expectedBlobSha256": "c8b79d519544edd7f6134e68daa7fd50fd5297ebdb1f10661054d47760363672",
+      "resultingBlobSha256": "5865806b87e335def283e950bd2840a2bd1ee2221b8fad50f1b2e8778c539137"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-dashboard-popout-AgentTerminalPreview.tsx",
+      "target": "src/renderer/src/components/dashboard-popout/AgentTerminalPreview.tsx",
+      "expectedBlobSha256": "178027c620dfdf80b7d1b8a0cf9769b4e61744941a11306c077ecc3f5a3e3c62",
+      "resultingBlobSha256": "163632b86e1c9b65b93f6a00ed65770dfee3493f3af0db549f10fea9e73604ba"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-dashboard-popout-preview-terminal-app-menu-clipboard.ts",
+      "target": "src/renderer/src/components/dashboard-popout/preview-terminal-app-menu-clipboard.ts",
+      "expectedBlobSha256": "cd1673f9662ebbfc8c94fceca34d323cc04b61019b8864aafc75ec7829fea141",
+      "resultingBlobSha256": "b2b78e9de585f9f11e12c5fa7c85ef9b980b66223c23038ae4402a78035adcf6"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-dashboard-popout-preview-terminal-box-fit.ts",
+      "target": "src/renderer/src/components/dashboard-popout/preview-terminal-box-fit.ts",
+      "expectedBlobSha256": "995ad8cd3fdf51ffe49ef4eeba7e196493e1aaa526f5dba667084a304469a08a",
+      "resultingBlobSha256": "78505b0bfb4b56bad5fd1458ee3e5d8f648aa631a8f102b95bd2b9124092a569"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-dashboard-popout-preview-terminal-compatibility.ts",
+      "target": "src/renderer/src/components/dashboard-popout/preview-terminal-compatibility.ts",
+      "expectedBlobSha256": "3d953e0aeba87bf5d50f058a712351fc5a2c8c07b0df617b38b4caf7776fd321",
+      "resultingBlobSha256": "87d0c9c2a9aab75fac4f51ecd2f51ad56fe7506228a981138dfef5805b4fabe7"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-dashboard-popout-preview-terminal-ime-bridge.ts",
+      "target": "src/renderer/src/components/dashboard-popout/preview-terminal-ime-bridge.ts",
+      "expectedBlobSha256": "292319ecc667d4f12646893557ccf49a8364c36a0bc3edc892700c30bddacea4",
+      "resultingBlobSha256": "7e5a498e82c129f9334394abfc677b7ef0d4b6c068137629a339573344e20a5b"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-dashboard-popout-preview-terminal-key-handler.ts",
+      "target": "src/renderer/src/components/dashboard-popout/preview-terminal-key-handler.ts",
+      "expectedBlobSha256": "6582910e29f4b896ed2989b18e5adc4c1f003618510b6317f1c868465e119f9a",
+      "resultingBlobSha256": "8c85c078e790e6266264028368ebf0b53424498fd6d4ae9d13038db3c54d4720"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-dashboard-popout-preview-terminal-ligatures.ts",
+      "target": "src/renderer/src/components/dashboard-popout/preview-terminal-ligatures.ts",
+      "expectedBlobSha256": "e4c6d504ebfac3ffb5167f6fd3309fb10e6a2d03fe24d7a303c4f71003dcb2e6",
+      "resultingBlobSha256": "e35e10801a7fd68e37ebfa39e2ac1ec0a0b4b415c471eb125b35d7a39cdd8186"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-dashboard-popout-preview-terminal-links.ts",
+      "target": "src/renderer/src/components/dashboard-popout/preview-terminal-links.ts",
+      "expectedBlobSha256": "9d87b47c3d89df955939b90cd0fd277ef745d1f14a0041b8b09cf5b04eca3df3",
+      "resultingBlobSha256": "824076e5fd806f8ea8f9deec5a66f6bd1e8644f7e19b6e4f4ca85662097e5cc0"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-dashboard-popout-preview-terminal-options.ts",
+      "target": "src/renderer/src/components/dashboard-popout/preview-terminal-options.ts",
+      "expectedBlobSha256": "afd15100c588e5832812ab184b2f6062fc211dc8e8bdd216f21fccb4d29f1531",
+      "resultingBlobSha256": "0626944469606e316b297d5435ca7c814392494107d138279f1bb374e0bbd665"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-dashboard-popout-preview-terminal-paste.ts",
+      "target": "src/renderer/src/components/dashboard-popout/preview-terminal-paste.ts",
+      "expectedBlobSha256": "7fd455b2979cc05f4101f24ed1574c2d3cddd9093eef10be602f687fdcc17cb3",
+      "resultingBlobSha256": "1630df02109f982716c215135870f349430ce3c637e4ff3b6de80fe981f43d45"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-dashboard-popout-preview-terminal-right-click-paste.ts",
+      "target": "src/renderer/src/components/dashboard-popout/preview-terminal-right-click-paste.ts",
+      "expectedBlobSha256": "da9f26b491e3b96918981717252a5ceeb0c39db1c2082bd73cbee6189d39e573",
+      "resultingBlobSha256": "be7a968ac6f2857030b5069b8d8aed374b1be601d1bc4a0fe79b60ada0ae62d2"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-settings-TerminalSettingsPreview.tsx",
+      "target": "src/renderer/src/components/settings/TerminalSettingsPreview.tsx",
+      "expectedBlobSha256": "a70ec8e86f567c8300f285a5d6ef73ca16b2bd99bc1cf638d5efc4311ef39820",
+      "resultingBlobSha256": "149751f874e685e67bb2dfb8a711834c8ca52ebea4b6a12cb3fe25400c1832f5"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-edge-wrapped-terminal-http-links.ts",
+      "target": "src/renderer/src/components/terminal-pane/edge-wrapped-terminal-http-links.ts",
+      "expectedBlobSha256": "989aec13796d71daeca0a7484c8c0874adc5c5c6ff4a74e6f3d6c09fd3639eb3",
+      "resultingBlobSha256": "ee7b853fe61a77db5a84f2a01ee550421f7fa321365b77a2b641b1c7be5da9c9"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-hard-wrapped-terminal-http-links.ts",
+      "target": "src/renderer/src/components/terminal-pane/hard-wrapped-terminal-http-links.ts",
+      "expectedBlobSha256": "46969f6279ac9359c0ce6b4f601f3c526f0c7a1d4233aa6b25f3442ca75d04d7",
+      "resultingBlobSha256": "1e90a82f3fdee357d8bf85c5c1b8e36871216d4e46732768b369903f5bc05733"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-hidden-output-restore-scheduler.ts",
+      "target": "src/renderer/src/components/terminal-pane/hidden-output-restore-scheduler.ts",
+      "expectedBlobSha256": "4d89ea95bd1c5fd5ca1d984f95fa7f01c1e5a6b458b7c7ddddf7ae9d417e3474",
+      "resultingBlobSha256": "f513602a204c6ba866c2921baf34f47aa3988a41623da49b7b09fcd3d06ba8fd"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-mouse-hide-while-typing.ts",
+      "target": "src/renderer/src/components/terminal-pane/mouse-hide-while-typing.ts",
+      "expectedBlobSha256": "b8c14a4392790f8b83ae5d168b67c48d47f30dd43b4b1c5f62c5566a1e15174a",
+      "resultingBlobSha256": "e763be8711f6b04266d166e41918d1c9033a93299756c10477fbd80059686737"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-pty-buffer-serializer.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-buffer-serializer.ts",
+      "expectedBlobSha256": "2af73cbb4bbe767c86d32a90915efc13c858b96a9e5cf81753fcc8174710d378",
+      "resultingBlobSha256": "36cd24f370cd6308975c0c97facf8e4dd86fd8b72f4e8fb0fe1529d035d1ed92"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-pty-connection-cursor-agent-reattach-screen.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/cursor-agent-reattach-screen.ts",
+      "expectedBlobSha256": "d8934f910ded5c2de30dcc4cbe3c138ee206f8381c74be3c16ace0e60c5afff3",
+      "resultingBlobSha256": "92d3959bb063e36805084cfce4e1c8895dc86b53b01f5d118092dff73487e92f"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-pty-connection-pane-pty-binding.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/pane-pty-binding.ts",
+      "expectedBlobSha256": "94080b46cc36e304ba0dc6d12a94cc351367064e08f960a50f694e5682725062",
+      "resultingBlobSha256": "b37754881321011d7398dc3d188e95dc281d68e8b833c0c6affa17e8b13c1d2b"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-appearance.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-appearance.ts",
+      "expectedBlobSha256": "804aef09124ce29fddac9035d9fa86e9246271d1d61a46e4499b6be34c6db0ae",
+      "resultingBlobSha256": "3afaedc691f2c05abbe31b53dd0d3c766848cc111f7d948dec8c70c9f6db2da7"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-bracketed-paste.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-bracketed-paste.ts",
+      "expectedBlobSha256": "6d6caf9e1845527d7f767054b4649b6dbd3fcfa469ddb7f09169769fb0e0aaa3",
+      "resultingBlobSha256": "ac01e906180481080b21125b23118e02a73f2ac74cdecf72acbe8c83a14e41d3"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-capability-replies.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-capability-replies.ts",
+      "expectedBlobSha256": "a68d85300af388dd61c1e6ef843056fe25dcd7585fd79c327edf2ebcece19a76",
+      "resultingBlobSha256": "4cf101af72ad882b2236f57e94be16c603fb597110f97ad66f69e875abd544ec"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-captured-input-dispatch.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-captured-input-dispatch.ts",
+      "expectedBlobSha256": "f60aac70ed0e12aa7fb2d32173c9753a8286790a403a3b866ecc85e8d1963c53",
+      "resultingBlobSha256": "8df3768e14e26a87437fec425ec55183003b112d4f68c6526c49f2f077c9b2cf"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-clipboard-selection-text.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-clipboard-selection-text.ts",
+      "expectedBlobSha256": "fbb11a0c46f5e1acf2738a6874edb773c054e61e98c588b928b382d0ed78e4b9",
+      "resultingBlobSha256": "e88f858fda05d256fdf86ad1757d7831f2383182793e25ef7c4acce8980f4cfb"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-command-lifecycle.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-command-lifecycle.ts",
+      "expectedBlobSha256": "fa0326fcc4ffb19ddd9653d108d46cb0224ee49d900b27e6b8a1ae4983e3f2ce",
+      "resultingBlobSha256": "0106058d0b19995df94d0a4c0159ade8964831117239fba9c7fd2589959c0256"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-file-link-hit-testing.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-file-link-hit-testing.ts",
+      "expectedBlobSha256": "3b1a0b6e61bc1669817349ad12985d00805b5cb12ede95f341c370597a2cd0bf",
+      "resultingBlobSha256": "facea748f07f0433959fd97fc70a9afb1d7782bd6551386aa04f1c9a19a18b10"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-handle-links.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-handle-links.ts",
+      "expectedBlobSha256": "5523ca59a6ba5e52f4d2f336556d66d0f26848552723a8fec32e1b171a955f3f",
+      "resultingBlobSha256": "ffdb5089c821991345adaab552223dcb46a37da8e325e03ac52d26500793a615"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-ime-composer-placeholder-mask.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-ime-composer-placeholder-mask.ts",
+      "expectedBlobSha256": "0851dcdbe94680c0b165dfabb4029be7596dc54d3ac6f36d774e7d01ab97cb16",
+      "resultingBlobSha256": "28c137515f5afd08e54c23754a07433726bb7c03716d3f88224b84c3d62d8f56"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-ime-composition-route.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-ime-composition-route.ts",
+      "expectedBlobSha256": "3c7eb7cd01a1d5d7ea3a40b028344a2f47f2515b6490f851c78c5f882e49a1cb",
+      "resultingBlobSha256": "84af7d2281a3527b92279d9e2b509aad75910460d4dd7f557663cc567bda1de0"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-ime-composition-tracker.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-ime-composition-tracker.ts",
+      "expectedBlobSha256": "7bf367b6ce8434329a34815ad31edac3d4a5f1a7dba59aa92642a7087e07044f",
+      "resultingBlobSha256": "daeacc8c259b2947d7931154cee0aa29893c440a6cebe42c7517398f967ccb40"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-ime-native-text-forwarder.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-ime-native-text-forwarder.ts",
+      "expectedBlobSha256": "86860172e1b8ee059a6bbdd99647f8c68cb620d1a90533378c5bc25775bf6fb1",
+      "resultingBlobSha256": "869afb36bf5c6edf9b785f159cadf168c32ff506299b2c8afcd09fe4b3c95dc9"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-ios-hangul-preedit-overlay.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-ios-hangul-preedit-overlay.ts",
+      "expectedBlobSha256": "a71e81b66d4c9e60ce2123fafab1cbd2cbe7fc60803b448e0b41404efeef924b",
+      "resultingBlobSha256": "9088fa22ec71aef890134fd676a04cb11a74fb02591018fb34bb2a6781055311"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-ios-hangul-preedit.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-ios-hangul-preedit.ts",
+      "expectedBlobSha256": "580599a8fc3e7b00f74563cd2d507659d52c43a248bdebda82becc737fc35f13",
+      "resultingBlobSha256": "949a93343eaab6ad07207f8a5921e5608c26a139adcb1190836e28b2226c938d"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-keyboard-dependencies.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-keyboard-dependencies.ts",
+      "expectedBlobSha256": "367488bcf09d6974c629f67bbad710c76f31c8b0858093d6e539b3d17118154c",
+      "resultingBlobSha256": "367488bcf09d6974c629f67bbad710c76f31c8b0858093d6e539b3d17118154c"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-keyboard-runtime.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-keyboard-runtime.ts",
+      "expectedBlobSha256": "508d62785d5a9961758668b56249d4cfeab898248ceb4007dfd035cc60ffd0a3",
+      "resultingBlobSha256": "ec0de78c4f6c52933291b628340c7cedff401d99f9cb65ce99d34791849d45da"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-link-handlers.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-link-handlers.ts",
+      "expectedBlobSha256": "8cf5390679d243fc47b222f39ef35c8aa5ce7904213f7be8928c1b20d2825c3f",
+      "resultingBlobSha256": "25f18499a8a822dd136930099a68d20efb80ac04635283050bc55a6ddf633489"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-link-pointer-gesture.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-link-pointer-gesture.ts",
+      "expectedBlobSha256": "9b2be74919afd387a1c6adafb444a17a03e9eab64b4142d0587fb88a70eaea33",
+      "resultingBlobSha256": "648d2cd4f1ce93f453be1ddbbede853182e2143accfa2c62b9e18f2e345dcf81"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-link-pty-mouse-suppression.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-link-pty-mouse-suppression.ts",
+      "expectedBlobSha256": "a6b1e433213da5b8f8e0b66f521af70eacbdae2c13baf8926eebe26e3136b7d3",
+      "resultingBlobSha256": "1810de46d6ec8a14f0a78d4af04fbd5b0b29f1005b07aa49baf9ab3788b79a6a"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-linkifier-click-priming.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-linkifier-click-priming.ts",
+      "expectedBlobSha256": "d9267d681d2abcf962e19fc99065bc0451d44f56bc6c99d4fc00f32a75f93c54",
+      "resultingBlobSha256": "61229c5a94ce6edfd6efdc2ef6e7114111f4b95f111562883632f48116867d63"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-mouse-buffer-position.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-mouse-buffer-position.ts",
+      "expectedBlobSha256": "e1dd06ea2f7f56ea2cd6662ebe1d88a6283e73a3f8687b1d496daf2c92f657ea",
+      "resultingBlobSha256": "608d8c516a4e1b01684c1031006e6dfd1b27e456ab32cceb46da1ebf7bd39747"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-native-copy-gutter.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-native-copy-gutter.ts",
+      "expectedBlobSha256": "2e94e2a99cd590049c9bc1774781a2219980dfa41846ca7d2c70d63c9622317a",
+      "resultingBlobSha256": "086af3e2db8e299e9de22b90502d19059895ed392bcd4621609cc64a11695ad1"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-pane-lifecycle-primitives.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-pane-lifecycle-primitives.ts",
+      "expectedBlobSha256": "68c46e80ca9584be25e85db9a068725b00bc9038304a23a3b7975bc633780e5b",
+      "resultingBlobSha256": "87ed330cc06073408bd52f299d779f5d1d0bb34d572476fd33973f6725ab6bb2"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-pane-lifecycle-types.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-pane-lifecycle-types.ts",
+      "expectedBlobSha256": "3538958c617f2ee717e09162c2868218f6f7befd0fb3873468f9e52e6f6ce03f",
+      "resultingBlobSha256": "67ca1ce2bb23a2f3949abaecd35f7f40aaa0e2f5bd287f1d834d2e3822922441"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-pane-manager-options.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-pane-manager-options.ts",
+      "expectedBlobSha256": "89eea66cce1b460934a0229ef154dea6bb84f70f0d61ba6877a3911c494c1caa",
+      "resultingBlobSha256": "9204592368be3248e623266b32cbf7b9d58c3e60c20115d7a3703696f901d483"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-pane-pane-input.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-pane-pane-input.ts",
+      "expectedBlobSha256": "2b9268510ff697ac09fbfba5b778dae0a4ffb27a9cd4b19ed1464ed92117296d",
+      "resultingBlobSha256": "b2e3261b67d60ff158190a9fa6c85393cda21327b36fbb2ba38e9e5fbc1f56e9"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-selection-copy.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-selection-copy.ts",
+      "expectedBlobSha256": "a65a284c7e3150f0863c515e286037af60688a22e4e0dbd42e777d3db85bdf61",
+      "resultingBlobSha256": "aaa9b9f982cb766f81f922cdf02d9e886da918ff0135aeea0417bccc65013c03"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-url-link-hit-testing.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-url-link-hit-testing.ts",
+      "expectedBlobSha256": "fac1fa26ca967f41ab4922bd87f536e775d51a053b05bc1b1463e5f1b8cb53e2",
+      "resultingBlobSha256": "43f90bd599eb922008cb5b63d3d066796176680792987fed73ace77c7a342cb4"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-user-input-signal.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-user-input-signal.ts",
+      "expectedBlobSha256": "5b2f1da0bb9588bbaf1c68417ceaa05a63d406d1cec9302c8519f9493ff9a93a",
+      "resultingBlobSha256": "7e1645e5a2371e8efff787018d0f88da3c6b65e736e14ff7714aa1a392804a52"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-view-attributes-publisher.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-view-attributes-publisher.ts",
+      "expectedBlobSha256": "6705aef803d1bf5fcb34ba273137858a4cd7a69989797c332bc83e105b5eb12e",
+      "resultingBlobSha256": "00473cd54e3eea12adb905b86c7eab1c69c5ff4f8305c7bcdf0c83ebc1db642a"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-web-link-click.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-web-link-click.ts",
+      "expectedBlobSha256": "cd8d48f59f8861649bc9b36f550c9e4dc1948c948e66c2db07931fc3d816d661",
+      "resultingBlobSha256": "8c017594bb6982f11eff47a44957252fed95bcf672336f1878188f841ea84950"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-use-terminal-pane-foundation.ts",
+      "target": "src/renderer/src/components/terminal-pane/use-terminal-pane-foundation.ts",
+      "expectedBlobSha256": "27ad26b0ff00587a33f22013004e528f0bcb28cbfe3853140761a0eba14b3ef4",
+      "resultingBlobSha256": "27ad26b0ff00587a33f22013004e528f0bcb28cbfe3853140761a0eba14b3ef4"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-use-terminal-pane-global-effects.ts",
+      "target": "src/renderer/src/components/terminal-pane/use-terminal-pane-global-effects.ts",
+      "expectedBlobSha256": "8a8ef18fc588d8b50d1c3148bf4f1648472fa844ac9d3c717505839f5525dc9e",
+      "resultingBlobSha256": "8a8ef18fc588d8b50d1c3148bf4f1648472fa844ac9d3c717505839f5525dc9e"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-use-terminal-pane-lifecycle-refs.ts",
+      "target": "src/renderer/src/components/terminal-pane/use-terminal-pane-lifecycle-refs.ts",
+      "expectedBlobSha256": "09d7877594a1f25159f45f030acfd22d6f9cf038e0a021619308d9c6d98d964d",
+      "resultingBlobSha256": "09d7877594a1f25159f45f030acfd22d6f9cf038e0a021619308d9c6d98d964d"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-use-terminal-pane-lifecycle.ts",
+      "target": "src/renderer/src/components/terminal-pane/use-terminal-pane-lifecycle.ts",
+      "expectedBlobSha256": "ecbfb94bd5aa4cb7d39ef9c076987771decbfbe93dbbde2b22592aef6d18eed2",
+      "resultingBlobSha256": "ecbfb94bd5aa4cb7d39ef9c076987771decbfbe93dbbde2b22592aef6d18eed2"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-use-terminal-scroll-visibility-memory.ts",
+      "target": "src/renderer/src/components/terminal-pane/use-terminal-scroll-visibility-memory.ts",
+      "expectedBlobSha256": "b3ba22a11e44a565534a26ba0a9ea4afc826040d02fe6d4c41e9658c654d525b",
+      "resultingBlobSha256": "4fb76f735d22cfc1f6bd3641e06e799108c86459fbee6907d4cd312fa59e59df"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-use-terminal-window-wake-recovery.ts",
+      "target": "src/renderer/src/components/terminal-pane/use-terminal-window-wake-recovery.ts",
+      "expectedBlobSha256": "dac3c275dd4ae10017aecc42b68646dd63f8ae63c0ebc48c3a121953b341805a",
+      "resultingBlobSha256": "16fa143245eb75c57197cbdff02477a0721b9722942f586f33ae6fa443793211"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-wrapped-terminal-link-ranges.ts",
+      "target": "src/renderer/src/components/terminal-pane/wrapped-terminal-link-ranges.ts",
+      "expectedBlobSha256": "f556fdb99c0d276ae40b821cd54aee54b667e5044722e87c0b6870fb37c0e5a3",
+      "resultingBlobSha256": "69d9523325761c6e517463123b07c52d5d7101ec808e84292aa510365e60216b"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-cursor-blink-suspension.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-cursor-blink-suspension.ts",
+      "expectedBlobSha256": "fb300494df609f33aea28c193ec967a6758aaecc502dbb2d825fea19eaeb1b81",
+      "resultingBlobSha256": "e843b4350f46e914298c651b715bacfa2ab09253f225d8df8f5d40870fd91e3e"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-dom-creation.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-dom-creation.ts",
+      "expectedBlobSha256": "d64ac85d3edb0cfc0dbe46d8339ee4aa75c181a7f1ecba0b314b87cdf7a69eab",
+      "resultingBlobSha256": "4cba2c348111eda5c3201eff11065d917cc11ca2f4cefb0a9f67a7baecc4c09d"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-lifecycle.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-lifecycle.ts",
+      "expectedBlobSha256": "a18055b9c3d8ed8fe67f31fcab5b7f2b9ca7432d7bd883c4fae3afe4f0893d72",
+      "resultingBlobSha256": "8dab29f7bde10e5e59c86ad02116b55cb9b3212e73c93cd26d5c225a9f5c1d20"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-manager-types.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-manager-types.ts",
+      "expectedBlobSha256": "30072b8aa941025a04c78e2b8216a1124ff733deeb990b2436fed36eb38e3488",
+      "resultingBlobSha256": "30072b8aa941025a04c78e2b8216a1124ff733deeb990b2436fed36eb38e3488"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-scroll.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-scroll.ts",
+      "expectedBlobSha256": "8612f9e6589fcc523f01eec5665dbf5af0b0bb2058483a8cb1322ad5c4998210",
+      "resultingBlobSha256": "8a427e546582d2a04f7f8c8dcb17e87e8a4851a9735061f48df3e1002059721c"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-split-scroll.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-split-scroll.ts",
+      "expectedBlobSha256": "62ee44d4ae9dc27a21e18cc112fd834ff77bb14257780b58b193d3658965ce64",
+      "resultingBlobSha256": "7509271ceae6e34a2fd18562eddeb0ffa57e9722b132585e3f46b9f56f85941b"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-terminal-mouse-wheel.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-terminal-mouse-wheel.ts",
+      "expectedBlobSha256": "3b92e6e3ff25ca993f3e27befca12e784035f4204007fe2baf0b11b32fdb1ea1",
+      "resultingBlobSha256": "8d28c88104dd5549bcd155db2697703fd4c4504e308b1737b5045586ea75fff6"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-terminal-options.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-terminal-options.ts",
+      "expectedBlobSha256": "1435ef6224c36ba860edba5b677718ad866763265b7ec6442623122411f6e196",
+      "resultingBlobSha256": "27add4d085bf228bf411532da35919059c0c65fdb4da2743e0c99d67b62a36a1"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-webgl-renderer.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-webgl-renderer.ts",
+      "expectedBlobSha256": "514e05a81777e2917eb43648da0f2bdcf6974031add5ac89b8c0ed099cd38ad0",
+      "resultingBlobSha256": "a0e1f6f8b36fb4a4825d88c9c31dd086b3f9422d6f64fb22965d7565dbd96651"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-terminal-arabic-shaping-joiner.ts",
+      "target": "src/renderer/src/lib/pane-manager/terminal-arabic-shaping-joiner.ts",
+      "expectedBlobSha256": "700d3e2ef4bba64cffa9b0f456b10512c106b03021b672bb12cec47cb76b884d",
+      "resultingBlobSha256": "3328367b0767bf0618e84ec635326ca94d7b775fcefa9cd3d7f5fa161df0033e"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-terminal-ime-anchor.ts",
+      "target": "src/renderer/src/lib/pane-manager/terminal-ime-anchor.ts",
+      "expectedBlobSha256": "b7cd6cfb1b2111d12fee7a6dc20b7f08e6827c33f64a0598545e00b1b47bd438",
+      "resultingBlobSha256": "1e91a06451a574791117a259122f9916056899956b9fba419e9e6930106c2c9d"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-terminal-ime-candidate-anchor.ts",
+      "target": "src/renderer/src/lib/pane-manager/terminal-ime-candidate-anchor.ts",
+      "expectedBlobSha256": "2c499e966db2927af399525a16a44c58134cff17d6d36739009869bca9f5eeb1",
+      "resultingBlobSha256": "b756dd80545ff1b7af7433c8beb4593dc37fb569db9ec30b984784d6306357d3"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-terminal-keyboard-protocol.ts",
+      "target": "src/renderer/src/lib/pane-manager/terminal-keyboard-protocol.ts",
+      "expectedBlobSha256": "ebe002873ed2b9be3580ba77fa25c1f63f6a2b42c37eee2a2eda9d9bbc9662fd",
+      "resultingBlobSha256": "96c727280734613b031e7769d3f43cc312f3154709235e2e0b756aa6af833ed9"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-terminal-ligatures-addon.ts",
+      "target": "src/renderer/src/lib/pane-manager/terminal-ligatures-addon.ts",
+      "expectedBlobSha256": "ed12b730015a906e7cde6bcaad1a19cd1ebf6d2c7d1f41b42783187828d56e4d",
+      "resultingBlobSha256": "431bf2c9f5d437b6a96f1092f18ec71cdd3911b4d6df9db7ca2810c1d7e36e22"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-terminal-link-provider-guard.ts",
+      "target": "src/renderer/src/lib/pane-manager/terminal-link-provider-guard.ts",
+      "expectedBlobSha256": "4a2ea085cf15d2e45b79b601fbc32307428987a9f2807ed96d38243962a68aa6",
+      "resultingBlobSha256": "1fb4c373df73c92340f311ee1ee760948a63a1afcf49f3d3ddeecf7595888e42"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-terminal-linkifier-hover-reset-on-mouseleave.ts",
+      "target": "src/renderer/src/lib/pane-manager/terminal-linkifier-hover-reset-on-mouseleave.ts",
+      "expectedBlobSha256": "fc9a72a5a9a06adaa097a895ae2583a7dbe63468f08a9ec92b9ad1749210996a",
+      "resultingBlobSha256": "e2fa602805edb5da2fb4d40426a7ebdd2e74aa295dc1839c583d3b1c731daf1f"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-terminal-linkifier-hover-reset-on-write.ts",
+      "target": "src/renderer/src/lib/pane-manager/terminal-linkifier-hover-reset-on-write.ts",
+      "expectedBlobSha256": "b4bccd4a51199d0649212174d8090297612b450bccc222e16e4c793426442921",
+      "resultingBlobSha256": "41b3d3039c1c1e93b6d00ccd2403ba68176dfbcd9ffbe61d42b69d6b86f77a74"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-terminal-linkifier-hover-reset.ts",
+      "target": "src/renderer/src/lib/pane-manager/terminal-linkifier-hover-reset.ts",
+      "expectedBlobSha256": "2e5cdab9cfc013f1d7a0f60028ea9edebd06f6822a5792411f3e82a115ccc449",
+      "resultingBlobSha256": "404275cd599bac30b4da4171c68c062cf11648a54ed580048b5e164a777922e9"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-terminal-reflow-scroll-anchor.ts",
+      "target": "src/renderer/src/lib/pane-manager/terminal-reflow-scroll-anchor.ts",
+      "expectedBlobSha256": "95fde30c35178fddcca262030e33cd2f12be9c0b0796ba12a362fe87af24183a",
+      "resultingBlobSha256": "81697160d97a365b2978b4d9cb76a269900e38699ea44745507542d043ad7e82"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-terminal-scroll-intent-dom-tracking.ts",
+      "target": "src/renderer/src/lib/pane-manager/terminal-scroll-intent-dom-tracking.ts",
+      "expectedBlobSha256": "28c388b9ae603062852b39daf27ddf5436afec2b346369d2fb6b9ca9f0c124bb",
+      "resultingBlobSha256": "2d2b26bc0ad4ce1a5492d4a7ca7df3d3cc461db7a69548dd2ff32ed6af7ad2cb"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-terminal-viewport-scrollbar-sync.ts",
+      "target": "src/renderer/src/lib/pane-manager/terminal-viewport-scrollbar-sync.ts",
+      "expectedBlobSha256": "7ba783b5b52175dc7a61f06ce37ba5f069f0aee1e565ce1c60335a16033125c4",
+      "resultingBlobSha256": "bbb4e740864662355008c6adc0f6010c4613f5533f315b06c4ea946f818090db"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-terminal-webgl-addon-loader.ts",
+      "target": "src/renderer/src/lib/pane-manager/terminal-webgl-addon-loader.ts",
+      "expectedBlobSha256": "c079a3b89d0e917a4825d9dd26748b50575cd3f781873a81aa5d6a9012a3c75b",
+      "resultingBlobSha256": "c4b0ffa05fddf6182a06dbd1c4fb6c329984f0c04300fa2740b610ac7ad11d93"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-terminal-windows-ctrl-alt-chord-classification.ts",
+      "target": "src/renderer/src/lib/pane-manager/terminal-windows-ctrl-alt-chord-classification.ts",
+      "expectedBlobSha256": "e85b2e9a6b5c78d0efb89430df9b17d79fedfd1e07f6dd7e97529de6e9447324",
+      "resultingBlobSha256": "ba278fed8494378637edd018ed2cdf78aa5f4fc18e49ed0419189df4f2cf2038"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-windows-pty-compatibility.ts",
+      "target": "src/renderer/src/lib/pane-manager/windows-pty-compatibility.ts",
+      "expectedBlobSha256": "bb9b222fbb4a6aedcaae99f2df67ed793538b7035f1c9ab36beae9011ce1b2a7",
+      "resultingBlobSha256": "249a6f4701b66c221eb075404975e691c32c65e874ea53cea627f6cb2f284798"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-terminal-theme.ts",
+      "target": "src/renderer/src/lib/terminal-theme.ts",
+      "expectedBlobSha256": "037a4ae8c68ad5c31e4fc766101dd051f982a9b27908a3babe139b88225246b8",
+      "resultingBlobSha256": "a265895272348928f787e9e4edb7c781648a40fb0bffae6c181343d5d315f606"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-terminal-themes-data.ts",
+      "target": "src/renderer/src/lib/terminal-themes-data.ts",
+      "expectedBlobSha256": "50e956fcaedd79bae05851dc32e612c78ae1ffe93482cf3557086d98f42747d4",
+      "resultingBlobSha256": "4313f042d5d88ea21a4b11705c7eed8ab9d3120dfbee8219b7d7bf833ed96280"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-terminal-themes-types.ts",
+      "target": "src/renderer/src/lib/terminal-themes/types.ts",
+      "expectedBlobSha256": "655b59da6b27598c6e324461dc65a09e045e3ffbce2aa741d827324a1ccd4527",
+      "resultingBlobSha256": "c5e01ea22756c348f84892b303fbef71d0b6ed65d149651a5892a1c19bf97ee6"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-typing-latency-echo-instrumentation.ts",
+      "target": "src/renderer/src/lib/typing-latency/echo-instrumentation.ts",
+      "expectedBlobSha256": "54e7556467315b06557bd63d39743f5fca2a6daf66742ce92bddabdd02c89bc1",
+      "resultingBlobSha256": "52e581ca084806451122c856f10df258f29607ba16a33ec161930301c78d2123"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-pty-connection-apply-reattach-payload.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/apply-reattach-payload.ts",
+      "expectedBlobSha256": "aeb7f5559a4d44ecbdb25792892137582a1ad887ad121e5332eee3e3173f6610",
+      "resultingBlobSha256": "92586faddca661b9c4c48f68c34f74521868665d2d5d9bee6fde0ad450a86b01"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-pty-connection-pane-serializer-register.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/pane-serializer-register.ts",
+      "expectedBlobSha256": "f093ac2375705e544b3a9b5dcdf544c48818a93909b42e9215da94d975231e75",
+      "resultingBlobSha256": "465f80af9a3eeeffc7ca6f47010592027628b36c4e3491f7ebab9f23c42108f2"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-pty-connection-pty-input-forward.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/pty-input-forward.ts",
+      "expectedBlobSha256": "a316733c35d52b517ba3c3341210cb273013ab1f40697344947219af729137b5",
+      "resultingBlobSha256": "9d1c9e25739b0c4280b2f28b0f3c0dbb7a732ef123484dc3d1f2d48f514b3073"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-pty-connection-pty-input-recovery.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/pty-input-recovery.ts",
+      "expectedBlobSha256": "1da7235d619aa7bfd8c580422aa5c5c3f1dca3302b3ac6163e3c511ee380032f",
+      "resultingBlobSha256": "786054948aae9cb476e35cc9a7f93db0785f81bee7d32289ad601d64a6557d05"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-pty-connection-pty-resize-geometry.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/pty-resize-geometry.ts",
+      "expectedBlobSha256": "fce2ca6bf317e783d826fb817faf7b77246f987ca2f6349d366bebe403d116f3",
+      "resultingBlobSha256": "a2344f4085dc77f88005fe9e6c9986ffe3289a0b7a3118e782081ebb9fe4975b"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-pty-connection-setup-split-geometry.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/setup-split-geometry.ts",
+      "expectedBlobSha256": "50bb1915e4666a813acd3f4f4edc19ef24b1a3004cc4710fe04a4e6a3a97c11b",
+      "resultingBlobSha256": "a5fd047eea862fbcaf9b6abfe5e74bf0ba28ecaced4177ef691396a3334cd69f"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-agent-session-continuation.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-agent-session-continuation.ts",
+      "expectedBlobSha256": "93726f6616c6cd6a654c6fdff21be0b5b76b7f1d5600dd3dabd8637d9531dc1e",
+      "resultingBlobSha256": "41d607d3321e16776c25c6e0af81dd4f5ed24ddaf4cb6e039b55074d1b30ac93"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-agent-session-fork.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-agent-session-fork.ts",
+      "expectedBlobSha256": "fd120b12383ad8d1b5cbeef09d4d4368e32abcb29f9d289a06f6b468b0ac594f",
+      "resultingBlobSha256": "7ba4599c6027b6368d436276d1132e6da27ea7fede6d6df140b24dc03fb59c74"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-pane-pane-links.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-pane-pane-links.ts",
+      "expectedBlobSha256": "86fc473e5ceef96e3c061690c4cd475efa2d896156575820063ee1baed0e52cf",
+      "resultingBlobSha256": "b0f7d526a29a9c6c194be74109cbdc5b6c8189487c9a3087298e36fc579727f8"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-shutdown-layout-capture.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-shutdown-layout-capture.ts",
+      "expectedBlobSha256": "b2218608f4af970c98516178dabe72caea10cc68cead265d8fe126b66a55efac",
+      "resultingBlobSha256": "ad575bc8bda9d1c85d9b31ae93a22c1ac51d90b2e01e0a3df148c6aabef88e34"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-startup-command-paste.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-startup-command-paste.ts",
+      "expectedBlobSha256": "eecddb3f768e95d62248bc203d2aa2128232e956e03bec85303aac2be21737f0",
+      "resultingBlobSha256": "078017931d927508a61bcf63c31d7b60134091fb937aa6f1d0a0ea4e0b8e2bfe"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-fit-measurability.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-fit-measurability.ts",
+      "expectedBlobSha256": "133d04c2286abdebd7c235b67b92e52492b6843d0358044f44e17ef17763c135",
+      "resultingBlobSha256": "78793482ce758bc242b804979e3ca5309aab5436adf610d2db5d1d7bc02daf47"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-fit-resize-observer.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-fit-resize-observer.ts",
+      "expectedBlobSha256": "4e583a545d98dc16e4d3291ae48c53585b7be6daa3e186fca8d2e1df106264bd",
+      "resultingBlobSha256": "0890b87b21f6d76052e88873d4c6c0f814edcbfb739557ec1857172ef8690513"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-fit.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-fit.ts",
+      "expectedBlobSha256": "9c64286e4a39fc5d258bacbff51aa39d46efb1e3456ed05e2b7679d17474fc9d",
+      "resultingBlobSha256": "d536603affe90acb03645abb0c4556032dd766fb82cd4b958bdd4546fe979744"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-manager.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-manager.ts",
+      "expectedBlobSha256": "5c235dde4ed7732fbbe5af0f4ebc22177885e8322301558e2b0a01af9d7f2331",
+      "resultingBlobSha256": "a5c5a15c8e99d1f4af81ab930a556cda29a8895ebacb494f5ca13814439db867"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-rendering-control.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-rendering-control.ts",
+      "expectedBlobSha256": "1ef672b9e4f6dd96493636332b86b74774485495c9514bdf24d45a1b90c220e3",
+      "resultingBlobSha256": "62e1a9d3099667d215ba4c69f17197b897e6476821282f175c7c47526ce384cb"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-rendering-diagnostics.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-rendering-diagnostics.ts",
+      "expectedBlobSha256": "645de841a6bb6c6251ce8ba5f50e389dad81f547b180b3137a842752cefe069d",
+      "resultingBlobSha256": "2a95c7856abc5d10637cdca72724cc92d095c0a28a11ec651df8ba52aad8c71a"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-reveal-fit.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-reveal-fit.ts",
+      "expectedBlobSha256": "f2138b3229cf45fb3aad4c4f367449a6dadb9c8183a9b0056d8e516c99afde4c",
+      "resultingBlobSha256": "fed726dd7af5d685321a6d2e3b9bfd929a5f3ee4b8eb8814ba229231c6f6a14f"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-split-close.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-split-close.ts",
+      "expectedBlobSha256": "6004b3ce7e01dcf410d3f081d59fe06f3199359aebb5a0249817d62c108aadfa",
+      "resultingBlobSha256": "3e887afad63371be53bcd2535a9a5141cb5cef699de2556237272c3bea9db735"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-terminal-gpu-acceleration.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-terminal-gpu-acceleration.ts",
+      "expectedBlobSha256": "d86a9b7fee415ee9c7760c1bd8af711d290eead1044ef3b595488b1283e3c574",
+      "resultingBlobSha256": "5c8a881db7b8d571e6bb8cea313fc22db3aea738b263e9a29d1d608cbddc231c"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-tree-ops.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-tree-ops.ts",
+      "expectedBlobSha256": "2eee9285e509921499a715846c7b4ef2e4810c803f147974f19304d403033a5d",
+      "resultingBlobSha256": "82b85f9826e075774f228c0b2c1cf8529c4acf05276b928ab1dd362bd093c494"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-webgl-reattach.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-webgl-reattach.ts",
+      "expectedBlobSha256": "c39e8a1b3bba7c6c9fca567c215ec186f71129ea1ece0a2aa8f2ce68d890c6a3",
+      "resultingBlobSha256": "9a73e94c7939554a2064a960e963e1b97b88532c268a221b0705f1cab89953d3"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-terminal-webgl-hidden-retention.ts",
+      "target": "src/renderer/src/lib/pane-manager/terminal-webgl-hidden-retention.ts",
+      "expectedBlobSha256": "e568963916ef897e20ba20231c76cbcfe06706857729e5f308cd0d63d7ef7d61",
+      "resultingBlobSha256": "11db65868bd1b8914116dd1f8df3b31688efb97b317f5ce6c21f4b79127c6e74"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-pty-connection-test-async.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection-test-async.ts",
+      "expectedBlobSha256": "f32b9648985909b3e6f5252827b50b7d40f70eca528230814f59964a3d2fc4b1",
+      "resultingBlobSha256": "dd6b31890da5e5e139df70c8d7865beb0c7e907a5ed4497e9e4c1fea981c7d7f"
+    },
+    {
+      "id": "gate-d1-r-src-shared-terminal-cursor-line-context.ts",
+      "target": "src/shared/terminal-cursor-line-context.ts",
+      "expectedBlobSha256": "c02e769fb8e49111e63e52079b26feda2d47d70c5e56cf34a81244f2f893cae1",
+      "resultingBlobSha256": "3270ce36a1081df1be22aa76a855f1001692484b4a4e745cc9cf39b9e0ad9a13"
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-terminal-scrollback-clear.ts",
+      "target": "src/renderer/src/lib/pane-manager/terminal-scrollback-clear.ts",
+      "expectedBlobSha256": "05e5b73438f07646914ae5f62138218fcda8b2a40918b5a2c1b3d3e610555c17",
+      "resultingBlobSha256": "e9e2b9e8c71c270ba5a1e0c2a346f784d9174a8ac28346b1680b2ea7af8bcfcf"
+    }
+  ]
+}

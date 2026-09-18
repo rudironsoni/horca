@@ -50,7 +50,8 @@ export function createOrcaPaneBuffer(
                 getWidth: () => cell.width,
                 isBold: () => cell.bold,
                 isDim: () => cell.dim,
-                isFgDefault: () => cell.fgDefault
+                isFgDefault: () => cell.fgDefault,
+                getCode: () => cell.chars.codePointAt(0) ?? 0
               }
             }
           }

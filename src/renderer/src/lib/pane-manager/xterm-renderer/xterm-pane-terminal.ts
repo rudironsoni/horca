@@ -89,6 +89,9 @@ export class XtermPaneTerminal implements PaneTerminal {
   input(data: string): void {
     this.term.input(data)
   }
+  paste(text: string): void {
+    this.term.paste(text)
+  }
   focus(): void {
     this.term.focus()
   }

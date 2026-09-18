@@ -1,0 +1,14 @@
+{
+  "rule": "Disposable worktrees under .cache/worktrees are generated views. Horca src/, overlay/, config/, and scripts/ are source of truth.",
+  "dirtyWorktree": ".cache/worktrees/85d1ffc0726d8403f9494436c421c5e3d7932c47/d1-preflight-1789717810",
+  "action": "Harvested direct worktree edits into Horca-owned inputs, then destroy and rematerialize.",
+  "horcaOwnedAdds": "gate-d1-r-add-* entries copy from src/ (Ghostty modules, pane-terminal, orca-pane-*, orca-terminal-surface).",
+  "orcaOriginReplaces": "gate-d1-r replace entries copy from overlay/d1-r/ into pinned Orca files.",
+  "droppedDuplicateReplaces": [
+    "Horca-owned files must not also have overlay/d1-r replace entries. Add-from-src is the origin."
+  ],
+  "harvestedOrcaOriginAfterDirectEdit": [
+    "overlay/d1-r updated from the disposable tree for D1-R Ghostty cutover files",
+    "new replace overlays for D0 files further edited (requireXtermPaneState removal, proposeDimensions null coalescing)"
+  ]
+}

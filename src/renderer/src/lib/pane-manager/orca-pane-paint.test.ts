@@ -1,5 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createPaintScheduler } from './orca-pane-paint'
+import { primeGhosttyVtHostForTests } from '../../../../ghostty-vt/prime-host-for-tests'
+primeGhosttyVtHostForTests()
 
 describe('createPaintScheduler', () => {
   afterEach(() => {

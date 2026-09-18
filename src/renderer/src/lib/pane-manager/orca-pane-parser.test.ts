@@ -2,6 +2,8 @@
 import { beforeAll, describe, expect, it, vi } from 'vitest'
 import { getGhosttyVtHostOrThrow } from '../../../../ghostty-vt/host-singleton'
 import { OrcaPaneTerminal } from './orca-pane-terminal'
+import { primeGhosttyVtHostForTests } from '../../../../ghostty-vt/prime-host-for-tests'
+primeGhosttyVtHostForTests()
 
 function stubCanvas(): CanvasRenderingContext2D {
   const ctx = {

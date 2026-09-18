@@ -3,6 +3,8 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vite
 import { getGhosttyVtHostOrThrow } from '../../../../ghostty-vt/host-singleton'
 import { rgbToCss } from '../../../../ghostty-vt/ghostty-color-theme'
 import { OrcaPaneTerminal } from './orca-pane-terminal'
+import { primeGhosttyVtHostForTests } from '../../../../ghostty-vt/prime-host-for-tests'
+primeGhosttyVtHostForTests()
 
 const SOLARIZED_LIGHT = {
   background: '#fdf6e3',

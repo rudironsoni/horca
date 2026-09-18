@@ -18,8 +18,8 @@ function nativeSurfaceApi(): NativeSurfaceApi | null {
   if (typeof window === 'undefined') {
     return null
   }
-  const surface = window.api?.horcaGhosttySurface
-  return surface ?? null
+  const api = window.api as { horcaGhosttySurface?: NativeSurfaceApi } | undefined
+  return api?.horcaGhosttySurface ?? null
 }
 
 export function isRendererNativeGhosttyGpuAvailable(): boolean {

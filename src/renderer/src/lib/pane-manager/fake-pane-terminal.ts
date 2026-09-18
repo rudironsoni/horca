@@ -1,32 +1,18 @@
 import type { PaneTerminal } from './pane-terminal'
-import { registerXtermPaneState } from './xterm-renderer/xterm-pane-state'
 
 export function registerMockXtermPaneState<T extends { terminal?: PaneTerminal }>(pane: T): T {
-  if (!pane.terminal || typeof pane.terminal !== 'object') return pane
+  const terminal = pane.terminal as (PaneTerminal & Record<string, unknown>) | undefined
+  if (!terminal) return pane
   const extra = pane as T & {
-    fitAddon?: unknown
-    searchAddon?: unknown
-    serializeAddon?: unknown
-    unicode11Addon?: unknown
-    webLinksAddon?: unknown
-    webglAddon?: unknown
-    ligaturesAddon?: unknown
+    fitAddon?: { fit?: PaneTerminal['fit']; proposeDimensions?: PaneTerminal['proposeDimensions'] }
+    serializeAddon?: { serialize?: PaneTerminal['serialize'] }
   }
-  registerXtermPaneState(pane.terminal, {
-    term: pane.terminal as never,
-    fitAddon: (extra.fitAddon ?? { fit() {}, proposeDimensions() {} }) as never,
-    searchAddon: (extra.searchAddon ?? {
-      findNext() { return false },
-      findPrevious() { return false },
-      clearDecorations() {},
-      dispose() {}
-    }) as never,
-    serializeAddon: (extra.serializeAddon ?? { serialize() { return '' }, dispose() {} }) as never,
-    unicode11Addon: (extra.unicode11Addon ?? { dispose() {} }) as never,
-    webLinksAddon: (extra.webLinksAddon ?? { dispose() {} }) as never,
-    webglAddon: (extra.webglAddon ?? null) as never,
-    ligaturesAddon: (extra.ligaturesAddon ?? null) as never
-  })
+  if (extra.fitAddon?.fit) terminal.fit = extra.fitAddon.fit
+  if (extra.fitAddon?.proposeDimensions) terminal.proposeDimensions = extra.fitAddon.proposeDimensions
+  if (extra.serializeAddon?.serialize) terminal.serialize = extra.serializeAddon.serialize
+  if (typeof terminal.onRender !== 'function') {
+    terminal.onRender = () => ({ dispose: () => undefined })
+  }
   return pane
 }
 
@@ -37,7 +23,16 @@ export function createFakePaneTerminal(overrides: Partial<PaneTerminal> = {}): P
     rows: 24,
     element: undefined,
     options: {},
-    buffer: { active: { cursorX: 0, cursorY: 0, baseY: 0, viewportY: 0, getLine: () => undefined } },
+    buffer: {
+      active: {
+        cursorX: 0,
+        cursorY: 0,
+        baseY: 0,
+        viewportY: 0,
+        type: 'normal',
+        getLine: () => undefined
+      }
+    },
     modes: {},
     parser: {
       registerOscHandler: () => noopDisp,
@@ -45,6 +40,7 @@ export function createFakePaneTerminal(overrides: Partial<PaneTerminal> = {}): P
     },
     write: () => undefined,
     input: () => undefined,
+    paste: () => undefined,
     focus: () => undefined,
     blur: () => undefined,
     dispose: () => undefined,

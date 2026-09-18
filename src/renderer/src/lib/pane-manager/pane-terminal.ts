@@ -15,20 +15,26 @@ export type PaneTerminalOptions = {
   theme?: ITheme
   fontFamily?: string
   fontSize?: number
+  fontWeight?: string | number
+  fontWeightBold?: string | number
+  lineHeight?: number
   scrollback?: number
   minimumContrastRatio?: number
   allowTransparency?: boolean
   cursorStyle?: string
   cursorInactiveStyle?: string
+  cursorBlink?: boolean
   scrollSensitivity?: number
   fastScrollSensitivity?: number
   macOptionIsMeta?: boolean
   mouseEventsRequireAlt?: boolean
   ignoreBracketedPasteMode?: boolean
+  screenReaderMode?: boolean
   linkHandler?: {
     activate: (event: MouseEvent, uri: string) => void
     hover?: (event: MouseEvent, uri: string) => void
-    leave?: () => void
+    leave?: (event: MouseEvent, uri: string) => void
+    allowNonHttpProtocols?: boolean
   }
 }
 
@@ -39,7 +45,12 @@ export type PaneTerminal = {
   readonly textarea?: HTMLTextAreaElement
   options: PaneTerminalOptions
   readonly buffer: { active: OrcaTerminalGrid }
-  readonly modes: { bracketedPasteMode?: boolean }
+  readonly modes: {
+    bracketedPasteMode?: boolean
+    mouseTrackingMode?: string
+    sendFocusMode?: boolean
+    showCursor?: boolean
+  }
   readonly parser: {
     registerOscHandler: (
       ident: number,
@@ -52,6 +63,7 @@ export type PaneTerminal = {
   }
   write: (data: string | Uint8Array, onDone?: () => void) => void
   input: (data: string) => void
+  paste: (text: string) => void
   focus: () => void
   blur: () => void
   dispose: () => void

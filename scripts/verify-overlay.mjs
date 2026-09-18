@@ -1,6 +1,6 @@
-import { readFileSync, existsSync } from 'node:fs'
+import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs'
 import { execSync } from 'node:child_process'
-import { resolve } from 'node:path'
+import { join, relative, resolve } from 'node:path'
 import { createHash } from 'node:crypto'
 
 const ROOT = resolve(import.meta.dirname, '..')
@@ -113,6 +113,32 @@ function verifyOverlay(worktreePath) {
         return { success: false, changes: allChanges, undeclared: [], postconditionFailed: override.target }
       }
       console.log(`[verify-overlay] ${override.target} postcondition blob sha256 OK`)
+    }
+  }
+
+  const d1Dir = resolve(ROOT, 'overlay', 'd1-r')
+  if (existsSync(d1Dir)) {
+    const referenced = new Set()
+    for (const override of overrides) {
+      const source = override.source
+      if (typeof source === 'string' && source.startsWith('overlay/d1-r/')) {
+        referenced.add(source.slice('overlay/d1-r/'.length))
+      }
+    }
+    const unreferenced = []
+    const walk = (dir) => {
+      for (const name of readdirSync(dir)) {
+        const p = join(dir, name)
+        if (statSync(p).isDirectory()) walk(p)
+        else unreferenced.push(relative(d1Dir, p).replaceAll('\\', '/'))
+      }
+    }
+    walk(d1Dir)
+    const extra = unreferenced.filter((rel) => !referenced.has(rel))
+    if (extra.length) {
+      console.error('[verify-overlay] UNREFERENCED overlay/d1-r FILES:')
+      for (const rel of extra) console.error(`  overlay/d1-r/${rel}`)
+      return { success: false, changes: allChanges, undeclared, unreferenced: extra }
     }
   }
 

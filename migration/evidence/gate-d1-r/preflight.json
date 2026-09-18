@@ -1,0 +1,46 @@
+{
+  "d0Commit": "39092eff3afb43417d144f963ec16cd218a95c20",
+  "upstreamSha": "85d1ffc0726d8403f9494436c421c5e3d7932c47",
+  "numTotalTests": 31912,
+  "numPassedTests": 31905,
+  "numFailedTests": 0,
+  "numPendingTests": 7,
+  "numTodoTests": 0,
+  "skipped": [
+    {
+      "file": "src/renderer/src/web/web-runtime-direct-proxy-live.integration.test.ts",
+      "reason": "describe.runIf pairing env unset",
+      "preExisting": true
+    },
+    {
+      "file": "src/renderer/src/web/web-runtime-direct-proxy-live.integration.test.ts",
+      "reason": "describe.runIf pairing env unset",
+      "preExisting": true
+    },
+    {
+      "file": "src/renderer/src/web/web-runtime-direct-proxy-live.integration.test.ts",
+      "reason": "it.runIf second pairing unset",
+      "preExisting": true
+    },
+    {
+      "file": "src/renderer/src/components/editor/rich-markdown-review-rail-benchmark.test.ts",
+      "reason": "it.skipIf ORCA_REVIEW_RAIL_BENCH!==1",
+      "preExisting": true
+    },
+    {
+      "file": "src/renderer/src/components/editor/rich-markdown-search-matches-cache.test.ts",
+      "reason": "it.skipIf ORCA_SEARCH_CACHE_BENCH!==1",
+      "preExisting": true
+    },
+    {
+      "file": "src/renderer/src/lib/pane-manager/pane-terminal-output-scheduler-throughput.bench.test.ts",
+      "reason": "describe.skipIf bench disabled",
+      "preExisting": true
+    },
+    {
+      "file": "src/renderer/src/components/terminal-pane/fish-color-scheme-child-stdin.node-pty.test.ts",
+      "reason": "it.skip when fish binary missing",
+      "preExisting": true
+    }
+  ]
+}

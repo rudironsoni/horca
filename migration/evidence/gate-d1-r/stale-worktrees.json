@@ -1,0 +1,15 @@
+{
+  "stale": [
+    {
+      "path": ".cache/worktrees/85d1ffc0726d8403f9494436c421c5e3d7932c47/d1-preflight-1789717810",
+      "reason": "Direct-edit experiment. Guardrails blocked force-remove. Do not compile, verify, or take D1-R evidence from this tree.",
+      "status": "stale"
+    },
+    {
+      "path": ".cache/worktrees/85d1ffc0726d8403f9494436c421c5e3d7932c47/9eaef850e563-local-1789723590162",
+      "reason": "Partial overlay apply that failed on duplicate add. Do not use.",
+      "status": "stale"
+    }
+  ],
+  "activeGenerated": ".cache/worktrees/85d1ffc0726d8403f9494436c421c5e3d7932c47/d27126488aaa-local-1789736394836"
+}

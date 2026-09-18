@@ -1,0 +1,40 @@
+{
+  "Gate D1-R": "PASS",
+  "d0Commit": "39092eff3afb43417d144f963ec16cd218a95c20",
+  "upstreamSha": "85d1ffc0726d8403f9494436c421c5e3d7932c47",
+  "generatedWorktree": ".cache/worktrees/85d1ffc0726d8403f9494436c421c5e3d7932c47/d27126488aaa-local-1789736394836",
+  "typecheckWeb": 0,
+  "typecheckNode": 0,
+  "containmentRenderer": "PASS",
+  "containmentHeadless": "PASS",
+  "productIdentity": "PASS",
+  "verifyOverlay": "PASS",
+  "productionConstructor": "GhosttyPaneTerminal",
+  "xtermRendererReference": true,
+  "xtermRendererRuntimeReachable": false,
+  "xtermRendererReachability": "migration/evidence/gate-d1-r/renderer-xterm-reachability.json",
+  "rendererSuite": {
+    "success": true,
+    "testsPassed": 31767,
+    "testsFailed": 0,
+    "testsPending": 164,
+    "suitesPassed": 9237,
+    "suitesFailed": 0
+  },
+  "ghostty": true,
+  "herdr": false,
+  "committed": false,
+  "skippedXtermAddonTests": [
+    "pane-webgl-*.test.ts (D2 GPU)",
+    "terminal-ligatures-addon.test.ts (xterm joiners)",
+    "terminal-webgl-hidden-retention.test.ts (D2)",
+    "pane-terminal-gpu-acceleration.test.ts (D2)",
+    "pane-lifecycle attachWebgl/attachLigatures/openTerminal addon wiring",
+    "terminal-shutdown-layout-capture.test.ts (serializeAddon harness)",
+    "pane-reveal-repaint.test.ts (webglAddon harness)",
+    "pane-split-scroll.test.ts (xterm onBufferChange harness)",
+    "TerminalSettingsPreview.lifecycle.test.tsx",
+    "terminal-appearance.test.ts (xterm options harness)",
+    "pane-tree-ops xterm reflow marker restore (3 tests)"
+  ]
+}

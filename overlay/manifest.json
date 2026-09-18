@@ -1735,6 +1735,3084 @@
       "mode": "replace",
       "source": "overlay/d0-r/src/shared/tui-agent-startup.test.ts",
       "reason": "D0-R: Horca CLI name in agent startup fixture"
+    },
+    {
+      "id": "gate-d1-r-add-src-shared-horca-ghostty-surface-api-ts",
+      "target": "src/shared/horca/ghostty-surface-api.ts",
+      "mode": "add",
+      "source": "src/shared/horca/ghostty-surface-api.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-renderer-src-lib-ghostty-vt-web-host-ts",
+      "target": "src/renderer/src/lib/ghostty-vt-web-host.ts",
+      "mode": "add",
+      "source": "src/renderer/src/lib/ghostty-vt-web-host.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-renderer-src-lib-pane-manager-ghostty-renderer-ghostty-pane-terminal-ts",
+      "target": "src/renderer/src/lib/pane-manager/ghostty-renderer/ghostty-pane-terminal.ts",
+      "mode": "add",
+      "source": "src/renderer/src/lib/pane-manager/ghostty-renderer/ghostty-pane-terminal.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-ghostty-vt-ghostty-renderer-test-ts",
+      "target": "src/ghostty-vt/ghostty-renderer.test.ts",
+      "mode": "add",
+      "source": "src/ghostty-vt/ghostty-renderer.test.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-ghostty-vt-ghostty-css-color-ts",
+      "target": "src/ghostty-vt/ghostty-css-color.ts",
+      "mode": "add",
+      "source": "src/ghostty-vt/ghostty-css-color.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-ghostty-vt-ghostty-vt-access-ts",
+      "target": "src/ghostty-vt/ghostty-vt-access.ts",
+      "mode": "add",
+      "source": "src/ghostty-vt/ghostty-vt-access.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-ghostty-vt-host-singleton-ts",
+      "target": "src/ghostty-vt/host-singleton.ts",
+      "mode": "add",
+      "source": "src/ghostty-vt/host-singleton.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-ghostty-vt-prime-host-for-tests-ts",
+      "target": "src/ghostty-vt/prime-host-for-tests.ts",
+      "mode": "add",
+      "source": "src/ghostty-vt/prime-host-for-tests.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-ghostty-vt-write-pty-trampoline-zig",
+      "target": "src/ghostty-vt/write-pty-trampoline.zig",
+      "mode": "add",
+      "source": "src/ghostty-vt/write-pty-trampoline.zig",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-ghostty-vt-ghostty-mouse-encode-ts",
+      "target": "src/ghostty-vt/ghostty-mouse-encode.ts",
+      "mode": "add",
+      "source": "src/ghostty-vt/ghostty-mouse-encode.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-ghostty-vt-GHOSTTY_VT_PIN-txt",
+      "target": "src/ghostty-vt/GHOSTTY_VT_PIN.txt",
+      "mode": "add",
+      "source": "src/ghostty-vt/GHOSTTY_VT_PIN.txt",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-ghostty-vt-ghostty-terminal-ops-test-ts",
+      "target": "src/ghostty-vt/ghostty-terminal-ops.test.ts",
+      "mode": "add",
+      "source": "src/ghostty-vt/ghostty-terminal-ops.test.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-ghostty-vt-type-layout-ts",
+      "target": "src/ghostty-vt/type-layout.ts",
+      "mode": "add",
+      "source": "src/ghostty-vt/type-layout.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-ghostty-vt-ghostty-renderer-frame-ts",
+      "target": "src/ghostty-vt/ghostty-renderer-frame.ts",
+      "mode": "add",
+      "source": "src/ghostty-vt/ghostty-renderer-frame.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-ghostty-vt-ghostty-vt-exports-ts",
+      "target": "src/ghostty-vt/ghostty-vt-exports.ts",
+      "mode": "add",
+      "source": "src/ghostty-vt/ghostty-vt-exports.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-ghostty-vt-ghostty-terminal-ts",
+      "target": "src/ghostty-vt/ghostty-terminal.ts",
+      "mode": "add",
+      "source": "src/ghostty-vt/ghostty-terminal.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-ghostty-vt-ghostty-grid-introspection-ts",
+      "target": "src/ghostty-vt/ghostty-grid-introspection.ts",
+      "mode": "add",
+      "source": "src/ghostty-vt/ghostty-grid-introspection.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-ghostty-vt-wasm-host-ts",
+      "target": "src/ghostty-vt/wasm-host.ts",
+      "mode": "add",
+      "source": "src/ghostty-vt/wasm-host.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-ghostty-vt-write-pty-trampoline-wasm",
+      "target": "src/ghostty-vt/write-pty-trampoline.wasm",
+      "mode": "add",
+      "source": "src/ghostty-vt/write-pty-trampoline.wasm",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-ghostty-vt-ghostty-renderer-ts",
+      "target": "src/ghostty-vt/ghostty-renderer.ts",
+      "mode": "add",
+      "source": "src/ghostty-vt/ghostty-renderer.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-ghostty-vt-revision-ts",
+      "target": "src/ghostty-vt/revision.ts",
+      "mode": "add",
+      "source": "src/ghostty-vt/revision.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-ghostty-vt-ghostty-renderer-cells-ts",
+      "target": "src/ghostty-vt/ghostty-renderer-cells.ts",
+      "mode": "add",
+      "source": "src/ghostty-vt/ghostty-renderer-cells.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-ghostty-vt-ghostty-preedit-ts",
+      "target": "src/ghostty-vt/ghostty-preedit.ts",
+      "mode": "add",
+      "source": "src/ghostty-vt/ghostty-preedit.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-ghostty-vt-ghostty-selection-ts",
+      "target": "src/ghostty-vt/ghostty-selection.ts",
+      "mode": "add",
+      "source": "src/ghostty-vt/ghostty-selection.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-ghostty-vt-ghostty-webgl-atlas-ts",
+      "target": "src/ghostty-vt/ghostty-webgl-atlas.ts",
+      "mode": "add",
+      "source": "src/ghostty-vt/ghostty-webgl-atlas.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-ghostty-vt-ghostty-renderer-state-ts",
+      "target": "src/ghostty-vt/ghostty-renderer-state.ts",
+      "mode": "add",
+      "source": "src/ghostty-vt/ghostty-renderer-state.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-ghostty-vt-ghostty-selection-gesture-ts",
+      "target": "src/ghostty-vt/ghostty-selection-gesture.ts",
+      "mode": "add",
+      "source": "src/ghostty-vt/ghostty-selection-gesture.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-ghostty-vt-ghostty-search-ts",
+      "target": "src/ghostty-vt/ghostty-search.ts",
+      "mode": "add",
+      "source": "src/ghostty-vt/ghostty-search.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-ghostty-vt-ghostty-terminal-ops-ts",
+      "target": "src/ghostty-vt/ghostty-terminal-ops.ts",
+      "mode": "add",
+      "source": "src/ghostty-vt/ghostty-terminal-ops.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-ghostty-vt-ghostty-color-theme-ts",
+      "target": "src/ghostty-vt/ghostty-color-theme.ts",
+      "mode": "add",
+      "source": "src/ghostty-vt/ghostty-color-theme.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-ghostty-vt-ghostty-scroll-ts",
+      "target": "src/ghostty-vt/ghostty-scroll.ts",
+      "mode": "add",
+      "source": "src/ghostty-vt/ghostty-scroll.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-ghostty-vt-ghostty-renderer-cursor-ts",
+      "target": "src/ghostty-vt/ghostty-renderer-cursor.ts",
+      "mode": "add",
+      "source": "src/ghostty-vt/ghostty-renderer-cursor.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-ghostty-vt-ghostty-paste-ts",
+      "target": "src/ghostty-vt/ghostty-paste.ts",
+      "mode": "add",
+      "source": "src/ghostty-vt/ghostty-paste.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-ghostty-vt-ghostty-format-ts",
+      "target": "src/ghostty-vt/ghostty-format.ts",
+      "mode": "add",
+      "source": "src/ghostty-vt/ghostty-format.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-ghostty-vt-ghostty-key-encode-ts",
+      "target": "src/ghostty-vt/ghostty-key-encode.ts",
+      "mode": "add",
+      "source": "src/ghostty-vt/ghostty-key-encode.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-ghostty-vt-ghostty-hyperlinks-ts",
+      "target": "src/ghostty-vt/ghostty-hyperlinks.ts",
+      "mode": "add",
+      "source": "src/ghostty-vt/ghostty-hyperlinks.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-ghostty-vt-index-ts",
+      "target": "src/ghostty-vt/index.ts",
+      "mode": "add",
+      "source": "src/ghostty-vt/index.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-ghostty-vt-headless-vt-query-parser-ts",
+      "target": "src/ghostty-vt/headless-vt-query-parser.ts",
+      "mode": "add",
+      "source": "src/ghostty-vt/headless-vt-query-parser.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-ghostty-vt-ghostty-input-encoders-ts",
+      "target": "src/ghostty-vt/ghostty-input-encoders.ts",
+      "mode": "add",
+      "source": "src/ghostty-vt/ghostty-input-encoders.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-ghostty-vt-ghostty-color-theme-test-ts",
+      "target": "src/ghostty-vt/ghostty-color-theme.test.ts",
+      "mode": "add",
+      "source": "src/ghostty-vt/ghostty-color-theme.test.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-ghostty-vt-ghostty-renderer-paint-ts",
+      "target": "src/ghostty-vt/ghostty-renderer-paint.ts",
+      "mode": "add",
+      "source": "src/ghostty-vt/ghostty-renderer-paint.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-ghostty-vt-ghostty-vt-wasm",
+      "target": "src/ghostty-vt/ghostty-vt.wasm",
+      "mode": "add",
+      "source": "src/ghostty-vt/ghostty-vt.wasm",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-ghostty-vt-ghostty-snapshot-ts",
+      "target": "src/ghostty-vt/ghostty-snapshot.ts",
+      "mode": "add",
+      "source": "src/ghostty-vt/ghostty-snapshot.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-ghostty-vt-ghostty-webgl-program-ts",
+      "target": "src/ghostty-vt/ghostty-webgl-program.ts",
+      "mode": "add",
+      "source": "src/ghostty-vt/ghostty-webgl-program.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-renderer-src-lib-pane-manager-orca-pane-terminal-io-ts",
+      "target": "src/renderer/src/lib/pane-manager/orca-pane-terminal-io.ts",
+      "mode": "add",
+      "source": "src/renderer/src/lib/pane-manager/orca-pane-terminal-io.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-renderer-src-lib-pane-manager-orca-pane-surface-ts",
+      "target": "src/renderer/src/lib/pane-manager/orca-pane-surface.ts",
+      "mode": "add",
+      "source": "src/renderer/src/lib/pane-manager/orca-pane-surface.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-renderer-src-lib-pane-manager-orca-pane-paint-ts",
+      "target": "src/renderer/src/lib/pane-manager/orca-pane-paint.ts",
+      "mode": "add",
+      "source": "src/renderer/src/lib/pane-manager/orca-pane-paint.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-renderer-src-lib-pane-manager-orca-pane-links-ts",
+      "target": "src/renderer/src/lib/pane-manager/orca-pane-links.ts",
+      "mode": "add",
+      "source": "src/renderer/src/lib/pane-manager/orca-pane-links.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-renderer-src-lib-pane-manager-orca-pane-ghostty-appearance-test-ts",
+      "target": "src/renderer/src/lib/pane-manager/orca-pane-ghostty-appearance.test.ts",
+      "mode": "add",
+      "source": "src/renderer/src/lib/pane-manager/orca-pane-ghostty-appearance.test.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-renderer-src-lib-pane-manager-orca-pane-buffer-test-ts",
+      "target": "src/renderer/src/lib/pane-manager/orca-pane-buffer.test.ts",
+      "mode": "add",
+      "source": "src/renderer/src/lib/pane-manager/orca-pane-buffer.test.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-renderer-src-lib-pane-manager-orca-pane-wheel-test-ts",
+      "target": "src/renderer/src/lib/pane-manager/orca-pane-wheel.test.ts",
+      "mode": "add",
+      "source": "src/renderer/src/lib/pane-manager/orca-pane-wheel.test.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-renderer-src-lib-pane-manager-orca-pane-overlay-scrollbar-ts",
+      "target": "src/renderer/src/lib/pane-manager/orca-pane-overlay-scrollbar.ts",
+      "mode": "add",
+      "source": "src/renderer/src/lib/pane-manager/orca-pane-overlay-scrollbar.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-renderer-src-lib-pane-manager-orca-pane-ghostty-appearance-ts",
+      "target": "src/renderer/src/lib/pane-manager/orca-pane-ghostty-appearance.ts",
+      "mode": "add",
+      "source": "src/renderer/src/lib/pane-manager/orca-pane-ghostty-appearance.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-renderer-src-lib-pane-manager-orca-pane-terminal-events-ts",
+      "target": "src/renderer/src/lib/pane-manager/orca-pane-terminal-events.ts",
+      "mode": "add",
+      "source": "src/renderer/src/lib/pane-manager/orca-pane-terminal-events.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-renderer-src-lib-pane-manager-orca-pane-native-ghostty-ts",
+      "target": "src/renderer/src/lib/pane-manager/orca-pane-native-ghostty.ts",
+      "mode": "add",
+      "source": "src/renderer/src/lib/pane-manager/orca-pane-native-ghostty.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-renderer-src-lib-pane-manager-orca-pane-appearance-ts",
+      "target": "src/renderer/src/lib/pane-manager/orca-pane-appearance.ts",
+      "mode": "add",
+      "source": "src/renderer/src/lib/pane-manager/orca-pane-appearance.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-renderer-src-lib-pane-manager-orca-pane-host-chrome-ts",
+      "target": "src/renderer/src/lib/pane-manager/orca-pane-host-chrome.ts",
+      "mode": "add",
+      "source": "src/renderer/src/lib/pane-manager/orca-pane-host-chrome.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-renderer-src-lib-pane-manager-orca-pane-native-ghostty-test-ts",
+      "target": "src/renderer/src/lib/pane-manager/orca-pane-native-ghostty.test.ts",
+      "mode": "add",
+      "source": "src/renderer/src/lib/pane-manager/orca-pane-native-ghostty.test.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-renderer-src-lib-pane-manager-orca-pane-viewport-nav-ts",
+      "target": "src/renderer/src/lib/pane-manager/orca-pane-viewport-nav.ts",
+      "mode": "add",
+      "source": "src/renderer/src/lib/pane-manager/orca-pane-viewport-nav.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-renderer-src-lib-pane-manager-orca-pane-wheel-ts",
+      "target": "src/renderer/src/lib/pane-manager/orca-pane-wheel.ts",
+      "mode": "add",
+      "source": "src/renderer/src/lib/pane-manager/orca-pane-wheel.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-renderer-src-lib-pane-manager-orca-pane-paint-test-ts",
+      "target": "src/renderer/src/lib/pane-manager/orca-pane-paint.test.ts",
+      "mode": "add",
+      "source": "src/renderer/src/lib/pane-manager/orca-pane-paint.test.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-renderer-src-lib-pane-manager-orca-pane-terminal-io-test-ts",
+      "target": "src/renderer/src/lib/pane-manager/orca-pane-terminal-io.test.ts",
+      "mode": "add",
+      "source": "src/renderer/src/lib/pane-manager/orca-pane-terminal-io.test.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-renderer-src-lib-pane-manager-orca-pane-buffer-ts",
+      "target": "src/renderer/src/lib/pane-manager/orca-pane-buffer.ts",
+      "mode": "add",
+      "source": "src/renderer/src/lib/pane-manager/orca-pane-buffer.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-renderer-src-lib-pane-manager-orca-pane-cursor-blink-ts",
+      "target": "src/renderer/src/lib/pane-manager/orca-pane-cursor-blink.ts",
+      "mode": "add",
+      "source": "src/renderer/src/lib/pane-manager/orca-pane-cursor-blink.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-renderer-src-lib-pane-manager-orca-pane-parser-test-ts",
+      "target": "src/renderer/src/lib/pane-manager/orca-pane-parser.test.ts",
+      "mode": "add",
+      "source": "src/renderer/src/lib/pane-manager/orca-pane-parser.test.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-renderer-src-lib-pane-manager-orca-pane-overlay-scrollbar-test-ts",
+      "target": "src/renderer/src/lib/pane-manager/orca-pane-overlay-scrollbar.test.ts",
+      "mode": "add",
+      "source": "src/renderer/src/lib/pane-manager/orca-pane-overlay-scrollbar.test.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-add-src-renderer-src-lib-pane-manager-orca-pane-terminal-ts",
+      "target": "src/renderer/src/lib/pane-manager/orca-pane-terminal.ts",
+      "mode": "add",
+      "source": "src/renderer/src/lib/pane-manager/orca-pane-terminal.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-R: Horca Ghostty sources"
+    },
+    {
+      "id": "gate-d1-r-config-tsconfig.tc.web.json",
+      "target": "config/tsconfig.tc.web.json",
+      "mode": "replace",
+      "source": "overlay/d1-r/config/tsconfig.tc.web.json",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "2b604c1d8b2a661076f2bda9811afe3688b09636005d0041ecd2f51d376d060a"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "ed9f9a782c0fb2bc7f09674dd1b2490bce6de82cc91a69875120b9234c392763"
+      }
+    },
+    {
+      "id": "gate-d1-r-config-tsconfig.web.json",
+      "target": "config/tsconfig.web.json",
+      "mode": "replace",
+      "source": "overlay/d1-r/config/tsconfig.web.json",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "c8b79d519544edd7f6134e68daa7fd50fd5297ebdb1f10661054d47760363672"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "5865806b87e335def283e950bd2840a2bd1ee2221b8fad50f1b2e8778c539137"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-dashboard-popout-AgentTerminalPreview.tsx",
+      "target": "src/renderer/src/components/dashboard-popout/AgentTerminalPreview.tsx",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/dashboard-popout/AgentTerminalPreview.tsx",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "178027c620dfdf80b7d1b8a0cf9769b4e61744941a11306c077ecc3f5a3e3c62"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "8b36fbc7c2a097c4b628f3144f188c2946a42e02dbdc57269dafe8e029d2b572"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-dashboard-popout-preview-terminal-app-menu-clipboard.ts",
+      "target": "src/renderer/src/components/dashboard-popout/preview-terminal-app-menu-clipboard.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/dashboard-popout/preview-terminal-app-menu-clipboard.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "cd1673f9662ebbfc8c94fceca34d323cc04b61019b8864aafc75ec7829fea141"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "b2b78e9de585f9f11e12c5fa7c85ef9b980b66223c23038ae4402a78035adcf6"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-dashboard-popout-preview-terminal-box-fit.ts",
+      "target": "src/renderer/src/components/dashboard-popout/preview-terminal-box-fit.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/dashboard-popout/preview-terminal-box-fit.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "995ad8cd3fdf51ffe49ef4eeba7e196493e1aaa526f5dba667084a304469a08a"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "78505b0bfb4b56bad5fd1458ee3e5d8f648aa631a8f102b95bd2b9124092a569"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-dashboard-popout-preview-terminal-compatibility.ts",
+      "target": "src/renderer/src/components/dashboard-popout/preview-terminal-compatibility.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/dashboard-popout/preview-terminal-compatibility.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "3d953e0aeba87bf5d50f058a712351fc5a2c8c07b0df617b38b4caf7776fd321"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "87d0c9c2a9aab75fac4f51ecd2f51ad56fe7506228a981138dfef5805b4fabe7"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-dashboard-popout-preview-terminal-ime-bridge.ts",
+      "target": "src/renderer/src/components/dashboard-popout/preview-terminal-ime-bridge.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/dashboard-popout/preview-terminal-ime-bridge.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "292319ecc667d4f12646893557ccf49a8364c36a0bc3edc892700c30bddacea4"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "7e5a498e82c129f9334394abfc677b7ef0d4b6c068137629a339573344e20a5b"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-dashboard-popout-preview-terminal-key-handler.ts",
+      "target": "src/renderer/src/components/dashboard-popout/preview-terminal-key-handler.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/dashboard-popout/preview-terminal-key-handler.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "6582910e29f4b896ed2989b18e5adc4c1f003618510b6317f1c868465e119f9a"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "8c85c078e790e6266264028368ebf0b53424498fd6d4ae9d13038db3c54d4720"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-dashboard-popout-preview-terminal-ligatures.ts",
+      "target": "src/renderer/src/components/dashboard-popout/preview-terminal-ligatures.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/dashboard-popout/preview-terminal-ligatures.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "e4c6d504ebfac3ffb5167f6fd3309fb10e6a2d03fe24d7a303c4f71003dcb2e6"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "e35e10801a7fd68e37ebfa39e2ac1ec0a0b4b415c471eb125b35d7a39cdd8186"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-dashboard-popout-preview-terminal-links.ts",
+      "target": "src/renderer/src/components/dashboard-popout/preview-terminal-links.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/dashboard-popout/preview-terminal-links.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "9d87b47c3d89df955939b90cd0fd277ef745d1f14a0041b8b09cf5b04eca3df3"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "824076e5fd806f8ea8f9deec5a66f6bd1e8644f7e19b6e4f4ca85662097e5cc0"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-dashboard-popout-preview-terminal-options.ts",
+      "target": "src/renderer/src/components/dashboard-popout/preview-terminal-options.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/dashboard-popout/preview-terminal-options.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "afd15100c588e5832812ab184b2f6062fc211dc8e8bdd216f21fccb4d29f1531"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "0626944469606e316b297d5435ca7c814392494107d138279f1bb374e0bbd665"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-dashboard-popout-preview-terminal-paste.ts",
+      "target": "src/renderer/src/components/dashboard-popout/preview-terminal-paste.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/dashboard-popout/preview-terminal-paste.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "7fd455b2979cc05f4101f24ed1574c2d3cddd9093eef10be602f687fdcc17cb3"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "1630df02109f982716c215135870f349430ce3c637e4ff3b6de80fe981f43d45"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-dashboard-popout-preview-terminal-right-click-paste.ts",
+      "target": "src/renderer/src/components/dashboard-popout/preview-terminal-right-click-paste.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/dashboard-popout/preview-terminal-right-click-paste.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "da9f26b491e3b96918981717252a5ceeb0c39db1c2082bd73cbee6189d39e573"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "be7a968ac6f2857030b5069b8d8aed374b1be601d1bc4a0fe79b60ada0ae62d2"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-settings-TerminalSettingsPreview.tsx",
+      "target": "src/renderer/src/components/settings/TerminalSettingsPreview.tsx",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/settings/TerminalSettingsPreview.tsx",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "a70ec8e86f567c8300f285a5d6ef73ca16b2bd99bc1cf638d5efc4311ef39820"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "5f58b6996d250b04f74c79e8faeeadcfd82247f01f4bba926762bb6848c7a3ff"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-edge-wrapped-terminal-http-links.ts",
+      "target": "src/renderer/src/components/terminal-pane/edge-wrapped-terminal-http-links.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/edge-wrapped-terminal-http-links.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "989aec13796d71daeca0a7484c8c0874adc5c5c6ff4a74e6f3d6c09fd3639eb3"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "ee7b853fe61a77db5a84f2a01ee550421f7fa321365b77a2b641b1c7be5da9c9"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-hard-wrapped-terminal-http-links.ts",
+      "target": "src/renderer/src/components/terminal-pane/hard-wrapped-terminal-http-links.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/hard-wrapped-terminal-http-links.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "46969f6279ac9359c0ce6b4f601f3c526f0c7a1d4233aa6b25f3442ca75d04d7"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "1e90a82f3fdee357d8bf85c5c1b8e36871216d4e46732768b369903f5bc05733"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-hidden-output-restore-scheduler.ts",
+      "target": "src/renderer/src/components/terminal-pane/hidden-output-restore-scheduler.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/hidden-output-restore-scheduler.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "4d89ea95bd1c5fd5ca1d984f95fa7f01c1e5a6b458b7c7ddddf7ae9d417e3474"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "f513602a204c6ba866c2921baf34f47aa3988a41623da49b7b09fcd3d06ba8fd"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-mouse-hide-while-typing.ts",
+      "target": "src/renderer/src/components/terminal-pane/mouse-hide-while-typing.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/mouse-hide-while-typing.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "b8c14a4392790f8b83ae5d168b67c48d47f30dd43b4b1c5f62c5566a1e15174a"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "e763be8711f6b04266d166e41918d1c9033a93299756c10477fbd80059686737"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-pty-buffer-serializer.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-buffer-serializer.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/pty-buffer-serializer.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "2af73cbb4bbe767c86d32a90915efc13c858b96a9e5cf81753fcc8174710d378"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "36cd24f370cd6308975c0c97facf8e4dd86fd8b72f4e8fb0fe1529d035d1ed92"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-pty-connection-cursor-agent-reattach-screen.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/cursor-agent-reattach-screen.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/pty-connection/cursor-agent-reattach-screen.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "d8934f910ded5c2de30dcc4cbe3c138ee206f8381c74be3c16ace0e60c5afff3"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "92d3959bb063e36805084cfce4e1c8895dc86b53b01f5d118092dff73487e92f"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-pty-connection-pane-pty-binding.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/pane-pty-binding.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/pty-connection/pane-pty-binding.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "94080b46cc36e304ba0dc6d12a94cc351367064e08f960a50f694e5682725062"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "b37754881321011d7398dc3d188e95dc281d68e8b833c0c6affa17e8b13c1d2b"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-appearance.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-appearance.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-appearance.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "804aef09124ce29fddac9035d9fa86e9246271d1d61a46e4499b6be34c6db0ae"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "3afaedc691f2c05abbe31b53dd0d3c766848cc111f7d948dec8c70c9f6db2da7"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-bracketed-paste.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-bracketed-paste.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-bracketed-paste.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "6d6caf9e1845527d7f767054b4649b6dbd3fcfa469ddb7f09169769fb0e0aaa3"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "ac01e906180481080b21125b23118e02a73f2ac74cdecf72acbe8c83a14e41d3"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-capability-replies.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-capability-replies.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-capability-replies.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "a68d85300af388dd61c1e6ef843056fe25dcd7585fd79c327edf2ebcece19a76"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "4cf101af72ad882b2236f57e94be16c603fb597110f97ad66f69e875abd544ec"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-captured-input-dispatch.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-captured-input-dispatch.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-captured-input-dispatch.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "f60aac70ed0e12aa7fb2d32173c9753a8286790a403a3b866ecc85e8d1963c53"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "8df3768e14e26a87437fec425ec55183003b112d4f68c6526c49f2f077c9b2cf"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-clipboard-selection-text.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-clipboard-selection-text.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-clipboard-selection-text.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "fbb11a0c46f5e1acf2738a6874edb773c054e61e98c588b928b382d0ed78e4b9"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "e88f858fda05d256fdf86ad1757d7831f2383182793e25ef7c4acce8980f4cfb"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-command-lifecycle.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-command-lifecycle.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-command-lifecycle.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "fa0326fcc4ffb19ddd9653d108d46cb0224ee49d900b27e6b8a1ae4983e3f2ce"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "0106058d0b19995df94d0a4c0159ade8964831117239fba9c7fd2589959c0256"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-file-link-hit-testing.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-file-link-hit-testing.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-file-link-hit-testing.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "3b1a0b6e61bc1669817349ad12985d00805b5cb12ede95f341c370597a2cd0bf"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "facea748f07f0433959fd97fc70a9afb1d7782bd6551386aa04f1c9a19a18b10"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-handle-links.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-handle-links.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-handle-links.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "5523ca59a6ba5e52f4d2f336556d66d0f26848552723a8fec32e1b171a955f3f"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "ffdb5089c821991345adaab552223dcb46a37da8e325e03ac52d26500793a615"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-ime-composer-placeholder-mask.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-ime-composer-placeholder-mask.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-ime-composer-placeholder-mask.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "0851dcdbe94680c0b165dfabb4029be7596dc54d3ac6f36d774e7d01ab97cb16"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "28c137515f5afd08e54c23754a07433726bb7c03716d3f88224b84c3d62d8f56"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-ime-composition-route.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-ime-composition-route.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-ime-composition-route.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "3c7eb7cd01a1d5d7ea3a40b028344a2f47f2515b6490f851c78c5f882e49a1cb"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "84af7d2281a3527b92279d9e2b509aad75910460d4dd7f557663cc567bda1de0"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-ime-composition-tracker.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-ime-composition-tracker.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-ime-composition-tracker.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "7bf367b6ce8434329a34815ad31edac3d4a5f1a7dba59aa92642a7087e07044f"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "daeacc8c259b2947d7931154cee0aa29893c440a6cebe42c7517398f967ccb40"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-ime-native-text-forwarder.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-ime-native-text-forwarder.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-ime-native-text-forwarder.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "86860172e1b8ee059a6bbdd99647f8c68cb620d1a90533378c5bc25775bf6fb1"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "869afb36bf5c6edf9b785f159cadf168c32ff506299b2c8afcd09fe4b3c95dc9"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-ios-hangul-preedit-overlay.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-ios-hangul-preedit-overlay.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-ios-hangul-preedit-overlay.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "a71e81b66d4c9e60ce2123fafab1cbd2cbe7fc60803b448e0b41404efeef924b"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9088fa22ec71aef890134fd676a04cb11a74fb02591018fb34bb2a6781055311"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-ios-hangul-preedit.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-ios-hangul-preedit.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-ios-hangul-preedit.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "580599a8fc3e7b00f74563cd2d507659d52c43a248bdebda82becc737fc35f13"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "949a93343eaab6ad07207f8a5921e5608c26a139adcb1190836e28b2226c938d"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-keyboard-dependencies.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-keyboard-dependencies.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-keyboard-dependencies.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "367488bcf09d6974c629f67bbad710c76f31c8b0858093d6e539b3d17118154c"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "367488bcf09d6974c629f67bbad710c76f31c8b0858093d6e539b3d17118154c"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-keyboard-runtime.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-keyboard-runtime.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-keyboard-runtime.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "508d62785d5a9961758668b56249d4cfeab898248ceb4007dfd035cc60ffd0a3"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "ec0de78c4f6c52933291b628340c7cedff401d99f9cb65ce99d34791849d45da"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-link-handlers.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-link-handlers.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-link-handlers.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "8cf5390679d243fc47b222f39ef35c8aa5ce7904213f7be8928c1b20d2825c3f"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "25f18499a8a822dd136930099a68d20efb80ac04635283050bc55a6ddf633489"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-link-pointer-gesture.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-link-pointer-gesture.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-link-pointer-gesture.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "9b2be74919afd387a1c6adafb444a17a03e9eab64b4142d0587fb88a70eaea33"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "648d2cd4f1ce93f453be1ddbbede853182e2143accfa2c62b9e18f2e345dcf81"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-link-pty-mouse-suppression.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-link-pty-mouse-suppression.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-link-pty-mouse-suppression.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "a6b1e433213da5b8f8e0b66f521af70eacbdae2c13baf8926eebe26e3136b7d3"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "1810de46d6ec8a14f0a78d4af04fbd5b0b29f1005b07aa49baf9ab3788b79a6a"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-linkifier-click-priming.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-linkifier-click-priming.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-linkifier-click-priming.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "d9267d681d2abcf962e19fc99065bc0451d44f56bc6c99d4fc00f32a75f93c54"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "61229c5a94ce6edfd6efdc2ef6e7114111f4b95f111562883632f48116867d63"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-mouse-buffer-position.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-mouse-buffer-position.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-mouse-buffer-position.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "e1dd06ea2f7f56ea2cd6662ebe1d88a6283e73a3f8687b1d496daf2c92f657ea"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "608d8c516a4e1b01684c1031006e6dfd1b27e456ab32cceb46da1ebf7bd39747"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-native-copy-gutter.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-native-copy-gutter.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-native-copy-gutter.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "2e94e2a99cd590049c9bc1774781a2219980dfa41846ca7d2c70d63c9622317a"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "086af3e2db8e299e9de22b90502d19059895ed392bcd4621609cc64a11695ad1"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-pane-lifecycle-primitives.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-pane-lifecycle-primitives.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-pane-lifecycle-primitives.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "68c46e80ca9584be25e85db9a068725b00bc9038304a23a3b7975bc633780e5b"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "87ed330cc06073408bd52f299d779f5d1d0bb34d572476fd33973f6725ab6bb2"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-pane-lifecycle-types.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-pane-lifecycle-types.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-pane-lifecycle-types.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "3538958c617f2ee717e09162c2868218f6f7befd0fb3873468f9e52e6f6ce03f"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "67ca1ce2bb23a2f3949abaecd35f7f40aaa0e2f5bd287f1d834d2e3822922441"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-pane-manager-options.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-pane-manager-options.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-pane-manager-options.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "89eea66cce1b460934a0229ef154dea6bb84f70f0d61ba6877a3911c494c1caa"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9204592368be3248e623266b32cbf7b9d58c3e60c20115d7a3703696f901d483"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-pane-pane-input.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-pane-pane-input.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-pane-pane-input.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "2b9268510ff697ac09fbfba5b778dae0a4ffb27a9cd4b19ed1464ed92117296d"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "b2e3261b67d60ff158190a9fa6c85393cda21327b36fbb2ba38e9e5fbc1f56e9"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-selection-copy.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-selection-copy.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-selection-copy.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "a65a284c7e3150f0863c515e286037af60688a22e4e0dbd42e777d3db85bdf61"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "aaa9b9f982cb766f81f922cdf02d9e886da918ff0135aeea0417bccc65013c03"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-url-link-hit-testing.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-url-link-hit-testing.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-url-link-hit-testing.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "fac1fa26ca967f41ab4922bd87f536e775d51a053b05bc1b1463e5f1b8cb53e2"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "43f90bd599eb922008cb5b63d3d066796176680792987fed73ace77c7a342cb4"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-user-input-signal.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-user-input-signal.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-user-input-signal.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "5b2f1da0bb9588bbaf1c68417ceaa05a63d406d1cec9302c8519f9493ff9a93a"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "7e1645e5a2371e8efff787018d0f88da3c6b65e736e14ff7714aa1a392804a52"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-view-attributes-publisher.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-view-attributes-publisher.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-view-attributes-publisher.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "6705aef803d1bf5fcb34ba273137858a4cd7a69989797c332bc83e105b5eb12e"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "00473cd54e3eea12adb905b86c7eab1c69c5ff4f8305c7bcdf0c83ebc1db642a"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-web-link-click.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-web-link-click.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-web-link-click.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "cd8d48f59f8861649bc9b36f550c9e4dc1948c948e66c2db07931fc3d816d661"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "8c017594bb6982f11eff47a44957252fed95bcf672336f1878188f841ea84950"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-use-terminal-pane-foundation.ts",
+      "target": "src/renderer/src/components/terminal-pane/use-terminal-pane-foundation.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/use-terminal-pane-foundation.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "27ad26b0ff00587a33f22013004e528f0bcb28cbfe3853140761a0eba14b3ef4"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "27ad26b0ff00587a33f22013004e528f0bcb28cbfe3853140761a0eba14b3ef4"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-use-terminal-pane-global-effects.ts",
+      "target": "src/renderer/src/components/terminal-pane/use-terminal-pane-global-effects.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/use-terminal-pane-global-effects.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "8a8ef18fc588d8b50d1c3148bf4f1648472fa844ac9d3c717505839f5525dc9e"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "8a8ef18fc588d8b50d1c3148bf4f1648472fa844ac9d3c717505839f5525dc9e"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-use-terminal-pane-lifecycle-refs.ts",
+      "target": "src/renderer/src/components/terminal-pane/use-terminal-pane-lifecycle-refs.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/use-terminal-pane-lifecycle-refs.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "09d7877594a1f25159f45f030acfd22d6f9cf038e0a021619308d9c6d98d964d"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "09d7877594a1f25159f45f030acfd22d6f9cf038e0a021619308d9c6d98d964d"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-use-terminal-pane-lifecycle.ts",
+      "target": "src/renderer/src/components/terminal-pane/use-terminal-pane-lifecycle.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/use-terminal-pane-lifecycle.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "ecbfb94bd5aa4cb7d39ef9c076987771decbfbe93dbbde2b22592aef6d18eed2"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "ecbfb94bd5aa4cb7d39ef9c076987771decbfbe93dbbde2b22592aef6d18eed2"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-use-terminal-scroll-visibility-memory.ts",
+      "target": "src/renderer/src/components/terminal-pane/use-terminal-scroll-visibility-memory.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/use-terminal-scroll-visibility-memory.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "b3ba22a11e44a565534a26ba0a9ea4afc826040d02fe6d4c41e9658c654d525b"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "4fb76f735d22cfc1f6bd3641e06e799108c86459fbee6907d4cd312fa59e59df"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-use-terminal-window-wake-recovery.ts",
+      "target": "src/renderer/src/components/terminal-pane/use-terminal-window-wake-recovery.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/use-terminal-window-wake-recovery.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "dac3c275dd4ae10017aecc42b68646dd63f8ae63c0ebc48c3a121953b341805a"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "16fa143245eb75c57197cbdff02477a0721b9722942f586f33ae6fa443793211"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-wrapped-terminal-link-ranges.ts",
+      "target": "src/renderer/src/components/terminal-pane/wrapped-terminal-link-ranges.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/wrapped-terminal-link-ranges.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "f556fdb99c0d276ae40b821cd54aee54b667e5044722e87c0b6870fb37c0e5a3"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "69d9523325761c6e517463123b07c52d5d7101ec808e84292aa510365e60216b"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-cursor-blink-suspension.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-cursor-blink-suspension.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/pane-cursor-blink-suspension.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "fb300494df609f33aea28c193ec967a6758aaecc502dbb2d825fea19eaeb1b81"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "e843b4350f46e914298c651b715bacfa2ab09253f225d8df8f5d40870fd91e3e"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-dom-creation.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-dom-creation.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/pane-dom-creation.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "d64ac85d3edb0cfc0dbe46d8339ee4aa75c181a7f1ecba0b314b87cdf7a69eab"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "4cba2c348111eda5c3201eff11065d917cc11ca2f4cefb0a9f67a7baecc4c09d"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-lifecycle.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-lifecycle.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/pane-lifecycle.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "a18055b9c3d8ed8fe67f31fcab5b7f2b9ca7432d7bd883c4fae3afe4f0893d72"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "8dab29f7bde10e5e59c86ad02116b55cb9b3212e73c93cd26d5c225a9f5c1d20"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-manager-types.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-manager-types.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/pane-manager-types.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "30072b8aa941025a04c78e2b8216a1124ff733deeb990b2436fed36eb38e3488"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "30072b8aa941025a04c78e2b8216a1124ff733deeb990b2436fed36eb38e3488"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-scroll.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-scroll.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/pane-scroll.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "8612f9e6589fcc523f01eec5665dbf5af0b0bb2058483a8cb1322ad5c4998210"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "8a427e546582d2a04f7f8c8dcb17e87e8a4851a9735061f48df3e1002059721c"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-split-scroll.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-split-scroll.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/pane-split-scroll.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "62ee44d4ae9dc27a21e18cc112fd834ff77bb14257780b58b193d3658965ce64"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "7509271ceae6e34a2fd18562eddeb0ffa57e9722b132585e3f46b9f56f85941b"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-terminal-mouse-wheel.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-terminal-mouse-wheel.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/pane-terminal-mouse-wheel.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "3b92e6e3ff25ca993f3e27befca12e784035f4204007fe2baf0b11b32fdb1ea1"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "8d28c88104dd5549bcd155db2697703fd4c4504e308b1737b5045586ea75fff6"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-terminal-options.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-terminal-options.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/pane-terminal-options.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "1435ef6224c36ba860edba5b677718ad866763265b7ec6442623122411f6e196"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "27add4d085bf228bf411532da35919059c0c65fdb4da2743e0c99d67b62a36a1"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-webgl-renderer.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-webgl-renderer.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/pane-webgl-renderer.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "514e05a81777e2917eb43648da0f2bdcf6974031add5ac89b8c0ed099cd38ad0"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "a0e1f6f8b36fb4a4825d88c9c31dd086b3f9422d6f64fb22965d7565dbd96651"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-terminal-arabic-shaping-joiner.ts",
+      "target": "src/renderer/src/lib/pane-manager/terminal-arabic-shaping-joiner.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/terminal-arabic-shaping-joiner.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "700d3e2ef4bba64cffa9b0f456b10512c106b03021b672bb12cec47cb76b884d"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "3328367b0767bf0618e84ec635326ca94d7b775fcefa9cd3d7f5fa161df0033e"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-terminal-ime-anchor.ts",
+      "target": "src/renderer/src/lib/pane-manager/terminal-ime-anchor.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/terminal-ime-anchor.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "b7cd6cfb1b2111d12fee7a6dc20b7f08e6827c33f64a0598545e00b1b47bd438"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "1e91a06451a574791117a259122f9916056899956b9fba419e9e6930106c2c9d"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-terminal-ime-candidate-anchor.ts",
+      "target": "src/renderer/src/lib/pane-manager/terminal-ime-candidate-anchor.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/terminal-ime-candidate-anchor.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "2c499e966db2927af399525a16a44c58134cff17d6d36739009869bca9f5eeb1"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "b756dd80545ff1b7af7433c8beb4593dc37fb569db9ec30b984784d6306357d3"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-terminal-keyboard-protocol.ts",
+      "target": "src/renderer/src/lib/pane-manager/terminal-keyboard-protocol.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/terminal-keyboard-protocol.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "ebe002873ed2b9be3580ba77fa25c1f63f6a2b42c37eee2a2eda9d9bbc9662fd"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "96c727280734613b031e7769d3f43cc312f3154709235e2e0b756aa6af833ed9"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-terminal-ligatures-addon.ts",
+      "target": "src/renderer/src/lib/pane-manager/terminal-ligatures-addon.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/terminal-ligatures-addon.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "ed12b730015a906e7cde6bcaad1a19cd1ebf6d2c7d1f41b42783187828d56e4d"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "431bf2c9f5d437b6a96f1092f18ec71cdd3911b4d6df9db7ca2810c1d7e36e22"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-terminal-link-provider-guard.ts",
+      "target": "src/renderer/src/lib/pane-manager/terminal-link-provider-guard.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/terminal-link-provider-guard.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "4a2ea085cf15d2e45b79b601fbc32307428987a9f2807ed96d38243962a68aa6"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "1fb4c373df73c92340f311ee1ee760948a63a1afcf49f3d3ddeecf7595888e42"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-terminal-linkifier-hover-reset-on-mouseleave.ts",
+      "target": "src/renderer/src/lib/pane-manager/terminal-linkifier-hover-reset-on-mouseleave.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/terminal-linkifier-hover-reset-on-mouseleave.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "fc9a72a5a9a06adaa097a895ae2583a7dbe63468f08a9ec92b9ad1749210996a"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "e2fa602805edb5da2fb4d40426a7ebdd2e74aa295dc1839c583d3b1c731daf1f"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-terminal-linkifier-hover-reset-on-write.ts",
+      "target": "src/renderer/src/lib/pane-manager/terminal-linkifier-hover-reset-on-write.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/terminal-linkifier-hover-reset-on-write.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "b4bccd4a51199d0649212174d8090297612b450bccc222e16e4c793426442921"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "41b3d3039c1c1e93b6d00ccd2403ba68176dfbcd9ffbe61d42b69d6b86f77a74"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-terminal-linkifier-hover-reset.ts",
+      "target": "src/renderer/src/lib/pane-manager/terminal-linkifier-hover-reset.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/terminal-linkifier-hover-reset.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "2e5cdab9cfc013f1d7a0f60028ea9edebd06f6822a5792411f3e82a115ccc449"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "404275cd599bac30b4da4171c68c062cf11648a54ed580048b5e164a777922e9"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-terminal-reflow-scroll-anchor.ts",
+      "target": "src/renderer/src/lib/pane-manager/terminal-reflow-scroll-anchor.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/terminal-reflow-scroll-anchor.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "95fde30c35178fddcca262030e33cd2f12be9c0b0796ba12a362fe87af24183a"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "81697160d97a365b2978b4d9cb76a269900e38699ea44745507542d043ad7e82"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-terminal-scroll-intent-dom-tracking.ts",
+      "target": "src/renderer/src/lib/pane-manager/terminal-scroll-intent-dom-tracking.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/terminal-scroll-intent-dom-tracking.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "28c388b9ae603062852b39daf27ddf5436afec2b346369d2fb6b9ca9f0c124bb"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "2d2b26bc0ad4ce1a5492d4a7ca7df3d3cc461db7a69548dd2ff32ed6af7ad2cb"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-terminal-viewport-scrollbar-sync.ts",
+      "target": "src/renderer/src/lib/pane-manager/terminal-viewport-scrollbar-sync.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/terminal-viewport-scrollbar-sync.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "7ba783b5b52175dc7a61f06ce37ba5f069f0aee1e565ce1c60335a16033125c4"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "bbb4e740864662355008c6adc0f6010c4613f5533f315b06c4ea946f818090db"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-terminal-webgl-addon-loader.ts",
+      "target": "src/renderer/src/lib/pane-manager/terminal-webgl-addon-loader.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/terminal-webgl-addon-loader.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "c079a3b89d0e917a4825d9dd26748b50575cd3f781873a81aa5d6a9012a3c75b"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "c4b0ffa05fddf6182a06dbd1c4fb6c329984f0c04300fa2740b610ac7ad11d93"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-terminal-windows-ctrl-alt-chord-classification.ts",
+      "target": "src/renderer/src/lib/pane-manager/terminal-windows-ctrl-alt-chord-classification.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/terminal-windows-ctrl-alt-chord-classification.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "e85b2e9a6b5c78d0efb89430df9b17d79fedfd1e07f6dd7e97529de6e9447324"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "ba278fed8494378637edd018ed2cdf78aa5f4fc18e49ed0419189df4f2cf2038"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-windows-pty-compatibility.ts",
+      "target": "src/renderer/src/lib/pane-manager/windows-pty-compatibility.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/windows-pty-compatibility.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "bb9b222fbb4a6aedcaae99f2df67ed793538b7035f1c9ab36beae9011ce1b2a7"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "249a6f4701b66c221eb075404975e691c32c65e874ea53cea627f6cb2f284798"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-terminal-theme.ts",
+      "target": "src/renderer/src/lib/terminal-theme.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/terminal-theme.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "037a4ae8c68ad5c31e4fc766101dd051f982a9b27908a3babe139b88225246b8"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "a265895272348928f787e9e4edb7c781648a40fb0bffae6c181343d5d315f606"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-terminal-themes-data.ts",
+      "target": "src/renderer/src/lib/terminal-themes-data.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/terminal-themes-data.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "50e956fcaedd79bae05851dc32e612c78ae1ffe93482cf3557086d98f42747d4"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "4313f042d5d88ea21a4b11705c7eed8ab9d3120dfbee8219b7d7bf833ed96280"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-terminal-themes-types.ts",
+      "target": "src/renderer/src/lib/terminal-themes/types.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/terminal-themes/types.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "655b59da6b27598c6e324461dc65a09e045e3ffbce2aa741d827324a1ccd4527"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "c5e01ea22756c348f84892b303fbef71d0b6ed65d149651a5892a1c19bf97ee6"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-typing-latency-echo-instrumentation.ts",
+      "target": "src/renderer/src/lib/typing-latency/echo-instrumentation.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/typing-latency/echo-instrumentation.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "54e7556467315b06557bd63d39743f5fca2a6daf66742ce92bddabdd02c89bc1"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "52e581ca084806451122c856f10df258f29607ba16a33ec161930301c78d2123"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-pty-connection-apply-reattach-payload.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/apply-reattach-payload.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/pty-connection/apply-reattach-payload.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "aeb7f5559a4d44ecbdb25792892137582a1ad887ad121e5332eee3e3173f6610"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "92586faddca661b9c4c48f68c34f74521868665d2d5d9bee6fde0ad450a86b01"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-pty-connection-pane-serializer-register.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/pane-serializer-register.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/pty-connection/pane-serializer-register.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "f093ac2375705e544b3a9b5dcdf544c48818a93909b42e9215da94d975231e75"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "465f80af9a3eeeffc7ca6f47010592027628b36c4e3491f7ebab9f23c42108f2"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-pty-connection-pty-input-forward.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/pty-input-forward.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/pty-connection/pty-input-forward.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "a316733c35d52b517ba3c3341210cb273013ab1f40697344947219af729137b5"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d1c9e25739b0c4280b2f28b0f3c0dbb7a732ef123484dc3d1f2d48f514b3073"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-pty-connection-pty-input-recovery.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/pty-input-recovery.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/pty-connection/pty-input-recovery.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "1da7235d619aa7bfd8c580422aa5c5c3f1dca3302b3ac6163e3c511ee380032f"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "786054948aae9cb476e35cc9a7f93db0785f81bee7d32289ad601d64a6557d05"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-pty-connection-pty-resize-geometry.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/pty-resize-geometry.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/pty-connection/pty-resize-geometry.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "fce2ca6bf317e783d826fb817faf7b77246f987ca2f6349d366bebe403d116f3"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "a2344f4085dc77f88005fe9e6c9986ffe3289a0b7a3118e782081ebb9fe4975b"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-pty-connection-setup-split-geometry.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/setup-split-geometry.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/pty-connection/setup-split-geometry.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "50bb1915e4666a813acd3f4f4edc19ef24b1a3004cc4710fe04a4e6a3a97c11b"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "a5fd047eea862fbcaf9b6abfe5e74bf0ba28ecaced4177ef691396a3334cd69f"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-agent-session-continuation.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-agent-session-continuation.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-agent-session-continuation.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "93726f6616c6cd6a654c6fdff21be0b5b76b7f1d5600dd3dabd8637d9531dc1e"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "41d607d3321e16776c25c6e0af81dd4f5ed24ddaf4cb6e039b55074d1b30ac93"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-agent-session-fork.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-agent-session-fork.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-agent-session-fork.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "fd120b12383ad8d1b5cbeef09d4d4368e32abcb29f9d289a06f6b468b0ac594f"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "7ba4599c6027b6368d436276d1132e6da27ea7fede6d6df140b24dc03fb59c74"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-pane-pane-links.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-pane-pane-links.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-pane-pane-links.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "86fc473e5ceef96e3c061690c4cd475efa2d896156575820063ee1baed0e52cf"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "b0f7d526a29a9c6c194be74109cbdc5b6c8189487c9a3087298e36fc579727f8"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-shutdown-layout-capture.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-shutdown-layout-capture.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-shutdown-layout-capture.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "b2218608f4af970c98516178dabe72caea10cc68cead265d8fe126b66a55efac"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "ad575bc8bda9d1c85d9b31ae93a22c1ac51d90b2e01e0a3df148c6aabef88e34"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-startup-command-paste.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-startup-command-paste.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-startup-command-paste.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "eecddb3f768e95d62248bc203d2aa2128232e956e03bec85303aac2be21737f0"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "078017931d927508a61bcf63c31d7b60134091fb937aa6f1d0a0ea4e0b8e2bfe"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-fit-measurability.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-fit-measurability.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/pane-fit-measurability.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "133d04c2286abdebd7c235b67b92e52492b6843d0358044f44e17ef17763c135"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "78793482ce758bc242b804979e3ca5309aab5436adf610d2db5d1d7bc02daf47"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-fit-resize-observer.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-fit-resize-observer.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/pane-fit-resize-observer.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "4e583a545d98dc16e4d3291ae48c53585b7be6daa3e186fca8d2e1df106264bd"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "0890b87b21f6d76052e88873d4c6c0f814edcbfb739557ec1857172ef8690513"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-fit.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-fit.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/pane-fit.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "9c64286e4a39fc5d258bacbff51aa39d46efb1e3456ed05e2b7679d17474fc9d"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "d536603affe90acb03645abb0c4556032dd766fb82cd4b958bdd4546fe979744"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-manager.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-manager.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/pane-manager.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "5c235dde4ed7732fbbe5af0f4ebc22177885e8322301558e2b0a01af9d7f2331"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "a5c5a15c8e99d1f4af81ab930a556cda29a8895ebacb494f5ca13814439db867"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-rendering-control.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-rendering-control.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/pane-rendering-control.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "1ef672b9e4f6dd96493636332b86b74774485495c9514bdf24d45a1b90c220e3"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "62e1a9d3099667d215ba4c69f17197b897e6476821282f175c7c47526ce384cb"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-rendering-diagnostics.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-rendering-diagnostics.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/pane-rendering-diagnostics.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "645de841a6bb6c6251ce8ba5f50e389dad81f547b180b3137a842752cefe069d"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "2a95c7856abc5d10637cdca72724cc92d095c0a28a11ec651df8ba52aad8c71a"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-reveal-fit.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-reveal-fit.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/pane-reveal-fit.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "f2138b3229cf45fb3aad4c4f367449a6dadb9c8183a9b0056d8e516c99afde4c"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "fed726dd7af5d685321a6d2e3b9bfd929a5f3ee4b8eb8814ba229231c6f6a14f"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-split-close.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-split-close.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/pane-split-close.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "6004b3ce7e01dcf410d3f081d59fe06f3199359aebb5a0249817d62c108aadfa"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "3e887afad63371be53bcd2535a9a5141cb5cef699de2556237272c3bea9db735"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-terminal-gpu-acceleration.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-terminal-gpu-acceleration.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/pane-terminal-gpu-acceleration.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "d86a9b7fee415ee9c7760c1bd8af711d290eead1044ef3b595488b1283e3c574"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "5c8a881db7b8d571e6bb8cea313fc22db3aea738b263e9a29d1d608cbddc231c"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-tree-ops.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-tree-ops.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/pane-tree-ops.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "2eee9285e509921499a715846c7b4ef2e4810c803f147974f19304d403033a5d"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "82b85f9826e075774f228c0b2c1cf8529c4acf05276b928ab1dd362bd093c494"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-webgl-reattach.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-webgl-reattach.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/pane-webgl-reattach.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "c39e8a1b3bba7c6c9fca567c215ec186f71129ea1ece0a2aa8f2ce68d890c6a3"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9a73e94c7939554a2064a960e963e1b97b88532c268a221b0705f1cab89953d3"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-terminal-webgl-hidden-retention.ts",
+      "target": "src/renderer/src/lib/pane-manager/terminal-webgl-hidden-retention.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/terminal-webgl-hidden-retention.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "e568963916ef897e20ba20231c76cbcfe06706857729e5f308cd0d63d7ef7d61"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "11db65868bd1b8914116dd1f8df3b31688efb97b317f5ce6c21f4b79127c6e74"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-pty-connection-test-async.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection-test-async.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/pty-connection-test-async.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "f32b9648985909b3e6f5252827b50b7d40f70eca528230814f59964a3d2fc4b1"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "dd6b31890da5e5e139df70c8d7865beb0c7e907a5ed4497e9e4c1fea981c7d7f"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-shared-terminal-cursor-line-context.ts",
+      "target": "src/shared/terminal-cursor-line-context.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/shared/terminal-cursor-line-context.ts",
+      "reason": "D1-R: renderer Ghostty cutover",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "c02e769fb8e49111e63e52079b26feda2d47d70c5e56cf34a81244f2f893cae1"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "3270ce36a1081df1be22aa76a855f1001692484b4a4e745cc9cf39b9e0ad9a13"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-terminal-scrollback-clear.ts",
+      "target": "src/renderer/src/lib/pane-manager/terminal-scrollback-clear.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/terminal-scrollback-clear.ts",
+      "reason": "D1-R: clear scrollback via PaneTerminal.write when clear() is absent",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "05e5b73438f07646914ae5f62138218fcda8b2a40918b5a2c1b3d3e610555c17"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "e9e2b9e8c71c270ba5a1e0c2a346f784d9174a8ac28346b1680b2ea7af8bcfcf"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-handle-links.test.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-handle-links.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-handle-links.test.ts",
+      "reason": "D1-R: compile tests against surface link types",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "d08737b2294ce4722db0131dbc716ef871328e02ba314a067df847311f9d318d"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "f9a28de7c5499d479840662e35b447556717216cd945fbdcdb8d6f7124513b08"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-link-provider-buffer-fixtures.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-link-provider-buffer-fixtures.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-link-provider-buffer-fixtures.ts",
+      "reason": "D1-R: compile tests against surface link types",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "f1c8028693c6826544fca78323fce5d8637bdf771041c76d587a30f6152778cf"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "af82c6c071f3ca9caeab0943b3fc7cb8cb6662fcd4c0241507565c3ab6ef66a9"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-terminal-link-provider-guard.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/terminal-link-provider-guard.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/terminal-link-provider-guard.test.ts",
+      "reason": "D1-R: compile tests against surface link types",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "1e1ba65e2f2efe408a38d097fefec7083ce642dcb238369f43f625056d20c68c"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "70cb22a23b7aea10d22e9c8c5926e774edbaa1a65e0e83a44d1b60aa2da2a6f2"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-terminal-scroll-intent.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/terminal-scroll-intent.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/terminal-scroll-intent.test.ts",
+      "reason": "D1-R: compile tests against surface link types",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "c4d888f46606e0fedc32de6b5c0c598193ee559094571b73311c2fd3224c4a8a"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "c17bd7270b16cc80df6da4b76d555466a8ca0618734d5c5c34fd2f4063ef5062"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-windows-pty-compatibility.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/windows-pty-compatibility.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/windows-pty-compatibility.test.ts",
+      "reason": "D1-R: compile tests against surface link types",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "b3fdb29dbc9defd6dbb9df15f888ee133b6a28eaeddcf8b9214815f01bd5a407"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "58d00f6a167ab2594d29ad35753f83534583f8136ac0421cbd758a45c2f6c855"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-metric-options-deferral.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-metric-options-deferral.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/pane-metric-options-deferral.ts",
+      "reason": "D1-R: drop requireXtermPaneState from production callers",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "970e0e2788638d09c95f6c8c871f93cf2c047c4e34cec6fc5324e6705cd8a058"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "63ed258adcc2377eab2eecbbb6346e647e991d806e760f7b00426761bc4d6e06"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-manager-pane-creation.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-manager-pane-creation.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/pane-manager-pane-creation.ts",
+      "reason": "D1-R: drop requireXtermPaneState from production callers",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "28d914cd0fe42305d6ad88b3b641f0a7bde97dc6c1b10cec6cc392bdc0687ab2"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "ad9fbc688c8fa5e104f6f5e96f9989f793b851807c0ebb4626e8842e78beac1e"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-pane-paste-execution.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-pane-paste-execution.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-pane-paste-execution.ts",
+      "reason": "D1-R: drop requireXtermPaneState from production callers",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "33f48c20724090ab14c519ccdae98ae9db672d6d12a63718985305f24ffd2f30"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "b8ba8ab7bc0c50505e34a9a2880597715a9afa4226a81f4c702bcbcd2f692007"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-pane-menu-paste.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-pane-menu-paste.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-pane-menu-paste.ts",
+      "reason": "D1-R: drop requireXtermPaneState from production callers",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "5309e40f342d69ea77dc6e31a637498e224ae056a3788b353f4a672368211e34"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "c81a87b339249fb722ffb480f56d06e50afee63a57572b43a7cb7ba3a1b09bd3"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-visibility-resume.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-visibility-resume.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-visibility-resume.ts",
+      "reason": "D1-R: drop requireXtermPaneState from production callers",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "1da01dda45f07af2a7c05d246da8533d1afd93cb04868afeedcb5da5d59832c8"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "382ddc66947f9f1f3d93b3a03942b5b4d3922e5870449941fc0edf7ce1a9f628"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-render-desync-weight-probe.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-render-desync-weight-probe.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-render-desync-weight-probe.ts",
+      "reason": "D1-R: drop requireXtermPaneState from production callers",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "f8701adf8e6ce4c666095babb5d517be35f5af990aeb7953955d8aad84b2ac83"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "2a948fb608ae1be1259906d6b8782a31cb6f7f4024d9f0eb5ed1ba97c35da097"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-replay-guard.ts",
+      "target": "src/renderer/src/components/terminal-pane/replay-guard.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/replay-guard.ts",
+      "reason": "D1-R: drop requireXtermPaneState from production callers",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "3c94ffd7e9471ccbffb4d5093bfe2443073295d0f4f53cd6681b80a6549db3b8"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "a1441c179839e312f71d1388ba9a499672446b49bb291425a38f913dfdb2a522"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-programmatic-text-paste.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-programmatic-text-paste.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-programmatic-text-paste.ts",
+      "reason": "D1-R: drop requireXtermPaneState from production callers",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "0f3747ac64d3043de1ed04798916e6312bae8987ff634c39292ffee6431be084"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "0f936f574366b68837189ee20cc413b150a8e15b9d2e0f58b7fdefebacf25ef1"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-use-terminal-pane-layout-persistence.ts",
+      "target": "src/renderer/src/components/terminal-pane/use-terminal-pane-layout-persistence.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/use-terminal-pane-layout-persistence.ts",
+      "reason": "D1-R: drop requireXtermPaneState from production callers",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "c30dd4300896884e1a79845bee59be0a3fa45058af921a6f732fc978c447b864"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "ffc123356c79bcd187a00e2bf338b776ba5c8edd9105b60d617b1dccd04216c8"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-use-terminal-pane-mobile-actions.ts",
+      "target": "src/renderer/src/components/terminal-pane/use-terminal-pane-mobile-actions.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/use-terminal-pane-mobile-actions.ts",
+      "reason": "D1-R: drop requireXtermPaneState from production callers",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "280acabaa35524d761a7739c269411696f42cd888b4d381870b810b3ecc42164"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "91600015f7240227d1b7bec0ded8b2cbdd5ae7154aa3ef2e8064515c8922936a"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-pty-connection-hidden-output-restore-abandon.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/hidden-output-restore-abandon.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/pty-connection/hidden-output-restore-abandon.ts",
+      "reason": "D1-R: drop requireXtermPaneState from production callers",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "cf5d000f4fece8dee968bd3b0bfff3962a4b6afcc171644321f19cdaaaf2e342"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "b1ac23af53b447d2888cae34d677a726d4f64ff4fefd0b865c89bb3892cb2f17"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-pty-connection-hidden-startup-renderer-query-wri",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/hidden-startup-renderer-query-write.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/pty-connection/hidden-startup-renderer-query-write.ts",
+      "reason": "D1-R: drop requireXtermPaneState from production callers",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "07a1a8c97dc252c96b4b95c49c6baf4aa454dbdff77c37a8a1669f5f4d645daa"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "5d69737240bfef500915f8d6d3554d41a0278b0dc73396aff6a8d8d07c1d1785"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-pty-connection-interrupt-input-intent.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/interrupt-input-intent.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/pty-connection/interrupt-input-intent.ts",
+      "reason": "D1-R: drop requireXtermPaneState from production callers",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "572b95355ceb6eee1f86a1ee3b37d77b4b4426f65dcde6640bcfb2cdd4d2808f"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "0a3271fdaf66da794ba75cf3a972fd34f250d2e28c87be80775928a529599456"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-pty-connection-hidden-output-seq-and-skip.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/hidden-output-seq-and-skip.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/pty-connection/hidden-output-seq-and-skip.ts",
+      "reason": "D1-R: drop requireXtermPaneState from production callers",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "ce1fcbe4a46b98c8b32d2f67c36cdb7bd05578810b689de9791d8c24a45ebcc0"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "5b1acb2282fabec060f563d80c6b142bee5d93b334e3cdca98f8a81d05cff09d"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-pty-connection-live-data-callback.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/live-data-callback.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/pty-connection/live-data-callback.ts",
+      "reason": "D1-R: drop requireXtermPaneState from production callers",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "32200d79805a13e65792024f08d7c6f4656b8318c7d512dfe9afb617c40f9783"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "6a35423d95a4a0ce420048b8f92197d60af6a30f21a448dab6ff1be587871423"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-pty-connection-direct-ssh-retry-status.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/direct-ssh-retry-status.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/pty-connection/direct-ssh-retry-status.ts",
+      "reason": "D1-R: drop requireXtermPaneState from production callers",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "be7fb2750f2e39f5d6a74414ef5bc4e8c3f6a4a96537a0083f82d91559e76b6a"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "ecf4c028c0601ac63f798f02f017dcbcbc55fc312d085e2630563375c2d04e6c"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-pty-connection-hidden-output-restore-request.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/hidden-output-restore-request.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/pty-connection/hidden-output-restore-request.ts",
+      "reason": "D1-R: drop requireXtermPaneState from production callers",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "ba57a232ca6d6593ae82444baf1da311a6209b74e2bf753756eb0f3cbf6e2b08"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "41ae65e2da9e8c7275a3ca29b2cf8493318e031ae5f168217071bbc80586f733"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-pty-connection-hidden-output-restore-drain.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/hidden-output-restore-drain.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/pty-connection/hidden-output-restore-drain.ts",
+      "reason": "D1-R: drop requireXtermPaneState from production callers",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "40a4f28c469491bfd7917d10ae5dba27f8b548c875e9df0afe2ad1631c1c5d64"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "2dfc4c0e8d5558a1614b96690c945c23e211c6bbd43c402b40124cdb15d520a8"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-pty-connection-ssh-snapshot-prepaint.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/ssh-snapshot-prepaint.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/pty-connection/ssh-snapshot-prepaint.ts",
+      "reason": "D1-R: drop requireXtermPaneState from production callers",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "05b1c7d48a9a84e64b55a6bf88f6195e2c7e7f7b19f5abdf4ab1265310d03d88"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "06cb1d8671f48984891231c8abaca897fdd5fd7fe73356bf0e036a652a1f8e86"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-pty-connection-replay-data-drain.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/replay-data-drain.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/pty-connection/replay-data-drain.ts",
+      "reason": "D1-R: drop requireXtermPaneState from production callers",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "7ce3de9e23fb3e0984387415c97f5520320362685540b228666f05930a06b4c1"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "821e1d71ff5a5277c3cbc28e48673f26d6c07d0f6536bd58b741d11f45e4628a"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-pty-connection-shell-command-inference.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/shell-command-inference.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/pty-connection/shell-command-inference.ts",
+      "reason": "D1-R: drop requireXtermPaneState from production callers",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "230fd518729ead08aba2d1326f8ea9de4a381cde1ca611bca8020757ca12a330"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "aaa604e392d42e0bdd43ff572489723e04fc362d34793524e477deea74f9ec32"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-pty-connection-hidden-output-restore-snapshot.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/hidden-output-restore-snapshot.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/pty-connection/hidden-output-restore-snapshot.ts",
+      "reason": "D1-R: drop requireXtermPaneState from production callers",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "0f494f5886e497c7bdadbd07be87b8f9e0463fdbbe846a6bbf11c78cb94fc810"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "a94f1451bb8a0b4581dcd2826d91e27dc8d09d6fec65f1d982a2fa212df68bba"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-pty-connection-foreground-output-refresh.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/foreground-output-refresh.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/pty-connection/foreground-output-refresh.ts",
+      "reason": "D1-R: drop requireXtermPaneState from production callers",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "d8b49d55c060923e4d511b935d8feda6191ef671afff2db125c212fa817d1691"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "b5cb5e14c97d8eccdc26b5fad6f6dda4d1d24a11ba19f735aaf73a3e92a00173"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-tree-ops.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-tree-ops.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/pane-tree-ops.test.ts",
+      "reason": "D1-R: retarget renderer tests off xterm addons",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "2d723e04e03f9155fd45f7834123caee467001ab8ee33bda31754701fec43fb0"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "cef470ea8130b647e9ae072001b124f554bbdcb716879aca1ff99e5ba86264f9"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-dashboard-popout-AgentTerminalPreview.test.tsx",
+      "target": "src/renderer/src/components/dashboard-popout/AgentTerminalPreview.test.tsx",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/dashboard-popout/AgentTerminalPreview.test.tsx",
+      "reason": "D1-R: retarget renderer tests off xterm addons",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "0e6b6d9142f8d3f5af6a47e36a0b8fed9a325835dab4094f9886d0247b64a9db"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "54b746e22f174129729ba24f98f226562866b4b5cb30d9779993c3360a43f833"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-agent-session-fork.test.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-agent-session-fork.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-agent-session-fork.test.ts",
+      "reason": "D1-R: retarget renderer tests off xterm addons",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "99fec75c7bf4f2b1628541a766c5067e4b83c391ca6e726fbf9d30b0eed6991f"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "37d079385072f81c0b39435b0e0e1e49080c6766b2d6647b29a565a3650a4d23"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-lifecycle.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-lifecycle.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/pane-lifecycle.test.ts",
+      "reason": "D1-R: retarget renderer tests off xterm addons",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "b461e6c9ae19518d138602096fbede0c308f9d123211f66e40cfdf7ff6235cd6"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "a48b1f1d4017891463a340345df57c1b2f8a3d34c0df0e237de4ca1278fd30e3"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-webgl-renderer.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-webgl-renderer.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/pane-webgl-renderer.test.ts",
+      "reason": "D1-R: retarget renderer tests off xterm addons",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "d8bc8c44fcd32714560a9880d46be877dec87b969f598714350ea61718894581"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "fe4ea56cfb8781f744bedaddc6bd6a9088cc0aa7991ab806bfd7a3ae9a027568"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-dashboard-popout-AgentTerminalPreview.clipboard-routes.test.ts",
+      "target": "src/renderer/src/components/dashboard-popout/AgentTerminalPreview.clipboard-routes.test.tsx",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/dashboard-popout/AgentTerminalPreview.clipboard-routes.test.tsx",
+      "reason": "D1-R: retarget renderer tests off xterm addons",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "f0301cc497b92af961af7d2a90e52bc9ed2a6a3e93d8f6ff66e291a0fb2c33a7"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "18ae583676cfdca0c5b7f00fd9a38622ffaab29955c4180be37f876de4b9ccf5"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-fit.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-fit.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/pane-fit.test.ts",
+      "reason": "D1-R: retarget renderer tests off xterm addons",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "ccbc5cd56923705de66b8d5a13024b52247d7b2c9d4950f43156848a52544a1d"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "840c1567e8e1ea6ea3eba764b5994b145ee0e9b54ee2316d05ee706cdbeba5fb"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-shutdown-layout-capture.test.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-shutdown-layout-capture.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-shutdown-layout-capture.test.ts",
+      "reason": "D1-R: retarget renderer tests off xterm addons",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "6d8bc53175c80a9996b1513c482aa8ea759f718b1f3693b5bf055462857a6500"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "dc014c047e532be6291928c734938aebf5f854bf536d1d751308639475a8951e"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-remote-hidden-output-restore-outcomes.test.ts",
+      "target": "src/renderer/src/components/terminal-pane/remote-hidden-output-restore-outcomes.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/remote-hidden-output-restore-outcomes.test.ts",
+      "reason": "D1-R: retarget renderer tests off xterm addons",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "2b3a91b9bbe3d569b666701d485b01d292556d8e0f1a328a5771978577629c43"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "2b3a91b9bbe3d569b666701d485b01d292556d8e0f1a328a5771978577629c43"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-fit-resize-observer.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-fit-resize-observer.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/pane-fit-resize-observer.test.ts",
+      "reason": "D1-R: retarget renderer tests off xterm addons",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "8e0aee8174333f2790a7ffe2761c6d47425ae2474ed3aba998376a52f3323218"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "41d22c5bb17cd7a4b5e9fc289e97aebf5996bdcbb977bba75251649ba1e3d106"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-webgl-context-recovery.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-webgl-context-recovery.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/pane-webgl-context-recovery.test.ts",
+      "reason": "D1-R: retarget renderer tests off xterm addons",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "0b683adf02d3da673800e8259586e6e23dbb7fda0afdf036990967ad415882a1"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "e899537a13a863a1428cab67b859db38cfeef0abe7274637bdff087303cde2af"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-reveal-repaint.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-reveal-repaint.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/pane-reveal-repaint.test.ts",
+      "reason": "D1-R: retarget renderer tests off xterm addons",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "1931ea1a10d912b095f0210931559034e8589988a95261faf8f1a4652df526a5"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "b6c4624e9ba5b392ca68d6dcea4380a57df7b5ce7eabfc6cb6114c28f5fb1fce"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-terminal-ligatures-addon.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/terminal-ligatures-addon.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/terminal-ligatures-addon.test.ts",
+      "reason": "D1-R: retarget renderer tests off xterm addons",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "bbdaee156e6228499b350d78b4789e5d2374a7b8d417e7a9b1e209bf8e6672c3"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "b6c9d54e9d6af07e071e1b8c19ca7eb5d4c4d1d661a1ba4f0f6a3338a6befba5"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-terminal-webgl-hidden-retention.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/terminal-webgl-hidden-retention.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/terminal-webgl-hidden-retention.test.ts",
+      "reason": "D1-R: retarget renderer tests off xterm addons",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "c5fc2efee46a991c05a21d673d3539bc6b76fb9c2d545f98accae0085fa4b61d"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "e1bdcda5f3516ce57724461504765c1490d40400ea7beed3555cef82c1f4844e"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-settings-TerminalSettingsPreview.lifecycle.test.tsx",
+      "target": "src/renderer/src/components/settings/TerminalSettingsPreview.lifecycle.test.tsx",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/settings/TerminalSettingsPreview.lifecycle.test.tsx",
+      "reason": "D1-R: retarget renderer tests off xterm addons",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "e98f3a5accd3db5a05659c2c0a7aa9ec2afa85d7418aab7cc362627580dede6d"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "ac99621a70e56cae61205191fdaa9f5e300d6c28c7e36228524580e4e51c3ec5"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-pty-connection-visibility-resume-size.test.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection-visibility-resume-size.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/pty-connection-visibility-resume-size.test.ts",
+      "reason": "D1-R: retarget renderer tests off xterm addons",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "5b1c21f5b569fab8c4568ec5a2030618861fe07695bb22dc69cb9b5bb1d0c8d4"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "8305240dec0f806079215c1eb40b33bbf2964e0b69c84acd52354e04ccc44d0f"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-remote-hidden-output-restore-unavailable-banner.",
+      "target": "src/renderer/src/components/terminal-pane/remote-hidden-output-restore-unavailable-banner.repro.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/remote-hidden-output-restore-unavailable-banner.repro.test.ts",
+      "reason": "D1-R: retarget renderer tests off xterm addons",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "f2ee4d4c7398e6c17600a801e65b319982a62345f19bc93b9badc10d0fb97ff5"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "f2ee4d4c7398e6c17600a801e65b319982a62345f19bc93b9badc10d0fb97ff5"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-dom-creation.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-dom-creation.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/pane-dom-creation.test.ts",
+      "reason": "D1-R: retarget renderer tests off xterm addons",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "b3b9d049e43f7b74aee0656f9c4f01f1d98bb6fa6ae94a72c17ed25c8e69e616"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "da5110e8e342bad273c3b8d81743dfb499484db17e5d4d1d01d8f2b5e142428f"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-webgl-refresh-lifecycle.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-webgl-refresh-lifecycle.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/pane-webgl-refresh-lifecycle.test.ts",
+      "reason": "D1-R: retarget renderer tests off xterm addons",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "ef5c211f03dd516de88adce18e84f212ada82706b1175d72f35db6f0f2ae21b8"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "53e6470f214529cf87e792d059c1d77ce7a6babe7d1aecc6ac87cb56ff1b6615"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-split-scroll.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-split-scroll.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/pane-split-scroll.test.ts",
+      "reason": "D1-R: retarget renderer tests off xterm addons",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "f1df938df60f0bbcbb2387f45620ab146d9a4540990d59dfacccbff1c80fec29"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "a0eb125450449935f65981f69fd5545981f1114e506048e56ac0a97a70bf2c2b"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-lib-pane-manager-pane-terminal-gpu-acceleration.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-terminal-gpu-acceleration.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/lib/pane-manager/pane-terminal-gpu-acceleration.test.ts",
+      "reason": "D1-R: retarget renderer tests off xterm addons",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "2476a1ac4ebd1eb849c85abf35afc3caa712e034015904d6993e1eeeeb810ea1"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "242eca6f9f7c91cc9e2f47b4c10ecc1b9a13140641c93ae046ee0acc1b0480e5"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-pty-connection-reattach-payload-ssh-reconnect-mo",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/reattach-payload-ssh-reconnect-model-paint.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/pty-connection/reattach-payload-ssh-reconnect-model-paint.test.ts",
+      "reason": "D1-R: retarget renderer tests off xterm addons",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "a36cef6d24c4ce5f590137e6595033114faf72748be3e4e79a315067feb70fba"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "7c4640869f22686370d85b5181b881635d6df5a6f8de1c7f537df30042326d1d"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-dashboard-popout-AgentTerminalPreview.option-dead-key.test.tsx",
+      "target": "src/renderer/src/components/dashboard-popout/AgentTerminalPreview.option-dead-key.test.tsx",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/dashboard-popout/AgentTerminalPreview.option-dead-key.test.tsx",
+      "reason": "D1-R: retarget renderer tests off xterm addons",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "3c49814baf5df5a29bdfa73beca8b490c434c55adfc8851eecde4fdc6879e187"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "7ff1168e155208b2459ddd838f876f1e36155118a8a5499b18f5e5b120dfce11"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-pty-connection-daemon-snapshot-replay.test.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection-daemon-snapshot-replay.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/pty-connection-daemon-snapshot-replay.test.ts",
+      "reason": "D1-R: retarget renderer tests off xterm addons",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "beaae491e909e70b4ddfe9508209a7373915af5802942fd16c0688ab123416db"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "d28a57cfb7ecabaa828d28f45055486864e123ba09c5145def3a77946129771d"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-appearance.test.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-appearance.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-appearance.test.ts",
+      "reason": "D1-R: retarget renderer tests off xterm addons",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "cc2325062bc87efd3a3ed95e4d58803f7de577605837f10818162f9be123f18a"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "2f5dd9468b461ba50147395c4afbe91c8e9b39f9fc88f81ae3824a45527b3c43"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-pty-connection-cold-restore-repaint.test.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection-cold-restore-repaint.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/pty-connection-cold-restore-repaint.test.ts",
+      "reason": "D1-R: retarget renderer tests off xterm addons",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "d624257ea85b9c2f494948cd55faaff2406edc95468a7091f3f271ed413c6971"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "917b0503074aca55d870367e3e6cc65a11770183b09cade813e8016b34f8eb08"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-pty-connection-hidden-delivery-gate.test.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection-hidden-delivery-gate.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/pty-connection-hidden-delivery-gate.test.ts",
+      "reason": "D1-R: retarget renderer tests off xterm addons",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "cc5c528c6205823f0da3504d653fcf34d28291d7c4ed656a3fed1ef2e4e67a32"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "50d3e0ee29323766b152df2c6e5046c331dcd4075c3d1c97ce795a51250f40de"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-pty-connection-reattach-binding.test.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection-reattach-binding.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/pty-connection-reattach-binding.test.ts",
+      "reason": "D1-R: retarget renderer tests off xterm addons",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "1052dbc6ccdbae7fcd5ef27da303a6f58147b57a8ed42d48c23db600d35f098a"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "d8a9735034a43be40be6153e62b957a11dedef519cc466005f63775848ffb68d"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-pty-connection-remote-snapshot-source-grid.test.",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection-remote-snapshot-source-grid.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/pty-connection-remote-snapshot-source-grid.test.ts",
+      "reason": "D1-R: retarget renderer tests off xterm addons",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "2128bcda3a51834f3f17edcb7468c14942cb2a9a0169ef803c2bdcafc79902ec"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "955a75f6109db3284b9847201d459609399140ec14f6fc093fec19dd7a5eed4d"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-pty-connection-setup-split-spawn.test.ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection-setup-split-spawn.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/pty-connection-setup-split-spawn.test.ts",
+      "reason": "D1-R: retarget renderer tests off xterm addons",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "77531de00124188c682fc42972bd9f520103b7a459015abc2f287b7068605d78"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "51ddcda88a3a03f2d5f5b52ecd6334eb1f4e5d51a51ecdd2b5675ac699c3e472"
+      }
+    },
+    {
+      "id": "gate-d1-r-src-renderer-src-components-terminal-pane-terminal-agent-session-continuation.test.ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-agent-session-continuation.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-agent-session-continuation.test.ts",
+      "reason": "D1-R: retarget renderer tests off xterm addons",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "86f18ef28897989e088fcbea1f14716500668fa2fb1b4f2151e9ea5b28640311"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "8b84600c86b245feeff2db206cc125b7c46ba1a910913367ca778d47f454d4af"
+      }
     }
   ]
 }

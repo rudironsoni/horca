@@ -1,5 +1,6 @@
 import type { ITheme } from '../../../../shared/orca-terminal-surface'
 import { DESKTOP_TERMINAL_SCROLLBACK_ROWS_DEFAULT } from '../../../../shared/terminal-scrollback-policy'
+import type { PaneTerminalOptions } from './pane-terminal'
 import { buildDefaultTerminalOptions } from './pane-terminal-options'
 
 export type OrcaPaneAppearance = {
@@ -21,12 +22,7 @@ export type OrcaPaneAppearance = {
   macOptionIsMeta?: boolean
   mouseEventsRequireAlt?: boolean
   screenReaderMode?: boolean
-  linkHandler?: {
-    activate?: (event: MouseEvent, text: string) => void
-    hover?: (event: MouseEvent, text: string) => void
-    leave?: (event: MouseEvent, text: string) => void
-    allowNonHttpProtocols?: boolean
-  }
+  linkHandler?: PaneTerminalOptions['linkHandler']
 }
 
 export function resolveOrcaPaneAppearance(

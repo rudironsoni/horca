@@ -1,0 +1,56 @@
+{
+  "PaneTerminal": {
+    "preferred": "zero changes from D0",
+    "accepted": [
+      {
+        "member": "paste(text: string)",
+        "caller": "src/renderer/src/components/terminal-pane/terminal-bracketed-paste.ts pasteTerminalText",
+        "existedBeforeD1R": true,
+        "whyCurrentInterfaceCouldNotExpressIt": "D0 PaneTerminal omitted paste even though production paste always called xterm.paste/input",
+        "widensPublicContract": true
+      },
+      {
+        "member": "options.fontWeight / fontWeightBold / lineHeight / cursorBlink",
+        "caller": "src/renderer/src/components/terminal-pane/terminal-appearance.ts and pane-metric-options-deferral.ts",
+        "existedBeforeD1R": true,
+        "whyCurrentInterfaceCouldNotExpressIt": "D0 options type was narrower than the fields appearance already wrote on the live terminal",
+        "widensPublicContract": true
+      },
+      {
+        "member": "options.screenReaderMode",
+        "caller": "src/renderer/src/components/terminal-pane/terminal-pane-pane-input.ts",
+        "existedBeforeD1R": true,
+        "whyCurrentInterfaceCouldNotExpressIt": "iOS hangul preedit already read this xterm option on the live pane",
+        "widensPublicContract": true
+      },
+      {
+        "member": "options.linkHandler.allowNonHttpProtocols",
+        "caller": "src/renderer/src/components/terminal-pane/terminal-pane-pane-links.ts",
+        "existedBeforeD1R": true,
+        "whyCurrentInterfaceCouldNotExpressIt": "OSC link handler already set this flag on the live pane",
+        "widensPublicContract": true
+      },
+      {
+        "member": "modes.mouseTrackingMode / sendFocusMode / showCursor",
+        "caller": "src/renderer/src/components/terminal-pane/use-terminal-pane-mobile-actions.ts and orcaPaneModes",
+        "existedBeforeD1R": true,
+        "whyCurrentInterfaceCouldNotExpressIt": "Production already read mouseTrackingMode on the live pane; Ghostty already exposes it.",
+        "widensPublicContract": true
+      },
+      {
+        "member": "options.linkHandler.leave(event, uri)",
+        "caller": "xterm ILinkHandler and pane-dom-creation tooltip leave",
+        "existedBeforeD1R": true,
+        "whyCurrentInterfaceCouldNotExpressIt": "D0 used zero-arg leave; Ghostty and xterm both pass event+uri. Zero-arg implementations remain assignable.",
+        "widensPublicContract": false
+      }
+    ],
+    "rejected": [
+      "raw Ghostty getters",
+      "getAddon/getEngine",
+      "registerCharacterJoiner on PaneTerminal",
+      "onBufferChange on PaneTerminal.buffer",
+      "implements-clause-only stubs (loadAddon, fake registerMarker, fake unicode)"
+    ]
+  }
+}

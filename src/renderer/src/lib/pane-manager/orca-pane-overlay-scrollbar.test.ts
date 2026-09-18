@@ -1,6 +1,8 @@
 // @vitest-environment happy-dom
 import { describe, expect, it, vi } from 'vitest'
 import { mountOrcaPaneOverlayScrollbar } from './orca-pane-overlay-scrollbar'
+import { primeGhosttyVtHostForTests } from '../../../../ghostty-vt/prime-host-for-tests'
+primeGhosttyVtHostForTests()
 
 describe('orca pane overlay scrollbar', () => {
   it('hides when the viewport covers the buffer and shows a thumb when it does not', () => {

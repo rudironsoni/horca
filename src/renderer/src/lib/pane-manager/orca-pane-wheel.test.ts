@@ -1,7 +1,10 @@
 // @vitest-environment happy-dom
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { primeGhosttyVtHostForTests } from '../../../../ghostty-vt/prime-host-for-tests'
 import { GhosttyTerminal } from '../../../../ghostty-vt/ghostty-terminal'
 import { getGhosttyVtHostOrThrow } from '../../../../ghostty-vt/host-singleton'
+
+primeGhosttyVtHostForTests()
 import { bindOrcaPaneWheel, syncOrcaPaneMouseReportingClass } from './orca-pane-wheel'
 
 describe('orca pane wheel', () => {

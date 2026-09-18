@@ -1,0 +1,32 @@
+{
+  "question": "Is xterm-renderer reachable from the production renderer bundle?",
+  "answer": "NO",
+  "worktree": ".cache/worktrees/85d1ffc0726d8403f9494436c421c5e3d7932c47/d27126488aaa-local-1789736394836",
+  "moduleGraph": {
+    "verifier": "scripts/verify-xterm-runtime-reachability.mjs",
+    "entries": [
+      "src/renderer/src/main.tsx",
+      "src/renderer/src/popout.tsx",
+      "src/renderer/src/web/main.tsx"
+    ],
+    "modulesWalked": 5248,
+    "xtermRendererHits": 0
+  },
+  "builtRenderer": {
+    "command": "ORCA_ELECTRON_VITE_TARGET=renderer node config/scripts/run-electron-vite-build.mjs --config config/electron-vite-target.config.cts --ignoreConfigWarning",
+    "dir": "out/renderer",
+    "filesScanned": 849,
+    "forbiddenSignatures": [
+      "XtermPaneTerminal",
+      "registerXtermPaneState",
+      "xterm-renderer/xterm-pane-terminal",
+      "@xterm/xterm",
+      "@xterm/addon-fit"
+    ],
+    "hits": 0
+  },
+  "repositoryReference": {
+    "xtermRendererPresent": true,
+    "classification": "reference implementation only; not imported by production renderer entries"
+  }
+}

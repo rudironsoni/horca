@@ -11,6 +11,10 @@ function sha256(text) {
   return createHash('sha256').update(text).digest('hex')
 }
 
+function sha256File(filePath) {
+  return createHash('sha256').update(readFileSync(filePath)).digest('hex')
+}
+
 function countOccurrences(haystack, needle) {
   if (!needle) return 0
   let count = 0
@@ -105,8 +109,35 @@ function main(worktreePath) {
         if (!override.source) throw new Error(`Replace overlay missing source: ${target}`)
         const sourcePath = resolve(ROOT, override.source)
         if (!existsSync(sourcePath)) throw new Error(`Overlay source not found: ${sourcePath}`)
+        const expected = override.precondition?.expectedBlobSha256
+        const resulting = override.postcondition?.resultingBlobSha256
+        const replacementHash = sha256File(sourcePath)
+        if (existsSync(targetPath)) {
+          const currentHash = sha256File(targetPath)
+          if (currentHash === replacementHash) {
+            if (!expected || currentHash === expected) {
+              console.log(`[apply-overlays] Replace skipped ${target} (already desired blob)`)
+              break
+            }
+            throw new Error(
+              `HORCA_OVERLAY_ALREADY_APPLIED: ${target} (target already equals replacement blob)`
+            )
+          }
+          if (expected && currentHash !== expected) {
+            throw new Error(
+              `HORCA_OVERLAY_PRECONDITION_FAILED: ${target} current blob sha256 ${currentHash} != expected ${expected}`
+            )
+          }
+        } else if (expected) {
+          throw new Error(`HORCA_OVERLAY_PRECONDITION_FAILED: target missing: ${target}`)
+        }
         cpSync(sourcePath, targetPath)
-        console.log(`[apply-overlays] Replaced ${target}`)
+        if (resulting && replacementHash !== resulting) {
+          throw new Error(
+            `HORCA_OVERLAY_POSTCONDITION_FAILED: ${target} replacement blob sha256 ${replacementHash} != declared ${resulting}`
+          )
+        }
+        console.log(`[apply-overlays] Replaced ${target} (sha256 ${replacementHash.slice(0, 12)})`)
         break
       }
       case 'add': {

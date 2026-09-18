@@ -5,6 +5,8 @@ import {
   isRendererNativeGhosttyGpuAvailable
 } from './orca-pane-native-ghostty'
 import type { HorcaGhosttySurfaceApi } from '../../../../shared/horca/ghostty-surface-api'
+import { primeGhosttyVtHostForTests } from '../../../../ghostty-vt/prime-host-for-tests'
+primeGhosttyVtHostForTests()
 
 function installSurfaceApi(api: HorcaGhosttySurfaceApi): () => void {
   const previous = Object.getOwnPropertyDescriptor(window, 'api')
