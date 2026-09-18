@@ -79,13 +79,20 @@ async function reservePort() {
   return port
 }
 
+async function pageTitle(page) {
+  if (page.isClosed()) {
+    return ''
+  }
+  return page.title({ timeout: 1000 }).catch(() => '')
+}
+
 async function waitForMainPage(context) {
   const deadline = Date.now() + 30_000
   while (Date.now() < deadline) {
     for (const page of context.pages()) {
-      if (!page.isClosed() && (await page.title().catch(() => '')) === 'Horca') {
+      if ((await pageTitle(page)) === 'Horca') {
         await page.waitForTimeout(500).catch(() => undefined)
-        if (!page.isClosed() && (await page.title().catch(() => '')) === 'Horca') {
+        if ((await pageTitle(page)) === 'Horca') {
           return page
         }
       }
@@ -94,7 +101,7 @@ async function waitForMainPage(context) {
   }
   const titles = []
   for (const page of context.pages()) {
-    titles.push(await page.title().catch(() => '<closed>'))
+    titles.push(await pageTitle(page) || '<closed>')
   }
   throw new Error(`Packaged Horca did not create its main renderer page (titles: ${titles.join(', ')})`)
 }
