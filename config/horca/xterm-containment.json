@@ -1,18 +1,4 @@
 {
-  "headlessImplementation": [
-    "src/main/daemon/headless-emulator.ts",
-    "src/main/daemon/xterm-env-polyfill.ts",
-    "src/main/daemon/headless-emulator-modes.ts",
-    "src/main/daemon/headless-osc-link-ranges.ts",
-    "src/main/daemon/terminal-frame-restore-sequences.ts",
-    "src/main/daemon/terminal-view-attribute-responder.ts",
-    "src/main/daemon/startup-device-attributes-responder.ts",
-    "src/main/daemon/__fixtures__/terminal-wide-cell-grid.ts",
-    "src/shared/terminal-unicode-provider.ts",
-    "src/shared/terminal-restore-parity-fixture.ts"
-  ],
-  "rendererImplementation": [
-    "src/renderer/src/lib/pane-manager/xterm-renderer/xterm-pane-state.ts",
-    "src/renderer/src/lib/pane-manager/xterm-renderer/xterm-pane-terminal.ts"
-  ]
+  "headlessImplementation": [],
+  "rendererImplementation": []
 }

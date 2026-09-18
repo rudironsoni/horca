@@ -1,5 +1,6 @@
 import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs'
 import { dirname, extname, join, relative, resolve } from 'node:path'
+import { execFileSync } from 'node:child_process'
 
 const ROOT = resolve(import.meta.dirname, '..')
 
@@ -12,6 +13,7 @@ const RENDERER_ENTRIES = [
 const DAEMON_ENTRIES = ['src/main/daemon/daemon-server.ts']
 const FORBIDDEN_PATH_PART = 'xterm-renderer/'
 const FORBIDDEN_HEADLESS_PATHS = ['xterm-headless-emulator', 'xterm-env-polyfill']
+const FORBIDDEN_PACKAGES_PREFIX = '@xterm/'
 const FORBIDDEN_HEADLESS_PACKAGES = ['@xterm/headless', '@xterm/addon-serialize', '@xterm/addon-unicode11']
 const FORBIDDEN_BUNDLE_SIGNATURES = [
   'XtermPaneTerminal',
@@ -123,23 +125,23 @@ function main() {
   const bundleDir = bundleIdx >= 0 ? process.argv[bundleIdx + 1] : join(worktree, 'out', 'renderer')
 
   const renderer = walkRuntimeGraph(worktree, RENDERER_ENTRIES)
-  const rendererHits = renderer.modules.filter((p) => p.includes(FORBIDDEN_PATH_PART))
-  if (rendererHits.length) {
+  const rendererHits = renderer.modules.filter((p) => p.includes(FORBIDDEN_PATH_PART) || p.includes('xterm-renderer'))
+  const rendererPkgHits = renderer.packages.filter((p) => p.spec.startsWith(FORBIDDEN_PACKAGES_PREFIX))
+  if (rendererHits.length || rendererPkgHits.length) {
     console.error('[verify-xterm-runtime-reachability] renderer graph FAIL')
     for (const h of rendererHits) console.error(`  ${h}`)
+    for (const h of rendererPkgHits) console.error(`  ${h.from} -> ${h.spec}`)
     process.exit(1)
   }
   console.log(
-    `[verify-xterm-runtime-reachability] renderer module graph PASS (${renderer.modules.length} modules, 0 xterm-renderer)`
+    `[verify-xterm-runtime-reachability] renderer module graph PASS (${renderer.modules.length} modules, 0 xterm)`
   )
 
   const daemon = walkRuntimeGraph(worktree, DAEMON_ENTRIES)
   const daemonPathHits = daemon.modules.filter((p) =>
     FORBIDDEN_HEADLESS_PATHS.some((part) => p.includes(part))
   )
-  const daemonPkgHits = daemon.packages.filter((p) =>
-    FORBIDDEN_HEADLESS_PACKAGES.some((pkg) => p.spec === pkg || p.spec.startsWith(`${pkg}/`))
-  )
+  const daemonPkgHits = daemon.packages.filter((p) => p.spec.startsWith(FORBIDDEN_PACKAGES_PREFIX))
   if (daemonPathHits.length || daemonPkgHits.length) {
     console.error('[verify-xterm-runtime-reachability] daemon graph FAIL')
     for (const h of daemonPathHits) console.error(`  ${h}`)
@@ -176,6 +178,45 @@ function main() {
     console.log(
       `[verify-xterm-runtime-reachability] built daemon PASS (${scan.fileCount} files, 0 xterm headless signatures)`
     )
+  }
+
+  const horcaLeaks = []
+  function walkHorca(dir) {
+    if (!existsSync(dir)) return
+    for (const name of readdirSync(dir)) {
+      if (name === 'node_modules' || name === '.git') continue
+      const p = join(dir, name)
+      const st = statSync(p)
+      if (st.isDirectory()) {
+        walkHorca(p)
+        continue
+      }
+      if (!p.endsWith('.ts') && !p.endsWith('.tsx')) continue
+      const rel = relative(ROOT, p).replaceAll('\\', '/')
+      if (isTest(rel) || rel.startsWith('overlay/') || rel.startsWith('migration/')) continue
+      const text = readFileSync(p, 'utf8')
+      if (text.includes("from '@xterm/") || text.includes('from "@xterm/')) horcaLeaks.push(rel)
+    }
+  }
+  walkHorca(join(ROOT, 'src'))
+  if (horcaLeaks.length) {
+    console.error('[verify-xterm-runtime-reachability] Horca-owned production @xterm FAIL')
+    for (const h of horcaLeaks) console.error(`  ${h}`)
+    process.exit(1)
+  }
+  console.log('[verify-xterm-runtime-reachability] Horca-owned production @xterm imports: 0')
+
+  const asarIdx = process.argv.indexOf('--asar')
+  if (asarIdx >= 0) {
+    const asarPath = process.argv[asarIdx + 1]
+    const listing = execFileSync('npx', ['--yes', 'asar', 'list', asarPath], { encoding: 'utf8' })
+    const asarHits = listing.split('\n').filter((ln) => /xterm/i.test(ln) && /headless|addon-serialize|addon-unicode11|addon-fit|addon-search|addon-webgl|addon-ligatures|@xterm\/xterm/.test(ln))
+    if (asarHits.length) {
+      console.error('[verify-xterm-runtime-reachability] asar FAIL')
+      for (const h of asarHits.slice(0, 50)) console.error(`  ${h}`)
+      process.exit(1)
+    }
+    console.log('[verify-xterm-runtime-reachability] asar xterm runtime paths: 0')
   }
 }
 

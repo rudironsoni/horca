@@ -651,16 +651,6 @@
       "reason": "D0-R: renderer terminal behavior interface"
     },
     {
-      "id": "gate-d0-add-xterm-pane-terminal",
-      "target": "src/renderer/src/lib/pane-manager/xterm-renderer/xterm-pane-terminal.ts",
-      "mode": "add",
-      "source": "src/renderer/src/lib/pane-manager/xterm-renderer/xterm-pane-terminal.ts",
-      "precondition": {
-        "kind": "file-absent"
-      },
-      "reason": "D0-R: xterm renderer adapter"
-    },
-    {
       "id": "gate-d0-h-output-plane-import",
       "target": "src/main/daemon/session-output-plane.ts",
       "mode": "substitute",
@@ -743,31 +733,11 @@
       "reason": "D0-R: public ManagedPane exposes PaneTerminal, not xterm addons"
     },
     {
-      "id": "gate-d0-add-xterm-pane-state",
-      "target": "src/renderer/src/lib/pane-manager/xterm-renderer/xterm-pane-state.ts",
-      "mode": "add",
-      "source": "src/renderer/src/lib/pane-manager/xterm-renderer/xterm-pane-state.ts",
-      "reason": "D0-R: implementation-private xterm pane state",
-      "precondition": {
-        "kind": "file-absent"
-      }
-    },
-    {
       "id": "gate-d0-r-pane-dom-creation",
       "target": "src/renderer/src/lib/pane-manager/pane-dom-creation.ts",
       "mode": "replace",
       "source": "overlay/d0-r/src/renderer/src/lib/pane-manager/pane-dom-creation.ts",
       "reason": "D0-R: create XtermPaneTerminal, do not store addons on pane"
-    },
-    {
-      "id": "gate-d0-add-xterm-pane-state-test",
-      "target": "src/renderer/src/lib/pane-manager/xterm-renderer/xterm-pane-state.test.ts",
-      "mode": "add",
-      "source": "src/renderer/src/lib/pane-manager/xterm-renderer/xterm-pane-state.test.ts",
-      "precondition": {
-        "kind": "file-absent"
-      },
-      "reason": "D0-R: XtermPaneState lifecycle tests"
     },
     {
       "id": "gate-d0-add-orca-terminal-surface",
@@ -1530,16 +1500,6 @@
         "kind": "file-absent"
       },
       "reason": "D0-R: added xterm-neutral or implementation file"
-    },
-    {
-      "id": "gate-d0-add-xterm-pane-test-harness",
-      "target": "src/renderer/src/lib/pane-manager/xterm-renderer/xterm-pane-test-harness.ts",
-      "mode": "add",
-      "source": "src/renderer/src/lib/pane-manager/xterm-renderer/xterm-pane-test-harness.ts",
-      "precondition": {
-        "kind": "file-absent"
-      },
-      "reason": "D0-R: implementation-test harness for XtermPaneState"
     },
     {
       "id": "gate-d0-r-layout-serialization-test",
@@ -4808,7 +4768,7 @@
       "reason": "D1-H: production HeadlessEmulator is Ghostty",
       "precondition": {
         "kind": "blob-sha256",
-        "expectedBlobSha256": "db1d9e8ca4205c81a1bc16890e9a698363653805c4f3cf9cf9721487ad1cab82"
+        "expectedBlobSha256": "b8bcb28dae2d9fb1b1361c9d32eb69357177943778bf56c2ce9848c82c9ba2a7"
       },
       "postcondition": {
         "resultingBlobSha256": "784fb3ef7a8485559f0920c292b8b675c98618c5d4e743fc4d30d16ad472b21a"
@@ -5026,6 +4986,748 @@
       },
       "postcondition": {
         "resultingBlobSha256": "fafcf19f61f95401e0b0f5a431c2ebf0fc73eb14f3a526a3a4cf737899357b50"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-components-terminal-pane-pty-connection-test-pane-fixtures-ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection-test-pane-fixtures.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/components/terminal-pane/pty-connection-test-pane-fixtures.ts",
+      "reason": "D1-final: pane fixtures do not use xterm-renderer",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "f4571fc4273d81aa982da6525e3ed2488ba752a2696c843fb380d87c80f8dde4"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "a96605717df5848a54394bc1e894fa26295ffaaa407cff0f5a929ba2a8f8c6c9"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-components-terminal-pane-terminal-link-provider-buffer-fixtures-ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-link-provider-buffer-fixtures.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/components/terminal-pane/terminal-link-provider-buffer-fixtures.ts",
+      "reason": "D1-final: link fixtures do not use xterm-renderer",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "af82c6c071f3ca9caeab0943b3fc7cb8cb6662fcd4c0241507565c3ab6ef66a9"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "e686438cd6b2e64b206347d17882ac27789cada3b998dbf20bbb0c51be9be5c4"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-components-terminal-pane-pty-connection-cold-restore-repaint-test-ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection-cold-restore-repaint.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/components/terminal-pane/pty-connection-cold-restore-repaint.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "917b0503074aca55d870367e3e6cc65a11770183b09cade813e8016b34f8eb08"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-components-terminal-pane-pty-connection-daemon-snapshot-replay-test-ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection-daemon-snapshot-replay.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/components/terminal-pane/pty-connection-daemon-snapshot-replay.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "d28a57cfb7ecabaa828d28f45055486864e123ba09c5145def3a77946129771d"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-components-terminal-pane-pty-connection-hidden-delivery-gate-test-ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection-hidden-delivery-gate.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/components/terminal-pane/pty-connection-hidden-delivery-gate.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "50d3e0ee29323766b152df2c6e5046c331dcd4075c3d1c97ce795a51250f40de"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-components-terminal-pane-pty-connection-parked-ssh-snapshot-test-ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection-parked-ssh-snapshot.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/components/terminal-pane/pty-connection-parked-ssh-snapshot.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "73f9a6ac33006e020f32081d6b86c099d0cb2160dd5bb396500ce71f2fb05562"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-components-terminal-pane-pty-connection-reattach-binding-test-ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection-reattach-binding.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/components/terminal-pane/pty-connection-reattach-binding.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "d8a9735034a43be40be6153e62b957a11dedef519cc466005f63775848ffb68d"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-components-terminal-pane-pty-connection-remote-snapshot-source-grid-test-ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection-remote-snapshot-source-grid.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/components/terminal-pane/pty-connection-remote-snapshot-source-grid.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "955a75f6109db3284b9847201d459609399140ec14f6fc093fec19dd7a5eed4d"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-components-terminal-pane-pty-connection-setup-split-spawn-test-ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection-setup-split-spawn.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/components/terminal-pane/pty-connection-setup-split-spawn.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "51ddcda88a3a03f2d5f5b52ecd6334eb1f4e5d51a51ecdd2b5675ac699c3e472"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-components-terminal-pane-pty-connection-visibility-resume-size-test-ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection-visibility-resume-size.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/components/terminal-pane/pty-connection-visibility-resume-size.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "8305240dec0f806079215c1eb40b33bbf2964e0b69c84acd52354e04ccc44d0f"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-components-terminal-pane-pty-connection-reattach-payload-ssh-reconnect-model-paint-test-ts",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/reattach-payload-ssh-reconnect-model-paint.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/components/terminal-pane/pty-connection/reattach-payload-ssh-reconnect-model-paint.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "7c4640869f22686370d85b5181b881635d6df5a6f8de1c7f537df30042326d1d"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-components-terminal-pane-replay-guard-test-ts",
+      "target": "src/renderer/src/components/terminal-pane/replay-guard.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/components/terminal-pane/replay-guard.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "9f4df4de0a82f4dd9cc3bba715da6adaac2781ea464e4e0e27d3c1ec14512a88"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-components-terminal-pane-terminal-agent-session-continuation-test-ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-agent-session-continuation.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/components/terminal-pane/terminal-agent-session-continuation.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "8b84600c86b245feeff2db206cc125b7c46ba1a910913367ca778d47f454d4af"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-components-terminal-pane-terminal-agent-session-fork-test-ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-agent-session-fork.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/components/terminal-pane/terminal-agent-session-fork.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "37d079385072f81c0b39435b0e0e1e49080c6766b2d6647b29a565a3650a4d23"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-components-terminal-pane-terminal-appearance-test-ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-appearance.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/components/terminal-pane/terminal-appearance.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "2f5dd9468b461ba50147395c4afbe91c8e9b39f9fc88f81ae3824a45527b3c43"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-components-terminal-pane-terminal-shutdown-layout-capture-test-ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-shutdown-layout-capture.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/components/terminal-pane/terminal-shutdown-layout-capture.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "dc014c047e532be6291928c734938aebf5f854bf536d1d751308639475a8951e"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-lib-pane-manager-pane-cursor-blink-suspension-test-ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-cursor-blink-suspension.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/lib/pane-manager/pane-cursor-blink-suspension.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "86ec4d14687a6498d3cde9a3aed8b773311041bdd8ec9f018ae13139da8caaa8"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-lib-pane-manager-pane-fit-resize-observer-test-ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-fit-resize-observer.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/lib/pane-manager/pane-fit-resize-observer.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "41d22c5bb17cd7a4b5e9fc289e97aebf5996bdcbb977bba75251649ba1e3d106"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-lib-pane-manager-pane-lifecycle-test-ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-lifecycle.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/lib/pane-manager/pane-lifecycle.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "a48b1f1d4017891463a340345df57c1b2f8a3d34c0df0e237de4ca1278fd30e3"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-lib-pane-manager-pane-reveal-fit-test-ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-reveal-fit.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/lib/pane-manager/pane-reveal-fit.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "8b29f09d720c3c47864f085bf26f97c31f634cd01d19942eadac01cfc3becafe"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-lib-pane-manager-pane-reveal-repaint-test-ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-reveal-repaint.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/lib/pane-manager/pane-reveal-repaint.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "b6c4624e9ba5b392ca68d6dcea4380a57df7b5ce7eabfc6cb6114c28f5fb1fce"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-lib-pane-manager-pane-split-close-test-ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-split-close.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/lib/pane-manager/pane-split-close.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "1109167918539d90b91d0bfa15662a11e12e7707c233e907d65136bf817a4d99"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-lib-pane-manager-pane-terminal-gpu-acceleration-test-ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-terminal-gpu-acceleration.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/lib/pane-manager/pane-terminal-gpu-acceleration.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "242eca6f9f7c91cc9e2f47b4c10ecc1b9a13140641c93ae046ee0acc1b0480e5"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-lib-pane-manager-pane-tree-ops-test-ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-tree-ops.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/lib/pane-manager/pane-tree-ops.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "cef470ea8130b647e9ae072001b124f554bbdcb716879aca1ff99e5ba86264f9"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-lib-pane-manager-pane-tree-reparent-frame-test-ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-tree-reparent-frame.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/lib/pane-manager/pane-tree-reparent-frame.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "6342aa2730f76d560cc1c37b00b03e04fd212a749650e0912fc693442fe358af"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-lib-pane-manager-pane-webgl-context-recovery-test-ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-webgl-context-recovery.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/lib/pane-manager/pane-webgl-context-recovery.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "e899537a13a863a1428cab67b859db38cfeef0abe7274637bdff087303cde2af"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-lib-pane-manager-pane-webgl-refresh-lifecycle-test-ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-webgl-refresh-lifecycle.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/lib/pane-manager/pane-webgl-refresh-lifecycle.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "53e6470f214529cf87e792d059c1d77ce7a6babe7d1aecc6ac87cb56ff1b6615"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-lib-pane-manager-pane-webgl-renderer-test-ts",
+      "target": "src/renderer/src/lib/pane-manager/pane-webgl-renderer.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/lib/pane-manager/pane-webgl-renderer.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "fe4ea56cfb8781f744bedaddc6bd6a9088cc0aa7991ab806bfd7a3ae9a027568"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-lib-pane-manager-terminal-webgl-hidden-retention-test-ts",
+      "target": "src/renderer/src/lib/pane-manager/terminal-webgl-hidden-retention.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/lib/pane-manager/terminal-webgl-hidden-retention.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "e1bdcda5f3516ce57724461504765c1490d40400ea7beed3555cef82c1f4844e"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-components-terminal-pane-layout-serialization-test-ts",
+      "target": "src/renderer/src/components/terminal-pane/layout-serialization.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/components/terminal-pane/layout-serialization.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "da39f36452137c308037b01a26fef5839abf2cf9779b507d671c1775c1656067"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-components-terminal-pane-issue-4631-terminal-hover-link-provider-repro-test-ts",
+      "target": "src/renderer/src/components/terminal-pane/issue-4631-terminal-hover-link-provider.repro.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/components/terminal-pane/issue-4631-terminal-hover-link-provider.repro.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "329d244b7f0e01207240ee0a5deb82aaacf7faa417b10d955344b07014dff13b"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-components-terminal-pane-terminal-cursor-inactive-style-test-ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-cursor-inactive-style.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/components/terminal-pane/terminal-cursor-inactive-style.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "406fc7e94d91e93a08209202ae0bf57111a1dd3fa5991a08fa488069d03c7cc2"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-components-terminal-pane-terminal-link-provider-batching-test-ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-link-provider-batching.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/components/terminal-pane/terminal-link-provider-batching.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "04384f6c429b5b0b92425824e9751985be185d9982cc093941055101bdee8957"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-components-terminal-pane-terminal-link-provider-link-detection-test-ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-link-provider-link-detection.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/components/terminal-pane/terminal-link-provider-link-detection.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "cc06d7273cca2926cfc8f2dd7c6c76d6862cad14447677f4edc66dbac4f400e4"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-components-terminal-pane-terminal-link-worktree-root-activation-test-ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-link-worktree-root-activation.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/components/terminal-pane/terminal-link-worktree-root-activation.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "a046ccac4e12e60c5a1b8b42c31f9a055b6148ea2d067f5e46fda5780abd5fb6"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-components-terminal-pane-terminal-link-wsl-path-mapping-test-ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-link-wsl-path-mapping.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/components/terminal-pane/terminal-link-wsl-path-mapping.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "25d2f1fbced7ec88454919726113a5f14c2e35b0b483ad240a3b314097eea827"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-components-terminal-pane-terminal-programmatic-text-paste-test-ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-programmatic-text-paste.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/components/terminal-pane/terminal-programmatic-text-paste.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "c628e9915987a74e3435a3d696f891b9be4ef2eff55189bbeed127509e542ab7"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-components-terminal-pane-terminal-render-desync-weight-probe-test-ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-render-desync-weight-probe.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/components/terminal-pane/terminal-render-desync-weight-probe.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "4f52d56cf4f3ee46ced5eaaae05f592508062d86576e6d030bb44cf0ffec6415"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-components-terminal-pane-terminal-restore-sgr-latch-test-ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-restore-sgr-latch.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/components/terminal-pane/terminal-restore-sgr-latch.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "9c55f3577988ab3730cb2f30d19630991aaaff598907a408b7181eabb08d0e68"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-components-terminal-pane-terminal-view-attributes-publisher-test-ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-view-attributes-publisher.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/components/terminal-pane/terminal-view-attributes-publisher.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "2fb199e9c2815f57345a6f1a764f9fefb5ed67e32fb168559b415e65b2534cbd"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-components-terminal-pane-terminal-visibility-resume-test-ts",
+      "target": "src/renderer/src/components/terminal-pane/terminal-visibility-resume.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/components/terminal-pane/terminal-visibility-resume.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "a2f04d56b87eb41394f88bbf6963c11fb1bf78bde9766f67c2924910f8d8acf2"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-components-terminal-pane-use-terminal-pane-global-effects-active-pty-reporting-test-ts",
+      "target": "src/renderer/src/components/terminal-pane/use-terminal-pane-global-effects-active-pty-reporting.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/components/terminal-pane/use-terminal-pane-global-effects-active-pty-reporting.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "8bb05a08202d7c6d6e644d3dff5ed5237d8e670bb6dc6b461bd6d4a31896ba32"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-components-terminal-pane-use-terminal-pane-global-effects-paste-events-test-ts",
+      "target": "src/renderer/src/components/terminal-pane/use-terminal-pane-global-effects-paste-events.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/components/terminal-pane/use-terminal-pane-global-effects-paste-events.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "92517be99ce68a04351014bafbd1deca757adef91639721b43c6645546800020"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-components-terminal-pane-use-terminal-pane-global-effects-visibility-resume-test-ts",
+      "target": "src/renderer/src/components/terminal-pane/use-terminal-pane-global-effects-visibility-resume.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/components/terminal-pane/use-terminal-pane-global-effects-visibility-resume.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "6dd65118a3925de917cad5906bc9cdaca66c92cbee74de64e12e103bdf200263"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-components-terminal-pane-use-terminal-pane-global-effects-window-focus-recovery-test-ts",
+      "target": "src/renderer/src/components/terminal-pane/use-terminal-pane-global-effects-window-focus-recovery.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/components/terminal-pane/use-terminal-pane-global-effects-window-focus-recovery.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "afbbdec9a7ea856312e1b8a7e20d9e7932622b5597d227ba9a75cba846705751"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-components-terminal-pane-use-terminal-scroll-visibility-memory-test-ts",
+      "target": "src/renderer/src/components/terminal-pane/use-terminal-scroll-visibility-memory.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/components/terminal-pane/use-terminal-scroll-visibility-memory.test.ts",
+      "reason": "D1-final: skip xterm-renderer differential tests",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "fa190e3bef356f86186e0198c95c40385553bcf9c276ed3850a58b4c2d149bd1"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "9d36af8d5a9282ac743e1d69fd523b588b42717b8825eba5c4af2c58ca966e75"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-renderer-src-assets-main-css",
+      "target": "src/renderer/src/assets/main.css",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/renderer/src/assets/main.css",
+      "reason": "D1-final: do not load xterm.css",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "596c05152c9255d23873dcb3871d57332bd5966fcec7f7857c9659a957f23881"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "1ab4fd96a3c09636b817681fc5d51be0458ccf64721e6212e591d91173dbb35d"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-main-daemon-startup-device-attributes-responder-ts",
+      "target": "src/main/daemon/startup-device-attributes-responder.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/main/daemon/startup-device-attributes-responder.ts",
+      "reason": "D1-final: DA1 responder uses HeadlessParser",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "de1092ba15ec03cdd2fb08b33cd5ba5a04f26b19616476e3c7f717e54d337b7b"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "573d8d5e11cbe295f84114a2e5b103ae18c86d96d487128cf1534a71812556c8"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-main-daemon-terminal-view-attribute-responder-ts",
+      "target": "src/main/daemon/terminal-view-attribute-responder.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/main/daemon/terminal-view-attribute-responder.ts",
+      "reason": "D1-final: view-attribute responder uses HeadlessParser",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "51fa68da93e150a2c15072999b63b3440fb5540b67d732020ca287123ae20fa7"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "00c6c7e16606813a3930576f1e0316b167fea76b8933128442c747d8b05d2c31"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-main-daemon-headless-emulator-modes-ts",
+      "target": "src/main/daemon/headless-emulator-modes.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/main/daemon/headless-emulator-modes.ts",
+      "reason": "D1-final: drop @xterm types from unused mode helper",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "acc05652aa78e3504f3d71250537ac5dbd61777fab9516ed69a22a5d11857807"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "28ece679cae8919a9805dd82a913b73305c999695e31209cf32f527237e35433"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-main-daemon-headless-osc-link-ranges-ts",
+      "target": "src/main/daemon/headless-osc-link-ranges.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/main/daemon/headless-osc-link-ranges.ts",
+      "reason": "D1-final: drop @xterm types from unused OSC helper",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "90232b09a6aed3f029952a6850f5c3e2037a395ca0c7d2750f497a7f38d1fdca"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "b579e6b4d0a91bd619466bcc29c08959357222203c87cfffbe4d725979194bcd"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-main-daemon-terminal-frame-restore-sequences-ts",
+      "target": "src/main/daemon/terminal-frame-restore-sequences.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/main/daemon/terminal-frame-restore-sequences.ts",
+      "reason": "D1-final: drop @xterm types from unused frame-restore helper",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "828285b5e5ca54ba59e6756d2fc6f89e468016ed3a7595775c6dedd08b2c57c7"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "953e89ea09de1c0b897f5f2b4d66b972083e763aa96e17fa37fe8ff2f47319f6"
+      }
+    },
+    {
+      "id": "gate-d1-final-src-shared-terminal-unicode-provider-ts",
+      "target": "src/shared/terminal-unicode-provider.ts",
+      "mode": "replace",
+      "source": "overlay/d1-final/src/shared/terminal-unicode-provider.ts",
+      "reason": "D1-final: drop @xterm types from unicode provider",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "eae524000d37c01ff9818ebe822dff4c12a3479b9a97370414a928cabb3d948f"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "c87a82e259945645cad24ffae3659cb77e99e7de2f71609860239a582b380cd4"
       }
     }
   ]

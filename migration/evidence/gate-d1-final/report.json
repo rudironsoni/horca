@@ -1,0 +1,20 @@
+{
+  "D1": "PASS",
+  "d1HCommit": "22fe2f214f94278072c92e4d81757d01a92e4077",
+  "upstreamSha": "85d1ffc0726d8403f9494436c421c5e3d7932c47",
+  "generatedWorktree": ".cache/worktrees/85d1ffc0726d8403f9494436c421c5e3d7932c47/07cb34effb1f-local-1789745420932",
+  "typecheck": 0,
+  "ghosttyHeadless": { "passed": 117, "failed": 0, "note": "58 Ghostty + 58 production HeadlessEmulator + 1 composition" },
+  "daemonSuite": { "passed": 1935, "failed": 0, "skipped": 23, "total": 1958 },
+  "rendererSuite": { "passed": 31383, "failed": 1, "skipped": 25, "total": 31409, "flake": "browser-history-match.performance.test.ts budget" },
+  "architectureTests": { "passed": 2, "failed": 0 },
+  "horcaOwnedProductionXtermImports": 0,
+  "rendererGraphXterm": 0,
+  "daemonGraphXterm": 0,
+  "asarXtermRuntimePaths": 0,
+  "negativeControl": "import @xterm/headless in headless-emulator.ts -> FAIL; restore -> PASS",
+  "horcaApp": "dist/mac-arm64/Horca.app unsigned",
+  "productName": "Horca",
+  "xtermRendererDeleted": true,
+  "xtermHeadlessDeleted": true
+}

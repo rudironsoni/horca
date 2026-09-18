@@ -55,9 +55,11 @@ export function computeProductionSourceDigest(root = ROOT) {
   production.sort()
   const h = createHash('sha256')
   for (const relPath of production) {
+    const abs = resolve(root, relPath)
+    if (!existsSync(abs)) continue
     h.update(relPath)
     h.update('\0')
-    h.update(readFileSync(resolve(root, relPath)))
+    h.update(readFileSync(abs))
     h.update('\n')
   }
   return sha12(h.digest())
