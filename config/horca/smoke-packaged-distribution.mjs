@@ -54,8 +54,13 @@ writeFileSync(
   })
 )
 
-const { ELECTRON_RUN_AS_NODE: _electronRunAsNode, ...inheritedEnvironment } = process.env
+const {
+  ELECTRON_RUN_AS_NODE: _electronRunAsNode,
+  NODE_OPTIONS: _nodeOptions,
+  ...inheritedEnvironment
+} = process.env
 void _electronRunAsNode
+void _nodeOptions
 const launchEnvironment = {
   ...inheritedEnvironment,
   HOME: home,
@@ -87,7 +92,11 @@ async function waitForMainPage(context) {
     }
     await new Promise((resolveDelay) => setTimeout(resolveDelay, 100))
   }
-  throw new Error('Packaged Horca did not create its main renderer page')
+  const titles = []
+  for (const page of context.pages()) {
+    titles.push(await page.title().catch(() => '<closed>'))
+  }
+  throw new Error(`Packaged Horca did not create its main renderer page (titles: ${titles.join(', ')})`)
 }
 
 async function launch() {
@@ -163,20 +172,25 @@ try {
   if ((await page.title()) !== 'Horca') {
     throw new Error(`Packaged renderer title is not Horca: ${await page.title()}`)
   }
-  const ptyId = await page.evaluate(async (cwd) => {
-    const leafId = '3f391f2e-5f1f-4ea4-8c0c-0f5e630a36ca'
-    const result = await window.api.pty.spawn({
-      cols: 80,
-      rows: 24,
-      cwd,
-      env: { ORCA_PANE_KEY: `horca-packaged-smoke:${leafId}` },
-      command: 'printf HORCA_D1_SMOKE; sleep 5',
-      worktreeId: 'global-floating-terminal',
-      tabId: 'horca-packaged-smoke',
-      leafId
+  const ptyId = await Promise.race([
+    page.evaluate(async (cwd) => {
+      const leafId = '3f391f2e-5f1f-4ea4-8c0c-0f5e630a36ca'
+      const result = await window.api.pty.spawn({
+        cols: 80,
+        rows: 24,
+        cwd,
+        env: { ORCA_PANE_KEY: `horca-packaged-smoke:${leafId}` },
+        command: 'printf HORCA_D1_SMOKE; sleep 5',
+        worktreeId: 'global-floating-terminal',
+        tabId: 'horca-packaged-smoke',
+        leafId
+      })
+      return result.id
+    }, home),
+    new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Packaged terminal spawn timed out')), 20_000)
     })
-    return result.id
-  }, home)
+  ])
   if (typeof ptyId !== 'string' || ptyId.length === 0) {
     throw new Error(`Packaged terminal did not spawn: ${ptyId}`)
   }

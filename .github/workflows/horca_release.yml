@@ -177,6 +177,7 @@ jobs:
           test -d "$app"
           perl -e 'alarm 240; exec @ARGV' node "$WT/config/horca/smoke-packaged-distribution.mjs" "$app/Contents/MacOS/Horca"
       - name: Build checksums and release manifest
+        if: always() && hashFiles('artifacts/horca-macos-arm64.dmg') != ''
         env:
           CHANNEL: ${{ needs.metadata.outputs.channel }}
           TAG: ${{ needs.metadata.outputs.tag }}
@@ -187,7 +188,7 @@ jobs:
           BUILD_IDENTITY: ${{ needs.metadata.outputs.build_identity }}
         run: node config/horca/scripts/prepare-release.mjs manifest artifacts
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        if: hashFiles('artifacts/horca-macos-arm64.dmg') != ''
+        if: always() && hashFiles('artifacts/horca-macos-arm64.dmg') != ''
         with:
           name: horca-macos
           path: |
