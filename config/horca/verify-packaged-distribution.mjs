@@ -4,8 +4,20 @@ import { createRequire } from 'node:module'
 import { basename, dirname, join, resolve } from 'node:path'
 
 function asarApi() {
-  const require = createRequire(resolve(process.cwd(), 'package.json'))
-  return require('@electron/asar')
+  const candidates = [
+    resolve(import.meta.dirname, '../../package.json'),
+    process.env.WT ? resolve(process.env.WT, 'package.json') : null,
+    resolve(process.cwd(), 'package.json')
+  ].filter(Boolean)
+  let last
+  for (const pkg of candidates) {
+    try {
+      return createRequire(pkg)('@electron/asar')
+    } catch (error) {
+      last = error
+    }
+  }
+  throw last ?? new Error('Cannot find module @electron/asar')
 }
 
 function findAppAsars(directory) {
