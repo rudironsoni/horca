@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 import { chromium } from '@stablyai/playwright-test'
-import { execFileSync, spawn } from 'node:child_process'
+import { spawn } from 'node:child_process'
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { createServer } from 'node:net'
 import { tmpdir } from 'node:os'
-import { delimiter, dirname, join, resolve } from 'node:path'
+import { dirname, join, resolve } from 'node:path'
 
 const executablePath = resolve(process.argv[2] ?? '')
 if (!existsSync(executablePath)) {
@@ -15,17 +15,22 @@ const resourcesPath =
   process.platform === 'darwin'
     ? resolve(dirname(executablePath), '..', 'Resources')
     : join(dirname(executablePath), 'resources')
-const herdrExecutableName = process.platform === 'win32' ? 'herdr.exe' : 'herdr'
-const bundledHerdr = join(resourcesPath, 'herdr', herdrExecutableName)
-if (!existsSync(bundledHerdr)) {
-  throw new Error(`Packaged Herdr executable does not exist: ${bundledHerdr}`)
+const publicCli = join(
+  resourcesPath,
+  'bin',
+  process.platform === 'win32' ? 'horca.cmd' : 'horca'
+)
+if (!existsSync(publicCli)) {
+  throw new Error(`Packaged Horca CLI does not exist: ${publicCli}`)
+}
+if (existsSync(join(resourcesPath, 'herdr'))) {
+  throw new Error(`Packaged Horca includes Herdr at ${join(resourcesPath, 'herdr')}`)
 }
 
 const smokeTmpRoot = process.platform === 'darwin' ? '/tmp' : tmpdir()
 const root = mkdtempSync(join(smokeTmpRoot, 'hs-'))
 const home = join(root, 'home')
 const userData = join(root, 'user-data')
-const herdrSessionName = 'horca'
 mkdirSync(home, { recursive: true, mode: 0o700 })
 mkdirSync(userData, { recursive: true, mode: 0o700 })
 writeFileSync(
@@ -57,9 +62,9 @@ const launchEnvironment = {
   USERPROFILE: home,
   ORCA_E2E_HOME_DIR: home,
   ORCA_E2E_USER_DATA_DIR: userData,
-  ORCA_E2E_HEADLESS: '1',
-  PATH: [dirname(bundledHerdr), inheritedEnvironment.PATH].filter(Boolean).join(delimiter)
+  ORCA_E2E_HEADLESS: '1'
 }
+
 async function reservePort() {
   const server = createServer()
   await new Promise((resolveListen) => server.listen(0, '127.0.0.1', resolveListen))
@@ -73,17 +78,9 @@ async function waitForMainPage(context) {
   const deadline = Date.now() + 30_000
   while (Date.now() < deadline) {
     for (const page of context.pages()) {
-      if (
-        !page.isClosed() &&
-        (await page.title().catch(() => '')) === 'Horca' &&
-        (await page.evaluate(() => Boolean(window.api?.horcaTerminalSettings)).catch(() => false))
-      ) {
+      if (!page.isClosed() && (await page.title().catch(() => '')) === 'Horca') {
         await page.waitForTimeout(500).catch(() => undefined)
-        if (
-          !page.isClosed() &&
-          (await page.title().catch(() => '')) === 'Horca' &&
-          (await page.evaluate(() => Boolean(window.api?.horcaTerminalSettings)).catch(() => false))
-        ) {
+        if (!page.isClosed() && (await page.title().catch(() => '')) === 'Horca') {
           return page
         }
       }
@@ -159,13 +156,6 @@ async function stop(application) {
 }
 
 let application
-async function waitForFile(path) {
-  const deadline = Date.now() + 5_000
-  while (!existsSync(path) && Date.now() < deadline) {
-    await new Promise((resolveDelay) => setTimeout(resolveDelay, 50))
-  }
-}
-
 try {
   application = await launch()
   const page = application.page
@@ -173,106 +163,42 @@ try {
   if ((await page.title()) !== 'Horca') {
     throw new Error(`Packaged renderer title is not Horca: ${await page.title()}`)
   }
-  await page.getByRole('button', { name: 'Settings' }).click()
-  await page.locator('.settings-view-shell').waitFor({ state: 'visible', timeout: 15_000 })
-  // Why: first-run modals (tips, tours, setup) render a dialog overlay above
-  // Settings and intercept sidebar clicks. Dismiss before navigating.
-  for (let attempt = 0; attempt < 3; attempt += 1) {
-    if ((await page.locator('[data-slot="dialog-overlay"]').count()) === 0) {
-      break
-    }
-    await page.keyboard.press('Escape')
-    await page.waitForTimeout(500)
-  }
-  await page
-    .locator('.settings-view-shell aside')
-    .getByRole('button', { name: 'Terminal', exact: true })
-    .click()
-  await page.locator('[data-horca-settings="terminal-backend"]').waitFor({ state: 'visible' })
-  await page.getByLabel('Shared Herdr session name').waitFor({ state: 'visible' })
-  const defaults = await page.evaluate(() =>
-    window.api.horcaTerminalSettings?.getSnapshot().then((snapshot) => snapshot.defaults)
-  )
-  if (
-    defaults?.defaultBackend !== 'herdr' ||
-    defaults.binarySource.kind !== 'system' ||
-    defaults.defaultSessionName !== herdrSessionName
-  ) {
-    throw new Error(`Packaged Horca terminal defaults are incorrect: ${JSON.stringify(defaults)}`)
-  }
-  const health = await page.evaluate(() => window.api.horcaTerminalSettings?.getHerdrHealth())
-  if (
-    health?.status !== 'ready' ||
-    health.source.kind !== 'system' ||
-    health.executable !== herdrExecutableName
-  ) {
-    throw new Error(`Packaged Herdr health check failed: ${JSON.stringify(health)}`)
-  }
-  const settingsFile = join(home, '.horca', 'terminal-backends.json')
-  if (existsSync(join(home, '.orca'))) {
-    throw new Error(`Horca created the official Orca state root: ${join(home, '.orca')}`)
-  }
-  const herdrPtyId = await page.evaluate(async (cwd) => {
+  const ptyId = await page.evaluate(async (cwd) => {
     const leafId = '3f391f2e-5f1f-4ea4-8c0c-0f5e630a36ca'
     const result = await window.api.pty.spawn({
       cols: 80,
       rows: 24,
       cwd,
       env: { ORCA_PANE_KEY: `horca-packaged-smoke:${leafId}` },
-      command: 'printf HORCA_HERDR_SMOKE; sleep 5',
+      command: 'printf HORCA_D1_SMOKE; sleep 5',
       worktreeId: 'global-floating-terminal',
       tabId: 'horca-packaged-smoke',
       leafId
     })
     return result.id
   }, home)
-  if (!herdrPtyId.startsWith('herdr:')) {
-    throw new Error(`Packaged terminal did not use Herdr: ${herdrPtyId}`)
+  if (typeof ptyId !== 'string' || ptyId.length === 0) {
+    throw new Error(`Packaged terminal did not spawn: ${ptyId}`)
   }
-  await waitForFile(settingsFile)
-  if (!existsSync(settingsFile)) {
-    throw new Error(`Horca terminal settings were not written: ${settingsFile}`)
+  if (ptyId.startsWith('herdr:')) {
+    throw new Error(`Packaged terminal used Herdr: ${ptyId}`)
   }
-  await page.evaluate((ptyId) => window.api.pty.setPtyDeliveryInterest(ptyId, true), herdrPtyId)
+  await page.evaluate((id) => window.api.pty.setPtyDeliveryInterest(id, true), ptyId)
   await page.waitForFunction(
-    async (ptyId) =>
-      (await window.api.pty.getMainBufferSnapshot(ptyId))?.data.includes('HORCA_HERDR_SMOKE'),
-    herdrPtyId,
+    async (id) => (await window.api.pty.getMainBufferSnapshot(id))?.data.includes('HORCA_D1_SMOKE'),
+    ptyId,
     { timeout: 15_000 }
   )
-  await page.evaluate((ptyId) => window.api.pty.setPtyDeliveryInterest(ptyId, false), herdrPtyId)
-  await page.evaluate((ptyId) => window.api.pty.kill(ptyId), herdrPtyId)
-  await stop(application)
-  application = await launch()
-  const restartedPage = application.page
-  await restartedPage.waitForLoadState('domcontentloaded')
-  await restartedPage.waitForFunction(() => Boolean(window.api?.horcaTerminalSettings))
-  const restartedSnapshot = await restartedPage.evaluate(() =>
-    window.api.horcaTerminalSettings?.getSnapshot()
-  )
-  if (
-    restartedSnapshot?.defaults.defaultBackend !== 'herdr' ||
-    restartedSnapshot.defaults.binarySource.kind !== 'system' ||
-    restartedSnapshot.defaults.defaultSessionName !== herdrSessionName
-  ) {
-    throw new Error(
-      `Herdr defaults did not survive the packaged app restart: ${JSON.stringify(restartedSnapshot?.defaults)}`
-    )
+  await page.evaluate((id) => window.api.pty.setPtyDeliveryInterest(id, false), ptyId)
+  await page.evaluate((id) => window.api.pty.kill(id), ptyId)
+  if (existsSync(join(home, '.orca'))) {
+    throw new Error(`Horca created the official Orca state root: ${join(home, '.orca')}`)
   }
   console.log(
-    'Packaged Horca smoke passed: title, Settings > Terminal, Herdr PTY, restart, and isolated state'
+    'Packaged Horca smoke passed: title, renderer, D1 PTY, public CLI, isolated state, no Herdr'
   )
 } finally {
   await stop(application)
-  try {
-    execFileSync(bundledHerdr, ['session', 'stop', herdrSessionName, '--json'], {
-      env: launchEnvironment,
-      stdio: 'ignore',
-      timeout: 10_000
-    })
-  } catch {
-    // The session did not start or the app already stopped it.
-  }
   for (let attempt = 0; attempt < 5; attempt += 1) {
     try {
       rmSync(root, { force: true, recursive: true })

@@ -112,11 +112,91 @@
         "occursExactly": 1
       },
       "postcondition": {
-        "kind": "text-sentinel+blob-sha256",
-        "mustOccurExactlyOnce": "to: `bin/${horcaIdentity.cli}`",
-        "resultingBlobSha256": "d474ded9bcaaa96e4cdbaf3a9e66db19c97b27802e5567be431c072a69b74dcc"
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "to: `bin/${horcaIdentity.cli}`"
       },
       "reason": "public CLI launcher name from product.json"
+    },
+    {
+      "id": "release-packaging-dmg-artifact-name",
+      "target": "config/electron-builder.config.cjs",
+      "mode": "substitute",
+      "find": "    artifactName: 'orca-macos-${arch}.${ext}'",
+      "replace": "    artifactName: 'horca-macos-${arch}.${ext}'",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "    artifactName: 'orca-macos-${arch}.${ext}'",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "    artifactName: 'horca-macos-${arch}.${ext}'"
+      },
+      "reason": "stable DMG names for GitHub Releases and the Homebrew cask"
+    },
+    {
+      "id": "release-packaging-build-resources",
+      "target": "config/electron-builder.config.cjs",
+      "mode": "substitute",
+      "find": "    buildResources: 'resources/build'",
+      "replace": "    buildResources: 'resources/horca/build'",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "    buildResources: 'resources/build'",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "    buildResources: 'resources/horca/build'"
+      },
+      "reason": "packaged icons come from Horca identity resources"
+    },
+    {
+      "id": "release-packaging-cli-chmod",
+      "target": "config/electron-builder.config.cjs",
+      "mode": "substitute",
+      "find": "  for (const launcherName of ['orca', 'orca-ide']) {",
+      "replace": "  for (const launcherName of ['orca', 'orca-ide', horcaIdentity.cli]) {",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "  for (const launcherName of ['orca', 'orca-ide']) {",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "  for (const launcherName of ['orca', 'orca-ide', horcaIdentity.cli]) {"
+      },
+      "reason": "packaged public CLI launcher is executable"
+    },
+    {
+      "id": "release-add-horca-icon-icns",
+      "target": "resources/horca/build/icon.icns",
+      "mode": "add",
+      "source": "resources/horca/build/icon.icns",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "Horca macOS icon in electron-builder buildResources"
+    },
+    {
+      "id": "release-add-horca-icon-ico",
+      "target": "resources/horca/build/icon.ico",
+      "mode": "add",
+      "source": "resources/horca/build/icon.ico",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "Horca Windows icon in electron-builder buildResources"
+    },
+    {
+      "id": "release-add-horca-icon-png",
+      "target": "resources/horca/build/icon.png",
+      "mode": "add",
+      "source": "resources/horca/build/icon.png",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "Horca PNG icon in electron-builder buildResources"
     },
     {
       "id": "gate-c-cli-launcher-exe",

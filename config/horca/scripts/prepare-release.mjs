@@ -4,6 +4,7 @@ import { createHash } from 'node:crypto'
 import { appendFileSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { spawnSync } from 'node:child_process'
+import { computeBuildIdentityRecord } from '../../../scripts/build-identity.mjs'
 
 const repoRoot = join(import.meta.dirname, '..', '..', '..')
 const stableTag = /^v(\d+)\.(\d+)\.(\d+)-horca\.(\d+)$/
@@ -15,10 +16,6 @@ function git(args) {
     throw new Error(result.stderr.trim() || `git ${args.join(' ')} failed`)
   }
   return result.stdout.trim()
-}
-
-function gitSucceeds(args) {
-  return spawnSync('git', args, { cwd: repoRoot, stdio: 'ignore' }).status === 0
 }
 
 function output(name, value) {
@@ -85,6 +82,19 @@ export function parseHorcaReleaseVersion(version) {
   return { core: match[1], suffix: match[2] ? Number(match[2]) : 0 }
 }
 
+export function pinnedUpstreamShaFromLock(lock) {
+  const parsed = typeof lock === 'string' ? JSON.parse(lock) : lock
+  const commit = parsed?.commit
+  if (typeof commit !== 'string' || commit.length !== 40) {
+    throw new Error(`Invalid commit in upstream.lock.json: ${commit}`)
+  }
+  return commit
+}
+
+export function publishRequested(value = process.env.PUBLISH) {
+  return value === 'true' || value === '1'
+}
+
 export function tapHasReachedRequestedVersion(tapVersion, requestedVersion) {
   if (tapVersion === requestedVersion) {
     return true
@@ -121,14 +131,9 @@ async function latestOrcaStableVersion() {
   return parseStableVersion(release?.tag_name ?? '') ?? highestLocalStableVersion()
 }
 
-function resolveSource(sourceRef, channel) {
-  if (!gitSucceeds(['remote', 'get-url', 'upstream'])) {
-    git(['remote', 'add', 'upstream', 'https://github.com/stablyai/orca.git'])
-  }
+function resolveSource(sourceRef, channel, publish) {
   git(['fetch', '--no-prune-tags', 'origin', '+refs/heads/*:refs/remotes/origin/*'])
   git(['fetch', '--no-prune-tags', 'origin', 'refs/tags/*:refs/tags/*'])
-  git(['fetch', '--no-prune-tags', 'upstream', 'main'])
-  gitSucceeds(['fetch', '--no-prune-tags', 'upstream', 'refs/tags/v*:refs/tags/v*'])
   let sourceSha
   if (/^[a-f0-9]{40}$/.test(sourceRef)) {
     sourceSha = git(['rev-parse', `${sourceRef}^{commit}`])
@@ -140,7 +145,7 @@ function resolveSource(sourceRef, channel) {
     sourceSha = git(['rev-parse', `refs/remotes/origin/${sourceRef}^{commit}`])
   }
   const mainSha = git(['rev-parse', 'refs/remotes/origin/main'])
-  if (channel === 'stable' && sourceSha !== mainSha) {
+  if (publish && channel === 'stable' && sourceSha !== mainSha) {
     throw new Error('Stable releases must use current origin/main')
   }
   if (channel === 'beta' && sourceSha === mainSha) {
@@ -198,7 +203,12 @@ async function metadata() {
   if (!['stable', 'beta'].includes(channel)) {
     throw new Error(`Invalid channel: ${channel}`)
   }
-  const sourceSha = resolveSource(process.env.SOURCE_REF, channel)
+  const publish = publishRequested()
+  const sourceSha = resolveSource(process.env.SOURCE_REF, channel, publish)
+  const head = git(['rev-parse', 'HEAD'])
+  if (head !== sourceSha) {
+    throw new Error(`Checkout HEAD ${head} is not source ${sourceSha}`)
+  }
   const sourceVersion = packageVersion(sourceSha)
   const orcaStableVersion = await latestOrcaStableVersion()
   const tags = listedHorcaTags(channel)
@@ -206,7 +216,14 @@ async function metadata() {
   if (!core) {
     throw new Error(`Cannot derive release core from ${sourceVersion}`)
   }
-  const upstreamSha = git(['merge-base', 'upstream/main', sourceSha])
+  const lock = JSON.parse(git(['show', `${sourceSha}:upstream.lock.json`]))
+  const upstreamSha = pinnedUpstreamShaFromLock(lock)
+  const identity = computeBuildIdentityRecord(repoRoot)
+  if (identity.upstreamSha !== upstreamSha) {
+    throw new Error(
+      `BuildIdentity upstream ${identity.upstreamSha} does not match lock ${upstreamSha}`
+    )
+  }
   const tag = findVersion(channel, sourceSha, core, tags)
   const release = await github(`/repos/${process.env.GITHUB_REPOSITORY}/releases/tags/${tag}`)
   if (release && release.target_commitish !== sourceSha) {
@@ -215,14 +232,17 @@ async function metadata() {
       throw new Error(`${tag} points to ${taggedSha}, not ${sourceSha}`)
     }
   }
+  const alreadyPublished = Boolean(publish && release && !release.draft)
   output('channel', channel)
   output('prerelease', String(channel === 'beta'))
+  output('publish', String(publish))
   output('tag', tag)
   output('version', tag.slice(1))
   output('source_sha', sourceSha)
   output('upstream_sha', upstreamSha)
-  output('upstream_version', orcaStableVersion ?? packageVersion(upstreamSha))
-  output('published', String(Boolean(release && !release.draft)))
+  output('upstream_version', orcaStableVersion ?? 'unknown')
+  output('build_identity', identity.buildIdentity)
+  output('published', String(alreadyPublished))
 }
 
 function sha256(path) {
@@ -231,21 +251,24 @@ function sha256(path) {
 
 function manifest(directory) {
   const channel = process.env.CHANNEL
-  const names = ['horca-macos-arm64.dmg', 'horca-macos-x64.dmg']
-  if (channel === 'beta') {
-    names.push('horca-windows-x64-setup.exe')
+  const buildIdentity = process.env.BUILD_IDENTITY
+  if (!buildIdentity) {
+    throw new Error('BUILD_IDENTITY is required for the release manifest')
   }
+  if (!/^[a-f0-9]{40}$/.test(process.env.UPSTREAM_SHA ?? '')) {
+    throw new Error(`Invalid UPSTREAM_SHA: ${process.env.UPSTREAM_SHA}`)
+  }
+  const names = ['horca-macos-arm64.dmg', 'horca-macos-x64.dmg']
   const artifacts = names.map((name) => {
     const path = join(directory, name)
-    const macos = name.includes('macos')
     return {
       name,
-      platform: macos ? 'macos' : 'windows',
+      platform: 'macos',
       arch: name.includes('arm64') ? 'arm64' : 'x64',
       size: statSync(path).size,
       sha256: sha256(path),
-      signed: macos,
-      notarized: macos
+      signed: true,
+      notarized: true
     }
   })
   const release = {
@@ -256,6 +279,7 @@ function manifest(directory) {
     sourceSha: process.env.SOURCE_SHA,
     upstreamSha: process.env.UPSTREAM_SHA,
     upstreamVersion: process.env.UPSTREAM_VERSION,
+    buildIdentity,
     runUrl: `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`,
     artifacts
   }

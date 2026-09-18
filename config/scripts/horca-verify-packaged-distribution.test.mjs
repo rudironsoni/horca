@@ -1,94 +1,82 @@
+import assert from 'node:assert/strict'
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { afterEach, describe, expect, it } from 'vitest'
+import test from 'node:test'
 import {
+  evaluateGhosttyHeadless,
   evaluateHorcaAsarContents,
   verifyHorcaResources
 } from '../horca/verify-packaged-distribution.mjs'
 
 const roots = []
 
-afterEach(async () => {
+test.afterEach(async () => {
   await Promise.all(roots.splice(0).map((root) => rm(root, { recursive: true, force: true })))
 })
 
-describe('packaged Horca asar probes', () => {
-  const passing = {
-    shared: [
-      'DOWNSTREAM_DISTRIBUTION = "horca"',
-      'productName: "Horca"',
-      'stateRootDirName: ".horca"',
-      'publicCli: "horca"'
-    ].join('\n'),
-    main: [
-      'horca-packaged-electron-profile',
-      'setPath(`userData`, root)',
-      'Could not resolve herdr target for spawn',
-      'is incompatible with SDK protocol',
-      'terminal-backends.json'
-    ].join('\n'),
-    renderer: 'data-horca-settings data-horca-product-name'
-  }
+const passing = {
+  shared: "stateRootDirName: '.horca'\nproductName: 'Horca'",
+  main: "join(homedir(), '.horca')",
+  renderer: 'GhosttyTerminal is not bound\nHorca'
+}
 
-  it('accepts minify-stable Horca and Herdr markers', () => {
-    expect(evaluateHorcaAsarContents(passing).failures).toEqual([])
-  })
-
-  it('accepts quoted setPath userData as well as backticks', () => {
-    expect(
-      evaluateHorcaAsarContents({
-        ...passing,
-        main: passing.main.replace('setPath(`userData`, root)', 'setPath("userData", root)')
-      }).failures
-    ).toEqual([])
-  })
-
-  it('rejects minified identifier-only profile and provider probes', () => {
-    expect(
-      evaluateHorcaAsarContents({
-        ...passing,
-        main: 'configureHorcaUserDataPath(); class HerdrPtyProvider {} terminal-backends.json'
-      }).failures
-    ).toEqual([
-      'Horca Electron profile is configured',
-      'Herdr provider is packaged',
-      'Herdr SDK is packaged'
-    ])
-  })
+test('accepts Horca identity and Ghostty renderer markers', () => {
+  assert.deepEqual(evaluateHorcaAsarContents(passing).failures, [])
 })
 
-describe('packaged Horca Herdr resources', () => {
-  it('requires the managed Herdr binary', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'horca-package-'))
-    roots.push(root)
-    await mkdir(join(root, 'herdr'), { recursive: true })
-    await writeFile(join(root, 'herdr', 'herdr'), '')
+test('rejects a package without Ghostty renderer markers', () => {
+  assert.deepEqual(
+    evaluateHorcaAsarContents({
+      ...passing,
+      renderer: 'Horca'
+    }).failures,
+    ['Ghostty renderer path is packaged']
+  )
+})
 
-    expect(verifyHorcaResources(join(root, 'app.asar'))).toHaveLength(1)
-  })
+test('rejects a package that still owns .orca state', () => {
+  assert.ok(
+    evaluateHorcaAsarContents({
+      shared: "stateRootDirName: '.orca'",
+      main: 'Orca',
+      renderer: 'GhosttyTerminal is not bound'
+    }).failures.includes('state root is .horca')
+  )
+})
 
-  it('rejects a package without Herdr resources', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'horca-package-'))
-    roots.push(root)
+test('treats Ghostty headless as optional until D1-H lands', () => {
+  assert.equal(evaluateGhosttyHeadless('HeadlessEmulator from xterm'), 'absent')
+  assert.equal(
+    evaluateGhosttyHeadless('import { createGhosttyVtNodeHost } from "./ghostty-vt-node-host"'),
+    'present'
+  )
+})
 
-    expect(() => verifyHorcaResources(join(root, 'app.asar'))).toThrow(
-      'bundled Herdr executable is packaged'
-    )
-  })
+test('requires the public Horca CLI and rejects Herdr', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'horca-package-'))
+  roots.push(root)
+  await mkdir(join(root, 'bin'), { recursive: true })
+  await writeFile(join(root, 'bin', 'horca'), '')
 
-  it('requires the Herdr ConPTY runtime in Windows packages', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'horca-package-'))
-    roots.push(root)
-    await mkdir(join(root, 'herdr', 'conpty'), { recursive: true })
-    await writeFile(join(root, 'herdr', 'herdr.exe'), '')
+  assert.deepEqual(verifyHorcaResources(join(root, 'app.asar')), [
+    'public Horca CLI is packaged',
+    'Herdr is not packaged'
+  ])
+})
 
-    expect(() => verifyHorcaResources(join(root, 'app.asar'))).toThrow(
-      'Herdr ConPTY runtime is packaged'
-    )
+test('rejects a package without the Horca CLI', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'horca-package-'))
+  roots.push(root)
+  assert.throws(() => verifyHorcaResources(join(root, 'app.asar')), /public Horca CLI is packaged/)
+})
 
-    await writeFile(join(root, 'herdr', 'conpty', 'conpty.dll'), '')
-    await writeFile(join(root, 'herdr', 'conpty', 'herdr-conpty.json'), '')
-    expect(verifyHorcaResources(join(root, 'app.asar'))).toHaveLength(2)
-  })
+test('rejects a package that still bundles Herdr', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'horca-package-'))
+  roots.push(root)
+  await mkdir(join(root, 'bin'), { recursive: true })
+  await mkdir(join(root, 'herdr'), { recursive: true })
+  await writeFile(join(root, 'bin', 'horca'), '')
+  await writeFile(join(root, 'herdr', 'herdr'), '')
+  assert.throws(() => verifyHorcaResources(join(root, 'app.asar')), /Herdr is not packaged/)
 })

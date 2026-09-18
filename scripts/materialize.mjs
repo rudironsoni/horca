@@ -1,4 +1,4 @@
-import { existsSync, rmSync, mkdirSync, writeFileSync } from 'node:fs'
+import { appendFileSync, existsSync, rmSync, mkdirSync, writeFileSync } from 'node:fs'
 import { execSync } from 'node:child_process'
 import { resolve } from 'node:path'
 import { computeBuildIdentityRecord } from './build-identity.mjs'
@@ -65,7 +65,11 @@ function main() {
   console.log(`[materialize] Worktree created and verified at ${worktreePath}`)
   console.log(`[materialize] BuildIdentity: ${buildIdentity}`)
 
-  // Output path for orchestration
+  mkdirSync(resolve(ROOT, '.cache'), { recursive: true })
+  writeFileSync(resolve(ROOT, '.cache', 'release-worktree-path'), `${worktreePath}\n`)
+  if (process.env.GITHUB_OUTPUT) {
+    appendFileSync(process.env.GITHUB_OUTPUT, `worktree_path=${worktreePath}\n`)
+  }
   process.stdout.write(worktreePath)
 }
 

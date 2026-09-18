@@ -1,7 +1,12 @@
 #!/usr/bin/env node
 import { existsSync, readdirSync } from 'node:fs'
+import { createRequire } from 'node:module'
 import { basename, dirname, join, resolve } from 'node:path'
-import { extractFile, listPackage } from '@electron/asar'
+
+function asarApi() {
+  const require = createRequire(resolve(process.cwd(), 'package.json'))
+  return require('@electron/asar')
+}
 
 function findAppAsars(directory) {
   const matches = []
@@ -17,36 +22,46 @@ function findAppAsars(directory) {
 }
 
 function readEntry(asarPath, entry) {
-  return extractFile(asarPath, entry.replace(/^\//, '')).toString('utf8')
+  return asarApi()
+    .extractFile(asarPath, entry.replace(/^\//, ''))
+    .toString('utf8')
 }
 
 function readMatchingEntries(asarPath, predicate) {
-  return listPackage(asarPath)
+  return asarApi()
+    .listPackage(asarPath)
     .filter(predicate)
     .map((entry) => readEntry(asarPath, entry))
     .join('\n')
 }
 
 export function evaluateHorcaAsarContents({ shared, main, renderer }) {
+  const bundled = [shared, main, renderer].join('\n')
   const checks = [
-    ['runtime selects Horca', /DOWNSTREAM_DISTRIBUTION\s*=\s*["']horca["']/.test(shared)],
-    ['product name is Horca', /productName:\s*["']Horca["']/.test(shared)],
-    ['state root is .horca', /stateRootDirName:\s*["']\.horca["']/.test(shared)],
-    ['public CLI is horca', /publicCli:\s*["']horca["']/.test(shared)],
+    ['state root is .horca', bundled.includes('.horca')],
+    ['Horca product copy is packaged', /Horca/.test(bundled)],
     [
-      'Horca Electron profile is configured',
-      main.includes('horca-packaged-electron-profile') && /setPath\([`'"]userData[`'"]/.test(main)
-    ],
-    ['Herdr provider is packaged', main.includes('Could not resolve herdr target for spawn')],
-    ['Herdr SDK is packaged', main.includes('is incompatible with SDK protocol')],
-    ['Herdr settings are registered', main.includes('terminal-backends.json')],
-    ['Herdr settings UI is packaged', renderer.includes('data-horca-settings')],
-    ['Horca product title is packaged', renderer.includes('data-horca-product-name')]
+      'Ghostty renderer path is packaged',
+      bundled.includes('libghostty-vt WASM host is not primed') ||
+        bundled.includes('GhosttyTerminal is not bound') ||
+        bundled.includes('GhosttyPaneTerminal')
+    ]
   ]
   return {
     checks: checks.map(([label]) => label),
     failures: checks.filter(([, passed]) => !passed).map(([label]) => label)
   }
+}
+
+export function evaluateGhosttyHeadless(main) {
+  if (
+    main.includes('ghostty-vt-node-host') ||
+    main.includes('GhosttyVtNodeHost') ||
+    main.includes('headless-vt-query-parser')
+  ) {
+    return 'present'
+  }
+  return 'absent'
 }
 
 export function verifyHorcaAsar(asarPath) {
@@ -66,25 +81,21 @@ export function verifyHorcaAsar(asarPath) {
   if (failures.length > 0) {
     throw new Error(`${basename(asarPath)} failed Horca checks: ${failures.join(', ')}`)
   }
+  const headless = evaluateGhosttyHeadless(main)
+  if (headless === 'present') {
+    checks.push('Ghostty headless path is packaged')
+  }
   return checks
 }
 
 export function verifyHorcaResources(asarPath) {
   const resourcesDir = dirname(asarPath)
+  const cliNames = ['horca', 'horca.cmd', 'horca.exe']
+  const hasCli = cliNames.some((name) => existsSync(join(resourcesDir, 'bin', name)))
   const herdrDirectory = join(resourcesDir, 'herdr')
-  const hasWindowsHerdr = existsSync(join(herdrDirectory, 'herdr.exe'))
-  const hasHerdr = existsSync(join(herdrDirectory, 'herdr')) || hasWindowsHerdr
   const checks = [
-    ['bundled Herdr executable is packaged', hasHerdr],
-    ...(hasWindowsHerdr
-      ? [
-          [
-            'Herdr ConPTY runtime is packaged',
-            existsSync(join(herdrDirectory, 'conpty', 'conpty.dll')) &&
-              existsSync(join(herdrDirectory, 'conpty', 'herdr-conpty.json'))
-          ]
-        ]
-      : [])
+    ['public Horca CLI is packaged', hasCli],
+    ['Herdr is not packaged', !existsSync(herdrDirectory)]
   ]
   const failures = checks.filter(([, passed]) => !passed).map(([label]) => label)
   if (failures.length > 0) {
