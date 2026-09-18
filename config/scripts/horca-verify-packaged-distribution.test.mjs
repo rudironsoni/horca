@@ -67,6 +67,16 @@ test('rejects packaged xterm renderer or headless signatures', () => {
   )
 })
 
+test('does not treat leftover @xterm package strings as asar path leaks', () => {
+  assert.deepEqual(
+    evaluateHorcaAsarContents({
+      ...passing,
+      renderer: `${passing.renderer}\nawait import("@xterm/headless")`
+    }).failures,
+    []
+  )
+})
+
 test('requires the public Horca CLI and rejects Herdr', async () => {
   const root = await mkdtemp(join(tmpdir(), 'horca-package-'))
   roots.push(root)

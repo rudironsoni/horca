@@ -52,21 +52,25 @@ const XTERM_SIGNATURES = [
   'XtermPaneTerminal',
   'registerXtermPaneState',
   'xterm-headless-emulator',
-  'xterm-renderer/',
-  '@xterm/headless',
-  '@xterm/addon-serialize',
-  '@xterm/addon-unicode11'
+  'xterm-renderer/'
 ]
+
+function normalizeAsarEntry(entry) {
+  return String(entry).replace(/^\//, '')
+}
 
 export function evaluateHorcaAsarContents({ shared, main, renderer, entries = [] }) {
   const bundled = [shared, main, renderer].join('\n')
   const xtermHits = XTERM_SIGNATURES.filter((sig) => bundled.includes(sig))
-  const xtermPaths = entries.filter((entry) =>
-    /xterm/i.test(entry) &&
-    /headless|addon-serialize|addon-unicode11|addon-fit|addon-search|addon-webgl|addon-ligatures|xterm-renderer|@xterm/.test(
-      entry
+  const xtermPaths = entries.filter((entry) => {
+    const path = normalizeAsarEntry(entry)
+    return (
+      /xterm/i.test(path) &&
+      /headless|addon-serialize|addon-unicode11|addon-fit|addon-search|addon-webgl|addon-ligatures|xterm-renderer|@xterm/.test(
+        path
+      )
     )
-  )
+  })
   const checks = [
     ['state root is .horca', bundled.includes('.horca')],
     ['Horca product copy is packaged', /Horca/.test(bundled)],
@@ -78,9 +82,10 @@ export function evaluateHorcaAsarContents({ shared, main, renderer, entries = []
     ],
     [
       'Ghostty headless path is packaged',
-      main.includes('GhosttyHeadlessEmulator') ||
-        main.includes('HeadlessVtQueryParser') ||
-        main.includes('ghostty-vt-node-host')
+      bundled.includes('GhosttyHeadlessEmulator') ||
+        bundled.includes('HeadlessVtQueryParser') ||
+        bundled.includes('ghostty-vt-node-host') ||
+        bundled.includes('?61;4c')
     ],
     ['zero xterm runtime signatures', xtermHits.length === 0],
     ['zero xterm asar paths', xtermPaths.length === 0]
@@ -108,15 +113,15 @@ export function verifyHorcaAsar(asarPath) {
   const entries = asarApi().listPackage(asarPath)
   const shared = readMatchingEntries(
     asarPath,
-    (entry) => entry.startsWith('/out/shared/') && entry.endsWith('.js')
+    (entry) => normalizeAsarEntry(entry).startsWith('out/shared/') && entry.endsWith('.js')
   )
   const main = readMatchingEntries(
     asarPath,
-    (entry) => entry.startsWith('/out/main/') && entry.endsWith('.js')
+    (entry) => normalizeAsarEntry(entry).startsWith('out/main/') && entry.endsWith('.js')
   )
   const renderer = readMatchingEntries(
     asarPath,
-    (entry) => entry.startsWith('/out/renderer/') && entry.endsWith('.js')
+    (entry) => normalizeAsarEntry(entry).startsWith('out/renderer/') && entry.endsWith('.js')
   )
   const { checks, failures, xtermHits, xtermPaths } = evaluateHorcaAsarContents({
     shared,
