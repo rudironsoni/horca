@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "state": "saved cursor (DECSC register)",
+      "mutates": ["ESC 7", "RIS ESC c"],
+      "reset": "RIS clears; DECSTR does not",
+      "snapshot": "frameRestoreAnsi via buildAbsoluteCursorRestoreSequence",
+      "chunkSplit": "HeadlessVtSequenceSplitter",
+      "whyMirror": "libghostty does not expose the VT100 saved-cursor register"
+    },
+    {
+      "state": "active SGR (bold/fg/bg 16-color)",
+      "mutates": ["CSI m"],
+      "reset": "SGR 0; RIS",
+      "snapshot": "frameRestoreAnsi parity.sgrSequence(); snapshotAnsi compactSnapshotSgr",
+      "chunkSplit": "HeadlessVtSequenceSplitter",
+      "whyMirror": "Ghostty VT dump uses 256-color SGR; Horca compact maps 0-7 back to 31/44"
+    },
+    {
+      "state": "DECOM and DECSTBM",
+      "mutates": ["CSI ? 6 h/l", "CSI r"],
+      "reset": "RIS",
+      "snapshot": "absolute CUP in frameRestoreAnsi",
+      "chunkSplit": "HeadlessVtSequenceSplitter",
+      "whyMirror": "needed so DECSC restore is origin-relative like xterm"
+    },
+    {
+      "state": "kitty keyboard flags per screen",
+      "mutates": ["CSI > u", "CSI = u", "CSI < u", "CSI ! p"],
+      "reset": "DECSTR and CSI < u zero flags",
+      "snapshot": "modes.kittyKeyboardFlags",
+      "chunkSplit": "yes",
+      "whyMirror": "libghostty does not clear kitty flags on DECSTR"
+    }
+  ]
+}

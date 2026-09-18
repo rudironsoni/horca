@@ -1,4 +1,3 @@
-import { requireXtermPaneState } from './xterm-renderer/xterm-pane-state'
 import { registerMockXtermPaneState } from './fake-pane-terminal'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { recordRendererCrashBreadcrumb } from '@/lib/crash-breadcrumb-recorder'

@@ -28,7 +28,7 @@ export type GhosttyTerminalOptions = {
 const DEFAULT_SCROLLBACK = 5000
 const CONTINUATION_MAX_BYTES = 4096
 const GHOSTTY_DEFAULT_SCROLLBACK_MAX_BYTES = 10_000
-const SCROLLBACK_BYTES_PER_CELL = 32
+const SCROLLBACK_BYTES_PER_CELL = 128
 
 function scrollbackMaxBytes(lines: number, cols: number): number {
   // Why: libghostty defaults to 10KiB, which evicts rows long before MAX_LINES.

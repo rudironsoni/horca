@@ -1,0 +1,26 @@
+{
+  "note": "Classification of HeadlessEmulator behaviors for D1-H.",
+  "items": [
+    { "behavior": "synchronous cold-replay writes", "class": "REQUIRED", "ghostty": "writePtyOutput is sync" },
+    { "behavior": "async live writes", "class": "REQUIRED", "ghostty": "Promise.resolve after sync apply" },
+    { "behavior": "cols/rows resize", "class": "REQUIRED", "ghostty": "engine.resize" },
+    { "behavior": "scrollback", "class": "REQUIRED", "ghostty": "SCROLLBACK_MAX_LINES" },
+    { "behavior": "alternate screen", "class": "REQUIRED", "ghostty": "isAlternateScreen" },
+    { "behavior": "visible lines", "class": "REQUIRED", "ghostty": "readViewportText" },
+    { "behavior": "buffer tail", "class": "REQUIRED", "ghostty": "readGridLine" },
+    { "behavior": "cursor-line context", "class": "REQUIRED", "ghostty": "grid duck type" },
+    { "behavior": "CWD/title OSC", "class": "REQUIRED", "ghostty": "Horca TerminalOscCwdTitleScanner" },
+    { "behavior": "OSC 8 link ranges", "class": "REQUIRED", "ghostty": "collectHyperlinkRanges" },
+    { "behavior": "mouse modes", "class": "REQUIRED", "ghostty": "Horca TerminalMouseModeMirror" },
+    { "behavior": "kitty keyboard flags", "class": "REQUIRED", "ghostty": "engine.kittyKeyboardFlags; DECSTR mismatch" },
+    { "behavior": "partial escape tail", "class": "REQUIRED", "ghostty": "Horca advancePartialEscapeTail" },
+    { "behavior": "query reply ownership", "class": "REQUIRED", "ghostty": "WRITE_PTY gated by forwarding depth + HeadlessVtQueryParser" },
+    { "behavior": "DA/DSR responders", "class": "REQUIRED", "ghostty": "Horca responders on HeadlessVtQueryParser" },
+    { "behavior": "snapshot ANSI + restore", "class": "REQUIRED", "ghostty": "readVt + clone-exit-alt for scrollback" },
+    { "behavior": "saved cursor / origin-mode margins", "class": "REQUIRED", "ghostty": "MISMATCH vs xterm DECSC/DECOM" },
+    { "behavior": "frameRestoreAnsi current SGR", "class": "REQUIRED", "ghostty": "MISMATCH missing CSI 31;44;1m" },
+    { "behavior": "xterm _core.writeSync", "class": "IMPLEMENTATION_DETAIL", "ghostty": "not used" },
+    { "behavior": "SerializeAddon", "class": "IMPLEMENTATION_DETAIL", "ghostty": "formatTerminal VT" },
+    { "behavior": "Unicode11Addon", "class": "IMPLEMENTATION_DETAIL", "ghostty": "WASM width" }
+  ]
+}

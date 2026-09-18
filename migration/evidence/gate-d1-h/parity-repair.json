@@ -1,0 +1,38 @@
+{
+  "production": "XtermHeadlessEmulator",
+  "ghosttySuite": {
+    "file": "src/main/daemon/ghostty-headless-emulator.test.ts",
+    "command": "ORCA_BACKGROUND_LAUNCH=1 pnpm exec vitest run --config config/vitest.config.ts src/main/daemon/ghostty-headless-emulator.test.ts",
+    "before": { "passed": 54, "failed": 4, "total": 58 },
+    "after": { "passed": 58, "failed": 0, "total": 58 }
+  },
+  "xtermOracle": {
+    "file": "src/main/daemon/headless-emulator.test.ts",
+    "after": { "passed": 58, "failed": 0, "total": 58 }
+  },
+  "clusters": [
+    {
+      "id": "A",
+      "hypothesis": "H1: frameRestoreAnsi saved current cursor with ESC 7 instead of the DECSC register. Incremental Ghostty writes plus a streaming splitter capture DECSC after each complete sequence.",
+      "supported": true,
+      "files": [
+        "src/main/daemon/headless-vt-sequence-splitter.ts",
+        "src/main/daemon/headless-vt-parity-state.ts",
+        "src/main/daemon/headless-emulator-snapshot.ts",
+        "src/main/daemon/ghostty-headless-emulator.ts"
+      ]
+    },
+    {
+      "id": "B",
+      "hypothesis": "Current SGR was omitted from frameRestoreAnsi. Track CSI m in the splitter. Ghostty serializes 16-color SGR as 38;5;n/48;5;n; compactSnapshotSgr maps those back to 31;44;1 so snapshotAnsi matches the oracle byte test.",
+      "supported": true,
+      "files": ["src/main/daemon/headless-vt-parity-state.ts", "src/main/daemon/headless-emulator-snapshot.ts"]
+    },
+    {
+      "id": "C",
+      "hypothesis": "kittyKeyboardFlags came from Ghostty which does not clear on DECSTR. Horca sidecar tracks CSI >/= u per screen and zeros on CSI ! p, including split writes.",
+      "supported": true,
+      "files": ["src/main/daemon/headless-vt-parity-state.ts"]
+    }
+  ]
+}

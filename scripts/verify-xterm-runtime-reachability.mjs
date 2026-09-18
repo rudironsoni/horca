@@ -9,11 +9,20 @@ const RENDERER_ENTRIES = [
   'src/renderer/src/web/main.tsx'
 ]
 
+const DAEMON_ENTRIES = ['src/main/daemon/daemon-server.ts']
 const FORBIDDEN_PATH_PART = 'xterm-renderer/'
+const FORBIDDEN_HEADLESS_PATHS = ['xterm-headless-emulator', 'xterm-env-polyfill']
+const FORBIDDEN_HEADLESS_PACKAGES = ['@xterm/headless', '@xterm/addon-serialize', '@xterm/addon-unicode11']
 const FORBIDDEN_BUNDLE_SIGNATURES = [
   'XtermPaneTerminal',
   'registerXtermPaneState',
   'xterm-renderer/xterm-pane-terminal'
+]
+const FORBIDDEN_HEADLESS_BUNDLE_SIGNATURES = [
+  'XtermHeadlessEmulator',
+  '@xterm/headless',
+  '@xterm/addon-serialize',
+  '@xterm/addon-unicode11'
 ]
 
 const IMPORT_RE =
@@ -50,9 +59,10 @@ function resolveSpec(worktree, fromRel, spec) {
   return null
 }
 
-function walkRuntimeGraph(worktree) {
+function walkRuntimeGraph(worktree, entries) {
   const seen = new Set()
-  const stack = [...RENDERER_ENTRIES]
+  const packages = []
+  const stack = [...entries]
   while (stack.length) {
     const rel = stack.pop()
     if (seen.has(rel)) continue
@@ -67,12 +77,16 @@ function walkRuntimeGraph(worktree) {
       const line = text.slice(lineStart, m.index + m[0].length)
       if (TYPE_IMPORT_RE.test(line)) continue
       const spec = m[1] || m[2]
+      if (!spec.startsWith('.') && !spec.startsWith('@renderer/') && !spec.startsWith('@/')) {
+        packages.push({ from: rel, spec })
+        continue
+      }
       const next = resolveSpec(worktree, rel, spec)
       if (!next || isTest(next)) continue
       stack.push(next)
     }
   }
-  return [...seen]
+  return { modules: [...seen], packages }
 }
 
 function walkDir(dir, acc = []) {
@@ -86,12 +100,12 @@ function walkDir(dir, acc = []) {
   return acc
 }
 
-function scanBuiltDir(dir) {
+function scanBuiltDir(dir, signatures) {
   const files = walkDir(dir)
   const hits = []
   for (const file of files) {
     const text = readFileSync(file, 'utf8')
-    for (const sig of FORBIDDEN_BUNDLE_SIGNATURES) {
+    for (const sig of signatures) {
       if (text.includes(sig)) hits.push({ file: relative(dir, file), signature: sig })
     }
   }
@@ -108,19 +122,36 @@ function main() {
   const bundleIdx = process.argv.indexOf('--bundle')
   const bundleDir = bundleIdx >= 0 ? process.argv[bundleIdx + 1] : join(worktree, 'out', 'renderer')
 
-  const modules = walkRuntimeGraph(worktree)
-  const hits = modules.filter((p) => p.includes(FORBIDDEN_PATH_PART))
-  if (hits.length) {
+  const renderer = walkRuntimeGraph(worktree, RENDERER_ENTRIES)
+  const rendererHits = renderer.modules.filter((p) => p.includes(FORBIDDEN_PATH_PART))
+  if (rendererHits.length) {
     console.error('[verify-xterm-runtime-reachability] renderer graph FAIL')
-    for (const h of hits) console.error(`  ${h}`)
+    for (const h of rendererHits) console.error(`  ${h}`)
     process.exit(1)
   }
   console.log(
-    `[verify-xterm-runtime-reachability] renderer module graph PASS (${modules.length} modules, 0 xterm-renderer)`
+    `[verify-xterm-runtime-reachability] renderer module graph PASS (${renderer.modules.length} modules, 0 xterm-renderer)`
+  )
+
+  const daemon = walkRuntimeGraph(worktree, DAEMON_ENTRIES)
+  const daemonPathHits = daemon.modules.filter((p) =>
+    FORBIDDEN_HEADLESS_PATHS.some((part) => p.includes(part))
+  )
+  const daemonPkgHits = daemon.packages.filter((p) =>
+    FORBIDDEN_HEADLESS_PACKAGES.some((pkg) => p.spec === pkg || p.spec.startsWith(`${pkg}/`))
+  )
+  if (daemonPathHits.length || daemonPkgHits.length) {
+    console.error('[verify-xterm-runtime-reachability] daemon graph FAIL')
+    for (const h of daemonPathHits) console.error(`  ${h}`)
+    for (const h of daemonPkgHits) console.error(`  ${h.from} -> ${h.spec}`)
+    process.exit(1)
+  }
+  console.log(
+    `[verify-xterm-runtime-reachability] daemon module graph PASS (${daemon.modules.length} modules, 0 xterm headless)`
   )
 
   if (existsSync(bundleDir)) {
-    const scan = scanBuiltDir(bundleDir)
+    const scan = scanBuiltDir(bundleDir, FORBIDDEN_BUNDLE_SIGNATURES)
     if (scan.hits.length) {
       console.error('[verify-xterm-runtime-reachability] built renderer FAIL')
       for (const h of scan.hits) console.error(`  ${h.file}: ${h.signature}`)
@@ -131,6 +162,20 @@ function main() {
     )
   } else {
     console.log(`[verify-xterm-runtime-reachability] no built renderer at ${bundleDir}`)
+  }
+
+  const mainBundleIdx = process.argv.indexOf('--main-bundle')
+  if (mainBundleIdx >= 0) {
+    const mainDir = process.argv[mainBundleIdx + 1]
+    const scan = scanBuiltDir(mainDir, FORBIDDEN_HEADLESS_BUNDLE_SIGNATURES)
+    if (scan.hits.length) {
+      console.error('[verify-xterm-runtime-reachability] built daemon FAIL')
+      for (const h of scan.hits) console.error(`  ${h.file}: ${h.signature}`)
+      process.exit(1)
+    }
+    console.log(
+      `[verify-xterm-runtime-reachability] built daemon PASS (${scan.fileCount} files, 0 xterm headless signatures)`
+    )
   }
 }
 

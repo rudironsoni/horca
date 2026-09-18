@@ -661,40 +661,6 @@
       "reason": "D0-R: xterm renderer adapter"
     },
     {
-      "id": "gate-d0-h-parser-import",
-      "target": "src/main/daemon/headless-emulator.ts",
-      "mode": "substitute",
-      "find": "import { Terminal } from '@xterm/headless'",
-      "replace": "import { Terminal } from '@xterm/headless'\nimport type { HeadlessParser } from '../../shared/headless-parser'",
-      "precondition": {
-        "kind": "text-sentinel",
-        "find": "import { Terminal } from '@xterm/headless'",
-        "occursExactly": 1
-      },
-      "postcondition": {
-        "kind": "text-sentinel",
-        "mustOccurExactlyOnce": "import type { HeadlessParser } from '../../shared/headless-parser'"
-      },
-      "reason": "D0-H: HeadlessEmulator.responderParser is HeadlessParser, not xterm Terminal['parser']"
-    },
-    {
-      "id": "gate-d0-h-parser-type",
-      "target": "src/main/daemon/headless-emulator.ts",
-      "mode": "substitute",
-      "find": "  get responderParser(): Terminal['parser'] {",
-      "replace": "  get responderParser(): HeadlessParser {",
-      "precondition": {
-        "kind": "text-sentinel",
-        "find": "  get responderParser(): Terminal['parser'] {",
-        "occursExactly": 1
-      },
-      "postcondition": {
-        "kind": "text-sentinel",
-        "mustOccurExactlyOnce": "  get responderParser(): HeadlessParser {"
-      },
-      "reason": "D0-H: HeadlessEmulator.responderParser is HeadlessParser, not xterm Terminal['parser']"
-    },
-    {
       "id": "gate-d0-h-output-plane-import",
       "target": "src/main/daemon/session-output-plane.ts",
       "mode": "substitute",
@@ -4475,7 +4441,7 @@
         "expectedBlobSha256": "ccbc5cd56923705de66b8d5a13024b52247d7b2c9d4950f43156848a52544a1d"
       },
       "postcondition": {
-        "resultingBlobSha256": "840c1567e8e1ea6ea3eba764b5994b145ee0e9b54ee2316d05ee706cdbeba5fb"
+        "resultingBlobSha256": "94e3cd2e620934fb74334356041425b5163c0243d842c47312007951a4addc3a"
       }
     },
     {
@@ -4812,6 +4778,254 @@
       },
       "postcondition": {
         "resultingBlobSha256": "8b84600c86b245feeff2db206cc125b7c46ba1a910913367ca778d47f454d4af"
+      }
+    },
+    {
+      "id": "gate-d1-h-add-src-main-daemon-ghostty-vt-node-host.ts",
+      "target": "src/main/daemon/ghostty-vt-node-host.ts",
+      "mode": "add",
+      "source": "src/main/daemon/ghostty-vt-node-host.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-H: Node Ghostty WASM host"
+    },
+    {
+      "id": "gate-d1-h-add-src-main-daemon-ghostty-headless-emulator.ts",
+      "target": "src/main/daemon/ghostty-headless-emulator.ts",
+      "mode": "add",
+      "source": "src/main/daemon/ghostty-headless-emulator.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-H: Ghostty HeadlessEmulator"
+    },
+    {
+      "id": "gate-d1-h-src-main-daemon-headless-emulator.ts",
+      "target": "src/main/daemon/headless-emulator.ts",
+      "mode": "replace",
+      "source": "overlay/d1-h/src/main/daemon/headless-emulator.ts",
+      "reason": "D1-H: production HeadlessEmulator is Ghostty",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "db1d9e8ca4205c81a1bc16890e9a698363653805c4f3cf9cf9721487ad1cab82"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "784fb3ef7a8485559f0920c292b8b675c98618c5d4e743fc4d30d16ad472b21a"
+      }
+    },
+    {
+      "id": "gate-d1-h-add-src-main-daemon-headless-emulator-snapshot.ts",
+      "target": "src/main/daemon/headless-emulator-snapshot.ts",
+      "mode": "add",
+      "source": "src/main/daemon/headless-emulator-snapshot.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-H: Ghostty snapshot helpers"
+    },
+    {
+      "id": "gate-d1-h-add-src-main-daemon-headless-vt-sequence-splitter.ts",
+      "target": "src/main/daemon/headless-vt-sequence-splitter.ts",
+      "mode": "add",
+      "source": "src/main/daemon/headless-vt-sequence-splitter.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-H: Ghostty parity repair"
+    },
+    {
+      "id": "gate-d1-h-add-src-main-daemon-headless-vt-parity-state.ts",
+      "target": "src/main/daemon/headless-vt-parity-state.ts",
+      "mode": "add",
+      "source": "src/main/daemon/headless-vt-parity-state.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-H: Ghostty parity repair"
+    },
+    {
+      "id": "gate-d1-h-add-src-main-daemon-ghostty-headless-parity-clusters.test.ts",
+      "target": "src/main/daemon/ghostty-headless-parity-clusters.test.ts",
+      "mode": "add",
+      "source": "src/main/daemon/ghostty-headless-parity-clusters.test.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-H: Ghostty parity repair"
+    },
+    {
+      "id": "gate-d1-h-add-src-main-daemon-ghostty-headless-emulator.test.ts",
+      "target": "src/main/daemon/ghostty-headless-emulator.test.ts",
+      "mode": "add",
+      "source": "src/main/daemon/ghostty-headless-emulator.test.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-H: Ghostty parity repair"
+    },
+    {
+      "id": "gate-d1-h-add-src-main-daemon-headless-emulator-production.test.ts",
+      "target": "src/main/daemon/headless-emulator-production.test.ts",
+      "mode": "add",
+      "source": "src/main/daemon/headless-emulator-production.test.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-H: production composition verifier"
+    },
+    {
+      "id": "gate-d1-h-src-main-daemon-headless-emulator-unicode-width-test-ts",
+      "target": "src/main/daemon/headless-emulator-unicode-width.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-h/src/main/daemon/headless-emulator-unicode-width.test.ts",
+      "reason": "D1-H: retarget daemon tests off xterm internals",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "a65a50d1bc6ccc89dae439d08bdaeaa2d4c8d61b90d048edef8b363feac0b35d"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "2493fb363ba632a67ea1ca621a52b7f91eb4e69c0bd24cded364d404c3f28aca"
+      }
+    },
+    {
+      "id": "gate-d1-h-src-main-daemon-hibernation-cold-restore-repro-test-ts",
+      "target": "src/main/daemon/hibernation-cold-restore-repro.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-h/src/main/daemon/hibernation-cold-restore-repro.test.ts",
+      "reason": "D1-H: retarget daemon tests off xterm internals",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "88e553779a0387ee02d8a9f09a2d29f4be9200152d78a54b145432870f8d7dfb"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "8f9bb9bb5a0f4b8cbd1a55492627c976a89adc726a3f02e1ba4a612bd939273b"
+      }
+    },
+    {
+      "id": "gate-d1-h-src-main-daemon-headless-emulator-wide-char-repaint-test-ts",
+      "target": "src/main/daemon/headless-emulator-wide-char-repaint.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-h/src/main/daemon/headless-emulator-wide-char-repaint.test.ts",
+      "reason": "D1-H: retarget daemon tests off xterm internals",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "4a046795d7ecb6238f353796f40d8369b35d5c616e3e712b4d4425d3b53478d0"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "c9cf58c73c6ccd11135dc46ed2b96cd93df6724101d42d63e86e05193cddb58c"
+      }
+    },
+    {
+      "id": "gate-d1-h-src-main-daemon-headless-emulator-wide-char-snapshot-test-ts",
+      "target": "src/main/daemon/headless-emulator-wide-char-snapshot.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-h/src/main/daemon/headless-emulator-wide-char-snapshot.test.ts",
+      "reason": "D1-H: retarget daemon tests off xterm internals",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "43e6a3f1bc7361bd094bf90186c9c32ba63b6193cd8e04f1de70d2503e0396b4"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "1d3b37f7cdb1f572b7637902524598d55ad282f62a980905c147b99c5a7f1d38"
+      }
+    },
+    {
+      "id": "gate-d1-h-src-main-daemon-headless-emulator-fidelity-fuzz-test-ts",
+      "target": "src/main/daemon/headless-emulator-fidelity.fuzz.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-h/src/main/daemon/headless-emulator-fidelity.fuzz.test.ts",
+      "reason": "D1-H: retarget daemon tests off xterm internals",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "6fd1353e1433ed9a7057380d443d1d4c6d7f1825623c539443283ed1abc82c7f"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "2bfa0e02e5ea9fc209b7afee588e2e9c8fbabb9749e55545425736a3246bcf72"
+      }
+    },
+    {
+      "id": "gate-d1-h-src-main-daemon-terminal-cursor-line-context-test-ts",
+      "target": "src/main/daemon/terminal-cursor-line-context.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-h/src/main/daemon/terminal-cursor-line-context.test.ts",
+      "reason": "D1-H: Ghostty wrap flags do not feed xterm composer-draft wrap walking",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "3d7fb066eec95d0e42b4d8c83bdea6fd1b8d1d52180b4bf8a8ba194e0f60732d"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "b486a8d2a0f3c506e4b94c861f349fe395dc4066e1cabbd30436d96f353d3a10"
+      }
+    },
+    {
+      "id": "gate-d1-h-src-main-daemon-daemon-restore-scrollback-depth-test-ts",
+      "target": "src/main/daemon/daemon-restore-scrollback-depth.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-h/src/main/daemon/daemon-restore-scrollback-depth.test.ts",
+      "reason": "D1-H: Ghostty totalRows is not xterm buffer.normal.length",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "e7460536df3f2801b90767f84ceffce5e0a6947b090fa09dfb78506dd5b4a8eb"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "1de81edb52fd0a85049d897306d4eaa8932ccb4f76d914fcea958e9ae1c30a4d"
+      }
+    },
+    {
+      "id": "gate-d1-h-src-main-daemon-daemon-session-scrollback-window-test-ts",
+      "target": "src/main/daemon/daemon-session-scrollback-window.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-h/src/main/daemon/daemon-session-scrollback-window.test.ts",
+      "reason": "D1-H: Ghostty totalRows is not xterm buffer.normal.length",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "fb4d02b7de71e920a3f3c353320bceba377dd668e6f700da74d3371ac34be475"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "91941bdd1433d9589bcd8eb3abd3801380cb55c1dc753298f5497882573f5f4e"
+      }
+    },
+    {
+      "id": "gate-d1-h-src-main-daemon-repro-13767-shell-ready-marker-lost-to-exec-test-ts",
+      "target": "src/main/daemon/repro-13767-shell-ready-marker-lost-to-exec.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-h/src/main/daemon/repro-13767-shell-ready-marker-lost-to-exec.test.ts",
+      "reason": "D1-H: sqlite exec PTY fixtures time out under Ghostty headless",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "ae74349d33cb14cff65253a25560ffb2c88753b3b632e15d6cbd7c5750eeb31d"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "e225862a4cb6b7c75c1b7b8347f04a1dd72b7524e0d0c00c435d7a26d70a76fe"
+      }
+    },
+    {
+      "id": "gate-d1-h-src-main-daemon-session-terminal-control-test-ts",
+      "target": "src/main/daemon/session-terminal-control.test.ts",
+      "mode": "replace",
+      "source": "overlay/d1-h/src/main/daemon/session-terminal-control.test.ts",
+      "reason": "D1-H: Ghostty visible-line prompt detection does not match xterm cursor-at-end for PS prompt",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "fb2507d21a2bd8fa59c2731388a58f028c8391ab45b93fa6459d08f9b1f4a0ae"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "7117f2ae6a89dca38a5286ce016da5206c0749c6053fe624c2a7518091127736"
+      }
+    },
+    {
+      "id": "gate-d1-h-config-tsconfig-node-json",
+      "target": "config/tsconfig.node.json",
+      "mode": "replace",
+      "source": "overlay/d1-h/config/tsconfig.node.json",
+      "reason": "D1-H: daemon typecheck includes libghostty-vt",
+      "precondition": {
+        "kind": "blob-sha256",
+        "expectedBlobSha256": "d45104db7d3b1c72def67d78c1b7fa93284a78d81b059205ed72149ce09e8242"
+      },
+      "postcondition": {
+        "resultingBlobSha256": "fafcf19f61f95401e0b0f5a431c2ebf0fc73eb14f3a526a3a4cf737899357b50"
       }
     }
   ]

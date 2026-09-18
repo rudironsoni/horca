@@ -1,0 +1,41 @@
+{
+  "seam": "HeadlessEmulator public API (D0-H)",
+  "d1RCommit": "ea0de5cb89a8211698d4388833992793024e3c41",
+  "upstreamSha": "85d1ffc0726d8403f9494436c421c5e3d7932c47",
+  "operations": [
+    {
+      "op": "write(data, {forwardQueryReplies?})",
+      "callers": ["session-output-plane.ts", "history-reader.ts", "cold-restore-replay-writer.ts"],
+      "sync": false,
+      "notes": "Ghostty apply is actually sync; Promise resolves after VT write."
+    },
+    {
+      "op": "writeSync(data)",
+      "callers": ["session-output-plane.ts history seed"],
+      "sync": true,
+      "notes": "REQUIRED. Ghostty writePtyOutput is sync. xterm uses private _core.writeSync."
+    },
+    {
+      "op": "resize/getAppliedSize",
+      "callers": ["session-output-plane.ts"],
+      "sync": true
+    },
+    {
+      "op": "getSnapshot",
+      "callers": ["session-output-plane.ts", "terminal-checkpoint-serializer.ts", "daemon-durable-history-snapshot.ts"],
+      "snapshotRestore": true
+    },
+    {
+      "op": "isAlternateScreen/partialEscapeTailAnsi/getVisibleLines/getCursorLineContext/getBufferTailLines",
+      "callers": ["session-output-plane.ts", "orca-runtime-visible-snapshot-preview.ts"]
+    },
+    {
+      "op": "getCwd/setCwd/setLastTitle/setRestoredOscLinks/clearScrollback/dispose",
+      "callers": ["session-output-plane.ts"]
+    },
+    {
+      "op": "applyPushedViewAttributes/applyKittyKeyboardFlags/installViewAttributeResponder/installConptyPrimaryDeviceAttributesOverride/disableQueryReplyForwarding/responderParser",
+      "callers": ["session-output-plane.ts", "session-shell-ready-barrier.ts"]
+    }
+  ]
+}
