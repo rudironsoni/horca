@@ -180,9 +180,9 @@ let application
 try {
   application = await launch()
   const page = application.page
-  await page.waitForLoadState('domcontentloaded')
-  if ((await page.title()) !== 'Horca') {
-    throw new Error(`Packaged renderer title is not Horca: ${await page.title()}`)
+  await page.waitForLoadState('domcontentloaded', { timeout: 10_000 })
+  if ((await pageTitle(page)) !== 'Horca') {
+    throw new Error(`Packaged renderer title is not Horca: ${await pageTitle(page)}`)
   }
   const ptyId = await Promise.race([
     page.evaluate(async (cwd) => {
