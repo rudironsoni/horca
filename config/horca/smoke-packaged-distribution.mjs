@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-import { chromium } from '@stablyai/playwright-test'
 import { spawn } from 'node:child_process'
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { createServer } from 'node:net'
@@ -54,11 +53,8 @@ writeFileSync(
   })
 )
 
-const {
-  ELECTRON_RUN_AS_NODE: _electronRunAsNode,
-  NODE_OPTIONS: _nodeOptions,
-  ...inheritedEnvironment
-} = process.env
+const { ELECTRON_RUN_AS_NODE: _electronRunAsNode, NODE_OPTIONS: _nodeOptions, ...inheritedEnvironment } =
+  process.env
 void _electronRunAsNode
 void _nodeOptions
 const launchEnvironment = {
@@ -79,144 +75,156 @@ async function reservePort() {
   return port
 }
 
-async function pageTitle(page) {
-  if (page.isClosed()) {
-    return ''
+async function fetchJson(url, timeoutMs) {
+  const response = await fetch(url, { signal: AbortSignal.timeout(timeoutMs) })
+  if (!response.ok) {
+    throw new Error(`${url} -> ${response.status}`)
   }
-  return page.title({ timeout: 1000 }).catch(() => '')
+  return response.json()
 }
 
-async function waitForMainPage(context) {
-  const deadline = Date.now() + 30_000
+async function waitForTargets(port) {
+  const deadline = Date.now() + 20_000
+  let last = []
   while (Date.now() < deadline) {
-    for (const page of context.pages()) {
-      if ((await pageTitle(page)) === 'Horca') {
-        await page.waitForTimeout(500).catch(() => undefined)
-        if ((await pageTitle(page)) === 'Horca') {
-          return page
-        }
+    try {
+      last = await fetchJson(`http://127.0.0.1:${port}/json/list`, 1_000)
+      const hit = last.find((target) => target.type === 'page' && target.title === 'Horca')
+      if (hit) {
+        return hit
       }
+    } catch {
+      // Horca may still be opening windows.
     }
-    await new Promise((resolveDelay) => setTimeout(resolveDelay, 100))
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 200))
   }
-  const titles = []
-  for (const page of context.pages()) {
-    titles.push(await pageTitle(page) || '<closed>')
-  }
-  throw new Error(`Packaged Horca did not create its main renderer page (titles: ${titles.join(', ')})`)
+  const titles = last.map((target) => `${target.type}:${target.title}`).join(', ')
+  throw new Error(`Packaged Horca did not create its main renderer page (targets: ${titles})`)
 }
 
-async function launch() {
-  const port = await reservePort()
-  const child = spawn(
-    executablePath,
-    [`--remote-debugging-port=${port}`, '--remote-allow-origins=*'],
-    {
-      env: launchEnvironment,
-      stdio: ['ignore', 'ignore', 'pipe']
-    }
+function cdpCall(wsUrl, method, params, timeoutMs) {
+  return new Promise((resolve, reject) => {
+    const ws = new WebSocket(wsUrl)
+    const id = 1
+    const timer = setTimeout(() => {
+      ws.close()
+      reject(new Error(`CDP ${method} timed out`))
+    }, timeoutMs)
+    ws.addEventListener('open', () => {
+      ws.send(JSON.stringify({ id, method, params }))
+    })
+    ws.addEventListener('message', (event) => {
+      const message = JSON.parse(String(event.data))
+      if (message.id !== id) {
+        return
+      }
+      clearTimeout(timer)
+      ws.close()
+      if (message.error) {
+        reject(new Error(`${method}: ${JSON.stringify(message.error)}`))
+        return
+      }
+      resolve(message.result)
+    })
+    ws.addEventListener('error', () => {
+      clearTimeout(timer)
+      reject(new Error(`CDP websocket error for ${method}`))
+    })
+  })
+}
+
+async function evaluate(wsUrl, expression, timeoutMs) {
+  const result = await cdpCall(
+    wsUrl,
+    'Runtime.evaluate',
+    { expression, awaitPromise: true, returnByValue: true },
+    timeoutMs
   )
-  const endpoint = await new Promise((resolveEndpoint, rejectEndpoint) => {
+  if (result?.exceptionDetails) {
+    throw new Error(`CDP evaluate failed: ${JSON.stringify(result.exceptionDetails)}`)
+  }
+  return result?.result?.value
+}
+
+const assignedPort = await reservePort()
+const app = spawn(executablePath, [`--remote-debugging-port=${assignedPort}`, '--remote-allow-origins=*'], {
+  env: launchEnvironment,
+  stdio: ['ignore', 'ignore', 'pipe']
+})
+
+try {
+  await new Promise((resolveReady, rejectReady) => {
     const timeout = setTimeout(
-      () => rejectEndpoint(new Error('Packaged Horca did not publish a CDP endpoint')),
+      () => rejectReady(new Error('Packaged Horca did not publish a CDP endpoint')),
       20_000
     )
-    child.once('exit', (code) => {
+    app.once('exit', (code) => {
       clearTimeout(timeout)
-      rejectEndpoint(new Error(`Packaged Horca exited before CDP was ready: ${code}`))
+      rejectReady(new Error(`Packaged Horca exited before CDP was ready: ${code}`))
     })
-    child.stderr.setEncoding('utf8')
-    child.stderr.on('data', (chunk) => {
+    app.stderr.setEncoding('utf8')
+    app.stderr.on('data', (chunk) => {
       process.stderr.write(chunk)
-      const match = chunk.match(/DevTools listening on (ws:\/\/\S+)/)
-      if (match) {
+      if (/DevTools listening on ws:\/\/\S+/.test(chunk)) {
         clearTimeout(timeout)
-        resolveEndpoint(match[1])
+        resolveReady()
       }
     })
   })
-  let browser
-  let connectionError
-  const deadline = Date.now() + 15_000
-  while (!browser && Date.now() < deadline) {
-    try {
-      browser = await Promise.race([
-        chromium.connectOverCDP(endpoint),
-        new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('CDP connect timed out')), 2_000)
-        })
-      ])
-    } catch (error) {
-      connectionError = error
-      await new Promise((resolveDelay) => setTimeout(resolveDelay, 200))
-    }
+  const page = await waitForTargets(assignedPort)
+  if (!page.webSocketDebuggerUrl) {
+    throw new Error('Packaged Horca page has no CDP websocket')
   }
-  if (!browser) {
-    child.kill()
-    throw new Error(`Could not connect to packaged Horca CDP endpoint: ${endpoint}`, {
-      cause: connectionError
-    })
+  const title = await evaluate(page.webSocketDebuggerUrl, 'document.title', 10_000)
+  if (title !== 'Horca') {
+    throw new Error(`Packaged renderer title is not Horca: ${title}`)
   }
-  const context = browser.contexts()[0]
-  const page = await waitForMainPage(context)
-  return { browser, child, page }
-}
-
-async function stop(application) {
-  await Promise.race([
-    application?.browser.close().catch(() => undefined),
-    new Promise((resolveTimeout) => setTimeout(resolveTimeout, 5_000))
-  ])
-  if (application?.child.exitCode === null) {
-    application.child.kill()
-    await Promise.race([
-      new Promise((resolveExit) => application.child.once('exit', resolveExit)),
-      new Promise((resolveTimeout) => setTimeout(resolveTimeout, 5_000))
-    ])
-  }
-}
-
-let application
-try {
-  application = await launch()
-  const page = application.page
-  await page.waitForLoadState('domcontentloaded', { timeout: 10_000 })
-  if ((await pageTitle(page)) !== 'Horca') {
-    throw new Error(`Packaged renderer title is not Horca: ${await pageTitle(page)}`)
-  }
-  const ptyId = await Promise.race([
-    page.evaluate(async (cwd) => {
-      const leafId = '3f391f2e-5f1f-4ea4-8c0c-0f5e630a36ca'
-      const result = await window.api.pty.spawn({
-        cols: 80,
-        rows: 24,
-        cwd,
-        env: { ORCA_PANE_KEY: `horca-packaged-smoke:${leafId}` },
-        command: 'printf HORCA_D1_SMOKE; sleep 5',
-        worktreeId: 'global-floating-terminal',
-        tabId: 'horca-packaged-smoke',
-        leafId
-      })
-      return result.id
-    }, home),
-    new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Packaged terminal spawn timed out')), 20_000)
-    })
-  ])
+  const ptyId = await evaluate(
+    page.webSocketDebuggerUrl,
+    `window.api.pty.spawn({
+      cols: 80,
+      rows: 24,
+      cwd: ${JSON.stringify(home)},
+      env: { ORCA_PANE_KEY: 'horca-packaged-smoke:3f391f2e-5f1f-4ea4-8c0c-0f5e630a36ca' },
+      command: 'printf HORCA_D1_SMOKE; sleep 5',
+      worktreeId: 'global-floating-terminal',
+      tabId: 'horca-packaged-smoke',
+      leafId: '3f391f2e-5f1f-4ea4-8c0c-0f5e630a36ca'
+    }).then((result) => result.id)`,
+    20_000
+  )
   if (typeof ptyId !== 'string' || ptyId.length === 0) {
     throw new Error(`Packaged terminal did not spawn: ${ptyId}`)
   }
   if (ptyId.startsWith('herdr:')) {
     throw new Error(`Packaged terminal used Herdr: ${ptyId}`)
   }
-  await page.evaluate((id) => window.api.pty.setPtyDeliveryInterest(id, true), ptyId)
-  await page.waitForFunction(
-    async (id) => (await window.api.pty.getMainBufferSnapshot(id))?.data.includes('HORCA_D1_SMOKE'),
-    ptyId,
-    { timeout: 15_000 }
+  await evaluate(
+    page.webSocketDebuggerUrl,
+    `window.api.pty.setPtyDeliveryInterest(${JSON.stringify(ptyId)}, true)`,
+    5_000
   )
-  await page.evaluate((id) => window.api.pty.setPtyDeliveryInterest(id, false), ptyId)
-  await page.evaluate((id) => window.api.pty.kill(id), ptyId)
+  const deadline = Date.now() + 15_000
+  let snapshot = ''
+  while (Date.now() < deadline) {
+    snapshot = await evaluate(
+      page.webSocketDebuggerUrl,
+      `window.api.pty.getMainBufferSnapshot(${JSON.stringify(ptyId)}).then((result) => result?.data ?? '')`,
+      5_000
+    )
+    if (String(snapshot).includes('HORCA_D1_SMOKE')) {
+      break
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 200))
+  }
+  if (!String(snapshot).includes('HORCA_D1_SMOKE')) {
+    throw new Error('Packaged terminal did not print HORCA_D1_SMOKE')
+  }
+  await evaluate(
+    page.webSocketDebuggerUrl,
+    `window.api.pty.setPtyDeliveryInterest(${JSON.stringify(ptyId)}, false).then(() => window.api.pty.kill(${JSON.stringify(ptyId)}))`,
+    5_000
+  )
   if (existsSync(join(home, '.orca'))) {
     throw new Error(`Horca created the official Orca state root: ${join(home, '.orca')}`)
   }
@@ -224,7 +232,13 @@ try {
     'Packaged Horca smoke passed: title, renderer, D1 PTY, public CLI, isolated state, no Herdr'
   )
 } finally {
-  await stop(application)
+  if (app.exitCode === null) {
+    app.kill()
+    await Promise.race([
+      new Promise((resolveExit) => app.once('exit', resolveExit)),
+      new Promise((resolveTimeout) => setTimeout(resolveTimeout, 5_000))
+    ])
+  }
   for (let attempt = 0; attempt < 5; attempt += 1) {
     try {
       rmSync(root, { force: true, recursive: true })
