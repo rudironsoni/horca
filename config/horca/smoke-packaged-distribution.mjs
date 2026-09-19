@@ -89,7 +89,15 @@ async function waitForTargets(port) {
   while (Date.now() < deadline) {
     try {
       last = await fetchJson(`http://127.0.0.1:${port}/json/list`, 1_000)
-      const hit = last.find((target) => target.type === 'page' && target.title === 'Horca')
+      const hit = last.find(
+        (target) =>
+          target.type === 'page' &&
+          target.webSocketDebuggerUrl &&
+          (target.title === 'Horca' ||
+            target.title === 'Orca' ||
+            /index\.html/i.test(target.title) ||
+            /index\.html/i.test(target.url ?? ''))
+      )
       if (hit) {
         return hit
       }
@@ -204,8 +212,16 @@ try {
   const session = openCdp(page.webSocketDebuggerUrl)
   await session.call('Runtime.enable', {}, 10_000)
   console.log('CDP Runtime.enable ok')
-  const title = await evaluate(session, 'document.title', 10_000)
-  console.log(`CDP document.title=${title}`)
+  const titleDeadline = Date.now() + 20_000
+  let title = ''
+  while (Date.now() < titleDeadline) {
+    title = await evaluate(session, 'document.title', 5_000)
+    console.log(`CDP document.title=${title}`)
+    if (title === 'Horca') {
+      break
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 200))
+  }
   if (title !== 'Horca') {
     throw new Error(`Packaged renderer title is not Horca: ${title}`)
   }
