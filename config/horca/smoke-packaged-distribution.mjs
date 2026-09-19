@@ -225,19 +225,38 @@ try {
   if (title !== 'Horca') {
     throw new Error(`Packaged renderer title is not Horca: ${title}`)
   }
+  const ptyReadyDeadline = Date.now() + 15_000
+  let ptyType = ''
+  while (Date.now() < ptyReadyDeadline) {
+    ptyType = await evaluate(session, 'typeof window.api?.pty?.spawn', 5_000)
+    console.log(`CDP typeof window.api.pty.spawn=${ptyType}`)
+    if (ptyType === 'function') {
+      break
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 200))
+  }
+  if (ptyType !== 'function') {
+    throw new Error(`Packaged renderer has no PTY API: ${ptyType}`)
+  }
   const ptyId = await evaluate(
     session,
-    `window.api.pty.spawn({
-      cols: 80,
-      rows: 24,
-      cwd: ${JSON.stringify(home)},
-      env: { ORCA_PANE_KEY: 'horca-packaged-smoke:3f391f2e-5f1f-4ea4-8c0c-0f5e630a36ca' },
-      command: 'printf HORCA_D1_SMOKE; sleep 5',
-      worktreeId: 'global-floating-terminal',
-      tabId: 'horca-packaged-smoke',
-      leafId: '3f391f2e-5f1f-4ea4-8c0c-0f5e630a36ca'
-    }).then((result) => result.id)`,
-    20_000
+    `(async () => {
+      const timeout = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('pty-spawn-timeout')), 12000)
+      })
+      const spawned = window.api.pty.spawn({
+        cols: 80,
+        rows: 24,
+        cwd: ${JSON.stringify(home)},
+        env: { ORCA_PANE_KEY: 'horca-packaged-smoke:3f391f2e-5f1f-4ea4-8c0c-0f5e630a36ca' },
+        command: 'printf HORCA_D1_SMOKE; sleep 5',
+        worktreeId: 'global-floating-terminal',
+        tabId: 'horca-packaged-smoke',
+        leafId: '3f391f2e-5f1f-4ea4-8c0c-0f5e630a36ca'
+      }).then((result) => result.id)
+      return Promise.race([spawned, timeout])
+    })()`,
+    15_000
   )
   if (typeof ptyId !== 'string' || ptyId.length === 0) {
     throw new Error(`Packaged terminal did not spawn: ${ptyId}`)
