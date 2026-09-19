@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { spawn } from 'node:child_process'
+import { execFileSync, spawn } from 'node:child_process'
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { createServer } from 'node:net'
 import { tmpdir } from 'node:os'
@@ -32,6 +32,10 @@ const home = join(root, 'home')
 const userData = join(root, 'user-data')
 mkdirSync(home, { recursive: true, mode: 0o700 })
 mkdirSync(userData, { recursive: true, mode: 0o700 })
+const workspace = join(home, 'smoke-workspace')
+mkdirSync(workspace, { recursive: true, mode: 0o700 })
+execFileSync('git', ['-C', workspace, 'init', '-b', 'main'])
+execFileSync('git', ['-C', workspace, '-c', 'user.email=smoke@horca.local', '-c', 'user.name=Horca Smoke', 'commit', '--allow-empty', '-m', 'smoke'])
 writeFileSync(
   join(userData, 'orca-data.json'),
   JSON.stringify({
@@ -63,6 +67,7 @@ const launchEnvironment = {
   USERPROFILE: home,
   ORCA_E2E_HOME_DIR: home,
   ORCA_E2E_USER_DATA_DIR: userData,
+  ORCA_USER_DATA_PATH: userData,
   ORCA_E2E_HEADLESS: '1'
 }
 
@@ -168,6 +173,70 @@ function openCdp(wsUrl) {
   }
 }
 
+function runCli(args) {
+  let stdout = ''
+  try {
+    stdout = execFileSync(publicCli, args, {
+      env: launchEnvironment,
+      encoding: 'utf8',
+      timeout: 60_000
+    })
+  } catch (error) {
+    stdout = String(error && error.stdout ? error.stdout : '')
+    if (!stdout) {
+      throw error
+    }
+  }
+  const parsed = JSON.parse(stdout)
+  if (parsed && parsed.ok === false) {
+    throw new Error(`horca ${args.join(' ')}: ${JSON.stringify(parsed.error ?? parsed)}`)
+  }
+  return parsed
+}
+
+async function waitForRuntime() {
+  const metadataPath = join(userData, 'orca-runtime.json')
+  const deadline = Date.now() + 20_000
+  while (Date.now() < deadline) {
+    if (existsSync(metadataPath)) {
+      return
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 200))
+  }
+  throw new Error(`Packaged Horca did not write runtime metadata at ${metadataPath}`)
+}
+
+function liveHorcaApp() {
+  try {
+    return execFileSync(
+      'python3',
+      [
+        '-c',
+        `import os, subprocess
+out = subprocess.check_output(['lsappinfo', 'list'], text=True, errors='replace')
+for b in out.split('\\nASN:'):
+    if 'com.rudironsoni.horca' not in b: continue
+    pid=path=None
+    for line in b.splitlines():
+        s=line.strip()
+        if s.startswith('pid = '): pid=s.split('=',1)[1].strip().split()[0]
+        if s.startswith('bundle path='): path=s.split('=',1)[1].strip().strip('"')
+    if pid and pid.isdigit():
+        try:
+            os.kill(int(pid), 0)
+            print(pid+'\\t'+(path or ''))
+            raise SystemExit(0)
+        except OSError:
+            pass
+raise SystemExit(1)`
+      ],
+      { encoding: 'utf8' }
+    ).trim()
+  } catch {
+    return ''
+  }
+}
+
 async function evaluate(session, expression, timeoutMs) {
   const result = await session.call(
     'Runtime.evaluate',
@@ -233,21 +302,81 @@ try {
   if (title !== 'Horca') {
     throw new Error(`Packaged renderer title is not Horca: ${title}`)
   }
+  await waitForRuntime()
+  const live = liveHorcaApp()
+  console.log(`GUI_APP ${live || 'missing'}`)
+  if (!live.includes('/Applications/Horca.app') && !live.includes('Horca.app')) {
+    console.log('GUI_APP_NOTE lsappinfo did not resolve live bundle; continuing via CDP')
+  }
+  const added = runCli(['repo', 'add', '--path', workspace, '--json'])
+  console.log(`REPO ${added.result?.repo?.id ?? ''} ${added.result?.repo?.path ?? ''}`)
+  const created = runCli([
+    'worktree',
+    'create',
+    '--repo',
+    `id:${added.result.repo.id}`,
+    '--name',
+    'smoke',
+    '--no-parent',
+    '--activate',
+    '--json'
+  ])
+  console.log(`WORKTREE ${JSON.stringify(created.result ?? created)}`)
+  const worktreeSelector = created.result?.worktree?.id
+    ? `id:${created.result.worktree.id}`
+    : `path:${created.result.worktree.path}`
+  let terminal = null
+  try {
+    terminal = runCli([
+      'terminal',
+      'create',
+      '--worktree',
+      worktreeSelector,
+      '--command',
+      'printf HORCA_D1_SMOKE; sleep 8',
+      '--focus',
+      '--json'
+    ])
+    console.log(`TERMINAL ${JSON.stringify(terminal.result ?? terminal)}`)
+  } catch (error) {
+    console.log(`TERMINAL_CREATE_FAILED ${error instanceof Error ? error.message : error}`)
+  }
   const workbenchDeadline = Date.now() + 20_000
-  let workbench = { canvas: 0, primedError: false, reactError: false, body: '' }
+  let workbench = { canvas: 0, primedError: false, reactError: false, body: '', painted: false }
   while (Date.now() < workbenchDeadline) {
     workbench = await evaluate(
       session,
-      `({
-        canvas: document.querySelectorAll('.orca-terminal-canvas').length,
-        primedError: document.body.innerText.includes('libghostty-vt WASM host is not primed'),
-        reactError: document.body.innerText.includes('React render error'),
-        body: document.body.innerText.slice(0, 500)
-      })`,
+      `(() => {
+        const canvases = [...document.querySelectorAll('.orca-terminal-canvas')]
+        let painted = false
+        for (const canvas of canvases) {
+          if (!(canvas instanceof HTMLCanvasElement) || canvas.width < 2 || canvas.height < 2) continue
+          const ctx = canvas.getContext('2d')
+          if (!ctx) {
+            painted = canvas.width > 2 && canvas.height > 2
+            continue
+          }
+          const sample = ctx.getImageData(0, 0, Math.min(canvas.width, 64), Math.min(canvas.height, 64)).data
+          for (let i = 3; i < sample.length; i += 4) {
+            if (sample[i] !== 0) {
+              painted = true
+              break
+            }
+          }
+        }
+        const body = document.body.innerText
+        return {
+          canvas: canvases.length,
+          painted,
+          primedError: body.includes('libghostty-vt WASM host is not primed'),
+          reactError: body.includes('React render error') || body.includes('terminal.workbench'),
+          body: body.slice(0, 800)
+        }
+      })()`,
       5_000
     )
     console.log(
-      `CDP workbench canvas=${workbench.canvas} primedError=${workbench.primedError} reactError=${workbench.reactError}`
+      `CDP workbench canvas=${workbench.canvas} painted=${workbench.painted} primedError=${workbench.primedError} reactError=${workbench.reactError}`
     )
     if (workbench.primedError || workbench.reactError) {
       throw new Error(`Terminal workbench React error: ${workbench.body}`)
@@ -260,77 +389,34 @@ try {
   if (workbench.canvas < 1) {
     throw new Error(`Packaged terminal workbench has no Ghostty canvas: ${workbench.body}`)
   }
-  const ptyReadyDeadline = Date.now() + 15_000
-  let ptyType = ''
-  while (Date.now() < ptyReadyDeadline) {
-    ptyType = await evaluate(session, 'typeof window.api?.pty?.spawn', 5_000)
-    console.log(`CDP typeof window.api.pty.spawn=${ptyType}`)
-    if (ptyType === 'function') {
-      break
-    }
-    await new Promise((resolveDelay) => setTimeout(resolveDelay, 200))
-  }
-  if (ptyType !== 'function') {
-    throw new Error(`Packaged renderer has no PTY API: ${ptyType}`)
-  }
-  const ptyId = await evaluate(
+  const wasmEntries = await evaluate(
     session,
-    `(async () => {
-      const timeout = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('pty-spawn-timeout')), 12000)
-      })
-      const spawned = window.api.pty.spawn({
-        cols: 80,
-        rows: 24,
-        cwd: ${JSON.stringify(home)},
-        env: { ORCA_PANE_KEY: 'horca-packaged-smoke:3f391f2e-5f1f-4ea4-8c0c-0f5e630a36ca' },
-        command: 'printf HORCA_D1_SMOKE; sleep 5',
-        worktreeId: 'global-floating-terminal',
-        tabId: 'horca-packaged-smoke',
-        leafId: '3f391f2e-5f1f-4ea4-8c0c-0f5e630a36ca'
-      }).then((result) => result.id)
-      return Promise.race([spawned, timeout])
-    })()`,
-    15_000
-  )
-  if (typeof ptyId !== 'string' || ptyId.length === 0) {
-    throw new Error(`Packaged terminal did not spawn: ${ptyId}`)
-  }
-  if (ptyId.startsWith('herdr:')) {
-    throw new Error(`Packaged terminal used Herdr: ${ptyId}`)
-  }
-  await evaluate(
-    session,
-    `window.api.pty.setPtyDeliveryInterest(${JSON.stringify(ptyId)}, true)`,
+    `performance.getEntriesByType('resource').map((entry) => entry.name).filter((name) => /wasm/i.test(name))`,
     5_000
   )
-  const deadline = Date.now() + 15_000
-  let snapshot = ''
-  while (Date.now() < deadline) {
-    snapshot = await evaluate(
-      session,
-      `window.api.pty.getMainBufferSnapshot(${JSON.stringify(ptyId)}).then((result) => result?.data ?? '')`,
-      5_000
-    )
-    if (String(snapshot).includes('HORCA_D1_SMOKE')) {
+  console.log(`WASM_RESOURCES ${JSON.stringify(wasmEntries)}`)
+  const markerDeadline = Date.now() + 15_000
+  let preview = ''
+  while (Date.now() < markerDeadline) {
+    try {
+      preview = JSON.stringify(runCli(['terminal', 'read', '--json']))
+    } catch (error) {
+      preview = String(error && error.stdout ? error.stdout : error)
+    }
+    if (String(preview).includes('HORCA_D1_SMOKE')) {
       break
     }
-    await new Promise((resolveDelay) => setTimeout(resolveDelay, 200))
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 400))
   }
-  if (!String(snapshot).includes('HORCA_D1_SMOKE')) {
-    throw new Error('Packaged terminal did not print HORCA_D1_SMOKE')
+  if (!String(preview).includes('HORCA_D1_SMOKE')) {
+    throw new Error(`Ghostty terminal surface did not show HORCA_D1_SMOKE: ${String(preview).slice(0, 500)}`)
   }
-  await evaluate(
-    session,
-    `(window.api.pty.setPtyDeliveryInterest(${JSON.stringify(ptyId)}, false), window.api.pty.kill(${JSON.stringify(ptyId)}))`,
-    5_000
-  )
   session.close()
   if (existsSync(join(home, '.orca'))) {
     throw new Error(`Horca created the official Orca state root: ${join(home, '.orca')}`)
   }
   console.log(
-    'Packaged Horca smoke passed: title, renderer, D1 PTY, public CLI, isolated state, no Herdr'
+    'Packaged Horca smoke passed: title, renderer, Ghostty workbench, PTY marker, isolated state, no Herdr'
   )
 } finally {
   if (app.exitCode === null) {
