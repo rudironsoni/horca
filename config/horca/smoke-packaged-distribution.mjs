@@ -102,40 +102,66 @@ async function waitForTargets(port) {
   throw new Error(`Packaged Horca did not create its main renderer page (targets: ${titles})`)
 }
 
-function cdpCall(wsUrl, method, params, timeoutMs) {
-  return new Promise((resolve, reject) => {
-    const ws = new WebSocket(wsUrl)
-    const id = 1
-    const timer = setTimeout(() => {
-      ws.close()
-      reject(new Error(`CDP ${method} timed out`))
-    }, timeoutMs)
+function openCdp(wsUrl) {
+  let nextId = 1
+  const pending = new Map()
+  const ws = new WebSocket(wsUrl)
+  const opened = new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error('CDP websocket open timed out')), 10_000)
     ws.addEventListener('open', () => {
-      ws.send(JSON.stringify({ id, method, params }))
-    })
-    ws.addEventListener('message', (event) => {
-      const message = JSON.parse(String(event.data))
-      if (message.id !== id) {
-        return
-      }
       clearTimeout(timer)
-      ws.close()
-      if (message.error) {
-        reject(new Error(`${method}: ${JSON.stringify(message.error)}`))
-        return
-      }
-      resolve(message.result)
+      resolve()
     })
     ws.addEventListener('error', () => {
       clearTimeout(timer)
-      reject(new Error(`CDP websocket error for ${method}`))
+      reject(new Error('CDP websocket error'))
     })
   })
+  ws.addEventListener('message', (event) => {
+    const message = JSON.parse(String(event.data))
+    const waiter = pending.get(message.id)
+    if (!waiter) {
+      return
+    }
+    pending.delete(message.id)
+    if (message.error) {
+      waiter.reject(new Error(JSON.stringify(message.error)))
+      return
+    }
+    waiter.resolve(message.result)
+  })
+  return {
+    async call(method, params, timeoutMs) {
+      await opened
+      const id = nextId
+      nextId += 1
+      const result = new Promise((resolve, reject) => {
+        const timer = setTimeout(() => {
+          pending.delete(id)
+          reject(new Error(`CDP ${method} timed out`))
+        }, timeoutMs)
+        pending.set(id, {
+          resolve: (value) => {
+            clearTimeout(timer)
+            resolve(value)
+          },
+          reject: (error) => {
+            clearTimeout(timer)
+            reject(error)
+          }
+        })
+      })
+      ws.send(JSON.stringify({ id, method, params }))
+      return result
+    },
+    close() {
+      ws.close()
+    }
+  }
 }
 
-async function evaluate(wsUrl, expression, timeoutMs) {
-  const result = await cdpCall(
-    wsUrl,
+async function evaluate(session, expression, timeoutMs) {
+  const result = await session.call(
     'Runtime.evaluate',
     { expression, awaitPromise: true, returnByValue: true },
     timeoutMs
@@ -175,12 +201,16 @@ try {
   if (!page.webSocketDebuggerUrl) {
     throw new Error('Packaged Horca page has no CDP websocket')
   }
-  const title = await evaluate(page.webSocketDebuggerUrl, 'document.title', 10_000)
+  const session = openCdp(page.webSocketDebuggerUrl)
+  await session.call('Runtime.enable', {}, 10_000)
+  console.log('CDP Runtime.enable ok')
+  const title = await evaluate(session, 'document.title', 10_000)
+  console.log(`CDP document.title=${title}`)
   if (title !== 'Horca') {
     throw new Error(`Packaged renderer title is not Horca: ${title}`)
   }
   const ptyId = await evaluate(
-    page.webSocketDebuggerUrl,
+    session,
     `window.api.pty.spawn({
       cols: 80,
       rows: 24,
@@ -200,7 +230,7 @@ try {
     throw new Error(`Packaged terminal used Herdr: ${ptyId}`)
   }
   await evaluate(
-    page.webSocketDebuggerUrl,
+    session,
     `window.api.pty.setPtyDeliveryInterest(${JSON.stringify(ptyId)}, true)`,
     5_000
   )
@@ -208,7 +238,7 @@ try {
   let snapshot = ''
   while (Date.now() < deadline) {
     snapshot = await evaluate(
-      page.webSocketDebuggerUrl,
+      session,
       `window.api.pty.getMainBufferSnapshot(${JSON.stringify(ptyId)}).then((result) => result?.data ?? '')`,
       5_000
     )
@@ -221,10 +251,11 @@ try {
     throw new Error('Packaged terminal did not print HORCA_D1_SMOKE')
   }
   await evaluate(
-    page.webSocketDebuggerUrl,
+    session,
     `window.api.pty.setPtyDeliveryInterest(${JSON.stringify(ptyId)}, false).then(() => window.api.pty.kill(${JSON.stringify(ptyId)}))`,
     5_000
   )
+  session.close()
   if (existsSync(join(home, '.orca'))) {
     throw new Error(`Horca created the official Orca state root: ${join(home, '.orca')}`)
   }
