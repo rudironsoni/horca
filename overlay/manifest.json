@@ -5860,6 +5860,70 @@
       "postcondition": {
         "resultingBlobSha256": "c87a82e259945645cad24ffae3659cb77e99e7de2f71609860239a582b380cd4"
       }
+    },
+    {
+      "id": "hotfix-r0-add-boot-ghostty-vt-host",
+      "target": "src/renderer/src/horca/boot-ghostty-vt-host.ts",
+      "mode": "add",
+      "source": "src/renderer/src/horca/boot-ghostty-vt-host.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "Await libghostty-vt WASM priming before React can construct terminal panes"
+    },
+    {
+      "id": "hotfix-r0-add-boot-ghostty-vt-host-test",
+      "target": "src/renderer/src/horca/boot-ghostty-vt-host.test.ts",
+      "mode": "add",
+      "source": "src/renderer/src/horca/boot-ghostty-vt-host.test.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "Prove Ghostty host priming happens-before React mount"
+    },
+    {
+      "id": "hotfix-r0-add-orca-pane-surface-host-order-test",
+      "target": "src/renderer/src/lib/pane-manager/orca-pane-surface-host-order.test.ts",
+      "mode": "add",
+      "source": "src/renderer/src/lib/pane-manager/orca-pane-surface-host-order.test.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "Prove pane construction throws until the Ghostty WASM host is primed"
+    },
+    {
+      "id": "hotfix-r0-prime-ghostty-vt-host-import",
+      "target": "src/renderer/src/main.tsx",
+      "mode": "substitute",
+      "find": "import { primeTerminalWebglAddon } from './lib/pane-manager/pane-webgl-renderer'\n",
+      "replace": "import { primeTerminalWebglAddon } from './lib/pane-manager/pane-webgl-renderer'\nimport { bootGhosttyVtHostThen } from './horca/boot-ghostty-vt-host'\n",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "import { primeTerminalWebglAddon } from './lib/pane-manager/pane-webgl-renderer'\n",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "import { bootGhosttyVtHostThen } from './horca/boot-ghostty-vt-host'"
+      },
+      "reason": "Import Horca Ghostty VT host bootstrap"
+    },
+    {
+      "id": "hotfix-r0-await-ghostty-vt-host-before-react",
+      "target": "src/renderer/src/main.tsx",
+      "mode": "substitute",
+      "find": "getOrCreateRendererRoot(rootElement, import.meta.hot?.data).render(\n  <StrictMode>\n    <I18nProvider>\n      <RendererRoot />\n    </I18nProvider>\n  </StrictMode>\n)\nrecordRendererCrashBreadcrumb('renderer_bootstrap_rendered')",
+      "replace": "void bootGhosttyVtHostThen(() => {\n  getOrCreateRendererRoot(rootElement, import.meta.hot?.data).render(\n    <StrictMode>\n      <I18nProvider>\n        <RendererRoot />\n      </I18nProvider>\n    </StrictMode>\n  )\n  recordRendererCrashBreadcrumb('renderer_bootstrap_rendered')\n}).catch((error: unknown) => {\n  recordRendererCrashBreadcrumb('ghostty_vt_host_prime_failed', {\n    message: error instanceof Error ? error.message : String(error)\n  })\n  throw error\n})",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "getOrCreateRendererRoot(rootElement, import.meta.hot?.data).render(",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "void bootGhosttyVtHostThen(() => {"
+      },
+      "reason": "Await Ghostty VT host priming before React can construct terminal panes"
     }
   ]
 }

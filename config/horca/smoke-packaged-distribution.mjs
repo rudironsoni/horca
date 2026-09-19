@@ -233,6 +233,33 @@ try {
   if (title !== 'Horca') {
     throw new Error(`Packaged renderer title is not Horca: ${title}`)
   }
+  const workbenchDeadline = Date.now() + 20_000
+  let workbench = { canvas: 0, primedError: false, reactError: false, body: '' }
+  while (Date.now() < workbenchDeadline) {
+    workbench = await evaluate(
+      session,
+      `({
+        canvas: document.querySelectorAll('.orca-terminal-canvas').length,
+        primedError: document.body.innerText.includes('libghostty-vt WASM host is not primed'),
+        reactError: document.body.innerText.includes('React render error'),
+        body: document.body.innerText.slice(0, 500)
+      })`,
+      5_000
+    )
+    console.log(
+      `CDP workbench canvas=${workbench.canvas} primedError=${workbench.primedError} reactError=${workbench.reactError}`
+    )
+    if (workbench.primedError || workbench.reactError) {
+      throw new Error(`Terminal workbench React error: ${workbench.body}`)
+    }
+    if (workbench.canvas > 0) {
+      break
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 200))
+  }
+  if (workbench.canvas < 1) {
+    throw new Error(`Packaged terminal workbench has no Ghostty canvas: ${workbench.body}`)
+  }
   const ptyReadyDeadline = Date.now() + 15_000
   let ptyType = ''
   while (Date.now() < ptyReadyDeadline) {
