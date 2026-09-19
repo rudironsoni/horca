@@ -1,0 +1,20 @@
+{
+  "verdict": "BLOCKED",
+  "baseD1Sha": "75388c49577a35408f8ec26381eeec9d0fc19b2e",
+  "releaseReadySha": "2cbc5ffdccf8877ac1a111d222ca197f4d439034",
+  "rehearsalRun": "https://github.com/rudironsoni/horca/actions/runs/35421226665",
+  "publish": false,
+  "passed": [
+    "post-C0 materialize and overlay verify",
+    "signed notarized arm64 and x64 DMGs",
+    "codesign --verify --deep --strict",
+    "xcrun stapler validate",
+    "spctl --assess --type execute",
+    "Horca bundle id, name, horca URL scheme, CLI",
+    "Ghostty renderer and headless asar checks",
+    "zero xterm runtime graph and asar paths",
+    "no GitHub Release, tag, or Homebrew mutation",
+    "no Herdr"
+  ],
+  "blocked": "packaged smoke: window.api.pty.spawn never returns under CDP Runtime.evaluate after document.title is Horca"
+}
