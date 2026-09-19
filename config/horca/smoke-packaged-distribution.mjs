@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { execFileSync, spawn } from 'node:child_process'
-import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
 import { createServer } from 'node:net'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
@@ -395,11 +395,17 @@ try {
     5_000
   )
   console.log(`WASM_RESOURCES ${JSON.stringify(wasmEntries)}`)
+  const handle = terminal?.result?.terminal?.handle
+  if (!handle) {
+    throw new Error('Packaged terminal create did not return a visible handle')
+  }
   const markerDeadline = Date.now() + 15_000
   let preview = ''
   while (Date.now() < markerDeadline) {
     try {
-      preview = JSON.stringify(runCli(['terminal', 'read', '--json']))
+      preview = JSON.stringify(
+        runCli(['terminal', 'read', '--terminal', handle, '--screen', '--json'])
+      )
     } catch (error) {
       preview = String(error && error.stdout ? error.stdout : error)
     }
@@ -409,7 +415,7 @@ try {
     await new Promise((resolveDelay) => setTimeout(resolveDelay, 400))
   }
   if (!String(preview).includes('HORCA_D1_SMOKE')) {
-    throw new Error(`Ghostty terminal surface did not show HORCA_D1_SMOKE: ${String(preview).slice(0, 500)}`)
+    throw new Error(`Ghostty terminal surface did not show HORCA_D1_SMOKE: ${String(preview).slice(0, 800)}`)
   }
   session.close()
   if (existsSync(join(home, '.orca'))) {
@@ -418,24 +424,12 @@ try {
   console.log(
     'Packaged Horca smoke passed: title, renderer, Ghostty workbench, PTY marker, isolated state, no Herdr'
   )
+  if (app.exitCode === null) {
+    app.kill('SIGKILL')
+  }
+  process.exit(0)
 } finally {
   if (app.exitCode === null) {
-    app.kill()
-    await Promise.race([
-      new Promise((resolveExit) => app.once('exit', resolveExit)),
-      new Promise((resolveTimeout) => setTimeout(resolveTimeout, 5_000))
-    ])
-  }
-  for (let attempt = 0; attempt < 5; attempt += 1) {
-    try {
-      rmSync(root, { force: true, recursive: true })
-      break
-    } catch (error) {
-      if (attempt === 4) {
-        console.warn(`Could not remove packaged smoke directory ${root}:`, error)
-        break
-      }
-      await new Promise((resolveDelay) => setTimeout(resolveDelay, 250 * (attempt + 1)))
-    }
+    app.kill('SIGKILL')
   }
 }
