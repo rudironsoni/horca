@@ -199,6 +199,23 @@
       "reason": "Horca PNG icon in electron-builder buildResources"
     },
     {
+      "id": "release-packaging-renderer-title",
+      "target": "src/renderer/index.html",
+      "mode": "substitute",
+      "find": "    <title>Orca</title>",
+      "replace": "    <title>Horca</title>",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "    <title>Orca</title>",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "    <title>Horca</title>"
+      },
+      "reason": "renderer document title matches Horca product identity"
+    },
+    {
       "id": "gate-c-cli-launcher-exe",
       "target": "resources/darwin/bin/orca",
       "mode": "substitute",
