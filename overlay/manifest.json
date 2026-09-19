@@ -216,6 +216,40 @@
       "reason": "renderer document title matches Horca product identity"
     },
     {
+      "id": "release-packaging-ghostty-wasm-copy",
+      "target": "package.json",
+      "mode": "substitute",
+      "find": "&& pnpm run ensure:electron-runtime && ORCA_MAC_RELEASE=1 electron-builder --config config/electron-builder.config.cjs --mac",
+      "replace": "&& pnpm run ensure:electron-runtime && mkdir -p out/ghostty-vt && cp src/ghostty-vt/*.wasm out/ghostty-vt/ && ORCA_MAC_RELEASE=1 electron-builder --config config/electron-builder.config.cjs --mac",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "&& pnpm run ensure:electron-runtime && ORCA_MAC_RELEASE=1 electron-builder --config config/electron-builder.config.cjs --mac",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "&& mkdir -p out/ghostty-vt && cp src/ghostty-vt/*.wasm out/ghostty-vt/ && ORCA_MAC_RELEASE=1 electron-builder --config config/electron-builder.config.cjs --mac"
+      },
+      "reason": "packaged daemon can load libghostty-vt WASM next to unpacked main chunks"
+    },
+    {
+      "id": "release-packaging-ghostty-wasm-asar-unpack",
+      "target": "config/electron-builder.config.cjs",
+      "mode": "substitute",
+      "find": "    'out/main/chunks/**',",
+      "replace": "    'out/main/chunks/**',\n    'out/ghostty-vt/**',",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "    'out/main/chunks/**',",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "    'out/ghostty-vt/**',"
+      },
+      "reason": "unpack Ghostty WASM so the daemon can read it outside asar"
+    },
+    {
       "id": "gate-c-cli-launcher-exe",
       "target": "resources/darwin/bin/orca",
       "mode": "substitute",
