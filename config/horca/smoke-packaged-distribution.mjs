@@ -181,10 +181,18 @@ async function evaluate(session, expression, timeoutMs) {
 }
 
 const assignedPort = await reservePort()
-const app = spawn(executablePath, [`--remote-debugging-port=${assignedPort}`, '--remote-allow-origins=*'], {
-  env: launchEnvironment,
-  stdio: ['ignore', 'ignore', 'pipe']
-})
+const app = spawn(
+  executablePath,
+  [
+    '--use-mock-keychain',
+    `--remote-debugging-port=${assignedPort}`,
+    '--remote-allow-origins=*'
+  ],
+  {
+    env: launchEnvironment,
+    stdio: ['ignore', 'ignore', 'pipe']
+  }
+)
 
 try {
   await new Promise((resolveReady, rejectReady) => {
@@ -287,7 +295,7 @@ try {
   }
   await evaluate(
     session,
-    `window.api.pty.setPtyDeliveryInterest(${JSON.stringify(ptyId)}, false).then(() => window.api.pty.kill(${JSON.stringify(ptyId)}))`,
+    `(window.api.pty.setPtyDeliveryInterest(${JSON.stringify(ptyId)}, false), window.api.pty.kill(${JSON.stringify(ptyId)}))`,
     5_000
   )
   session.close()
