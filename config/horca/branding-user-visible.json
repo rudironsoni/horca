@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "rule": "Horca-owned user-visible surface must say Horca. Orca is allowed only for required attribution, documented compatibility language, or invisible identifiers.",
+  "allowlist": [
+    {
+      "path": "src/shared/distribution-identity.ts",
+      "class": "internal identifier",
+      "reason": "Official profile record and TypeScript type names. Horca builds select the horca profile."
+    },
+    {
+      "path": "src/shared/distribution-identity.json",
+      "class": "internal identifier",
+      "reason": "Official Orca profile data used only as the non-selected dual-distribution record."
+    },
+    {
+      "path": "src/shared/distribution-identity.test.ts",
+      "class": "internal identifier",
+      "reason": "Tests of the official profile record."
+    },
+    {
+      "path": "src/shared/distribution-product-copy.ts",
+      "class": "internal identifier",
+      "reason": "Rewriter that maps the word Orca to Horca. The literal is the search key, not UI copy."
+    },
+    {
+      "path": "src/shared/horca/horca-product-copy.ts",
+      "class": "internal identifier",
+      "reason": "CLI rewriter search key."
+    },
+    {
+      "path": "src/shared/horca/distribution-translation-catalog-plugin.ts",
+      "class": "internal identifier",
+      "reason": "Plugin skips rewrite when the selected profile is official Orca."
+    },
+    {
+      "path": "src/shared/horca/distribution-translation-catalog-plugin.test.ts",
+      "class": "internal identifier",
+      "reason": "Asserts catalogs still contain Orca in source and Horca after rewrite."
+    },
+    {
+      "path": "overlay/manifest.json",
+      "class": "internal identifier",
+      "reason": "Find sentinels for Gate C replacements."
+    },
+    {
+      "path": "config/horca/identity-dispositions.json",
+      "class": "internal identifier",
+      "reason": "Disposition registry quoting upstream literals as keys."
+    },
+    {
+      "path": "src/renderer/src/horca/terminal-settings/HorcaTerminalBackendSection.tsx",
+      "class": "internal identifier",
+      "reason": "Segment value remains 'orca' as the backend id. Visible label is ACTIVE_PRODUCT_NAME."
+    },
+    {
+      "path": "src/renderer/src/horca/terminal-settings/HorcaProjectTerminalBackendSetting.tsx",
+      "class": "internal identifier",
+      "reason": "Segment value remains 'orca' as the backend id. Visible label is ACTIVE_PRODUCT_NAME."
+    }
+  ],
+  "remainingUserVisible": [],
+  "count": 0
+}

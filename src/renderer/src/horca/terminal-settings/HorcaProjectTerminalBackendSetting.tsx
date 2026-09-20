@@ -9,6 +9,7 @@ import {
   horcaTerminalSettingsCopy,
   matchesHorcaTerminalSettingsSearch
 } from './horca-terminal-settings-copy'
+import { ACTIVE_PRODUCT_NAME } from '../product-identity'
 import { useHorcaTerminalSettings } from './use-horca-terminal-settings'
 
 export function HorcaProjectTerminalBackendSetting(props: {
@@ -39,7 +40,7 @@ export function HorcaProjectTerminalBackendSetting(props: {
       <div className="divide-y divide-border/40">
         <SettingsRow
           label="Project preference"
-          description={`Default backend: ${snapshot.defaults.defaultBackend === 'herdr' ? 'Herdr' : 'Orca'}`}
+          description={`Default backend: ${snapshot.defaults.defaultBackend === 'herdr' ? 'Herdr' : ACTIVE_PRODUCT_NAME}`}
           control={
             <SettingsSegmentedControl
               ariaLabel="Project terminal backend"
@@ -52,7 +53,7 @@ export function HorcaProjectTerminalBackendSetting(props: {
               options={[
                 { value: 'inherit', label: 'Inherit' },
                 { value: 'herdr', label: 'Herdr' },
-                { value: 'orca', label: 'Orca' }
+                { value: 'orca', label: ACTIVE_PRODUCT_NAME }
               ]}
             />
           }

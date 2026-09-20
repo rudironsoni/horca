@@ -5924,6 +5924,140 @@
         "mustOccurExactlyOnce": "void bootGhosttyVtHostThen(() => {"
       },
       "reason": "Await Ghostty VT host priming before React can construct terminal panes"
+    },
+    {
+      "id": "gate-c-add-distribution-product-copy",
+      "target": "src/shared/distribution-product-copy.ts",
+      "mode": "add",
+      "source": "src/shared/distribution-product-copy.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "Rewrite user-visible Orca product copy to Horca"
+    },
+    {
+      "id": "gate-c-add-translation-catalog-plugin",
+      "target": "src/shared/horca/distribution-translation-catalog-plugin.ts",
+      "mode": "add",
+      "source": "src/shared/horca/distribution-translation-catalog-plugin.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "Vite plugin that rewrites i18n catalogs at pack time"
+    },
+    {
+      "id": "gate-c-vite-catalog-plugin-import",
+      "target": "electron.vite.config.ts",
+      "mode": "substitute",
+      "find": "import { createPlainNodeEntryGuardPlugin } from './config/build-plugins/plain-node-entry-guard'\n",
+      "replace": "import { createPlainNodeEntryGuardPlugin } from './config/build-plugins/plain-node-entry-guard'\nimport { createDistributionTranslationCatalogPlugin } from './src/shared/horca/distribution-translation-catalog-plugin'\n",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "import { createPlainNodeEntryGuardPlugin } from './config/build-plugins/plain-node-entry-guard'\n",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "import { createDistributionTranslationCatalogPlugin } from './src/shared/horca/distribution-translation-catalog-plugin'"
+      },
+      "reason": "Import Horca i18n catalog rewrite plugin"
+    },
+    {
+      "id": "gate-c-vite-catalog-plugin-renderer",
+      "target": "electron.vite.config.ts",
+      "mode": "substitute",
+      "find": "    plugins: [react(), tailwindcss()],\n",
+      "replace": "    plugins: [createDistributionTranslationCatalogPlugin('horca'), react(), tailwindcss()],\n",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "    plugins: [react(), tailwindcss()],\n",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "createDistributionTranslationCatalogPlugin('horca')"
+      },
+      "reason": "Rewrite renderer translation catalogs so packaged UI says Horca"
+    },
+    {
+      "id": "gate-c-add-src-renderer-src-horca-product-identity-ts",
+      "target": "src/renderer/src/horca/product-identity.ts",
+      "mode": "add",
+      "source": "src/renderer/src/horca/product-identity.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "Ship Horca-owned UI identity files into the generated tree"
+    },
+    {
+      "id": "gate-c-add-src-renderer-src-horca-terminal-settings-horca-terminal-settings-copy-ts",
+      "target": "src/renderer/src/horca/terminal-settings/horca-terminal-settings-copy.ts",
+      "mode": "add",
+      "source": "src/renderer/src/horca/terminal-settings/horca-terminal-settings-copy.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "Ship Horca-owned UI identity files into the generated tree"
+    },
+    {
+      "id": "gate-c-add-src-renderer-src-horca-terminal-settings-HorcaProjectTerminalBackendSetting-tsx",
+      "target": "src/renderer/src/horca/terminal-settings/HorcaProjectTerminalBackendSetting.tsx",
+      "mode": "add",
+      "source": "src/renderer/src/horca/terminal-settings/HorcaProjectTerminalBackendSetting.tsx",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "Ship Horca-owned UI identity files into the generated tree"
+    },
+    {
+      "id": "gate-c-add-src-renderer-src-horca-terminal-settings-HorcaTerminalBackendSection-tsx",
+      "target": "src/renderer/src/horca/terminal-settings/HorcaTerminalBackendSection.tsx",
+      "mode": "add",
+      "source": "src/renderer/src/horca/terminal-settings/HorcaTerminalBackendSection.tsx",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "Ship Horca-owned UI identity files into the generated tree"
+    },
+    {
+      "id": "gate-c-add-src-renderer-src-horca-terminal-settings-HorcaTerminalBackendSection-test-tsx",
+      "target": "src/renderer/src/horca/terminal-settings/HorcaTerminalBackendSection.test.tsx",
+      "mode": "add",
+      "source": "src/renderer/src/horca/terminal-settings/HorcaTerminalBackendSection.test.tsx",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "Ship Horca-owned UI identity files into the generated tree"
+    },
+    {
+      "id": "gate-c-add-src-renderer-src-horca-terminal-settings-use-horca-terminal-settings-ts",
+      "target": "src/renderer/src/horca/terminal-settings/use-horca-terminal-settings.ts",
+      "mode": "add",
+      "source": "src/renderer/src/horca/terminal-settings/use-horca-terminal-settings.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "Ship Horca-owned UI identity files into the generated tree"
+    },
+    {
+      "id": "gate-c-add-src-shared-distribution-identity-ts",
+      "target": "src/shared/distribution-identity.ts",
+      "mode": "add",
+      "source": "src/shared/distribution-identity.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "Horca distribution identity used by catalog rewrite"
+    },
+    {
+      "id": "gate-c-add-src-shared-distribution-identity-json",
+      "target": "src/shared/distribution-identity.json",
+      "mode": "add",
+      "source": "src/shared/distribution-identity.json",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "Horca distribution identity used by catalog rewrite"
     }
   ]
 }

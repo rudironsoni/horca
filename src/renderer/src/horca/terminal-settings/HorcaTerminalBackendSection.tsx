@@ -4,6 +4,7 @@ import {
   SettingsSegmentedControl,
   SettingsSubsectionHeader
 } from '@/components/settings/SettingsFormControls'
+import { ACTIVE_PRODUCT_NAME } from '../product-identity'
 import { horcaTerminalSettingsCopy } from './horca-terminal-settings-copy'
 import { useHorcaTerminalSettings } from './use-horca-terminal-settings'
 import { useEffect, useState } from 'react'
@@ -51,7 +52,7 @@ export function HorcaTerminalBackendSection(): React.JSX.Element | null {
               }
               options={[
                 { value: 'herdr', label: 'Herdr' },
-                { value: 'orca', label: 'Orca' }
+                { value: 'orca', label: ACTIVE_PRODUCT_NAME }
               ]}
             />
           }
@@ -71,7 +72,7 @@ export function HorcaTerminalBackendSection(): React.JSX.Element | null {
               options={[
                 { value: 'inherit', label: 'Inherit' },
                 { value: 'herdr', label: 'Herdr' },
-                { value: 'orca', label: 'Orca' }
+                { value: 'orca', label: ACTIVE_PRODUCT_NAME }
               ]}
             />
           }
