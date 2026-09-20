@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 1,
+  "status": "INVENTORY_COMPLETE",
+  "implementation": "INCOMPLETE",
+  "sources": [
+    "https://mitchellh.com/writing/libghostty-is-coming",
+    "https://github.com/ghostty-org/ghostty/blob/main/include/ghostty/vt.h",
+    "https://www.mintlify.com/ghostty-org/ghostty/api/overview",
+    "https://cmux.com/built-on-ghostty",
+    "https://github.com/ghostty-org/ghostty/issues/12111"
+  ],
+  "architectureNow": [
+    {
+      "id": "macos-ghostty-surface-nsview",
+      "summary": "libghostty embedding uses ghostty_surface_t with GHOSTTY_PLATFORM_MACOS and an NSView. Metal is inside libghostty. Horca must host that view in Electron, not paint a CAMetalLayer and feed bytes to an unbound surface.",
+      "class": "ADOPT"
+    }
+  ],
+  "capabilities": [
+    {
+      "capability": "native Metal renderer via libghostty surface",
+      "class": "ADOPT",
+      "evidence": "libghostty C API ghostty_surface_t; Ghostty macOS uses Metal; cmux embeds libghostty as the renderer.",
+      "architectureImpact": "PRIMARY macOS UI renderer. Electron must host NSView/CAMetalLayer owned by libghostty. Current orca_ghostty_macos_available()==false is an incomplete bridge."
+    },
+    {
+      "capability": "native keyboard/IME via Ghostty key encoder and AppKit",
+      "class": "ADOPT",
+      "evidence": "ghostty/vt/key.h; Ghostty macOS uses native text input. cmux is Swift/AppKit.",
+      "architectureImpact": "Do not recreate Ghostty key semantics in JS on the native path."
+    },
+    {
+      "capability": "CoreText font discovery and shaping",
+      "class": "ADOPT",
+      "evidence": "libghostty macOS platform uses CoreText.",
+      "architectureImpact": "Native path should not bake glyphs in a JS canvas atlas."
+    },
+    {
+      "capability": "libghostty-vt WASM parse/state for portable fallback",
+      "class": "ALREADY_COVERED_BY_PARITY",
+      "evidence": "Horca already ships libghostty-vt WASM for renderer and daemon."
+    },
+    {
+      "capability": "Kitty keyboard protocol",
+      "class": "ADOPT",
+      "evidence": "Ghostty implements kitty keyboard protocol; libghostty-vt key encoder."
+    },
+    {
+      "capability": "Kitty graphics protocol",
+      "class": "ADOPT",
+      "evidence": "Ghostty parses kitty graphics. libghostty-vt render-state image export is still incomplete (ghostty-org/ghostty#12111).",
+      "architectureImpact": "Native surface can render images internally. WASM/WebGL fallback is BLOCKED_WITH_EVIDENCE until render-state exposes image data."
+    },
+    {
+      "capability": "OSC 8 hyperlinks",
+      "class": "ALREADY_COVERED_BY_PARITY",
+      "evidence": "Orca xterm linkifiers plus Ghostty OSC 8."
+    },
+    {
+      "capability": "OSC 52 clipboard",
+      "class": "ADOPT",
+      "evidence": "Ghostty supports OSC 52; Orca has its own clipboard policy that must be preserved."
+    },
+    {
+      "capability": "shell integration (cwd, prompt marks, semantic prompt)",
+      "class": "ADOPT",
+      "evidence": "Ghostty shell-integration. Not an xterm.js feature."
+    },
+    {
+      "capability": "synchronized output",
+      "class": "ADOPT",
+      "evidence": "Ghostty DEC mode synchronized output."
+    },
+    {
+      "capability": "tmux control mode parse",
+      "class": "NOT_APPLICABLE",
+      "evidence": "libghostty-vt can parse tmux control mode; Horca product uses pane splits, not tmux control mode as UI."
+    },
+    {
+      "capability": "read ~/.config/ghostty/config for fonts/themes",
+      "class": "NOT_APPLICABLE",
+      "evidence": "cmux does this. Horca owns appearance through Orca settings; silently reading Ghostty config would bypass product settings."
+    },
+    {
+      "capability": "SwiftUI/AppKit full-app embedding like cmux",
+      "class": "BLOCKED_WITH_EVIDENCE",
+      "evidence": "cmux is a native Swift/AppKit app, not Electron. Horca is Electron. The spike must host libghostty inside Electron, not replace the app shell."
+    },
+    {
+      "capability": "custom shaders",
+      "class": "NOT_APPLICABLE",
+      "evidence": "Ghostty-the-app feature. Not required for Orca xterm parity."
+    },
+    {
+      "capability": "inspector/debugger surface",
+      "class": "NOT_APPLICABLE",
+      "evidence": "ghostty_inspector_t is a Ghostty developer tool, not a Horca product surface."
+    },
+    {
+      "capability": "grapheme clustering and wide characters",
+      "class": "ALREADY_COVERED_BY_PARITY",
+      "evidence": "libghostty-vt Unicode; Orca had CJK/wide-char tests."
+    },
+    {
+      "capability": "search API in libghostty-vt",
+      "class": "ADOPT",
+      "evidence": "c-vt-search example in ghostty/include/ghostty/vt.h."
+    },
+    {
+      "capability": "selection gestures in libghostty-vt",
+      "class": "ADOPT",
+      "evidence": "c-vt-selection-gesture example."
+    }
+  ]
+}
