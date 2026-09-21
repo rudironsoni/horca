@@ -19,6 +19,7 @@ export type HorcaRegistration = {
 }
 
 export function initializeHorca(store: Store): HorcaRegistration {
+  console.log('[horca] register ghostty passthru ipc')
   const settings = createHorcaTerminalSettingsSource(store, horcaTerminalSettingsPath())
   const unregisterSettingsIpc = registerHorcaTerminalSettingsIpc(settings)
   const unregisterGhosttySurfaceIpc = registerHorcaGhosttySurfaceIpc()

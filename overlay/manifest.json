@@ -6448,6 +6448,34 @@
       "reason": "D2: attach MAIN Ghostty engine when a pane binds its PTY id"
     },
     {
+      "id": "d2-startup-import-initialize-horca",
+      "target": "src/main/startup/main-process-ready-foundation.ts",
+      "mode": "substitute",
+      "find": "import { Store, getCanonicalUserDataPath } from '../persistence'\n",
+      "replace": "import { Store, getCanonicalUserDataPath } from '../persistence'\nimport { initializeHorca } from '../horca/initialize-horca'\n",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "import { initializeHorca } from '../horca/initialize-horca'"
+      },
+      "reason": "D2: main process imports Horca Ghostty registration"
+    },
+    {
+      "id": "d2-startup-call-initialize-horca",
+      "target": "src/main/startup/main-process-ready-foundation.ts",
+      "mode": "substitute",
+      "find": "  state.store = store\n",
+      "replace": "  state.store = store\n  initializeHorca(store)\n",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "  initializeHorca(store)"
+      },
+      "reason": "D2: register Ghostty passthru IPC when the desktop store is ready"
+    },
+    {
       "id": "d2-add-src-shared-horca-distribution-build-profile.ts",
       "target": "src/shared/horca/distribution-build-profile.ts",
       "mode": "add",

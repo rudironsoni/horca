@@ -381,13 +381,15 @@ try {
     if (workbench.primedError || workbench.reactError) {
       throw new Error(`Terminal workbench React error: ${workbench.body}`)
     }
-    if (workbench.canvas > 0) {
+    if (workbench.canvas > 0 && workbench.painted) {
       break
     }
     await new Promise((resolveDelay) => setTimeout(resolveDelay, 200))
   }
-  if (workbench.canvas < 1) {
-    throw new Error(`Packaged terminal workbench has no Ghostty canvas: ${workbench.body}`)
+  if (workbench.canvas < 1 || !workbench.painted) {
+    throw new Error(
+      `Packaged terminal workbench has no painted Ghostty canvas: canvas=${workbench.canvas} painted=${workbench.painted} ${workbench.body}`
+    )
   }
   const wasmEntries = await evaluate(
     session,
