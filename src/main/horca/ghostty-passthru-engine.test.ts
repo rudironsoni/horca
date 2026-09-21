@@ -10,11 +10,11 @@ import {
 const instances: FakeGhostty[] = []
 
 class FakeGhostty extends EventEmitter {
-  static lastOpts: { engine: string; passthru: boolean } | undefined
+  static lastOpts: { engine: string; passthru: boolean; config?: string } | undefined
   attach = vi.fn()
   ptyData = vi.fn()
   destroy = vi.fn()
-  constructor(opts: { engine: string; passthru: boolean }) {
+  constructor(opts: { engine: string; passthru: boolean; config?: string }) {
     super()
     FakeGhostty.lastOpts = opts
     instances.push(this)
@@ -57,7 +57,11 @@ describe('createHorcaGhosttyPassthruEngine', () => {
       FakeGhostty as unknown as Parameters<typeof createHorcaGhosttyPassthruEngine>[1]
     )
     expect(engine.placement).toBe(HORCA_GHOSTTY_ENGINE_PLACEMENT)
-    expect(FakeGhostty.lastOpts).toEqual({ engine: 'main', passthru: true })
+    expect(FakeGhostty.lastOpts).toEqual({
+      engine: 'main',
+      passthru: true,
+      config: 'window-vsync = false\n'
+    })
     const term = instances[0]
     expect(term).toBeDefined()
     handle.emitData('abc')

@@ -1,0 +1,27 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Horca D2 <horca@local>
+Date: Mon, 21 Sep 2026 00:00:00 +0000
+Subject: [PATCH] macos: tolerate display link creation failure
+
+CVDisplayLinkCreateWithActiveCGDisplays fails when no CG display is
+active. That used to fail ghostty_surface_new. Continue without vsync
+so a later display update can retry. Backport of the behavior in
+ghostty-org/ghostty@a177ba90 (fixes #13293).
+
+---
+ src/renderer/generic.zig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/renderer/generic.zig b/src/renderer/generic.zig
+index 0000000..0000000 100644
+--- a/src/renderer/generic.zig
++++ b/src/renderer/generic.zig
+@@ -691,7 +691,7 @@ pub fn Renderer(comptime GraphicsAPI: type) type {
+ 
+             const display_link: ?DisplayLink = switch (builtin.os.tag) {
+                 .macos => if (options.config.vsync)
+-                    try macos.video.DisplayLink.createWithActiveCGDisplays()
++                    macos.video.DisplayLink.createWithActiveCGDisplays() catch null
+                 else
+                     null,
+                 else => null,

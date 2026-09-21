@@ -119,13 +119,18 @@ function ensureGhosttySource() {
   if (head !== PIN) {
     throw new Error(`Ghostty vendor HEAD ${head} is not pin ${PIN}`)
   }
-  const buildZig = readFileSync(join(VENDOR, 'build.zig'), 'utf8')
-  if (buildZig.includes('libghostty_step') && existsSync(join(VENDOR, 'src/termio/Passthru.zig'))) {
-    return
-  }
   for (const name of LOCK.patches) {
     const patch = join(ROOT, 'native/horca-ghostty', name)
-    if (patchApplied(patch)) {
+    let needed = false
+    try {
+      execFileSync('git', ['-C', VENDOR, 'apply', '--check', '--whitespace=nowarn', patch], {
+        stdio: 'ignore'
+      })
+      needed = true
+    } catch {
+      needed = false
+    }
+    if (!needed) {
       continue
     }
     run('git', ['-C', VENDOR, 'apply', '--whitespace=nowarn', patch])

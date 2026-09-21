@@ -61,7 +61,8 @@ export function createHorcaGhosttyPassthruEngine(
 ): HorcaGhosttyPassthruEngine {
   const term = new GhosttyTerminal({
     engine: HORCA_GHOSTTY_ENGINE_PLACEMENT,
-    passthru: true
+    passthru: true,
+    config: 'window-vsync = false\n'
   })
   handle.onData((data) => {
     term.ptyData(Buffer.from(data, 'latin1'))
