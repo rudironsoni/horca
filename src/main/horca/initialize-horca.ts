@@ -1,4 +1,6 @@
 import type { Store } from '../persistence'
+import { getDaemonProvider } from '../daemon/daemon-init'
+import { tryGetProviderForPty } from '../ipc/pty/provider/registry'
 import { electronHerdrDesktopSurface } from './terminal-backend/electron-herdr-desktop-surface'
 import { setHerdrDesktopSurface } from './terminal-backend/herdr-desktop-surface'
 import { registerHerdrTerminalBackend } from './terminal-backend/register-herdr-terminal-backend'
@@ -9,6 +11,11 @@ import {
 import { registerHorcaGhosttySurfaceIpc } from './ghostty-surface-ipc'
 import { registerHorcaGhosttyPassthruPaneIpc } from './ghostty-passthru-pane-ipc'
 import { registerHorcaTerminalSettingsIpc } from './terminal-backend/horca-terminal-settings-ipc'
+import {
+  clearHorcaPtyHandleRegistry,
+  lookupHorcaPtyHandle,
+  setHorcaPtyProviderLookup
+} from './horca-pty-handle-registry'
 
 export type HorcaRegistration = {
   dispose(): void
@@ -20,13 +27,18 @@ export function initializeHorca(store: Store): HorcaRegistration {
   const unregisterHerdr = registerHerdrTerminalBackend(store, settings)
   const unregisterSettingsIpc = registerHorcaTerminalSettingsIpc(settings)
   const unregisterGhosttySurfaceIpc = registerHorcaGhosttySurfaceIpc()
-  const unregisterPassthruIpc = registerHorcaGhosttyPassthruPaneIpc(() => null)
+  setHorcaPtyProviderLookup((sessionId) => {
+    return tryGetProviderForPty(sessionId) ?? getDaemonProvider() ?? null
+  })
+  const unregisterPassthruIpc = registerHorcaGhosttyPassthruPaneIpc(lookupHorcaPtyHandle)
   return {
     dispose: () => {
       unregisterPassthruIpc()
       unregisterGhosttySurfaceIpc()
       unregisterSettingsIpc()
       unregisterHerdr()
+      setHorcaPtyProviderLookup(null)
+      clearHorcaPtyHandleRegistry()
       setHerdrDesktopSurface(null)
     }
   }

@@ -43,13 +43,24 @@ function stubRecordingCanvas(): { ops: PaintOp[] } {
 }
 
 describe('OrcaPaneTerminal compositor presentation', () => {
-  it('paints through a data-ghostty canvas, not a local terminal rasterizer', () => {
+  it('paints through a data-ghostty canvas, not a local terminal rasterizer', async () => {
     const { ops } = stubRecordingCanvas()
     const terminal = new OrcaPaneTerminal(document.createElement('div'))
     terminal.options.theme = SOLARIZED_LIGHT
     terminal.write('x')
     expect(terminal.element.getAttribute('data-ghostty')).toMatch(/^pane-\d+$/)
     expect(ops.filter((op) => op.op === 'fillRect' || op.op === 'fillText')).toEqual([])
+    const attach = vi.fn(async () => true)
+    Object.defineProperty(window, 'api', {
+      configurable: true,
+      value: { horcaGhosttyPassthru: { attach, detach: vi.fn(async () => undefined) } }
+    })
+    terminal.bindPty('pty-live')
+    await Promise.resolve()
+    expect(attach).toHaveBeenCalledWith({
+      sessionId: 'pty-live',
+      slot: terminal.slot
+    })
     terminal.dispose()
   })
 

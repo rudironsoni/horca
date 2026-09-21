@@ -6122,6 +6122,258 @@
         "kind": "file-absent"
       },
       "reason": "D2: attach MAIN passthru engine to pane sharedTexture slots"
+    },
+    {
+      "id": "d2-add-src-main-horca-initialize-horca.ts",
+      "target": "src/main/horca/initialize-horca.ts",
+      "mode": "add",
+      "source": "src/main/horca/initialize-horca.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: bind passthru lookup to live daemon PTY handles"
+    },
+    {
+      "id": "d2-add-src-main-horca-pty-handle-registry.ts",
+      "target": "src/main/horca/horca-pty-handle-registry.ts",
+      "mode": "add",
+      "source": "src/main/horca/horca-pty-handle-registry.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: Electron-main lookup of live daemon PTY handles"
+    },
+    {
+      "id": "d2-add-src-main-horca-pty-handle-registry.test.ts",
+      "target": "src/main/horca/horca-pty-handle-registry.test.ts",
+      "mode": "add",
+      "source": "src/main/horca/horca-pty-handle-registry.test.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: Buffer writeExact adapter contract"
+    },
+    {
+      "id": "d2-add-src-shared-horca-ghostty-passthru-api.ts",
+      "target": "src/shared/horca/ghostty-passthru-api.ts",
+      "mode": "add",
+      "source": "src/shared/horca/ghostty-passthru-api.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: passthru attach IPC contract"
+    },
+    {
+      "id": "d2-add-src-preload-horca-ghostty-passthru-api.ts",
+      "target": "src/preload/horca-ghostty-passthru-api.ts",
+      "mode": "add",
+      "source": "src/preload/horca-ghostty-passthru-api.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: compose electron-ghostty preload and passthru attach API"
+    },
+    {
+      "id": "d2-add-src-renderer-horca-ghostty-passthru-attach.ts",
+      "target": "src/renderer/src/lib/pane-manager/horca-ghostty-passthru-attach.ts",
+      "mode": "add",
+      "source": "src/renderer/src/lib/pane-manager/horca-ghostty-passthru-attach.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: renderer attach of MAIN Ghostty surface per pane"
+    },
+    {
+      "id": "d2-add-src-renderer-horca-ghostty-passthru-attach.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/horca-ghostty-passthru-attach.test.ts",
+      "mode": "add",
+      "source": "src/renderer/src/lib/pane-manager/horca-ghostty-passthru-attach.test.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: renderer attach payload"
+    },
+    {
+      "id": "d2-pty-provider-write-exact",
+      "target": "src/main/providers/pty-provider-contract.ts",
+      "mode": "substitute",
+      "find": "  write(id: string, data: string): boolean | void",
+      "replace": "  write(id: string, data: string): boolean | void\n  writeExact?: (id: string, data: Buffer) => boolean | void",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "  writeExact?: (id: string, data: Buffer) => boolean | void"
+      },
+      "reason": "D2: optional Buffer writeExact so Ghostty bytes skip latin1 string hops"
+    },
+    {
+      "id": "d2-daemon-pty-session-input-write-exact",
+      "target": "src/main/daemon/daemon-pty-session-input.ts",
+      "mode": "substitute",
+      "find": "  write(id: string, data: string): boolean {\n    const recoverable = this.prepareWrite(id)\n    return this.finishWrite(id, this.client.notify('write', { sessionId: id, data }), recoverable)\n  }",
+      "replace": "  write(id: string, data: string): boolean {\n    const recoverable = this.prepareWrite(id)\n    return this.finishWrite(id, this.client.notify('write', { sessionId: id, data }), recoverable)\n  }\n\n  writeExact(id: string, data: Buffer): boolean {\n    const recoverable = this.prepareWrite(id)\n    return this.finishWrite(\n      id,\n      this.client.notify('write', { sessionId: id, dataBase64: data.toString('base64') }),\n      recoverable\n    )\n  }",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "dataBase64: data.toString('base64')"
+      },
+      "reason": "D2: daemon NDJSON writeExact carries Ghostty bytes as dataBase64"
+    },
+    {
+      "id": "d2-daemon-request-router-write-buffer",
+      "target": "src/main/daemon/daemon-request-router.ts",
+      "mode": "substitute",
+      "find": "      case 'write':\n        return this.write(client, request.payload.sessionId, request.payload.data)",
+      "replace": "      case 'write':\n        return this.write(\n          client,\n          request.payload.sessionId,\n          typeof request.payload.dataBase64 === 'string'\n            ? Buffer.from(request.payload.dataBase64, 'base64')\n            : request.payload.data\n        )",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "request.payload.dataBase64"
+      },
+      "reason": "D2: daemon write handler decodes dataBase64 to Buffer"
+    },
+    {
+      "id": "d2-daemon-request-router-write-signature",
+      "target": "src/main/daemon/daemon-request-router.ts",
+      "mode": "substitute",
+      "find": "  private write(\n    client: ConnectedDaemonClient | undefined,\n    sessionId: string,\n    data: string\n  ): Record<string, never> {",
+      "replace": "  private write(\n    client: ConnectedDaemonClient | undefined,\n    sessionId: string,\n    data: string | Buffer\n  ): Record<string, never> {",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "    data: string | Buffer\n  ): Record<string, never> {"
+      },
+      "reason": "D2: daemon router write accepts Buffer"
+    },
+    {
+      "id": "d2-terminal-host-write-buffer",
+      "target": "src/main/daemon/terminal-host.ts",
+      "mode": "substitute",
+      "find": "  write(sessionId: string, data: string): void {\n    this.getAliveSession(sessionId).write(data)\n  }",
+      "replace": "  write(sessionId: string, data: string | Buffer): void {\n    this.getAliveSession(sessionId).write(data)\n  }",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "  write(sessionId: string, data: string | Buffer): void {"
+      },
+      "reason": "D2: TerminalHost.write forwards Buffer"
+    },
+    {
+      "id": "d2-session-write-buffer",
+      "target": "src/main/daemon/session.ts",
+      "mode": "substitute",
+      "find": "  write(data: string): void {\n    if (this._state === 'exited' || this._disposed) {\n      return\n    }\n\n    // Daemon POSIX PTYs need the local provider's cooked-echo containment (#13137).\n    // DA1/CPR stay immediate unless an echo-risk reply is already held (#13892, #15559).\n    if (this.startupIngress.answerLiveQueryReply(data)) {\n      return\n    }\n\n    // Why: keep queuing during the post-ready flush-gate window ('ready' but not yet flushed); a\n    // direct write would race fresh input ahead of the buffered startup command.\n    if (this.shellReady.tryEnqueue(data)) {\n      return\n    }\n\n    this.subprocess.write(data)\n  }",
+      "replace": "  write(data: string | Buffer): void {\n    if (this._state === 'exited' || this._disposed) {\n      return\n    }\n\n    if (typeof data !== 'string') {\n      this.subprocess.write(data)\n      return\n    }\n\n    // Daemon POSIX PTYs need the local provider's cooked-echo containment (#13137).\n    // DA1/CPR stay immediate unless an echo-risk reply is already held (#13892, #15559).\n    if (this.startupIngress.answerLiveQueryReply(data)) {\n      return\n    }\n\n    // Why: keep queuing during the post-ready flush-gate window ('ready' but not yet flushed); a\n    // direct write would race fresh input ahead of the buffered startup command.\n    if (this.shellReady.tryEnqueue(data)) {\n      return\n    }\n\n    this.subprocess.write(data)\n  }",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "  write(data: string | Buffer): void {"
+      },
+      "reason": "D2: Session.write sends Ghostty Buffer bytes to the PTY without string interceptors"
+    },
+    {
+      "id": "d2-local-pty-write-exact",
+      "target": "src/main/providers/local-pty-session-operations.ts",
+      "mode": "substitute",
+      "find": "export function writeLocalPty(id: string, data: string): boolean {\n  // Cooked PTYs echo private DSR/OSC replies; CPR/DA stay immediate unless one of\n  // those is still held, which they must not overtake (#13137, #7329, #15559).\n  if (startupIngressByPty.get(id)?.answerLiveQueryReply(data)) {\n    return true\n  }\n  const proc = ptyProcesses.get(id)\n  if (!proc) {\n    return false\n  }\n  proc.write(data)\n  return true\n}",
+      "replace": "export function writeLocalPty(id: string, data: string): boolean {\n  // Cooked PTYs echo private DSR/OSC replies; CPR/DA stay immediate unless one of\n  // those is still held, which they must not overtake (#13137, #7329, #15559).\n  if (startupIngressByPty.get(id)?.answerLiveQueryReply(data)) {\n    return true\n  }\n  const proc = ptyProcesses.get(id)\n  if (!proc) {\n    return false\n  }\n  proc.write(data)\n  return true\n}\n\nexport function writeLocalPtyExact(id: string, data: Buffer): boolean {\n  const proc = ptyProcesses.get(id)\n  if (!proc) {\n    return false\n  }\n  proc.write(data)\n  return true\n}",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "export function writeLocalPtyExact(id: string, data: Buffer): boolean {"
+      },
+      "reason": "D2: local node-pty writeExact keeps Ghostty Buffer bytes"
+    },
+    {
+      "id": "d2-local-pty-provider-write-exact",
+      "target": "src/main/providers/local-pty-provider.ts",
+      "mode": "substitute",
+      "find": "  write(id: string, data: string): boolean {\n    return writeLocalPty(id, data)\n  }",
+      "replace": "  write(id: string, data: string): boolean {\n    return writeLocalPty(id, data)\n  }\n  writeExact(id: string, data: Buffer): boolean {\n    return writeLocalPtyExact(id, data)\n  }",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "  writeExact(id: string, data: Buffer): boolean {"
+      },
+      "reason": "D2: LocalPtyProvider exposes writeExact"
+    },
+    {
+      "id": "d2-local-pty-provider-import-write-exact",
+      "target": "src/main/providers/local-pty-provider.ts",
+      "mode": "substitute",
+      "find": "  writeLocalPty\n} from './local-pty-session-operations'",
+      "replace": "  writeLocalPty,\n  writeLocalPtyExact\n} from './local-pty-session-operations'",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "  writeLocalPtyExact,"
+      },
+      "reason": "D2: import writeLocalPtyExact"
+    },
+    {
+      "id": "d2-preload-api-passthru",
+      "target": "src/preload/api-types.ts",
+      "mode": "substitute",
+      "find": "  speech: SpeechApi\n}",
+      "replace": "  speech: SpeechApi\n  horcaGhosttyPassthru?: import('../shared/horca/ghostty-passthru-api').HorcaGhosttyPassthruApi\n}",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "horcaGhosttyPassthru?"
+      },
+      "reason": "D2: PreloadApi passthru attach"
+    },
+    {
+      "id": "d2-preload-compose-electron-ghostty",
+      "target": "src/preload/index.ts",
+      "mode": "substitute",
+      "find": "installNativeFileDropHandlers()\ninstallBrowserFindListener()",
+      "replace": "installNativeFileDropHandlers()\ninstallBrowserFindListener()\nrequire('./horca-ghostty-passthru-api').loadElectronGhosttyPreload()",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "loadElectronGhosttyPreload()"
+      },
+      "reason": "D2: load electron-ghostty canvas/sharedTexture preload"
+    },
+    {
+      "id": "d2-preload-expose-passthru-api",
+      "target": "src/preload/index.ts",
+      "mode": "substitute",
+      "find": "  speech: speechApi\n} satisfies PreloadApi",
+      "replace": "  speech: speechApi,\n  horcaGhosttyPassthru: require('./horca-ghostty-passthru-api').createHorcaGhosttyPassthruApi(ipcRenderer)\n} satisfies PreloadApi",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "horcaGhosttyPassthru: require('./horca-ghostty-passthru-api').createHorcaGhosttyPassthruApi(ipcRenderer)"
+      },
+      "reason": "D2: expose passthru attach on window.api"
+    },
+    {
+      "id": "d2-pane-bind-pty-on-fit-binding",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/terminal-keydown-fit.ts",
+      "mode": "substitute",
+      "find": "    session.pane.container.dataset.ptyId = ptyId",
+      "replace": "    session.pane.container.dataset.ptyId = ptyId\n    session.pane.terminal.bindPty?.(ptyId)",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "session.pane.terminal.bindPty?.(ptyId)"
+      },
+      "reason": "D2: attach MAIN Ghostty engine when a pane binds its PTY id"
     }
   ]
 }

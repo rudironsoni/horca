@@ -1,0 +1,17 @@
+import type { HorcaGhosttyPassthruApi } from '../../../../shared/horca/ghostty-passthru-api'
+
+function passthruApi(): HorcaGhosttyPassthruApi | null {
+  if (typeof window === 'undefined') {
+    return null
+  }
+  const api = window.api as { horcaGhosttyPassthru?: HorcaGhosttyPassthruApi } | undefined
+  return api?.horcaGhosttyPassthru ?? null
+}
+
+export function attachHorcaGhosttyPassthruPane(sessionId: string, slot: string): void {
+  void passthruApi()?.attach({ sessionId, slot })
+}
+
+export function detachHorcaGhosttyPassthruPane(slot: string): void {
+  void passthruApi()?.detach(slot)
+}

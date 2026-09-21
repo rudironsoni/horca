@@ -13,6 +13,10 @@ import {
 import { createOrcaPaneSurface } from './orca-pane-surface'
 import { bindOrcaPaneHostChrome, type OrcaPaneHostChrome } from './orca-pane-host-chrome'
 import { OrcaPaneListenerHub } from './orca-pane-terminal-events'
+import {
+  attachHorcaGhosttyPassthruPane,
+  detachHorcaGhosttyPassthruPane
+} from './horca-ghostty-passthru-attach'
 
 export type { OrcaPaneAppearance } from './orca-pane-appearance'
 
@@ -35,6 +39,7 @@ export class OrcaPaneTerminal extends OrcaPaneListenerHub {
   private _ingest = ''
   private _disposed = false
   private _alternate = false
+  private boundSessionId: string | null = null
   constructor(measureRoot: HTMLElement, appearance: Partial<OrcaPaneAppearance> = {}) {
     super()
     this.options = resolveOrcaPaneAppearance(appearance)
@@ -259,8 +264,19 @@ export class OrcaPaneTerminal extends OrcaPaneListenerHub {
   isGpuContextLost(): boolean {
     return false
   }
+  bindPty(sessionId: string): void {
+    if (this.boundSessionId === sessionId) {
+      return
+    }
+    this.boundSessionId = sessionId
+    attachHorcaGhosttyPassthruPane(sessionId, this.slot)
+  }
   dispose(): void {
     this._disposed = true
+    if (this.boundSessionId) {
+      detachHorcaGhosttyPassthruPane(this.slot)
+      this.boundSessionId = null
+    }
     this.chrome.dispose()
     this.primaryScreenWaiters.clear()
   }

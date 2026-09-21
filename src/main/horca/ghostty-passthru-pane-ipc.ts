@@ -1,11 +1,9 @@
 import { ipcMain, type WebContents } from 'electron'
 import type { SubprocessHandle } from '../daemon/session-subprocess-handle'
+import { HORCA_GHOSTTY_PASSTHRU_CHANNELS } from '../../shared/horca/ghostty-passthru-api'
 import { createHorcaGhosttyPassthruEngine, type HorcaGhosttyPassthruEngine } from './ghostty-passthru-engine'
 
-export const HORCA_GHOSTTY_PASSTHRU_CHANNELS = {
-  attach: 'horca:ghostty-passthru:attach',
-  detach: 'horca:ghostty-passthru:detach'
-} as const
+export { HORCA_GHOSTTY_PASSTHRU_CHANNELS }
 
 const engines = new Map<string, HorcaGhosttyPassthruEngine>()
 
