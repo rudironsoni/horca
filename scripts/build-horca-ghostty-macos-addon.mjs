@@ -162,7 +162,7 @@ function rebuildAddon(arch, archive) {
   mkdirSync(linkDir, { recursive: true })
   cpSync(archive, join(linkDir, 'libghostty.a'))
   rmSync(join(ADDON, 'build'), { recursive: true, force: true })
-  run('npx', ['--yes', 'node-gyp@11', 'rebuild', '--release'], {
+  run('npx', ['--yes', 'node-gyp@11', 'rebuild', '--release', `--arch=${arch}`], {
     cwd: ADDON,
     env: {
       ...process.env,
@@ -193,7 +193,7 @@ function main() {
   const zig = zigBin()
   const slices = []
   for (const arch of ARCHES) {
-    const slice = join(ADDON, 'build', `ghostty_renderer-${arch}.node`)
+    const slice = join(ADDON, 'prebuilds', `darwin-${arch}`, 'ghostty_renderer.node')
     if (!existsSync(slice) && existsSync(ADDON_OUT) && hasArch(ADDON_OUT, arch) && isMachO(ADDON_OUT)) {
       mkdirSync(dirname(slice), { recursive: true })
       cpSync(ADDON_OUT, slice)
