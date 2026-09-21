@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { existsSync, readdirSync } from 'node:fs'
+import { closeSync, existsSync, openSync, readSync, readdirSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { basename, dirname, join, resolve } from 'node:path'
 
@@ -138,14 +138,29 @@ export function verifyHorcaAsar(asarPath) {
   return checks
 }
 
+export function isPackagedMachO(file) {
+  if (!existsSync(file)) {
+    return false
+  }
+  const fd = openSync(file, 'r')
+  const bytes = Buffer.alloc(4)
+  readSync(fd, bytes, 0, 4, 0)
+  closeSync(fd)
+  const le = bytes.readUInt32LE(0)
+  const be = bytes.readUInt32BE(0)
+  return le === 0xfeedfacf || le === 0xfeedface || be === 0xcafebabe || be === 0xbebafeca
+}
+
 export function verifyHorcaResources(asarPath) {
   const resourcesDir = dirname(asarPath)
   const cliNames = ['horca', 'horca.cmd', 'horca.exe']
   const hasCli = cliNames.some((name) => existsSync(join(resourcesDir, 'bin', name)))
   const herdrDirectory = join(resourcesDir, 'herdr')
+  const ghosttyAddon = join(resourcesDir, 'horca-ghostty', 'build', 'Release', 'ghostty_renderer.node')
   const checks = [
     ['public Horca CLI is packaged', hasCli],
-    ['Herdr is not packaged', !existsSync(herdrDirectory)]
+    ['Herdr is not packaged', !existsSync(herdrDirectory)],
+    ['MAIN Ghostty native addon is packaged', isPackagedMachO(ghosttyAddon)]
   ]
   const failures = checks.filter(([, passed]) => !passed).map(([label]) => label)
   if (failures.length > 0) {

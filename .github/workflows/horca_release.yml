@@ -108,13 +108,20 @@ jobs:
           actual=$(node -e "const fs=require('fs'); process.stdout.write(JSON.parse(fs.readFileSync(process.argv[1],'utf8')).buildIdentity)" "$WT/.horca-build-identity.json")
           test "$actual" = "$EXPECTED_IDENTITY"
           echo "worktree_path=$WT" >> "$GITHUB_OUTPUT"
+      - name: Build MAIN Ghostty native addon
+        run: node scripts/build-horca-ghostty-macos-addon.mjs
       - name: Stage MAIN Ghostty native addon
         env:
           WT: ${{ steps.materialize.outputs.worktree_path }}
         run: |
+          addon=native/horca-ghostty/adopted/electron-ghostty/build/Release/ghostty_renderer.node
+          test -f "$addon"
+          lipo -info "$addon" | grep -q arm64
+          lipo -info "$addon" | grep -q x86_64
           mkdir -p "$WT/native/horca-ghostty/adopted"
           cp -R native/horca-ghostty/adopted/electron-ghostty \
             "$WT/native/horca-ghostty/adopted/electron-ghostty"
+          test -f "$WT/$addon"
       - name: Install release native variants
         working-directory: ${{ steps.materialize.outputs.worktree_path }}
         run: pnpm install:release

@@ -81,11 +81,17 @@ test('requires the public Horca CLI and rejects Herdr', async () => {
   const root = await mkdtemp(join(tmpdir(), 'horca-package-'))
   roots.push(root)
   await mkdir(join(root, 'bin'), { recursive: true })
+  await mkdir(join(root, 'horca-ghostty', 'build', 'Release'), { recursive: true })
   await writeFile(join(root, 'bin', 'horca'), '')
+  await writeFile(
+    join(root, 'horca-ghostty', 'build', 'Release', 'ghostty_renderer.node'),
+    Buffer.from([0xcf, 0xfa, 0xed, 0xfe])
+  )
 
   assert.deepEqual(verifyHorcaResources(join(root, 'app.asar')), [
     'public Horca CLI is packaged',
-    'Herdr is not packaged'
+    'Herdr is not packaged',
+    'MAIN Ghostty native addon is packaged'
   ])
 })
 
@@ -95,12 +101,28 @@ test('rejects a package without the Horca CLI', async () => {
   assert.throws(() => verifyHorcaResources(join(root, 'app.asar')), /public Horca CLI is packaged/)
 })
 
+test('rejects a package without the MAIN Ghostty addon', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'horca-package-'))
+  roots.push(root)
+  await mkdir(join(root, 'bin'), { recursive: true })
+  await writeFile(join(root, 'bin', 'horca'), '')
+  assert.throws(
+    () => verifyHorcaResources(join(root, 'app.asar')),
+    /MAIN Ghostty native addon is packaged/
+  )
+})
+
 test('rejects a package that still bundles Herdr', async () => {
   const root = await mkdtemp(join(tmpdir(), 'horca-package-'))
   roots.push(root)
   await mkdir(join(root, 'bin'), { recursive: true })
   await mkdir(join(root, 'herdr'), { recursive: true })
+  await mkdir(join(root, 'horca-ghostty', 'build', 'Release'), { recursive: true })
   await writeFile(join(root, 'bin', 'horca'), '')
   await writeFile(join(root, 'herdr', 'herdr'), '')
+  await writeFile(
+    join(root, 'horca-ghostty', 'build', 'Release', 'ghostty_renderer.node'),
+    Buffer.from([0xcf, 0xfa, 0xed, 0xfe])
+  )
   assert.throws(() => verifyHorcaResources(join(root, 'app.asar')), /Herdr is not packaged/)
 })
