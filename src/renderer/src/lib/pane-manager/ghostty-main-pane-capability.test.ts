@@ -6,6 +6,8 @@ import { disposePane, openTerminal } from './pane-lifecycle'
 import { ENABLE_WEBGL_RENDERER } from './pane-webgl-renderer'
 import { presentPaneViewports } from './pane-rendering-control'
 import { captureLogicalLineAnchor } from './terminal-reflow-scroll-anchor'
+import type { TerminalLeafId } from '../../../../shared/stable-pane-id'
+import { createDragReorderState } from './pane-drag-reorder'
 import type { PaneManagerOptions } from './pane-manager-types'
 
 function stubCanvas(): { ops: string[] } {
@@ -44,13 +46,18 @@ describe('MAIN Ghostty pane chrome, lifecycle, and remote bind', () => {
     document.body.appendChild(root)
     const pane = createPaneDOM(
       1,
-      '11111111-1111-4111-8111-111111111111',
+      '11111111-1111-4111-8111-111111111111' as TerminalLeafId,
       paneOptions(),
-      { sourcePaneId: null, dropIndex: null },
+      createDragReorderState(),
       {
-        onDragStart: () => undefined,
-        onDragMove: () => undefined,
-        onDragEnd: () => undefined
+        getPanes: () => new Map(),
+        getRoot: () => root,
+        getStyleOptions: () => ({}),
+        isDestroyed: () => false,
+        safeFit: () => undefined,
+        applyPaneOpacity: () => undefined,
+        applyDividerStyles: () => undefined,
+        refitPanesUnder: () => undefined
       },
       () => undefined,
       () => undefined
@@ -60,8 +67,13 @@ describe('MAIN Ghostty pane chrome, lifecycle, and remote bind', () => {
     expect(ENABLE_WEBGL_RENDERER).toBe(false)
     expect(pane.gpuRenderingEnabled).toBe(false)
     expect(pane.terminal).toBeInstanceOf(GhosttyPaneTerminal)
+    if (!(pane.terminal instanceof GhosttyPaneTerminal)) {
+      throw new Error('expected GhosttyPaneTerminal')
+    }
     const canvas = pane.terminal.element
-    expect(canvas).toBeInstanceOf(HTMLCanvasElement)
+    if (!(canvas instanceof HTMLCanvasElement)) {
+      throw new Error('expected compositor canvas')
+    }
     expect(canvas.getAttribute('data-ghostty')).toMatch(/^pane-\d+$/)
     pane.terminal.write('hello')
     expect(ops.filter((op) => op === 'fillText')).toEqual([])

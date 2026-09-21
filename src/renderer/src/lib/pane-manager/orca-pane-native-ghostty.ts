@@ -1,9 +1,4 @@
-import type {
-  HorcaGhosttySurfaceApi,
-  HorcaGhosttySurfaceBounds
-} from '../../../../shared/horca/ghostty-surface-api'
-
-const NATIVE_GHOSTTY_OCCLUDER = '[data-native-ghostty-occluder]'
+import type { HorcaGhosttySurfaceApi } from '../../../../shared/horca/ghostty-surface-api'
 
 export type OrcaPaneNativeGhostty = {
   attached: boolean
@@ -28,59 +23,6 @@ export function isRendererNativeGhosttyGpuAvailable(): boolean {
   } catch {
     return false
   }
-}
-
-function readBounds(host: HTMLElement): HorcaGhosttySurfaceBounds {
-  const rect = host.getBoundingClientRect()
-  const dpr = typeof window === 'undefined' ? 1 : window.devicePixelRatio || 1
-  return {
-    x: rect.left,
-    y: rect.top,
-    width: Math.max(1, rect.width),
-    height: Math.max(1, rect.height),
-    dpr
-  }
-}
-
-function hostIsShown(host: HTMLElement): boolean {
-  const rect = host.getBoundingClientRect()
-  if (rect.width < 2 || rect.height < 2) {
-    return false
-  }
-  if (typeof getComputedStyle !== 'function') {
-    return true
-  }
-  const style = getComputedStyle(host)
-  return style.display !== 'none' && style.visibility !== 'hidden'
-}
-
-function paneIsOccluded(host: HTMLElement): boolean {
-  if (typeof document === 'undefined') {
-    return false
-  }
-  const pane = host.getBoundingClientRect()
-  for (const el of document.querySelectorAll(NATIVE_GHOSTTY_OCCLUDER)) {
-    if (!(el instanceof HTMLElement)) {
-      continue
-    }
-    const style = getComputedStyle(el)
-    if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
-      continue
-    }
-    const rect = el.getBoundingClientRect()
-    if (rect.width < 2 || rect.height < 2) {
-      continue
-    }
-    const disjoint =
-      rect.right < pane.left ||
-      rect.left > pane.right ||
-      rect.bottom < pane.top ||
-      rect.top > pane.bottom
-    if (!disjoint) {
-      return true
-    }
-  }
-  return false
 }
 
 function noopNativeGhostty(): OrcaPaneNativeGhostty {

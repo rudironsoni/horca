@@ -29,7 +29,7 @@ describe('remaining MAIN Ghostty surface modules', () => {
 
   it('claims preview grid from a data-ghostty canvas', async () => {
     vi.useFakeTimers()
-    const fit = vi.fn(async () => undefined)
+    const fit = vi.fn(async (_ptyId: string, _cols: number, _rows: number) => undefined)
     Object.defineProperty(window, 'api', {
       configurable: true,
       value: { terminalPreview: { fit } }

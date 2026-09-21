@@ -6396,12 +6396,12 @@
       "target": "src/preload/api-types.ts",
       "mode": "substitute",
       "find": "  speech: SpeechApi\n}",
-      "replace": "  speech: SpeechApi\n  horcaGhosttyPassthru?: import('../shared/horca/ghostty-passthru-api').HorcaGhosttyPassthruApi\n}",
+      "replace": "  speech: SpeechApi\n  horcaGhosttyPassthru?: import('../shared/horca/ghostty-passthru-api').HorcaGhosttyPassthruApi\n  horcaTerminalSettings?: import('../shared/horca/terminal-settings-api').HorcaTerminalSettingsApi\n}",
       "precondition": {
         "occursExactly": 1
       },
       "postcondition": {
-        "mustOccurExactlyOnce": "horcaGhosttyPassthru?"
+        "mustOccurExactlyOnce": "horcaTerminalSettings?"
       },
       "reason": "D2: PreloadApi passthru attach"
     },
@@ -6424,12 +6424,12 @@
       "target": "src/preload/index.ts",
       "mode": "substitute",
       "find": "  speech: speechApi\n} satisfies PreloadApi",
-      "replace": "  speech: speechApi,\n  horcaGhosttyPassthru: require('./horca-ghostty-passthru-api').createHorcaGhosttyPassthruApi(ipcRenderer)\n} satisfies PreloadApi",
+      "replace": "  speech: speechApi,\n  horcaGhosttyPassthru: require('./horca-ghostty-passthru-api').createHorcaGhosttyPassthruApi(ipcRenderer),\n  horcaTerminalSettings: require('./horca-terminal-settings-api').createHorcaTerminalSettingsApi(ipcRenderer)\n} satisfies PreloadApi",
       "precondition": {
         "occursExactly": 1
       },
       "postcondition": {
-        "mustOccurExactlyOnce": "horcaGhosttyPassthru: require('./horca-ghostty-passthru-api').createHorcaGhosttyPassthruApi(ipcRenderer)"
+        "mustOccurExactlyOnce": "horcaTerminalSettings: require('./horca-terminal-settings-api').createHorcaTerminalSettingsApi(ipcRenderer)"
       },
       "reason": "D2: expose passthru attach on window.api"
     },
@@ -6446,6 +6446,106 @@
         "mustOccurExactlyOnce": "session.pane.terminal.bindPty?.(ptyId)"
       },
       "reason": "D2: attach MAIN Ghostty engine when a pane binds its PTY id"
+    },
+    {
+      "id": "d2-add-src-shared-horca-distribution-build-profile.ts",
+      "target": "src/shared/horca/distribution-build-profile.ts",
+      "mode": "add",
+      "source": "src/shared/horca/distribution-build-profile.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: Horca compile-time distribution profile imported by distribution-identity"
+    },
+    {
+      "id": "d2-add-src-shared-horca-terminal-backend.ts",
+      "target": "src/shared/horca/terminal-backend.ts",
+      "mode": "add",
+      "source": "src/shared/horca/terminal-backend.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: terminal backend types for settings IPC"
+    },
+    {
+      "id": "d2-add-src-shared-horca-terminal-settings-api.ts",
+      "target": "src/shared/horca/terminal-settings-api.ts",
+      "mode": "add",
+      "source": "src/shared/horca/terminal-settings-api.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: shared terminal settings API used by preload and renderer"
+    },
+    {
+      "id": "d2-add-src-main-local-state-root.ts",
+      "target": "src/main/local-state-root.ts",
+      "mode": "add",
+      "source": "src/main/local-state-root.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: Horca local state root used by terminal settings file path"
+    },
+    {
+      "id": "d2-add-src-main-horca-ghostty-surface-host.ts",
+      "target": "src/main/horca/ghostty-surface-host.ts",
+      "mode": "add",
+      "source": "src/main/horca/ghostty-surface-host.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: NSView Ghostty surface host stays unloaded; IPC still typechecks"
+    },
+    {
+      "id": "d2-add-src-main-horca-ghostty-surface-ipc.ts",
+      "target": "src/main/horca/ghostty-surface-ipc.ts",
+      "mode": "add",
+      "source": "src/main/horca/ghostty-surface-ipc.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: initializeHorca registers Ghostty surface IPC"
+    },
+    {
+      "id": "d2-add-src-main-horca-terminal-backend-horca-terminal-settings.ts",
+      "target": "src/main/horca/terminal-backend/horca-terminal-settings.ts",
+      "mode": "add",
+      "source": "src/main/horca/terminal-backend/horca-terminal-settings.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: terminal settings source used by initializeHorca"
+    },
+    {
+      "id": "d2-add-src-main-horca-terminal-backend-horca-terminal-settings-file.ts",
+      "target": "src/main/horca/terminal-backend/horca-terminal-settings-file.ts",
+      "mode": "add",
+      "source": "src/main/horca/terminal-backend/horca-terminal-settings-file.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: terminal settings persistence file"
+    },
+    {
+      "id": "d2-add-src-main-horca-terminal-backend-horca-terminal-settings-ipc.ts",
+      "target": "src/main/horca/terminal-backend/horca-terminal-settings-ipc.ts",
+      "mode": "add",
+      "source": "src/main/horca/terminal-backend/horca-terminal-settings-ipc.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: terminal settings IPC registered at Horca boot"
+    },
+    {
+      "id": "d2-add-src-preload-horca-terminal-settings-api.ts",
+      "target": "src/preload/horca-terminal-settings-api.ts",
+      "mode": "add",
+      "source": "src/preload/horca-terminal-settings-api.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: preload adapter for horcaTerminalSettings"
     }
   ]
 }

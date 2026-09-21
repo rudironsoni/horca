@@ -73,7 +73,6 @@ export class OrcaPaneTerminal extends OrcaPaneListenerHub {
     return this._ingest
   }
   get buffer(): { active: OrcaTerminalGrid } {
-    const cols = this._cols
     const rows = this._rows
     return {
       active: {
