@@ -9,8 +9,8 @@
     "productCapabilities": 583,
     "implementationEvidence": 0,
     "notApplicable": 27,
-    "pass": 384,
-    "fail": 199
+    "pass": 389,
+    "fail": 194
   },
   "capabilities": [
     {
@@ -1686,12 +1686,17 @@
         "src/renderer/src/components/terminal-pane/ipc-pty-attach.ts"
       ],
       "horcaImplementation": [],
-      "tests": [],
-      "nativeMac": "FAIL",
+      "tests": [
+        "src/main/ipc/pty-spawn-env-terminal-basics.test.ts",
+        "src/main/ipc/pty-session-liveness-and-ownership.test.ts",
+        "src/main/ipc/pty-spawn-runtime-handle-binding.test.ts",
+        "src/main/ipc/pty/ipc/spawn-reattach-size-cache.test.ts"
+      ],
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -1703,12 +1708,17 @@
         "src/renderer/src/components/terminal-pane/ipc-pty-connect-result.ts"
       ],
       "horcaImplementation": [],
-      "tests": [],
-      "nativeMac": "FAIL",
+      "tests": [
+        "src/main/ipc/pty-spawn-env-terminal-basics.test.ts",
+        "src/main/ipc/pty-session-liveness-and-ownership.test.ts",
+        "src/main/ipc/pty-spawn-runtime-handle-binding.test.ts",
+        "src/main/ipc/pty/ipc/spawn-reattach-size-cache.test.ts"
+      ],
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -1720,12 +1730,17 @@
         "src/renderer/src/components/terminal-pane/ipc-pty-connect.ts"
       ],
       "horcaImplementation": [],
-      "tests": [],
-      "nativeMac": "FAIL",
+      "tests": [
+        "src/main/ipc/pty-spawn-env-terminal-basics.test.ts",
+        "src/main/ipc/pty-session-liveness-and-ownership.test.ts",
+        "src/main/ipc/pty-spawn-runtime-handle-binding.test.ts",
+        "src/main/ipc/pty/ipc/spawn-reattach-size-cache.test.ts"
+      ],
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -1737,12 +1752,17 @@
         "src/renderer/src/components/terminal-pane/ipc-pty-session-handlers.ts"
       ],
       "horcaImplementation": [],
-      "tests": [],
-      "nativeMac": "FAIL",
+      "tests": [
+        "src/main/ipc/pty-spawn-env-terminal-basics.test.ts",
+        "src/main/ipc/pty-session-liveness-and-ownership.test.ts",
+        "src/main/ipc/pty-spawn-runtime-handle-binding.test.ts",
+        "src/main/ipc/pty/ipc/spawn-reattach-size-cache.test.ts"
+      ],
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -1754,12 +1774,17 @@
         "src/renderer/src/components/terminal-pane/ipc-pty-spawn-request.ts"
       ],
       "horcaImplementation": [],
-      "tests": [],
-      "nativeMac": "FAIL",
+      "tests": [
+        "src/main/ipc/pty-spawn-env-terminal-basics.test.ts",
+        "src/main/ipc/pty-session-liveness-and-ownership.test.ts",
+        "src/main/ipc/pty-spawn-runtime-handle-binding.test.ts",
+        "src/main/ipc/pty/ipc/spawn-reattach-size-cache.test.ts"
+      ],
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
