@@ -1,7 +1,15 @@
 {
   "schemaVersion": 1,
   "status": "INVENTORY_COMPLETE",
-  "implementation": "INCOMPLETE",
+  "implementation": "D2_NATIVE_CORE_SHIPPED",
+  "residualUnsupported": [
+    "read ~/.config/ghostty/config for fonts/themes",
+    "SwiftUI/AppKit full-app embedding like cmux",
+    "custom shaders",
+    "inspector/debugger surface",
+    "tmux control mode as Horca UI",
+    "Kitty graphics protocol on WASM/WebGL fallback (ghostty-org/ghostty#12111)"
+  ],
   "sources": [
     "https://mitchellh.com/writing/libghostty-is-coming",
     "https://github.com/ghostty-org/ghostty/blob/main/include/ghostty/vt.h",
