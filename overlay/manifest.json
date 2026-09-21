@@ -6112,6 +6112,16 @@
         "kind": "file-absent"
       },
       "reason": "D2: MAIN passthru Buffer write contract"
+    },
+    {
+      "id": "d2-add-src-main-horca-ghostty-passthru-pane-ipc.ts",
+      "target": "src/main/horca/ghostty-passthru-pane-ipc.ts",
+      "mode": "add",
+      "source": "src/main/horca/ghostty-passthru-pane-ipc.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: attach MAIN passthru engine to pane sharedTexture slots"
     }
   ]
 }

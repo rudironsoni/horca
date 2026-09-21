@@ -1,10 +1,6 @@
 // @vitest-environment happy-dom
-import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
-import { getGhosttyVtHostOrThrow } from '../../../../ghostty-vt/host-singleton'
-import { rgbToCss } from '../../../../ghostty-vt/ghostty-color-theme'
+import { describe, expect, it, vi } from 'vitest'
 import { OrcaPaneTerminal } from './orca-pane-terminal'
-import { primeGhosttyVtHostForTests } from '../../../../ghostty-vt/prime-host-for-tests'
-primeGhosttyVtHostForTests()
 
 const SOLARIZED_LIGHT = {
   background: '#fdf6e3',
@@ -46,41 +42,26 @@ function stubRecordingCanvas(): { ops: PaintOp[] } {
   return { ops }
 }
 
-describe('OrcaPaneTerminal Ghostty theme and metrics', () => {
-  beforeAll(() => {
-    getGhosttyVtHostOrThrow()
-  })
-
-  beforeEach(() => {
-    vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => {
-      cb(0)
-      return 1
-    })
-  })
-
-  afterEach(() => {
-    vi.unstubAllGlobals()
-  })
-
-  it('applies options.theme through the Ghostty palette so the first fill uses the theme background', () => {
+describe('OrcaPaneTerminal compositor presentation', () => {
+  it('paints through a data-ghostty canvas, not a local terminal rasterizer', () => {
     const { ops } = stubRecordingCanvas()
     const terminal = new OrcaPaneTerminal(document.createElement('div'))
     terminal.options.theme = SOLARIZED_LIGHT
     terminal.write('x')
-    const firstFill = ops.find((op) => op.op === 'fillRect')
-    expect(firstFill?.fillStyle).toBe(rgbToCss([253, 246, 227]))
+    expect(terminal.element.getAttribute('data-ghostty')).toMatch(/^pane-\d+$/)
+    expect(ops.filter((op) => op.op === 'fillRect' || op.op === 'fillText')).toEqual([])
     terminal.dispose()
   })
 
-  it('updates the renderer font string when applyMetrics runs after a fontSize change', () => {
+  it('updates cell metrics without drawing glyphs locally', () => {
     const { ops } = stubRecordingCanvas()
     const terminal = new OrcaPaneTerminal(document.createElement('div'), { fontSize: 14 })
     terminal.write('A')
     ops.length = 0
     terminal.options.fontSize = 22
     terminal.applyMetrics()
-    const text = ops.find((op) => op.op === 'fillText')
-    expect(text?.font).toContain('22px')
+    expect(terminal.cellHeight).toBeGreaterThan(0)
+    expect(ops.filter((op) => op.op === 'fillText')).toEqual([])
     terminal.dispose()
   })
 })

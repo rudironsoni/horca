@@ -7,6 +7,7 @@ import {
   horcaTerminalSettingsPath
 } from './terminal-backend/horca-terminal-settings'
 import { registerHorcaGhosttySurfaceIpc } from './ghostty-surface-ipc'
+import { registerHorcaGhosttyPassthruPaneIpc } from './ghostty-passthru-pane-ipc'
 import { registerHorcaTerminalSettingsIpc } from './terminal-backend/horca-terminal-settings-ipc'
 
 export type HorcaRegistration = {
@@ -19,8 +20,10 @@ export function initializeHorca(store: Store): HorcaRegistration {
   const unregisterHerdr = registerHerdrTerminalBackend(store, settings)
   const unregisterSettingsIpc = registerHorcaTerminalSettingsIpc(settings)
   const unregisterGhosttySurfaceIpc = registerHorcaGhosttySurfaceIpc()
+  const unregisterPassthruIpc = registerHorcaGhosttyPassthruPaneIpc(() => null)
   return {
     dispose: () => {
+      unregisterPassthruIpc()
       unregisterGhosttySurfaceIpc()
       unregisterSettingsIpc()
       unregisterHerdr()

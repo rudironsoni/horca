@@ -7,7 +7,7 @@ export const HORCA_GHOSTTY_ENGINE_PLACEMENT = 'main' as const
 type PtyWriteBuf = Buffer | Uint8Array | string
 
 type GhosttyPassthruTerminal = {
-  attach(webContents: WebContents): void
+  attach(webContents: WebContents, opts?: { slot?: string }): void
   ptyData(data: Buffer): void
   destroy(): void
   on(event: 'pty-write', listener: (buf: PtyWriteBuf) => void): void
@@ -16,7 +16,7 @@ type GhosttyPassthruTerminal = {
 
 export type HorcaGhosttyPassthruEngine = {
   placement: typeof HORCA_GHOSTTY_ENGINE_PLACEMENT
-  attach(webContents: WebContents): void
+  attach(webContents: WebContents, slot?: string): void
   destroy(): void
 }
 
@@ -64,7 +64,7 @@ export function createHorcaGhosttyPassthruEngine(
   })
   return {
     placement: HORCA_GHOSTTY_ENGINE_PLACEMENT,
-    attach: (webContents) => term.attach(webContents),
+    attach: (webContents, slot) => term.attach(webContents, { slot: slot ?? '' }),
     destroy: () => term.destroy()
   }
 }

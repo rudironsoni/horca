@@ -93,70 +93,8 @@ function noopNativeGhostty(): OrcaPaneNativeGhostty {
 }
 
 export function attachOrcaPaneNativeGhostty(
-  canvas: HTMLCanvasElement,
-  host: HTMLElement
+  _canvas: HTMLCanvasElement,
+  _host: HTMLElement
 ): OrcaPaneNativeGhostty {
-  const api = nativeSurfaceApi()
-  if (!api || !isRendererNativeGhosttyGpuAvailable()) {
-    return noopNativeGhostty()
-  }
-  canvas.style.display = 'block'
-  let surfaceId: number | null = null
-  const pending: string[] = []
-  const sync = (): void => {
-    if (surfaceId == null) {
-      return
-    }
-    void api.setBounds(surfaceId, readBounds(host))
-    void api.setVisible(surfaceId, hostIsShown(host))
-    void api.setOcclusion(surfaceId, paneIsOccluded(host))
-  }
-  void api.attach(readBounds(host)).then((id) => {
-    if (id == null) {
-      pending.length = 0
-      return
-    }
-    surfaceId = id
-    for (const chunk of pending) {
-      void api.write(id, chunk)
-    }
-    pending.length = 0
-    sync()
-  })
-  const observer = typeof ResizeObserver === 'function' ? new ResizeObserver(sync) : null
-  observer?.observe(host)
-  const mutation = typeof MutationObserver === 'function' ? new MutationObserver(sync) : null
-  mutation?.observe(document.documentElement, {
-    subtree: true,
-    childList: true,
-    attributes: true,
-    attributeFilter: ['style', 'class', 'hidden']
-  })
-  window.addEventListener('resize', sync)
-  return {
-    attached: true,
-    write(data: string) {
-      if (surfaceId == null) {
-        pending.push(data)
-        return
-      }
-      void api.write(surfaceId, data)
-    },
-    resize(cols: number, rows: number) {
-      if (surfaceId == null) {
-        return
-      }
-      void api.resize(surfaceId, cols, rows)
-      sync()
-    },
-    dispose() {
-      observer?.disconnect()
-      mutation?.disconnect()
-      window.removeEventListener('resize', sync)
-      if (surfaceId != null) {
-        void api.destroy(surfaceId)
-      }
-      surfaceId = null
-    }
-  }
+  return noopNativeGhostty()
 }

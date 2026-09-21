@@ -1,3 +1,4 @@
+// @vitest-environment happy-dom
 import { describe, expect, it, vi } from 'vitest'
 
 const appearance = {
@@ -6,21 +7,15 @@ const appearance = {
   lineHeight: 1.2
 }
 
-describe('Ghostty host happens-before first terminal construction', () => {
-  it('refuses to construct a pane surface while the WASM host is null', async () => {
+describe('Ghostty compositor surface does not require WASM host', () => {
+  it('creates a data-ghostty canvas without priming libghostty-vt', async () => {
     vi.resetModules()
-    const el = () => ({
-      className: '',
-      tabIndex: 0,
-      style: {},
-      setAttribute() {}
-    })
-    vi.stubGlobal('document', { createElement: () => el() })
     const { tryGetGhosttyVtHost } = await import('../../../../ghostty-vt/host-singleton')
     const { createOrcaPaneSurface } = await import('./orca-pane-surface')
     expect(tryGetGhosttyVtHost()).toBeNull()
-    expect(() => createOrcaPaneSurface(appearance)).toThrow(
-      'libghostty-vt WASM host is not primed'
-    )
+    const surface = createOrcaPaneSurface(appearance)
+    expect(surface.canvas.className).toBe('orca-terminal-canvas')
+    expect(surface.canvas.getAttribute('data-ghostty')).toMatch(/^pane-\d+$/)
+    expect(surface.canvas.getContext).toBeTypeOf('function')
   })
 })

@@ -81,14 +81,69 @@ function send(name, slot, payload) {
   ipcRenderer.send(CH(name), { slot, ...payload });
 }
 
+function bindCanvas(canvas) {
+  const slot = slotOf(canvas);
+  if (canvases.has(slot) && canvases.get(slot) === canvas) return;
+  canvases.set(slot, canvas);
+  if (!canvas.hasAttribute('tabindex')) canvas.setAttribute('tabindex', '0');
+
+  const rel = (e) => {
+    const r = canvas.getBoundingClientRect();
+    return { x: e.clientX - r.left, y: e.clientY - r.top };
+  };
+
+  canvas.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const p = rel(e);
+    send('mouse-scroll', slot, { ...p, dx: -e.deltaX, dy: -e.deltaY });
+  }, { passive: false });
+
+  const GHOSTTY_BUTTON = [1, 3, 2, 4, 5];
+  canvas.addEventListener('mousedown', (e) => {
+    canvas.focus();
+    send('mouse-button', slot, {
+      action: 1, button: GHOSTTY_BUTTON[e.button] ?? 0, mods: domMods(e),
+    });
+  });
+  canvas.addEventListener('mouseup', (e) => {
+    send('mouse-button', slot, {
+      action: 0, button: GHOSTTY_BUTTON[e.button] ?? 0, mods: domMods(e),
+    });
+  });
+  canvas.addEventListener('mousemove', (e) => {
+    send('mouse-pos', slot, { ...rel(e), mods: domMods(e) });
+  });
+
+  const reportSize = () => {
+    const r = canvas.getBoundingClientRect();
+    if (r.width > 0 && r.height > 0)
+      send('resize', slot, { cssWidth: r.width, cssHeight: r.height });
+  };
+  new ResizeObserver(reportSize).observe(canvas);
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    reportSize();
+    send('ready', slot, {});
+  }));
+}
+
 window.addEventListener('DOMContentLoaded', () => {
   for (const canvas of document.querySelectorAll('canvas[data-ghostty]'))
-    canvases.set(slotOf(canvas), canvas);
-  // Back-compat: a bare first <canvas> with no data-ghostty attribute.
+    bindCanvas(canvas);
   if (canvases.size === 0) {
     const canvas = document.querySelector('canvas');
-    if (canvas) canvases.set('', canvas);
+    if (canvas) bindCanvas(canvas);
   }
+  const observer = new MutationObserver((records) => {
+    for (const record of records) {
+      for (const node of record.addedNodes) {
+        if (!(node instanceof Element)) continue;
+        if (node.matches?.('canvas[data-ghostty]')) bindCanvas(node);
+        for (const canvas of node.querySelectorAll?.('canvas[data-ghostty]') ?? [])
+          bindCanvas(canvas);
+      }
+    }
+  });
+  observer.observe(document.documentElement, { childList: true, subtree: true });
   if (canvases.size === 0) return;
   canvases.values().next().value.focus();
 
@@ -152,52 +207,4 @@ window.addEventListener('DOMContentLoaded', () => {
     const slot = focusedSlot();
     if (slot !== null) send('focus', slot, { focused: false });
   });
-
-  for (const [slot, canvas] of canvases) {
-    if (!canvas.hasAttribute('tabindex')) canvas.setAttribute('tabindex', '0');
-
-    const rel = (e) => {
-      const r = canvas.getBoundingClientRect();
-      return { x: e.clientX - r.left, y: e.clientY - r.top };
-    };
-
-    canvas.addEventListener('wheel', (e) => {
-      e.preventDefault();
-      const p = rel(e);
-      // Ghostty expects scroll deltas with up = positive.
-      send('mouse-scroll', slot, { ...p, dx: -e.deltaX, dy: -e.deltaY });
-    }, { passive: false });
-
-    // DOM button -> ghostty_input_mouse_button_e (1=left 2=right 3=middle)
-    const GHOSTTY_BUTTON = [1, 3, 2, 4, 5];
-    canvas.addEventListener('mousedown', (e) => {
-      canvas.focus();
-      send('mouse-button', slot, {
-        action: 1, button: GHOSTTY_BUTTON[e.button] ?? 0, mods: domMods(e),
-      });
-    });
-    canvas.addEventListener('mouseup', (e) => {
-      send('mouse-button', slot, {
-        action: 0, button: GHOSTTY_BUTTON[e.button] ?? 0, mods: domMods(e),
-      });
-    });
-    canvas.addEventListener('mousemove', (e) => {
-      send('mouse-pos', slot, { ...rel(e), mods: domMods(e) });
-    });
-
-    // The canvas element drives the surface size: report CSS size
-    // changes and ghostty reflows the grid + resizes the PTY. The
-    // bitmap size is set by the receiver above from presented frames.
-    const reportSize = () => {
-      const r = canvas.getBoundingClientRect();
-      if (r.width > 0 && r.height > 0)
-        send('resize', slot, { cssWidth: r.width, cssHeight: r.height });
-    };
-    new ResizeObserver(reportSize).observe(canvas);
-
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      reportSize();
-      send('ready', slot, {});
-    }));
-  }
 });

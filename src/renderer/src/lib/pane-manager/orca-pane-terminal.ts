@@ -1,5 +1,3 @@
-import type { GhosttyTerminal } from '../../../../ghostty-vt/ghostty-terminal'
-import { readScrollbar } from '../../../../ghostty-vt/ghostty-terminal-ops'
 import type { OrcaDisposable, OrcaTerminalGrid } from '../../../../shared/orca-terminal-surface'
 import {
   measureCellSize,
@@ -7,44 +5,36 @@ import {
   type OrcaPaneAppearance
 } from './orca-pane-appearance'
 import {
-  createOrcaPaneBuffer,
   createOrcaPaneParser,
   flushWaiters,
   notifyTitleListeners,
-  orcaPaneModes,
-  schedulePrimaryScreenCallback,
-  trackListener
+  schedulePrimaryScreenCallback
 } from './orca-pane-buffer'
-import { applyOrcaPaneRendererMetrics } from './orca-pane-ghostty-appearance'
 import { createOrcaPaneSurface } from './orca-pane-surface'
 import { bindOrcaPaneHostChrome, type OrcaPaneHostChrome } from './orca-pane-host-chrome'
-import { syncOrcaPaneMouseReportingClass } from './orca-pane-wheel'
-import { createPaintScheduler, refreshOrcaPanePaint } from './orca-pane-paint'
-import * as paneIo from './orca-pane-terminal-io'
-import { findOrcaPane, scrollOrcaPane } from './orca-pane-viewport-nav'
 import { OrcaPaneListenerHub } from './orca-pane-terminal-events'
 
 export type { OrcaPaneAppearance } from './orca-pane-appearance'
+
+const OSC_TITLE = /\x1b\]0;([^\x07]*)\x07/g
+
 export class OrcaPaneTerminal extends OrcaPaneListenerHub {
   readonly element: HTMLCanvasElement
   readonly textarea: HTMLTextAreaElement
   readonly options: OrcaPaneAppearance
   readonly parser: ReturnType<typeof createOrcaPaneParser>
-  private readonly engine: GhosttyTerminal
-  private readonly renderer: ReturnType<typeof createOrcaPaneSurface>['renderer']
+  readonly slot: string
   private readonly measureRoot: HTMLElement
   private readonly primaryScreenWaiters = new Set<() => void>()
   private chrome: OrcaPaneHostChrome
   cellWidth: number
   cellHeight: number
-  private unbindInput = (): void => undefined
-  private readonly paintScheduler = createPaintScheduler(() => {
-    const dpr = typeof window === 'undefined' ? 1 : window.devicePixelRatio || 1
-    this.renderer.draw(this.engine, dpr)
-    for (const listener of this.renderListeners) {
-      listener()
-    }
-  })
+  private _cols = 80
+  private _rows = 24
+  private _title = ''
+  private _ingest = ''
+  private _disposed = false
+  private _alternate = false
   constructor(measureRoot: HTMLElement, appearance: Partial<OrcaPaneAppearance> = {}) {
     super()
     this.options = resolveOrcaPaneAppearance(appearance)
@@ -52,77 +42,99 @@ export class OrcaPaneTerminal extends OrcaPaneListenerHub {
     const surface = createOrcaPaneSurface(this.options)
     this.element = surface.canvas
     this.textarea = surface.textarea
-    this.engine = surface.engine
-    this.renderer = surface.renderer
+    this.slot = surface.slot
     this.cellWidth = surface.cellWidth
     this.cellHeight = surface.cellHeight
     this.parser = createOrcaPaneParser()
-    this.unbindInput = paneIo.bindOrcaPaneSession(
-      this,
-      {
-        customKeyHandler: () => this.customKeyHandler,
-        onSelectionChange: () => paneIo.notifySelectionListeners(this.selectionListeners)
-      },
-      this.engine
-    )
-    this.chrome = bindOrcaPaneHostChrome(this.element, this.measureRoot, this.engine, (delta) =>
+    this.chrome = bindOrcaPaneHostChrome(this.element, this.measureRoot, (delta) =>
       this.scrollLines(delta)
     )
     surface.bindRefresh(() => this.refresh())
   }
 
   get cols(): number {
-    return this.engine.cols
+    return this._cols
   }
   get rows(): number {
-    return this.engine.rows
+    return this._rows
   }
   get isAlternateScreen(): boolean {
-    return this.engine.isAlternateScreen
+    return this._alternate
   }
   get title(): string {
-    return this.engine.title
+    return this._title
   }
   readViewportText(): string {
-    return this.engine.readViewportText()
+    return this._ingest
   }
   get buffer(): { active: OrcaTerminalGrid } {
-    return createOrcaPaneBuffer(
-      this.engine,
-      () => this.baseY,
-      () => this.viewportY
-    )
+    const cols = this._cols
+    const rows = this._rows
+    return {
+      active: {
+        cursorX: 0,
+        cursorY: 0,
+        baseY: 0,
+        length: rows,
+        viewportY: 0,
+        type: this._alternate ? 'alternate' : 'normal',
+        getLine: () => undefined
+      }
+    }
   }
   get cursor(): { x: number; y: number } {
-    return this.engine.cursor
+    return { x: 0, y: 0 }
   }
   get viewportY(): number {
-    return readScrollbar(this.engine).offset
+    return 0
   }
   get baseY(): number {
-    const bar = readScrollbar(this.engine)
-    return Math.max(0, bar.total - bar.len)
+    return 0
   }
   write(data: string | Uint8Array, onDone?: () => void): void {
     const text = typeof data === 'string' ? data : new TextDecoder().decode(data)
-    const title = this.engine.title
-    this.engine.writePtyOutput(this.parser.consume(text))
+    const previousTitle = this._title
+    this.parser.consume(text)
+    this._ingest += text
+    if (text.includes('\x1b[?1049h')) {
+      this._alternate = true
+    }
+    if (text.includes('\x1b[?1049l')) {
+      this._alternate = false
+    }
+    OSC_TITLE.lastIndex = 0
+    let osc: RegExpExecArray | null
+    while ((osc = OSC_TITLE.exec(text)) !== null) {
+      this._title = osc[1] ?? ''
+    }
     this.chrome.write(text)
     this.refresh()
-    notifyTitleListeners(title, this.engine.title, this.titleListeners)
+    notifyTitleListeners(previousTitle, this._title, this.titleListeners)
     flushWaiters(this.isAlternateScreen, this.primaryScreenWaiters)
     onDone?.()
   }
-  get modes(): ReturnType<typeof orcaPaneModes> {
-    return orcaPaneModes(this.engine)
+  get modes(): {
+    bracketedPasteMode?: boolean
+    mouseTrackingMode?: string
+    sendFocusMode?: boolean
+    showCursor?: boolean
+  } {
+    return {
+      bracketedPasteMode: false,
+      mouseTrackingMode: 'none',
+      sendFocusMode: false,
+      showCursor: true
+    }
   }
 
   reset(): void {
-    this.engine.reset()
+    this._ingest = ''
+    this._title = ''
+    this._alternate = false
     this.refresh()
   }
   clear(): void {
-    this.engine.writePtyOutput('\x1b[2J\x1b[3J\x1b[H')
+    this._ingest = ''
     this.refresh()
   }
 
@@ -133,8 +145,13 @@ export class OrcaPaneTerminal extends OrcaPaneListenerHub {
   }
 
   onTitleChange(listener: (title: string) => void): OrcaDisposable {
-    listener(this.engine.title)
-    return trackListener(this.titleListeners, listener)
+    listener(this._title)
+    this.titleListeners.add(listener)
+    return {
+      dispose: () => {
+        this.titleListeners.delete(listener)
+      }
+    }
   }
   hasSelection(): boolean {
     return this.getSelection().length > 0
@@ -145,7 +162,8 @@ export class OrcaPaneTerminal extends OrcaPaneListenerHub {
     return undefined
   }
   resize(cols: number, rows: number): void {
-    this.engine.resize({ cols, rows, cellWidthPx: this.cellWidth, cellHeightPx: this.cellHeight })
+    this._cols = cols
+    this._rows = rows
     this.chrome.resize(cols, rows)
     this.refresh()
     for (const listener of this.resizeListeners) {
@@ -174,70 +192,48 @@ export class OrcaPaneTerminal extends OrcaPaneListenerHub {
     this.refresh()
   }
   refresh(_start?: number, _end?: number): void {
-    refreshOrcaPanePaint(this.paintScheduler, this.textarea)
     this.chrome.sync()
-    syncOrcaPaneMouseReportingClass(this.element, this.engine.mouseTracking)
+    for (const listener of this.renderListeners) {
+      listener()
+    }
   }
   focus(): void {
-    this.textarea.focus()
+    this.element.focus()
   }
   blur(): void {
-    this.textarea.blur()
+    this.element.blur()
   }
   clearSelection(): void {
-    paneIo.clearSelectionOnGhostty(this.engine)
-    this.refresh()
-    paneIo.notifySelectionListeners(this.selectionListeners)
+    for (const listener of this.selectionListeners) {
+      listener()
+    }
   }
-  setPreedit(text: string): void {
-    this.renderer.setPreedit(text)
-    this.paintScheduler.flush()
-  }
-  selectAll(): void {
-    paneIo.selectAllOnGhostty(this.engine)
-    this.refresh()
-    paneIo.notifySelectionListeners(this.selectionListeners)
-  }
+  setPreedit(_text: string): void {}
+  selectAll(): void {}
   paste(text: string): void {
-    this.input(paneIo.pasteIntoGhostty(this.engine, text))
+    this.input(text)
   }
   getSelection(): string {
-    return this.engine.readSelection()
+    return ''
   }
-  scrollToTop(): void {
-    scrollOrcaPane(this.engine, () => this.refresh(), 'TOP')
+  scrollToTop(): void {}
+  scrollToBottom(): void {}
+  scrollToLine(_line: number): void {}
+  scrollLines(_delta: number): void {}
+  encodeKey(_event: KeyboardEvent): string {
+    return ''
   }
-  scrollToBottom(): void {
-    scrollOrcaPane(this.engine, () => this.refresh(), 'BOTTOM')
+  encodeMouse(_event: MouseEvent & { deltaY?: number }): string {
+    return ''
   }
-  scrollToLine(line: number): void {
-    scrollOrcaPane(this.engine, () => this.refresh(), 'ROW', line)
+  findNext(_query: string, _options?: { caseSensitive?: boolean; regex?: boolean }): boolean {
+    return this._ingest.includes(_query)
   }
-  scrollLines(delta: number): void {
-    scrollOrcaPane(this.engine, () => this.refresh(), 'DELTA', delta)
-  }
-  encodeKey(event: KeyboardEvent): string {
-    return paneIo.encodeGhosttyKey(this.engine, event)
-  }
-  encodeMouse(event: MouseEvent & { deltaY?: number }): string {
-    const rect = this.element.getBoundingClientRect()
-    return paneIo.encodeGhosttyMouse(this.engine, event, {
-      left: rect.left,
-      top: rect.top,
-      cellWidth: this.cellWidth,
-      cellHeight: this.cellHeight,
-      cols: this.cols,
-      rows: this.rows
-    })
-  }
-  findNext(query: string, _options?: { caseSensitive?: boolean; regex?: boolean }): boolean {
-    return findOrcaPane(this.engine, () => this.refresh(), query, 'next')
-  }
-  findPrevious(query: string, _options?: { caseSensitive?: boolean; regex?: boolean }): boolean {
-    return findOrcaPane(this.engine, () => this.refresh(), query, 'previous')
+  findPrevious(query: string, options?: { caseSensitive?: boolean; regex?: boolean }): boolean {
+    return this.findNext(query, options)
   }
   serialize(_opts?: { scrollback?: number }): string {
-    return this.engine.readVt()
+    return this._ingest
   }
   whenPrimaryScreen(callback: () => void): OrcaDisposable {
     return schedulePrimaryScreenCallback(
@@ -250,37 +246,22 @@ export class OrcaPaneTerminal extends OrcaPaneListenerHub {
     const cells = measureCellSize(this.options)
     this.cellWidth = cells.width
     this.cellHeight = cells.height
-    applyOrcaPaneRendererMetrics(this.renderer, this.options, cells)
     this.resize(this.cols, this.rows)
   }
-  hyperlinkAt(clientX: number, clientY: number): string | null {
-    return paneIo.hitTestGhosttyHyperlink(
-      this.engine,
-      this.element,
-      this.cellWidth,
-      this.cellHeight,
-      clientX,
-      clientY
-    )
+  hyperlinkAt(_clientX: number, _clientY: number): string | null {
+    return null
   }
   get isDisposed(): boolean {
-    return this.engine.isDisposed
+    return this._disposed
   }
-  loseGpuContext(): void {
-    this.renderer.invalidate()
-  }
-  invalidateGpuAtlas(): void {
-    this.renderer.invalidate()
-  }
+  loseGpuContext(): void {}
+  invalidateGpuAtlas(): void {}
   isGpuContextLost(): boolean {
-    return this.renderer.isContextLost()
+    return false
   }
   dispose(): void {
-    this.unbindInput()
+    this._disposed = true
     this.chrome.dispose()
-    this.paintScheduler.dispose()
     this.primaryScreenWaiters.clear()
-    this.renderer.dispose()
-    this.engine.dispose()
   }
 }
