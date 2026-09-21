@@ -6373,7 +6373,7 @@
         "occursExactly": 1
       },
       "postcondition": {
-        "mustOccurExactlyOnce": "  writeExact(id: string, data: Buffer): boolean {"
+        "mustOccurExactlyOnce": "return writeLocalPtyExact(id, data)"
       },
       "reason": "D2: LocalPtyProvider exposes writeExact"
     },
@@ -6387,7 +6387,7 @@
         "occursExactly": 1
       },
       "postcondition": {
-        "mustOccurExactlyOnce": "  writeLocalPtyExact,"
+        "mustOccurExactlyOnce": "writeLocalPtyExact\n} from './local-pty-session-operations'"
       },
       "reason": "D2: import writeLocalPtyExact"
     },
