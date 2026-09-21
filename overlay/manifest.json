@@ -6303,7 +6303,7 @@
         "occursExactly": 1
       },
       "postcondition": {
-        "mustOccurExactlyOnce": "request.payload.dataBase64"
+        "mustOccurExactlyOnce": "Buffer.from(request.payload.dataBase64, 'base64')"
       },
       "reason": "D2: daemon write handler decodes dataBase64 to Buffer"
     },
