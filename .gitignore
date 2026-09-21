@@ -19,6 +19,13 @@ dist/
 # Native build artifacts (sources live in native/*/src)
 native/*/build/
 native/*/node_modules/
+native/**/build/
+native/**/*.node
+native/horca-ghostty/vendor/
 
 # Xcode/SwiftPM scratch build dirs
 native/*/.build/
+
+# D2 Ghostty native build products (sources stay tracked)
+native/**/build/
+native/**/*.node

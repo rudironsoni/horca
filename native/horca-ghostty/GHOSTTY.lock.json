@@ -1,0 +1,29 @@
+{
+  "ghosttyRevision": "c41c6b81a4642ccba18d47b375d9495664de72a0",
+  "source": "mxschmitt/ghostty-xterm-bench scripts/setup-ghostty.sh PIN",
+  "ghosttyXtermBench": {
+    "repository": "https://github.com/mxschmitt/ghostty-xterm-bench",
+    "revision": "046045cc5743a155c2975bb7a690384eaa42ef32",
+    "path": "packages/electron-ghostty",
+    "license": "MIT"
+  },
+  "passthruDonor": {
+    "repository": "https://github.com/madeye/ghostty",
+    "revision": "ea0622bc4a3a2acada488574cf4bd83b297a6c68",
+    "subject": "termio: add passthru IO backend for embedder-provided IO (SSH)",
+    "inspectedForkHead": "7fb9e90363a431d15a67a22ff661e33c1be59060",
+    "license": "MIT"
+  },
+  "displayLinkFallbackUpstream": {
+    "commit": "a177ba90af18d5df91b2b5cb8dddc0a55905c37f",
+    "subject": "macos: tolerate display link creation failures",
+    "fixes": "#13293",
+    "backportClassification": "REQUIRED_BEFORE_RELEASE"
+  },
+  "patches": [
+    "patches/0001-build-install-libghostty-static-on-macos.patch",
+    "patches/0002-apprt-embedded-headless-platform.patch",
+    "patches/0003-termio-passthru-io-backend.patch",
+    "patches/0004-build-libghostty-static-step.patch"
+  ]
+}

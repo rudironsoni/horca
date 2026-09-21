@@ -6058,6 +6058,40 @@
         "kind": "file-absent"
       },
       "reason": "Horca distribution identity used by catalog rewrite"
+    },
+    {
+      "id": "gate-d1-h-add-src-main-daemon-ghostty-headless-emulator-protocol-authority.test.ts",
+      "target": "src/main/daemon/ghostty-headless-emulator-protocol-authority.test.ts",
+      "mode": "add",
+      "source": "src/main/daemon/ghostty-headless-emulator-protocol-authority.test.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-H: protocol authority and model sequence"
+    },
+    {
+      "id": "d2-subprocess-handle-write-buffer",
+      "target": "src/main/daemon/session-subprocess-handle.ts",
+      "mode": "substitute",
+      "find": "  write(data: string): void",
+      "replace": "  write(data: string | Buffer): void",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "  write(data: string | Buffer): void"
+      },
+      "reason": "D2: Ghostty pty_write_cb bytes must reach node-pty as Buffer, not latin1/UTF-8 strings"
+    },
+    {
+      "id": "d2-subprocess-handle-write-contract-test",
+      "target": "src/main/daemon/subprocess-handle-write-contract.test.ts",
+      "mode": "add",
+      "source": "src/main/daemon/subprocess-handle-write-contract.test.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: Buffer vs string write contract at daemon PTY wrapper"
     }
   ]
 }
