@@ -6,11 +6,11 @@
   },
   "counts": {
     "rows": 610,
-    "productCapabilities": 604,
+    "productCapabilities": 583,
     "implementationEvidence": 0,
-    "notApplicable": 6,
+    "notApplicable": 27,
     "pass": 362,
-    "fail": 242
+    "fail": 221
   },
   "capabilities": [
     {
@@ -896,15 +896,15 @@
       ],
       "horcaImplementation": [],
       "tests": [],
-      "nativeMac": "FAIL",
+      "nativeMac": "N/A",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
-      "kind": "PRODUCT_CAPABILITY",
+      "status": "NOT_APPLICABLE",
+      "kind": "NOT_APPLICABLE",
       "group": "agent-terminal-chrome",
       "mapsTo": null,
-      "naReason": null
+      "naReason": "test fixture or type-only module; not a user-visible terminal capability"
     },
     {
       "capability": "agent-completion-coordinator-types",
@@ -913,15 +913,15 @@
       ],
       "horcaImplementation": [],
       "tests": [],
-      "nativeMac": "FAIL",
+      "nativeMac": "N/A",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
-      "kind": "PRODUCT_CAPABILITY",
+      "status": "NOT_APPLICABLE",
+      "kind": "NOT_APPLICABLE",
       "group": "agent-terminal-chrome",
       "mapsTo": null,
-      "naReason": null
+      "naReason": "test fixture or type-only module; not a user-visible terminal capability"
     },
     {
       "capability": "agent-completion-coordinator",
@@ -1119,15 +1119,15 @@
       ],
       "horcaImplementation": [],
       "tests": [],
-      "nativeMac": "FAIL",
+      "nativeMac": "N/A",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
-      "kind": "PRODUCT_CAPABILITY",
+      "status": "NOT_APPLICABLE",
+      "kind": "NOT_APPLICABLE",
       "group": "agent-terminal-chrome",
       "mapsTo": null,
-      "naReason": null
+      "naReason": "test fixture or type-only module; not a user-visible terminal capability"
     },
     {
       "capability": "agent-completion-snapshot-staleness",
@@ -1940,15 +1940,15 @@
       ],
       "horcaImplementation": [],
       "tests": [],
-      "nativeMac": "FAIL",
+      "nativeMac": "N/A",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
-      "kind": "PRODUCT_CAPABILITY",
+      "status": "NOT_APPLICABLE",
+      "kind": "NOT_APPLICABLE",
       "group": "terminal-chrome",
       "mapsTo": null,
-      "naReason": null
+      "naReason": "test fixture or type-only module; not a user-visible terminal capability"
     },
     {
       "capability": "osc52-clipboard-default-on-notice",
@@ -2264,15 +2264,15 @@
       ],
       "horcaImplementation": [],
       "tests": [],
-      "nativeMac": "FAIL",
+      "nativeMac": "N/A",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
-      "kind": "PRODUCT_CAPABILITY",
+      "status": "NOT_APPLICABLE",
+      "kind": "NOT_APPLICABLE",
       "group": "remote-pty",
       "mapsTo": null,
-      "naReason": null
+      "naReason": "test fixture or type-only module; not a user-visible terminal capability"
     },
     {
       "capability": "pty-connection-test-constants",
@@ -2281,15 +2281,15 @@
       ],
       "horcaImplementation": [],
       "tests": [],
-      "nativeMac": "FAIL",
+      "nativeMac": "N/A",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
-      "kind": "PRODUCT_CAPABILITY",
+      "status": "NOT_APPLICABLE",
+      "kind": "NOT_APPLICABLE",
       "group": "remote-pty",
       "mapsTo": null,
-      "naReason": null
+      "naReason": "test fixture or type-only module; not a user-visible terminal capability"
     },
     {
       "capability": "pty-connection-test-deps",
@@ -2298,15 +2298,15 @@
       ],
       "horcaImplementation": [],
       "tests": [],
-      "nativeMac": "FAIL",
+      "nativeMac": "N/A",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
-      "kind": "PRODUCT_CAPABILITY",
+      "status": "NOT_APPLICABLE",
+      "kind": "NOT_APPLICABLE",
       "group": "remote-pty",
       "mapsTo": null,
-      "naReason": null
+      "naReason": "test fixture or type-only module; not a user-visible terminal capability"
     },
     {
       "capability": "pty-connection-test-dom",
@@ -2315,15 +2315,15 @@
       ],
       "horcaImplementation": [],
       "tests": [],
-      "nativeMac": "FAIL",
+      "nativeMac": "N/A",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
-      "kind": "PRODUCT_CAPABILITY",
+      "status": "NOT_APPLICABLE",
+      "kind": "NOT_APPLICABLE",
       "group": "remote-pty",
       "mapsTo": null,
-      "naReason": null
+      "naReason": "test fixture or type-only module; not a user-visible terminal capability"
     },
     {
       "capability": "pty-connection-test-environment",
@@ -2332,15 +2332,15 @@
       ],
       "horcaImplementation": [],
       "tests": [],
-      "nativeMac": "FAIL",
+      "nativeMac": "N/A",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
-      "kind": "PRODUCT_CAPABILITY",
+      "status": "NOT_APPLICABLE",
+      "kind": "NOT_APPLICABLE",
       "group": "remote-pty",
       "mapsTo": null,
-      "naReason": null
+      "naReason": "test fixture or type-only module; not a user-visible terminal capability"
     },
     {
       "capability": "pty-connection-test-pane-fixtures",
@@ -2349,15 +2349,15 @@
       ],
       "horcaImplementation": [],
       "tests": [],
-      "nativeMac": "FAIL",
+      "nativeMac": "N/A",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
-      "kind": "PRODUCT_CAPABILITY",
+      "status": "NOT_APPLICABLE",
+      "kind": "NOT_APPLICABLE",
       "group": "remote-pty",
       "mapsTo": null,
-      "naReason": null
+      "naReason": "test fixture or type-only module; not a user-visible terminal capability"
     },
     {
       "capability": "pty-connection-test-store-fixtures",
@@ -2400,15 +2400,15 @@
       ],
       "horcaImplementation": [],
       "tests": [],
-      "nativeMac": "FAIL",
+      "nativeMac": "N/A",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
-      "kind": "PRODUCT_CAPABILITY",
+      "status": "NOT_APPLICABLE",
+      "kind": "NOT_APPLICABLE",
       "group": "remote-pty",
       "mapsTo": null,
-      "naReason": null
+      "naReason": "test fixture or type-only module; not a user-visible terminal capability"
     },
     {
       "capability": "pty-connection",
@@ -2864,15 +2864,15 @@
       ],
       "horcaImplementation": [],
       "tests": [],
-      "nativeMac": "FAIL",
+      "nativeMac": "N/A",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
-      "kind": "PRODUCT_CAPABILITY",
+      "status": "NOT_APPLICABLE",
+      "kind": "NOT_APPLICABLE",
       "group": "remote-pty",
       "mapsTo": null,
-      "naReason": null
+      "naReason": "test fixture or type-only module; not a user-visible terminal capability"
     },
     {
       "capability": "hidden-output-restore-abandon",
@@ -4126,15 +4126,15 @@
       ],
       "horcaImplementation": [],
       "tests": [],
-      "nativeMac": "FAIL",
+      "nativeMac": "N/A",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
-      "kind": "PRODUCT_CAPABILITY",
+      "status": "NOT_APPLICABLE",
+      "kind": "NOT_APPLICABLE",
       "group": "terminal-chrome",
       "mapsTo": null,
-      "naReason": null
+      "naReason": "test fixture or type-only module; not a user-visible terminal capability"
     },
     {
       "capability": "pty-transport-types",
@@ -4143,15 +4143,15 @@
       ],
       "horcaImplementation": [],
       "tests": [],
-      "nativeMac": "FAIL",
+      "nativeMac": "N/A",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
-      "kind": "PRODUCT_CAPABILITY",
+      "status": "NOT_APPLICABLE",
+      "kind": "NOT_APPLICABLE",
       "group": "terminal-chrome",
       "mapsTo": null,
-      "naReason": null
+      "naReason": "test fixture or type-only module; not a user-visible terminal capability"
     },
     {
       "capability": "pty-transport",
@@ -6785,15 +6785,15 @@
       ],
       "horcaImplementation": [],
       "tests": [],
-      "nativeMac": "FAIL",
+      "nativeMac": "N/A",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
-      "kind": "PRODUCT_CAPABILITY",
+      "status": "NOT_APPLICABLE",
+      "kind": "NOT_APPLICABLE",
       "group": "lifecycle",
       "mapsTo": null,
-      "naReason": null
+      "naReason": "test fixture or type-only module; not a user-visible terminal capability"
     },
     {
       "capability": "terminal-pane-manager-options",
@@ -7186,15 +7186,15 @@
       ],
       "horcaImplementation": [],
       "tests": [],
-      "nativeMac": "FAIL",
+      "nativeMac": "N/A",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
-      "kind": "PRODUCT_CAPABILITY",
+      "status": "NOT_APPLICABLE",
+      "kind": "NOT_APPLICABLE",
       "group": "terminal-chrome",
       "mapsTo": null,
-      "naReason": null
+      "naReason": "test fixture or type-only module; not a user-visible terminal capability"
     },
     {
       "capability": "terminal-pane-wsl-distro",
@@ -7824,15 +7824,15 @@
       ],
       "horcaImplementation": [],
       "tests": [],
-      "nativeMac": "FAIL",
+      "nativeMac": "N/A",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
-      "kind": "PRODUCT_CAPABILITY",
+      "status": "NOT_APPLICABLE",
+      "kind": "NOT_APPLICABLE",
       "group": "terminal-chrome",
       "mapsTo": null,
-      "naReason": null
+      "naReason": "test fixture or type-only module; not a user-visible terminal capability"
     },
     {
       "capability": "terminal-remote-file-download-open",
@@ -8717,15 +8717,15 @@
       ],
       "horcaImplementation": [],
       "tests": [],
-      "nativeMac": "FAIL",
+      "nativeMac": "N/A",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
-      "kind": "PRODUCT_CAPABILITY",
+      "status": "NOT_APPLICABLE",
+      "kind": "NOT_APPLICABLE",
       "group": "terminal-chrome",
       "mapsTo": null,
-      "naReason": null
+      "naReason": "test fixture or type-only module; not a user-visible terminal capability"
     },
     {
       "capability": "use-terminal-pane-global-effects",
@@ -9885,15 +9885,15 @@
       ],
       "horcaImplementation": [],
       "tests": [],
-      "nativeMac": "FAIL",
+      "nativeMac": "N/A",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
-      "kind": "PRODUCT_CAPABILITY",
+      "status": "NOT_APPLICABLE",
+      "kind": "NOT_APPLICABLE",
       "group": "lifecycle",
       "mapsTo": null,
-      "naReason": null
+      "naReason": "test fixture or type-only module; not a user-visible terminal capability"
     },
     {
       "capability": "pane-manager",
@@ -10435,15 +10435,15 @@
       ],
       "horcaImplementation": [],
       "tests": [],
-      "nativeMac": "FAIL",
+      "nativeMac": "N/A",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
-      "kind": "PRODUCT_CAPABILITY",
+      "status": "NOT_APPLICABLE",
+      "kind": "NOT_APPLICABLE",
       "group": "lifecycle",
       "mapsTo": null,
-      "naReason": null
+      "naReason": "test fixture or type-only module; not a user-visible terminal capability"
     },
     {
       "capability": "pane-terminal-output-scheduler",
@@ -11310,15 +11310,15 @@
       ],
       "horcaImplementation": [],
       "tests": [],
-      "nativeMac": "FAIL",
+      "nativeMac": "N/A",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
-      "kind": "PRODUCT_CAPABILITY",
+      "status": "NOT_APPLICABLE",
+      "kind": "NOT_APPLICABLE",
       "group": "rendering",
       "mapsTo": null,
-      "naReason": null
+      "naReason": "test fixture or type-only module; not a user-visible terminal capability"
     },
     {
       "capability": "echo-instrumentation",
