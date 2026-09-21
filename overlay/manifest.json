@@ -6092,6 +6092,26 @@
         "kind": "file-absent"
       },
       "reason": "D2: Buffer vs string write contract at daemon PTY wrapper"
+    },
+    {
+      "id": "d2-add-src-main-horca-ghostty-passthru-engine.ts",
+      "target": "src/main/horca/ghostty-passthru-engine.ts",
+      "mode": "add",
+      "source": "src/main/horca/ghostty-passthru-engine.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: MAIN Ghostty passthru engine bound to Horca SubprocessHandle Buffer writes"
+    },
+    {
+      "id": "d2-add-src-main-horca-ghostty-passthru-engine.test.ts",
+      "target": "src/main/horca/ghostty-passthru-engine.test.ts",
+      "mode": "add",
+      "source": "src/main/horca/ghostty-passthru-engine.test.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: MAIN passthru Buffer write contract"
     }
   ]
 }
