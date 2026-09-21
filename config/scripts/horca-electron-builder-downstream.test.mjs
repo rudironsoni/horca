@@ -28,4 +28,22 @@ describe('Horca downstream packaging', () => {
     expect(config.linux.extraResources).toEqual(expect.arrayContaining(expected))
     expect(config.beforePack).toBeTypeOf('function')
   })
+
+  it('packages the MAIN Ghostty addon on every desktop platform', () => {
+    process.env.ORCA_DOWNSTREAM_BUILD = '1'
+    const config = applyDownstreamDistribution({
+      win: { extraResources: [] },
+      mac: { extraResources: [] },
+      linux: { extraResources: [] }
+    })
+    expect(config.mac.extraResources).toEqual(
+      expect.arrayContaining([expect.objectContaining({ to: 'horca-ghostty' })])
+    )
+    expect(config.win.extraResources).toEqual(
+      expect.arrayContaining([expect.objectContaining({ to: 'horca-ghostty' })])
+    )
+    expect(config.linux.extraResources).toEqual(
+      expect.arrayContaining([expect.objectContaining({ to: 'horca-ghostty' })])
+    )
+  })
 })

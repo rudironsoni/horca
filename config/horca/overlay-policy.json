@@ -16,7 +16,8 @@
     "src/shared/horca-pairing",
     "src/shared/horca-vite-distribution",
     "src/ghostty-vt/",
-    "native/ghostty-surface/"
+    "native/ghostty-surface/",
+    "native/horca-ghostty/"
   ],
   "forkOnlyPaths": [
     "config/electron-builder-downstream.cjs",

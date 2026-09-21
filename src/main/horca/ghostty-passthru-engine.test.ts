@@ -3,7 +3,8 @@ import { EventEmitter } from 'node:events'
 import type { SubprocessHandle } from '../daemon/session-subprocess-handle'
 import {
   createHorcaGhosttyPassthruEngine,
-  HORCA_GHOSTTY_ENGINE_PLACEMENT
+  HORCA_GHOSTTY_ENGINE_PLACEMENT,
+  resolveElectronGhosttyRoot
 } from './ghostty-passthru-engine'
 
 const instances: FakeGhostty[] = []
@@ -40,6 +41,12 @@ function fakeHandle() {
   }
   return handle as typeof handle & SubprocessHandle
 }
+
+describe('resolveElectronGhosttyRoot', () => {
+  it('resolves the transplanted electron-ghostty package in development', () => {
+    expect(resolveElectronGhosttyRoot()).toContain('native/horca-ghostty/adopted/electron-ghostty')
+  })
+})
 
 describe('createHorcaGhosttyPassthruEngine', () => {
   it('places Ghostty on MAIN passthru and writes pty_write_cb as Buffer', () => {

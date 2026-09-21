@@ -233,6 +233,20 @@
       "reason": "packaged daemon can load libghostty-vt WASM next to unpacked main chunks"
     },
     {
+      "id": "d2-packaging-mac-horca-ghostty-extra-resources",
+      "target": "config/electron-builder.config.cjs",
+      "mode": "substitute",
+      "find": "      {\n        from: 'native/computer-use-macos/.build/release/Orca Computer Use.app',\n        to: 'Orca Computer Use.app'\n      },\n      featureWallResources",
+      "replace": "      {\n        from: 'native/computer-use-macos/.build/release/Orca Computer Use.app',\n        to: 'Orca Computer Use.app'\n      },\n      {\n        from: 'native/horca-ghostty/adopted/electron-ghostty',\n        to: 'horca-ghostty',\n        filter: [\n          'addon.js',\n          'host.js',\n          'index.js',\n          'preload.js',\n          'protocol.js',\n          'package.json',\n          'LICENSE',\n          'build/Release/ghostty_renderer.node'\n        ]\n      },\n      featureWallResources",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "to: 'horca-ghostty'"
+      },
+      "reason": "D2: pack MAIN Ghostty addon into mac extraResources"
+    },
+    {
       "id": "release-packaging-ghostty-wasm-asar-unpack",
       "target": "config/electron-builder.config.cjs",
       "mode": "substitute",

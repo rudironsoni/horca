@@ -1,4 +1,6 @@
+import { existsSync } from 'node:fs'
 import { createRequire } from 'node:module'
+import { join } from 'node:path'
 import type { WebContents } from 'electron'
 import type { SubprocessHandle } from '../daemon/session-subprocess-handle'
 
@@ -27,11 +29,19 @@ type GhosttyTerminalCtor = new (opts: {
   fontSize?: number
 }) => GhosttyPassthruTerminal
 
+export function resolveElectronGhosttyRoot(): string {
+  const packaged = join(process.resourcesPath ?? '', 'horca-ghostty')
+  if (existsSync(join(packaged, 'index.js'))) {
+    return packaged
+  }
+  return join(__dirname, '../../../native/horca-ghostty/adopted/electron-ghostty')
+}
+
 function loadGhosttyTerminal(): GhosttyTerminalCtor {
   const requireFromHere = createRequire(__filename)
-  const mod = requireFromHere(
-    '../../../native/horca-ghostty/adopted/electron-ghostty'
-  ) as { GhosttyTerminal: GhosttyTerminalCtor }
+  const mod = requireFromHere(resolveElectronGhosttyRoot()) as {
+    GhosttyTerminal: GhosttyTerminalCtor
+  }
   return mod.GhosttyTerminal
 }
 
