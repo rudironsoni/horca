@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import test from 'node:test'
 import {
   evaluateGhosttyHeadless,
@@ -99,6 +101,15 @@ test('rejects a package without the Horca CLI', async () => {
   const root = await mkdtemp(join(tmpdir(), 'horca-package-'))
   roots.push(root)
   assert.throws(() => verifyHorcaResources(join(root, 'app.asar')), /public Horca CLI is packaged/)
+})
+
+test('sandboxed Ghostty preload loader does not import node builtins', () => {
+  const source = readFileSync(
+    join(dirname(fileURLToPath(import.meta.url)), '../../src/preload/horca-ghostty-passthru-api.ts'),
+    'utf8'
+  )
+  assert.equal(source.includes('node:fs'), false)
+  assert.equal(source.includes('node:path'), false)
 })
 
 test('rejects a package without the MAIN Ghostty addon', async () => {

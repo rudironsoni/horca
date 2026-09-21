@@ -1,5 +1,3 @@
-import { existsSync } from 'node:fs'
-import { join } from 'node:path'
 import type { IpcRenderer } from 'electron'
 import {
   HORCA_GHOSTTY_PASSTHRU_CHANNELS,
@@ -17,10 +15,17 @@ export function createHorcaGhosttyPassthruApi(
 }
 
 export function loadElectronGhosttyPreload(): void {
-  const packaged = join(process.resourcesPath ?? '', 'horca-ghostty', 'preload.js')
-  if (existsSync(packaged)) {
-    require(packaged)
-    return
+  const resourcesPath = process.resourcesPath
+  if (resourcesPath) {
+    try {
+      require(`${resourcesPath}/horca-ghostty/preload.js`)
+      return
+    } catch (error) {
+      const code = error && typeof error === 'object' && 'code' in error ? error.code : ''
+      if (code !== 'MODULE_NOT_FOUND') {
+        throw error
+      }
+    }
   }
   require('../../native/horca-ghostty/adopted/electron-ghostty/preload.js')
 }
