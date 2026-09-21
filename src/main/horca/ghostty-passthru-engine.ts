@@ -27,6 +27,7 @@ type GhosttyTerminalCtor = new (opts: {
   passthru: true
   scale?: number
   fontSize?: number
+  config?: string
 }) => GhosttyPassthruTerminal
 
 export function resolveElectronGhosttyRoot(): string {
