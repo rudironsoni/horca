@@ -6194,6 +6194,20 @@
       "reason": "D2: renderer attach payload"
     },
     {
+      "id": "d2-tsconfig-node-exclude-herdr",
+      "target": "config/tsconfig.node.json",
+      "mode": "substitute",
+      "find": "    \"../src/types/**/*\"\n  ],",
+      "replace": "    \"../src/types/**/*\"\n  ],\n  \"exclude\": [\n    \"../src/main/providers/multiplexer/herdr/**\",\n    \"../src/main/horca/terminal-backend/register-herdr-terminal-backend.ts\",\n    \"../src/main/horca/terminal-backend/register-herdr-terminal-backend.test.ts\",\n    \"../src/main/horca/terminal-backend/horca-herdr-health.ts\",\n    \"../src/main/horca/terminal-backend/horca-herdr-health.test.ts\",\n    \"../src/main/horca/terminal-backend/electron-herdr-desktop-surface.ts\",\n    \"../src/main/horca/terminal-backend/herdr-desktop-surface.ts\"\n  ],",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "../src/main/providers/multiplexer/herdr/**"
+      },
+      "reason": "D2: Herdr is out of D2; keep node typecheck on the Ghostty PTY graph"
+    },
+    {
       "id": "d2-pty-provider-write-exact",
       "target": "src/main/providers/pty-provider-contract.ts",
       "mode": "substitute",
@@ -6220,6 +6234,20 @@
         "mustOccurExactlyOnce": "dataBase64: data.toString('base64')"
       },
       "reason": "D2: daemon NDJSON writeExact carries Ghostty bytes as dataBase64"
+    },
+    {
+      "id": "d2-daemon-write-request-datab64",
+      "target": "src/main/daemon/types.ts",
+      "mode": "substitute",
+      "find": "  payload: {\n    sessionId: string\n    data: string\n  }\n}\n\nexport type ResizeRequest = {",
+      "replace": "  payload: {\n    sessionId: string\n    data: string\n    dataBase64?: string\n  }\n}\n\nexport type ResizeRequest = {",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "    dataBase64?: string"
+      },
+      "reason": "D2: WriteRequest carries optional dataBase64 for Ghostty Buffer writes"
     },
     {
       "id": "d2-daemon-request-router-write-buffer",

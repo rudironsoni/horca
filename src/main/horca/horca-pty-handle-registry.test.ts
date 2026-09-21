@@ -21,7 +21,7 @@ function fakeHandle(): SubprocessHandle & { write: ReturnType<typeof vi.fn> } {
     resize: vi.fn(),
     kill: vi.fn(),
     forceKill: vi.fn(),
-    terminateOwnedTree: () => ({ kind: 'unavailable' as const }),
+    terminateOwnedTree: () => 'unavailable' as const,
     signal: vi.fn(),
     onData: vi.fn(),
     onExit: vi.fn(),

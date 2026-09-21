@@ -11,8 +11,8 @@
   ],
   "architectureNow": [
     {
-      "id": "macos-ghostty-surface-nsview",
-      "summary": "libghostty embedding uses ghostty_surface_t with GHOSTTY_PLATFORM_MACOS and an NSView. Metal is inside libghostty. Horca must host that view in Electron, not paint a CAMetalLayer and feed bytes to an unbound surface.",
+      "id": "macos-ghostty-metal-sharedtexture",
+      "summary": "Production macOS rasterizer is Ghostty Metal. Presentation is IOSurface to Electron sharedTexture to VideoFrame to a DOM compositor canvas. The canvas is not a Canvas2D terminal renderer. NSView overlay is forbidden.",
       "class": "ADOPT"
     }
   ],
@@ -21,7 +21,7 @@
       "capability": "native Metal renderer via libghostty surface",
       "class": "ADOPT",
       "evidence": "libghostty C API ghostty_surface_t; Ghostty macOS uses Metal; cmux embeds libghostty as the renderer.",
-      "architectureImpact": "PRIMARY macOS UI renderer. Electron must host NSView/CAMetalLayer owned by libghostty. Current orca_ghostty_macos_available()==false is an incomplete bridge."
+      "architectureImpact": "PRIMARY macOS UI renderer. Ghostty Metal presents through IOSurface, Electron sharedTexture, and a DOM compositor canvas."
     },
     {
       "capability": "native keyboard/IME via Ghostty key encoder and AppKit",

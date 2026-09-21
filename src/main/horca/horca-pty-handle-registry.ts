@@ -1,5 +1,4 @@
 import type { SubprocessHandle } from '../daemon/session-subprocess-handle'
-import type { IPtyProvider } from '../providers/types'
 import type { PtyDataEvent } from '../providers/pty-provider-events'
 
 export type HorcaPtyExactWriter = {
@@ -71,7 +70,7 @@ export function createHorcaPtyHandleAdapter(
     },
     kill: () => undefined,
     forceKill: () => undefined,
-    terminateOwnedTree: () => ({ kind: 'unavailable' as const }),
+    terminateOwnedTree: () => 'unavailable' as const,
     signal: () => undefined,
     onData: (cb) => {
       dataListeners.add(cb)

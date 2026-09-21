@@ -1,9 +1,6 @@
 import type { Store } from '../persistence'
 import { getDaemonProvider } from '../daemon/daemon-init'
 import { tryGetProviderForPty } from '../ipc/pty/provider/registry'
-import { electronHerdrDesktopSurface } from './terminal-backend/electron-herdr-desktop-surface'
-import { setHerdrDesktopSurface } from './terminal-backend/herdr-desktop-surface'
-import { registerHerdrTerminalBackend } from './terminal-backend/register-herdr-terminal-backend'
 import {
   createHorcaTerminalSettingsSource,
   horcaTerminalSettingsPath
@@ -22,9 +19,7 @@ export type HorcaRegistration = {
 }
 
 export function initializeHorca(store: Store): HorcaRegistration {
-  setHerdrDesktopSurface(electronHerdrDesktopSurface)
   const settings = createHorcaTerminalSettingsSource(store, horcaTerminalSettingsPath())
-  const unregisterHerdr = registerHerdrTerminalBackend(store, settings)
   const unregisterSettingsIpc = registerHorcaTerminalSettingsIpc(settings)
   const unregisterGhosttySurfaceIpc = registerHorcaGhosttySurfaceIpc()
   setHorcaPtyProviderLookup((sessionId) => {
@@ -36,10 +31,8 @@ export function initializeHorca(store: Store): HorcaRegistration {
       unregisterPassthruIpc()
       unregisterGhosttySurfaceIpc()
       unregisterSettingsIpc()
-      unregisterHerdr()
       setHorcaPtyProviderLookup(null)
       clearHorcaPtyHandleRegistry()
-      setHerdrDesktopSurface(null)
     }
   }
 }
