@@ -33,7 +33,9 @@ export function createPreviewGridClaim(args: {
     if (disposed || !terminal) {
       return
     }
-    const screen = args.container.querySelector<HTMLElement>('.xterm-screen')
+    const screen = args.container.querySelector<HTMLElement>(
+      '.orca-terminal-canvas, canvas[data-ghostty], .xterm-screen'
+    )
     const box = args.container.parentElement
     if (!screen || !box) {
       return

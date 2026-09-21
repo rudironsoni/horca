@@ -6154,6 +6154,36 @@
       "reason": "D2: Buffer writeExact adapter contract"
     },
     {
+      "id": "d2-add-src-main-horca-ghostty-main-pty-lifecycle.test.ts",
+      "target": "src/main/horca/ghostty-main-pty-lifecycle.test.ts",
+      "mode": "add",
+      "source": "src/main/horca/ghostty-main-pty-lifecycle.test.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: MAIN Ghostty multi-session Buffer PTY lifecycle"
+    },
+    {
+      "id": "d2-add-src-renderer-ghostty-main-pane-capability.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/ghostty-main-pane-capability.test.ts",
+      "mode": "add",
+      "source": "src/renderer/src/lib/pane-manager/ghostty-main-pane-capability.test.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: MAIN Ghostty pane chrome, lifecycle, and remote bind"
+    },
+    {
+      "id": "d2-add-src-renderer-ghostty-main-remaining-surface.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/ghostty-main-remaining-surface.test.ts",
+      "mode": "add",
+      "source": "src/renderer/src/lib/pane-manager/ghostty-main-remaining-surface.test.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: remaining Ghostty surface, theme, preview-grid, and scrollback tests"
+    },
+    {
       "id": "d2-add-src-shared-horca-ghostty-passthru-api.ts",
       "target": "src/shared/horca/ghostty-passthru-api.ts",
       "mode": "add",
