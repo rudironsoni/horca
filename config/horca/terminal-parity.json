@@ -9,8 +9,8 @@
     "productCapabilities": 562,
     "implementationEvidence": 0,
     "notApplicable": 48,
-    "pass": 535,
-    "fail": 27
+    "pass": 544,
+    "fail": 18
   },
   "capabilities": [
     {
@@ -2088,13 +2088,14 @@
         "overlay/d1-r/src/renderer/src/components/terminal-pane/mouse-hide-while-typing.ts"
       ],
       "tests": [
-        "src/renderer/src/components/terminal-pane/mouse-hide-while-typing.test.ts"
+        "src/renderer/src/components/terminal-pane/mouse-hide-while-typing.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-mouse-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "mouse",
       "mapsTo": null,
@@ -7074,13 +7075,14 @@
         "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-link-pointer-gesture.ts"
       ],
       "tests": [
-        "src/renderer/src/components/terminal-pane/terminal-link-pointer-gesture.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-link-pointer-gesture.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-mouse-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "mouse",
       "mapsTo": null,
@@ -7115,13 +7117,14 @@
         "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-link-pty-mouse-suppression.ts"
       ],
       "tests": [
-        "src/renderer/src/components/terminal-pane/terminal-link-pty-mouse-suppression.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-link-pty-mouse-suppression.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-mouse-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "mouse",
       "mapsTo": null,
@@ -7200,13 +7203,14 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/mouse-hide-while-typing.test.ts",
         "src/renderer/src/lib/pane-manager/orca-pane-terminal-io.test.ts",
-        "src/renderer/src/lib/pane-manager/orca-pane-wheel.test.ts"
+        "src/renderer/src/lib/pane-manager/orca-pane-wheel.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-mouse-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "mouse",
       "mapsTo": null,
@@ -10436,13 +10440,14 @@
       ],
       "horcaImplementation": [],
       "tests": [
-        "src/renderer/src/lib/pane-manager/focus-follows-mouse.test.ts"
+        "src/renderer/src/lib/pane-manager/focus-follows-mouse.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-mouse-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "mouse",
       "mapsTo": null,
@@ -10647,13 +10652,14 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/mouse-hide-while-typing.test.ts",
         "src/renderer/src/lib/pane-manager/orca-pane-terminal-io.test.ts",
-        "src/renderer/src/lib/pane-manager/orca-pane-wheel.test.ts"
+        "src/renderer/src/lib/pane-manager/orca-pane-wheel.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-mouse-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "mouse",
       "mapsTo": null,
@@ -11108,13 +11114,14 @@
       ],
       "horcaImplementation": [],
       "tests": [
-        "src/renderer/src/lib/pane-manager/pane-pointer-focus.test.ts"
+        "src/renderer/src/lib/pane-manager/pane-pointer-focus.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-mouse-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "mouse",
       "mapsTo": null,
@@ -11727,13 +11734,14 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/mouse-hide-while-typing.test.ts",
         "src/renderer/src/lib/pane-manager/orca-pane-terminal-io.test.ts",
-        "src/renderer/src/lib/pane-manager/orca-pane-wheel.test.ts"
+        "src/renderer/src/lib/pane-manager/orca-pane-wheel.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-mouse-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "mouse",
       "mapsTo": null,
@@ -12081,13 +12089,14 @@
         "overlay/d1-r/src/renderer/src/lib/pane-manager/terminal-linkifier-hover-reset-on-mouseleave.ts"
       ],
       "tests": [
-        "src/renderer/src/lib/pane-manager/terminal-linkifier-hover-reset-on-mouseleave.test.ts"
+        "src/renderer/src/lib/pane-manager/terminal-linkifier-hover-reset-on-mouseleave.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-mouse-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "mouse",
       "mapsTo": null,
