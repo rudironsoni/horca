@@ -333,7 +333,7 @@ try {
       '--worktree',
       worktreeSelector,
       '--command',
-      'printf HORCA_D1_SMOKE; sleep 8',
+      'printf HORCA_D1_SMOKE; cat',
       '--focus',
       '--json'
     ])
@@ -426,6 +426,136 @@ try {
     throw new Error(`Ghostty terminal surface did not show HORCA_D1_SMOKE: ${String(preview).slice(0, 800)}`)
   }
   console.log(`PTY_MARKER HORCA_D1_SMOKE`)
+  const canvasDeadline = Date.now() + 8_000
+  let canvas = null
+  while (Date.now() < canvasDeadline) {
+    canvas = await evaluate(
+      session,
+      `(() => {
+        const nodes = [...document.querySelectorAll('canvas')]
+        const described = nodes.map((node) => {
+          const rect = node.getBoundingClientRect()
+          return {
+            x: rect.x,
+            y: rect.y,
+            width: rect.width,
+            height: rect.height,
+            slot: node.getAttribute('data-ghostty'),
+            cls: node.className
+          }
+        })
+        const hit = described.find((item) => item.slot !== null && item.width > 2 && item.height > 2)
+          ?? described.find((item) => item.width > 2 && item.height > 2)
+        if (hit && hit.slot !== null) {
+          const node = document.querySelector('canvas[data-ghostty="' + hit.slot + '"]')
+          node?.focus()
+        }
+        return { hit, described }
+      })()`,
+      5_000
+    )
+    if (canvas?.hit && canvas.hit.width > 2 && canvas.hit.height > 2) {
+      break
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 200))
+  }
+  if (!canvas?.hit || canvas.hit.width < 2 || canvas.hit.height < 2) {
+    throw new Error(`Packaged Ghostty canvas is not hittable: ${JSON.stringify(canvas)}`)
+  }
+  canvas = canvas.hit
+  if (canvas.slot === null) {
+    throw new Error(`Painted canvas has no Ghostty slot: ${JSON.stringify(canvas)}`)
+  }
+  const clickX = canvas.x + 12
+  const clickY = canvas.y + 12
+  await session.call(
+    'Input.dispatchMouseEvent',
+    { type: 'mousePressed', x: clickX, y: clickY, button: 'left', clickCount: 1 },
+    5_000
+  )
+  await session.call(
+    'Input.dispatchMouseEvent',
+    { type: 'mouseReleased', x: clickX, y: clickY, button: 'left', clickCount: 1 },
+    5_000
+  )
+  await session.call(
+    'Input.dispatchKeyEvent',
+    {
+      type: 'keyDown',
+      key: 'q',
+      code: 'KeyQ',
+      text: 'q',
+      unmodifiedText: 'q',
+      windowsVirtualKeyCode: 81,
+      nativeVirtualKeyCode: 12
+    },
+    5_000
+  )
+  await session.call(
+    'Input.dispatchKeyEvent',
+    {
+      type: 'keyUp',
+      key: 'q',
+      code: 'KeyQ',
+      windowsVirtualKeyCode: 81,
+      nativeVirtualKeyCode: 12
+    },
+    5_000
+  )
+  const keyDeadline = Date.now() + 8_000
+  let keyScreen = preview
+  while (Date.now() < keyDeadline) {
+    try {
+      keyScreen = JSON.stringify(
+        runCli(['terminal', 'read', '--terminal', handle, '--screen', '--json'])
+      )
+    } catch (error) {
+      keyScreen = String(error && error.stdout ? error.stdout : error)
+    }
+    if (/HORCA_D1_SMOKE[^"]{0,120}q/.test(String(keyScreen))) {
+      break
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 200))
+  }
+  if (!/HORCA_D1_SMOKE[^"]{0,120}q/.test(String(keyScreen))) {
+    throw new Error(`Ghostty key q did not reach the PTY: ${String(keyScreen).slice(0, 800)}`)
+  }
+  console.log('KEY_OUTPUT q')
+  let selected = ''
+  for (const rowOffset of [8, 28, 48, 68, 88, 108]) {
+    const dragY = canvas.y + rowOffset
+    await session.call(
+      'Input.dispatchMouseEvent',
+      { type: 'mousePressed', x: canvas.x + 4, y: dragY, button: 'left', clickCount: 1 },
+      5_000
+    )
+    await session.call(
+      'Input.dispatchMouseEvent',
+      { type: 'mouseMoved', x: canvas.x + 140, y: dragY, button: 'left' },
+      5_000
+    )
+    await session.call(
+      'Input.dispatchMouseEvent',
+      { type: 'mouseReleased', x: canvas.x + 140, y: dragY, button: 'left', clickCount: 1 },
+      5_000
+    )
+    selected = await evaluate(
+      session,
+      `(() => {
+        const api = window.api && window.api.horcaGhosttyPassthru
+        if (!api || typeof api.readSelection !== 'function') return ''
+        return String(api.readSelection(${JSON.stringify(canvas.slot)}))
+      })()`,
+      5_000
+    )
+    if (String(selected).includes('HORCA')) {
+      break
+    }
+  }
+  if (!String(selected).includes('HORCA')) {
+    throw new Error(`Ghostty mouse selection did not include HORCA: ${JSON.stringify(selected)}`)
+  }
+  console.log(`SELECTION_OUTPUT ${JSON.stringify(selected)}`)
   session.close()
   if (existsSync(join(home, '.orca'))) {
     throw new Error(`Horca created the official Orca state root: ${join(home, '.orca')}`)

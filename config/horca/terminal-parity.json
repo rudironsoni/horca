@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": {
     "orcaCommit": "85d1ffc0726d8403f9494436c421c5e3d7932c47",
-    "note": "PASS means a Horca test imports that module and asserts its behavior. nativeMac follows that test. webgl, canvas2d, and packaged stay FAIL until a package run drives them."
+    "note": "status PASS means a Horca test imports that module and asserts its behavior. nativeMac follows that test. webgl and canvas2d stay FAIL because those rasterizers are not the macOS production path. packaged stays FAIL on a row until that row is observed in the packaged app. Column FAIL is not a status FAIL."
   },
   "counts": {
     "rows": 610,
@@ -2913,7 +2913,7 @@
         "src/renderer/src/lib/pane-manager/ghostty-main-pane-capability.test.ts",
         "src/main/horca/ghostty-main-pty-lifecycle.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "N/A",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
@@ -3084,7 +3084,7 @@
         "src/renderer/src/lib/pane-manager/ghostty-main-pane-capability.test.ts",
         "src/main/horca/ghostty-main-pty-lifecycle.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "N/A",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
