@@ -9,8 +9,8 @@
     "productCapabilities": 562,
     "implementationEvidence": 0,
     "notApplicable": 48,
-    "pass": 514,
-    "fail": 48
+    "pass": 523,
+    "fail": 39
   },
   "capabilities": [
     {
@@ -1009,13 +1009,14 @@
         "src/renderer/src/components/terminal-pane/agent-completion-coordinator-process-cadence.test.ts",
         "src/renderer/src/components/terminal-pane/agent-completion-coordinator-queued-inspection-disposal.test.ts",
         "src/renderer/src/components/terminal-pane/agent-completion-coordinator-stamped-turn-boundary.test.ts",
-        "src/renderer/src/components/terminal-pane/agent-completion-coordinator-stamped-turn-replay.test.ts"
+        "src/renderer/src/components/terminal-pane/agent-completion-coordinator-stamped-turn-replay.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-agent-chrome-factories.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "agent-terminal-chrome",
       "mapsTo": null,
@@ -1031,13 +1032,14 @@
       ],
       "tests": [
         "src/renderer/src/lib/pane-manager/ghostty-main-pane-capability.test.ts",
-        "src/main/horca/ghostty-main-pty-lifecycle.test.ts"
+        "src/main/horca/ghostty-main-pty-lifecycle.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-agent-chrome-factories.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "agent-terminal-chrome",
       "mapsTo": null,
@@ -1122,13 +1124,14 @@
       ],
       "tests": [
         "src/renderer/src/lib/pane-manager/ghostty-main-pane-capability.test.ts",
-        "src/main/horca/ghostty-main-pty-lifecycle.test.ts"
+        "src/main/horca/ghostty-main-pty-lifecycle.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-agent-chrome-factories.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "agent-terminal-chrome",
       "mapsTo": null,
@@ -1144,13 +1147,14 @@
       ],
       "tests": [
         "src/renderer/src/lib/pane-manager/ghostty-main-pane-capability.test.ts",
-        "src/main/horca/ghostty-main-pty-lifecycle.test.ts"
+        "src/main/horca/ghostty-main-pty-lifecycle.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-agent-chrome-factories.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "agent-terminal-chrome",
       "mapsTo": null,
@@ -1209,13 +1213,14 @@
       ],
       "tests": [
         "src/renderer/src/lib/pane-manager/ghostty-main-pane-capability.test.ts",
-        "src/main/horca/ghostty-main-pty-lifecycle.test.ts"
+        "src/main/horca/ghostty-main-pty-lifecycle.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-agent-chrome-factories.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "agent-terminal-chrome",
       "mapsTo": null,
@@ -1231,13 +1236,14 @@
       ],
       "tests": [
         "src/renderer/src/lib/pane-manager/ghostty-main-pane-capability.test.ts",
-        "src/main/horca/ghostty-main-pty-lifecycle.test.ts"
+        "src/main/horca/ghostty-main-pty-lifecycle.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-agent-chrome-factories.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "agent-terminal-chrome",
       "mapsTo": null,
@@ -1291,13 +1297,14 @@
       ],
       "tests": [
         "src/renderer/src/lib/pane-manager/ghostty-main-pane-capability.test.ts",
-        "src/main/horca/ghostty-main-pty-lifecycle.test.ts"
+        "src/main/horca/ghostty-main-pty-lifecycle.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-agent-chrome-factories.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "agent-terminal-chrome",
       "mapsTo": null,
@@ -5302,13 +5309,14 @@
         "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-agent-session-fork.ts"
       ],
       "tests": [
-        "src/renderer/src/components/terminal-pane/terminal-agent-session-fork.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-agent-session-fork.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-agent-chrome-factories.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "agent-terminal-chrome",
       "mapsTo": null,
@@ -7623,13 +7631,14 @@
       ],
       "tests": [
         "src/renderer/src/lib/pane-manager/ghostty-main-pane-capability.test.ts",
-        "src/main/horca/ghostty-main-pty-lifecycle.test.ts"
+        "src/main/horca/ghostty-main-pty-lifecycle.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-agent-chrome-factories.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "agent-terminal-chrome",
       "mapsTo": null,
