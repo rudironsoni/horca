@@ -1,3 +1,4 @@
+import { readFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { afterEach, describe, expect, it } from 'vitest'
 
@@ -50,5 +51,15 @@ describe('Horca downstream packaging', () => {
     expect(config.linux.extraResources).toEqual(
       expect.arrayContaining([expect.objectContaining({ to: 'horca-ghostty' })])
     )
+  })
+
+  it('overlay packager copies the pane size helper', async () => {
+    const manifest = JSON.parse(
+      await readFile(new URL('../../overlay/manifest.json', import.meta.url), 'utf8')
+    )
+    const entry = manifest.overrides.find(
+      (item) => item.id === 'd2-packaging-mac-horca-ghostty-extra-resources'
+    )
+    expect(entry.replace).toContain("'surface-pixels.js'")
   })
 })
