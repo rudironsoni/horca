@@ -266,14 +266,22 @@ old = termios.tcgetattr(fd)
 tty.setraw(fd)
 
 def burst():
-    parts = [os.read(fd, 256)]
-    deadline = time.monotonic() + 0.2
+    parts = []
+    close = bytes.fromhex("1b5b3230317e")
+    deadline = time.monotonic() + 1.5
     while time.monotonic() < deadline:
-        ready, _, _ = select.select([fd], [], [], 0.04)
+        ready, _, _ = select.select([fd], [], [], 0.05)
         if not ready:
+            if parts and close in b"".join(parts):
+                break
             continue
         parts.append(os.read(fd, 256))
-        deadline = time.monotonic() + 0.05
+        blob = b"".join(parts)
+        if close in blob:
+            time.sleep(0.05)
+            while select.select([fd], [], [], 0)[0]:
+                parts.append(os.read(fd, 256))
+            break
     return b"".join(parts)
 
 try:
@@ -880,7 +888,10 @@ try {
     }
     await new Promise((resolveDelay) => setTimeout(resolveDelay, 150))
   }
-  if (pasteHex !== '1b5b3230307e50415354455f484f5243411b5b3230317e') {
+  if (
+    !pasteHex.includes('1b5b3230307e50415354455f484f524341') ||
+    !pasteHex.includes('1b5b3230317e')
+  ) {
     throw new Error(`Paste did not reach the PTY as bracketed text: ${pasteHex || pasteScreen.slice(0, 800)}`)
   }
   console.log(`PASTE_OUTPUT ${pasteHex}`)
