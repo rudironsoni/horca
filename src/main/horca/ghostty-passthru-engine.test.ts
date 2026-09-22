@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
+import { spawnSync } from 'node:child_process'
 import { EventEmitter } from 'node:events'
 import { existsSync } from 'node:fs'
 import { createRequire } from 'node:module'
@@ -87,17 +88,39 @@ describe('createHorcaGhosttyPassthruEngine', () => {
   })
 })
 
-function findPreload(): string {
+function findUp(rel: string): string {
   let dir = __dirname
   for (let i = 0; i < 12; i += 1) {
-    const candidate = join(dir, 'native/horca-ghostty/adopted/electron-ghostty/preload.js')
+    const candidate = join(dir, rel)
     if (existsSync(candidate)) return candidate
     const parent = dirname(dir)
     if (parent === dir) break
     dir = parent
   }
-  throw new Error(`preload.js not found from ${__dirname}`)
+  throw new Error(`${rel} not found from ${__dirname}`)
 }
+
+function findPreload(): string {
+  return findUp('native/horca-ghostty/adopted/electron-ghostty/preload.js')
+}
+
+describe('ghostty key protocol', () => {
+  it('encodes legacy keys and kitty CSI-u through the native surface', () => {
+    const electron = findUp('node_modules/.bin/electron')
+    const script = findUp('native/horca-ghostty/harness/electron-43/key-protocol.js')
+    const result = spawnSync(electron, [script], { encoding: 'utf8', timeout: 30000 })
+    const line = result.stdout.split('\n').filter((row) => row.startsWith('{')).at(-1)
+    const report = JSON.parse(line ?? '{}') as { ok?: boolean; bad?: string[]; out?: Record<string, string> }
+    expect(result.status).toBe(0)
+    expect(report.ok).toBe(true)
+    expect(report.out?.enter).toBe('0d')
+    expect(report.out?.up).toBe('1b5b41')
+    expect(report.out?.ctrlc).toBe('03')
+    expect(report.out?.altq).toBe('1b5b3131333b333b31313375')
+    expect(report.out?.altqRelease).toBe('1b5b3131333b333a3375')
+    expect(report.out?.ctrlAltQ).toBe('1b5b3131333b3775')
+  }, 30000)
+})
 
 describe('ghostty preload late canvas', () => {
   it('sends key, paste, composition, and mouse IPC after the canvas appears', () => {
@@ -263,7 +286,10 @@ describe('ghostty preload late canvas', () => {
         keyCode: 0
       })
       const keyUp = sent.filter(([channel, payload]) => channel === 'electron-ghostty:key' && payload.event?.action === 0)
-      expect(keyUp.at(-1)?.[1]).toMatchObject({ slot: 'pane-1', event: { action: 0, keycode: 0 } })
+      expect(keyUp.at(-1)?.[1]).toMatchObject({
+        slot: 'pane-1',
+        event: { action: 0, keycode: 0, unshiftedCodepoint: 97 }
+      })
       canvas.listeners.mousedown?.[0]?.({
         button: 0,
         clientX: 4,

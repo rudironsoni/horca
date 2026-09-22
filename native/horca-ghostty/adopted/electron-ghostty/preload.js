@@ -177,7 +177,14 @@ window.addEventListener('DOMContentLoaded', () => {
     if (slot === null) return;
     const keycode = MAC_KEYCODE[e.code];
     if (keycode === undefined) return;
-    send('key', slot, { event: { action: 0, keycode, mods: domMods(e) } });
+    send('key', slot, {
+      event: {
+        action: 0,
+        keycode,
+        mods: domMods(e),
+        unshiftedCodepoint: e.key.length === 1 ? e.key.toLowerCase().codePointAt(0) : 0,
+      },
+    });
   });
 
   window.addEventListener('paste', (e) => {

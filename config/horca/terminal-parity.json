@@ -9,8 +9,8 @@
     "productCapabilities": 569,
     "implementationEvidence": 0,
     "notApplicable": 41,
-    "pass": 11,
-    "fail": 558
+    "pass": 13,
+    "fail": 556
   },
   "capabilities": [
     {
@@ -6692,13 +6692,14 @@
       ],
       "horcaImplementation": [],
       "tests": [
+        "src/main/horca/ghostty-passthru-engine.test.ts",
         "src/renderer/src/components/terminal-pane/terminal-kitty-csi-u-encoding.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -7173,13 +7174,14 @@
       ],
       "horcaImplementation": [],
       "tests": [
+        "src/main/horca/ghostty-passthru-engine.test.ts",
         "src/renderer/src/components/terminal-pane/terminal-option-kitty-release.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
