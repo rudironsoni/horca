@@ -75,4 +75,19 @@ describe('OrcaPaneTerminal compositor presentation', () => {
     expect(ops.filter((op) => op.op === 'fillText')).toEqual([])
     terminal.dispose()
   })
+
+  it('sends paste through Ghostty text instead of a raw PTY write', () => {
+    const pasteText = vi.fn()
+    Object.defineProperty(window, 'api', {
+      configurable: true,
+      value: { horcaGhosttyPassthru: { pasteText, attach: vi.fn(), detach: vi.fn(), readSelection: vi.fn(() => '') } }
+    })
+    const terminal = new OrcaPaneTerminal(document.createElement('div'))
+    const raw: string[] = []
+    terminal.onData((data) => raw.push(data))
+    terminal.paste('PASTE_HORCA')
+    expect(pasteText).toHaveBeenCalledWith(terminal.slot, 'PASTE_HORCA')
+    expect(raw).toEqual([])
+    terminal.dispose()
+  })
 })

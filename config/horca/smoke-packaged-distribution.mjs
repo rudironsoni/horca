@@ -232,6 +232,32 @@ finally:
     sys.stdout.buffer.write(b"PROBE_DONE\\r\\n")
     sys.stdout.flush()
 `
+const PASTE_SOURCE = `import os, sys, termios, tty, select, time
+sys.stdout.buffer.write(b"\\x1b[?2004hPASTE_READY\\r\\n")
+sys.stdout.flush()
+fd = 0
+old = termios.tcgetattr(fd)
+tty.setraw(fd)
+
+def burst():
+    parts = [os.read(fd, 256)]
+    deadline = time.monotonic() + 0.2
+    while time.monotonic() < deadline:
+        ready, _, _ = select.select([fd], [], [], 0.04)
+        if not ready:
+            continue
+        parts.append(os.read(fd, 256))
+        deadline = time.monotonic() + 0.05
+    return b"".join(parts)
+
+try:
+    sys.stdout.buffer.write(b"PASTEHEX " + burst().hex().encode() + b"\\r\\n")
+    sys.stdout.flush()
+finally:
+    termios.tcsetattr(fd, termios.TCSANOW, old)
+    sys.stdout.buffer.write(b"\\x1b[?2004lPASTE_DONE\\r\\n")
+    sys.stdout.flush()
+`
 const SCREEN_SOURCE = `import sys, time
 sys.stdout.buffer.write(b"\\x1b[?1049hALTSCREEN_HORCA\\r\\n")
 sys.stdout.flush()
@@ -681,6 +707,7 @@ try {
     throw new Error('Workbench worktree path is missing')
   }
   writeFileSync(join(worktreePath, 'probe'), PROBE_SOURCE)
+  writeFileSync(join(worktreePath, 'pasteprobe'), PASTE_SOURCE)
   writeFileSync(join(worktreePath, 'screenprobe'), SCREEN_SOURCE)
   const focusedSlot = await evaluate(
     session,
@@ -756,6 +783,42 @@ try {
   if (!probeScreen.includes('PROBE_DONE')) {
     throw new Error(`Key probe did not restore the terminal: ${probeScreen.slice(0, 800)}`)
   }
+  execFileSync('pbcopy', { input: 'PASTE_HORCA' })
+  await sendLine(session, 'python3 pasteprobe')
+  const pasteReadyDeadline = Date.now() + 8_000
+  let pasteScreen = ''
+  while (Date.now() < pasteReadyDeadline) {
+    pasteScreen = await readScreen(handle)
+    if (pasteScreen.includes('PASTE_READY')) {
+      break
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 150))
+  }
+  if (!pasteScreen.includes('PASTE_READY')) {
+    throw new Error(`Paste probe did not start: ${pasteScreen.slice(0, 800)}`)
+  }
+  await sendKey(session, {
+    key: 'v',
+    code: 'KeyV',
+    modifiers: 4,
+    windowsVirtualKeyCode: 86,
+    nativeVirtualKeyCode: 9
+  })
+  const pasteDeadline = Date.now() + 6_000
+  let pasteHex = ''
+  while (Date.now() < pasteDeadline) {
+    pasteScreen = await readScreen(handle)
+    const match = String(pasteScreen).match(/PASTEHEX ([0-9a-f]+)/)
+    if (match) {
+      pasteHex = match[1]
+      break
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 150))
+  }
+  if (pasteHex !== '1b5b3230307e50415354455f484f5243411b5b3230317e') {
+    throw new Error(`Paste did not reach the PTY as bracketed text: ${pasteHex || pasteScreen.slice(0, 800)}`)
+  }
+  console.log(`PASTE_OUTPUT ${pasteHex}`)
   await sendLine(session, 'python3 screenprobe')
   const altDeadline = Date.now() + 8_000
   let sawAlt = false

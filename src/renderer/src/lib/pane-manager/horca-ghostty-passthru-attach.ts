@@ -19,3 +19,7 @@ export function detachHorcaGhosttyPassthruPane(slot: string): void {
 export function readHorcaGhosttySelection(slot: string): string {
   return passthruApi()?.readSelection(slot) ?? ''
 }
+
+export function sendHorcaGhosttyText(slot: string, text: string): void {
+  passthruApi()?.pasteText(slot, text)
+}

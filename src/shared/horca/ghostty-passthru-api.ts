@@ -13,4 +13,5 @@ export type HorcaGhosttyPassthruApi = {
   attach(payload: HorcaGhosttyPassthruAttachPayload): Promise<boolean>
   detach(slot: string): Promise<void>
   readSelection(slot: string): string
+  pasteText(slot: string, text: string): void
 }

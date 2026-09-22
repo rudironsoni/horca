@@ -16,7 +16,8 @@ import { OrcaPaneListenerHub } from './orca-pane-terminal-events'
 import {
   attachHorcaGhosttyPassthruPane,
   detachHorcaGhosttyPassthruPane,
-  readHorcaGhosttySelection
+  readHorcaGhosttySelection,
+  sendHorcaGhosttyText
 } from './horca-ghostty-passthru-attach'
 
 export type { OrcaPaneAppearance } from './orca-pane-appearance'
@@ -216,7 +217,7 @@ export class OrcaPaneTerminal extends OrcaPaneListenerHub {
   setPreedit(_text: string): void {}
   selectAll(): void {}
   paste(text: string): void {
-    this.input(text)
+    sendHorcaGhosttyText(this.slot, text)
   }
   getSelection(): string {
     return readHorcaGhosttySelection(this.slot)
