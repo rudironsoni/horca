@@ -22,6 +22,7 @@ import {
 import { STARTUP_CWD_FALLBACK_NOTICE } from '../../components/terminal-pane/pty-connection/startup-cwd-fallback-notice'
 import { isAgentTaskCompleteNotificationEnabled } from '../../components/terminal-pane/pty-connection/agent-task-complete-settings'
 import { resolvePaneWslDistro } from '../../components/terminal-pane/terminal-pane-wsl-distro'
+import { bindHiddenStartupRendererQueryWrite } from '../../components/terminal-pane/pty-connection/hidden-startup-renderer-query-write'
 
 describe('ghostty remote pty helpers', () => {
   it('reads the newest done timestamp from agent history', () => {
@@ -104,6 +105,20 @@ describe('ghostty remote pty helpers', () => {
       container,
       terminal: { cols: 80, rows: 24, proposeDimensions: () => ({ cols: 80, rows: 24 }) }
     } as never, { getPanes: () => [] } as never, 'vertical')).toBe(false)
+  })
+
+  it('returns the whole chunk when no hidden query is pending', () => {
+    const session = { hiddenStartupRendererQueryPending: '' } as {
+      hiddenStartupRendererQueryPending: string
+      takeHiddenStartupRendererQueryPendingForForeground: (data: string) => {
+        remainingData: string
+        consumedCurrentChars: number
+      }
+    }
+    bindHiddenStartupRendererQueryWrite(session as never)
+    const taken = session.takeHiddenStartupRendererQueryPendingForForeground('hello')
+    expect(taken.remainingData).toBe('hello')
+    expect(taken.consumedCurrentChars).toBe(0)
   })
 
   it('names the saved-folder fallback and reads a WSL distro from the UNC path', () => {

@@ -9,8 +9,8 @@
     "productCapabilities": 567,
     "implementationEvidence": 0,
     "notApplicable": 43,
-    "pass": 343,
-    "fail": 224
+    "pass": 344,
+    "fail": 223
   },
   "capabilities": [
     {
@@ -3388,14 +3388,15 @@
         "overlay/d1-r/src/renderer/src/components/terminal-pane/pty-connection/hidden-startup-renderer-query-write.ts"
       ],
       "tests": [
+        "src/renderer/src/lib/pane-manager/ghostty-remote-pty-behavior.test.ts",
         "src/renderer/src/lib/pane-manager/ghostty-main-pane-capability.test.ts",
         "src/main/horca/ghostty-main-pty-lifecycle.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "remote-pty",
       "mapsTo": null,
