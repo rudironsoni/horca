@@ -2,6 +2,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { makePaneKey } from '../../../../shared/stable-pane-id'
 import { createAgentCompletionLifecycle } from '../../components/terminal-pane/agent-completion-lifecycle'
+import {
+  applyTerminalPaneCloseRequest,
+  suppressIntentionalPaneCloseExit
+} from '../../components/terminal-pane/terminal-pane-lifecycle-close'
 import { warnTerminalLifecycleAnomaly } from '../../components/terminal-pane/terminal-lifecycle-diagnostics'
 import { isVisibleForegroundPaneKey } from '../../components/terminal-pane/terminal-notification-pane-visibility'
 import {
@@ -313,6 +317,45 @@ describe('ghostty pane lifecycle helpers', () => {
     warnTerminalLifecycleAnomaly('pty-exit', { tabId: 'tab-1', ptyId: 'pty-1' })
     expect(warn).toHaveBeenCalledTimes(1)
     warn.mockRestore()
+  })
+
+  it('closes one pane when a split remains and the tab when it is the last pane', () => {
+    let closed = 0
+    let closedTab = 0
+    const manager = {
+      closePane: () => {
+        closed += 1
+      },
+      detachPaneForExternalMove: () => false,
+      retirePanePreservingPty: () => false,
+      getNumericIdForLeaf: () => 2,
+      getPanes: () => [{}, {}]
+    }
+    expect(applyTerminalPaneCloseRequest({
+      detail: { tabId: 'tab-1', paneRuntimeId: 2 },
+      manager,
+      closeTab: () => {
+        closedTab += 1
+      },
+      closeTabPreservingPty: () => undefined
+    })).toBe('pane')
+    expect(closed).toBe(1)
+    expect(closedTab).toBe(0)
+    manager.getPanes = () => [{}]
+    expect(applyTerminalPaneCloseRequest({
+      detail: { tabId: 'tab-1', paneRuntimeId: 2 },
+      manager,
+      closeTab: () => {
+        closedTab += 1
+      },
+      closeTabPreservingPty: () => undefined
+    })).toBe('tab')
+    expect(closedTab).toBe(1)
+    const suppressed: string[] = []
+    expect(suppressIntentionalPaneCloseExit({ getPtyId: () => 'pty-1' }, (ptyId) => {
+      suppressed.push(ptyId)
+    })).toBe('pty-1')
+    expect(suppressed).toEqual(['pty-1'])
   })
 
   it('treats the active leaf as the foreground notification pane', () => {

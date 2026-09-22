@@ -9,8 +9,8 @@
     "productCapabilities": 568,
     "implementationEvidence": 0,
     "notApplicable": 42,
-    "pass": 306,
-    "fail": 262
+    "pass": 311,
+    "fail": 257
   },
   "capabilities": [
     {
@@ -7408,14 +7408,15 @@
         "src/renderer/src/lib/pane-manager/ghostty-renderer/ghostty-pane-terminal.ts"
       ],
       "tests": [
+        "src/renderer/src/lib/pane-manager/ghostty-pane-lifecycle-behavior.test.ts",
         "src/renderer/src/lib/pane-manager/ghostty-main-pane-capability.test.ts",
         "src/main/horca/ghostty-main-pty-lifecycle.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "lifecycle",
       "mapsTo": null,
@@ -10772,14 +10773,15 @@
         "src/renderer/src/lib/pane-manager/ghostty-renderer/ghostty-pane-terminal.ts"
       ],
       "tests": [
+        "src/renderer/src/lib/pane-manager/ghostty-pane-chrome-react.test.tsx",
         "src/renderer/src/lib/pane-manager/ghostty-main-pane-capability.test.ts",
         "src/main/horca/ghostty-main-pty-lifecycle.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "lifecycle",
       "mapsTo": null,
@@ -10990,14 +10992,15 @@
         "overlay/d1-r/src/renderer/src/lib/pane-manager/pane-rendering-control.ts"
       ],
       "tests": [
+        "src/renderer/src/lib/pane-manager/ghostty-pane-chrome-react.test.tsx",
         "src/renderer/src/lib/pane-manager/ghostty-main-pane-capability.test.ts",
         "src/main/horca/ghostty-main-pty-lifecycle.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "lifecycle",
       "mapsTo": null,
@@ -11012,14 +11015,15 @@
         "overlay/d1-r/src/renderer/src/lib/pane-manager/pane-rendering-diagnostics.ts"
       ],
       "tests": [
+        "src/renderer/src/lib/pane-manager/ghostty-pane-chrome-react.test.tsx",
         "src/renderer/src/lib/pane-manager/ghostty-main-pane-capability.test.ts",
         "src/main/horca/ghostty-main-pty-lifecycle.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "lifecycle",
       "mapsTo": null,
@@ -11057,13 +11061,14 @@
         "overlay/d1-r/src/renderer/src/lib/pane-manager/pane-reveal-fit.ts"
       ],
       "tests": [
+        "src/renderer/src/lib/pane-manager/ghostty-pane-chrome-react.test.tsx",
         "src/renderer/src/lib/pane-manager/pane-reveal-fit.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "lifecycle",
       "mapsTo": null,

@@ -95,6 +95,15 @@ describe('ghostty pane controller', () => {
     const splitPane = firstPane ? manager?.splitPane(firstPane.id, 'vertical') : null
     expect(splitPane).toBeTruthy()
     expect(view.container.querySelectorAll('canvas[data-ghostty]')).toHaveLength(2)
+    expect(manager?.getRenderingDiagnostics()).toHaveLength(2)
+    manager?.fitAllRevealedPanes()
+    manager?.refreshAllPanes()
+    manager?.equalizePaneSizes()
+    manager?.setPaneGpuRendering(firstPane!.id, false)
+    expect(
+      manager?.getRenderingDiagnostics().find((row) => row.paneId === firstPane!.id)
+        ?.gpuRenderingEnabled
+    ).toBe(false)
     manager?.closePane(splitPane!.id)
     expect(manager?.getPaneCount()).toBe(1)
     expect(view.container.querySelectorAll('canvas[data-ghostty]')).toHaveLength(1)
