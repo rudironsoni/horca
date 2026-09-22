@@ -9,8 +9,8 @@
     "productCapabilities": 564,
     "implementationEvidence": 0,
     "notApplicable": 46,
-    "pass": 410,
-    "fail": 154
+    "pass": 430,
+    "fail": 134
   },
   "capabilities": [
     {
@@ -1419,13 +1419,14 @@
       ],
       "horcaImplementation": [],
       "tests": [
-        "src/renderer/src/components/terminal-pane/cache-timer-seeding.test.ts"
+        "src/renderer/src/components/terminal-pane/cache-timer-seeding.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-input-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "input",
       "mapsTo": null,
@@ -1731,13 +1732,14 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/keyboard-handlers-ime-composing-chord.test.tsx",
         "src/renderer/src/components/terminal-pane/keyboard-handlers-ime-enter-keyup.test.tsx",
-        "src/renderer/src/components/terminal-pane/keyboard-handlers-ime.test.tsx"
+        "src/renderer/src/components/terminal-pane/keyboard-handlers-ime.test.tsx",
+        "src/renderer/src/lib/pane-manager/ghostty-input-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "input",
       "mapsTo": null,
@@ -4871,13 +4873,14 @@
       ],
       "horcaImplementation": [],
       "tests": [
-        "src/renderer/src/components/terminal-pane/remote-runtime-pty-recovery-state.test.ts"
+        "src/renderer/src/components/terminal-pane/remote-runtime-pty-recovery-state.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-input-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "input",
       "mapsTo": null,
@@ -5374,13 +5377,14 @@
         "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-captured-input-dispatch.ts"
       ],
       "tests": [
-        "src/renderer/src/components/terminal-pane/terminal-captured-input-dispatch.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-captured-input-dispatch.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-input-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "input",
       "mapsTo": null,
@@ -5474,13 +5478,14 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/keyboard-handlers-ime-composing-chord.test.tsx",
         "src/renderer/src/components/terminal-pane/keyboard-handlers-ime-enter-keyup.test.tsx",
-        "src/renderer/src/components/terminal-pane/keyboard-handlers-ime.test.tsx"
+        "src/renderer/src/components/terminal-pane/keyboard-handlers-ime.test.tsx",
+        "src/renderer/src/lib/pane-manager/ghostty-input-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "input",
       "mapsTo": null,
@@ -6232,13 +6237,14 @@
       ],
       "horcaImplementation": [],
       "tests": [
-        "src/renderer/src/components/terminal-pane/terminal-ime-candidate-key-release-guard.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-ime-candidate-key-release-guard.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-input-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "input",
       "mapsTo": null,
@@ -6296,13 +6302,14 @@
         "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-ime-composition-tracker.ts"
       ],
       "tests": [
-        "src/renderer/src/components/terminal-pane/terminal-ime-composition-tracker.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-ime-composition-tracker.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-input-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "input",
       "mapsTo": null,
@@ -6334,13 +6341,14 @@
       ],
       "horcaImplementation": [],
       "tests": [
-        "src/renderer/src/components/terminal-pane/terminal-ime-deferred-newline.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-ime-deferred-newline.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-input-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "input",
       "mapsTo": null,
@@ -6353,13 +6361,14 @@
       ],
       "horcaImplementation": [],
       "tests": [
-        "src/renderer/src/components/terminal-pane/terminal-ime-input-context-refresh.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-ime-input-context-refresh.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-input-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "input",
       "mapsTo": null,
@@ -6374,13 +6383,14 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/keyboard-handlers-ime-composing-chord.test.tsx",
         "src/renderer/src/components/terminal-pane/keyboard-handlers-ime-enter-keyup.test.tsx",
-        "src/renderer/src/components/terminal-pane/keyboard-handlers-ime.test.tsx"
+        "src/renderer/src/components/terminal-pane/keyboard-handlers-ime.test.tsx",
+        "src/renderer/src/lib/pane-manager/ghostty-input-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "input",
       "mapsTo": null,
@@ -6659,13 +6669,14 @@
       ],
       "horcaImplementation": [],
       "tests": [
-        "src/renderer/src/components/terminal-pane/terminal-keyboard-pane-resolution.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-keyboard-pane-resolution.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-input-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "input",
       "mapsTo": null,
@@ -6678,13 +6689,14 @@
       ],
       "horcaImplementation": [],
       "tests": [
-        "src/renderer/src/components/terminal-pane/terminal-keyboard-protocol-pane-agent.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-keyboard-protocol-pane-agent.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-input-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "input",
       "mapsTo": null,
@@ -6741,13 +6753,14 @@
       "horcaImplementation": [],
       "tests": [
         "src/renderer/src/components/terminal-pane/keyboard-handlers-ime.test.tsx",
-        "src/renderer/src/components/terminal-pane/keyboard-handlers.test.ts"
+        "src/renderer/src/components/terminal-pane/keyboard-handlers.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-input-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "input",
       "mapsTo": null,
@@ -6761,13 +6774,14 @@
       "horcaImplementation": [],
       "tests": [
         "src/renderer/src/components/terminal-pane/keyboard-handlers-ime.test.tsx",
-        "src/renderer/src/components/terminal-pane/keyboard-handlers.test.ts"
+        "src/renderer/src/components/terminal-pane/keyboard-handlers.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-input-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "input",
       "mapsTo": null,
@@ -8297,13 +8311,14 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/keyboard-handlers-ime-composing-chord.test.tsx",
         "src/renderer/src/components/terminal-pane/keyboard-handlers-ime-enter-keyup.test.tsx",
-        "src/renderer/src/components/terminal-pane/keyboard-handlers-ime.test.tsx"
+        "src/renderer/src/components/terminal-pane/keyboard-handlers-ime.test.tsx",
+        "src/renderer/src/lib/pane-manager/ghostty-input-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "input",
       "mapsTo": null,
@@ -8335,13 +8350,14 @@
       ],
       "horcaImplementation": [],
       "tests": [
-        "src/renderer/src/components/terminal-pane/terminal-paste-runtime.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-paste-runtime.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-input-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "input",
       "mapsTo": null,
@@ -11860,13 +11876,14 @@
         "overlay/d1-r/src/renderer/src/lib/pane-manager/terminal-ime-anchor.ts"
       ],
       "tests": [
-        "src/renderer/src/lib/pane-manager/terminal-ime-anchor.test.ts"
+        "src/renderer/src/lib/pane-manager/terminal-ime-anchor.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-input-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "input",
       "mapsTo": null,
@@ -11902,13 +11919,14 @@
         "overlay/d1-r/src/renderer/src/lib/pane-manager/terminal-keyboard-protocol.ts"
       ],
       "tests": [
-        "src/renderer/src/lib/pane-manager/terminal-keyboard-protocol.test.ts"
+        "src/renderer/src/lib/pane-manager/terminal-keyboard-protocol.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-input-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "input",
       "mapsTo": null,
@@ -12357,13 +12375,14 @@
         "overlay/d1-r/src/renderer/src/lib/pane-manager/terminal-windows-ctrl-alt-chord-classification.ts"
       ],
       "tests": [
-        "src/renderer/src/lib/pane-manager/terminal-windows-ctrl-alt-chord-classification.test.ts"
+        "src/renderer/src/lib/pane-manager/terminal-windows-ctrl-alt-chord-classification.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-input-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "input",
       "mapsTo": null,
@@ -12513,13 +12532,14 @@
       "horcaImplementation": [],
       "tests": [
         "src/renderer/src/components/terminal-pane/keyboard-handlers-ime.test.tsx",
-        "src/renderer/src/components/terminal-pane/keyboard-handlers.test.ts"
+        "src/renderer/src/components/terminal-pane/keyboard-handlers.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-input-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "input",
       "mapsTo": null,
