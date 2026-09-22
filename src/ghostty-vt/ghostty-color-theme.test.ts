@@ -11,6 +11,9 @@ import {
   rgbToCss
 } from './ghostty-color-theme'
 import { getGhosttyVtHostOrThrow } from './host-singleton'
+import { primeGhosttyVtHostForTests } from './prime-host-for-tests'
+
+primeGhosttyVtHostForTests()
 import type { ThemeRgb } from './ghostty-css-color'
 
 const SOLARIZED_LIGHT: ITheme = {
