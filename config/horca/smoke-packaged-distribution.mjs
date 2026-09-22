@@ -224,7 +224,7 @@ def burst():
     return b"".join(parts)
 
 try:
-    for _ in range(10):
+    for _ in range(11):
         sys.stdout.buffer.write(b"HEX " + burst().hex().encode() + b"\\r\\n")
         sys.stdout.flush()
 finally:
@@ -735,6 +735,11 @@ try {
   await oneKey('FUNCTION_OUTPUT', { key: 'F5', code: 'F5', windowsVirtualKeyCode: 116, nativeVirtualKeyCode: 96 }, (hex) => hex.startsWith('1b'))
   await oneKey('END_OUTPUT', { key: 'End', code: 'End', windowsVirtualKeyCode: 35, nativeVirtualKeyCode: 119 }, (hex) => hex.startsWith('1b'))
   await oneKey('PAGEUP_OUTPUT', { key: 'PageUp', code: 'PageUp', windowsVirtualKeyCode: 33, nativeVirtualKeyCode: 116 }, (hex) => hex.startsWith('1b'))
+  await oneKey(
+    'ALT_OUTPUT',
+    { key: 'q', code: 'KeyQ', modifiers: 1, windowsVirtualKeyCode: 81, nativeVirtualKeyCode: 12 },
+    (hex) => hex === '1b71' || hex.startsWith('1b5b')
+  )
   await oneKey(
     'UNICODE_OUTPUT',
     { key: 'é', code: 'Unidentified', text: 'é', unmodifiedText: 'é', windowsVirtualKeyCode: 0, nativeVirtualKeyCode: 0 },
