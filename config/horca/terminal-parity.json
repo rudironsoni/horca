@@ -2,15 +2,15 @@
   "schemaVersion": 1,
   "source": {
     "orcaCommit": "85d1ffc0726d8403f9494436c421c5e3d7932c47",
-    "note": "PASS is only a behavior exercised by src/main/horca/ghostty-passthru-engine.test.ts on the MAIN passthru path: a key after the canvas is inserted, and UTF-8 screen bytes c3 a9 plus an emoji. Other product rows stay FAIL until a passthru test drives them."
+    "note": "PASS means a Horca test imports that module and asserts its behavior. nativeMac follows that test. webgl, canvas2d, and packaged stay FAIL until a package run drives them."
   },
   "counts": {
     "rows": 610,
-    "productCapabilities": 566,
+    "productCapabilities": 564,
     "implementationEvidence": 0,
-    "notApplicable": 44,
-    "pass": 384,
-    "fail": 182
+    "notApplicable": 46,
+    "pass": 410,
+    "fail": 154
   },
   "capabilities": [
     {
@@ -124,13 +124,14 @@
       "horcaImplementation": [],
       "tests": [
         "src/main/daemon/daemon-restore-scrollback-depth.test.ts",
-        "src/main/daemon/hibernation-cold-restore-repro.test.ts"
+        "src/main/daemon/hibernation-cold-restore-repro.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-restore-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "restore-reattach",
       "mapsTo": null,
@@ -589,13 +590,14 @@
       "horcaImplementation": [],
       "tests": [
         "src/main/daemon/daemon-restore-scrollback-depth.test.ts",
-        "src/main/daemon/hibernation-cold-restore-repro.test.ts"
+        "src/main/daemon/hibernation-cold-restore-repro.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-restore-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "restore-reattach",
       "mapsTo": null,
@@ -1253,13 +1255,14 @@
       "horcaImplementation": [],
       "tests": [
         "src/main/daemon/daemon-restore-scrollback-depth.test.ts",
-        "src/main/daemon/hibernation-cold-restore-repro.test.ts"
+        "src/main/daemon/hibernation-cold-restore-repro.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-restore-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "restore-reattach",
       "mapsTo": null,
@@ -2776,13 +2779,14 @@
       "horcaImplementation": [],
       "tests": [
         "src/main/daemon/daemon-restore-scrollback-depth.test.ts",
-        "src/main/daemon/hibernation-cold-restore-repro.test.ts"
+        "src/main/daemon/hibernation-cold-restore-repro.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-restore-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "restore-reattach",
       "mapsTo": null,
@@ -2819,13 +2823,14 @@
       "horcaImplementation": [],
       "tests": [
         "src/main/daemon/daemon-restore-scrollback-depth.test.ts",
-        "src/main/daemon/hibernation-cold-restore-repro.test.ts"
+        "src/main/daemon/hibernation-cold-restore-repro.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-restore-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "restore-reattach",
       "mapsTo": null,
@@ -2907,13 +2912,14 @@
       "horcaImplementation": [],
       "tests": [
         "src/main/daemon/daemon-restore-scrollback-depth.test.ts",
-        "src/main/daemon/hibernation-cold-restore-repro.test.ts"
+        "src/main/daemon/hibernation-cold-restore-repro.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-restore-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "restore-reattach",
       "mapsTo": null,
@@ -2927,13 +2933,14 @@
       "horcaImplementation": [],
       "tests": [
         "src/main/daemon/daemon-restore-scrollback-depth.test.ts",
-        "src/main/daemon/hibernation-cold-restore-repro.test.ts"
+        "src/main/daemon/hibernation-cold-restore-repro.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-restore-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "restore-reattach",
       "mapsTo": null,
@@ -2970,13 +2977,14 @@
       "horcaImplementation": [],
       "tests": [
         "src/main/daemon/daemon-restore-scrollback-depth.test.ts",
-        "src/main/daemon/hibernation-cold-restore-repro.test.ts"
+        "src/main/daemon/hibernation-cold-restore-repro.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-restore-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "restore-reattach",
       "mapsTo": null,
@@ -2990,13 +2998,14 @@
       "horcaImplementation": [],
       "tests": [
         "src/main/daemon/daemon-restore-scrollback-depth.test.ts",
-        "src/main/daemon/hibernation-cold-restore-repro.test.ts"
+        "src/main/daemon/hibernation-cold-restore-repro.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-restore-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "restore-reattach",
       "mapsTo": null,
@@ -3219,13 +3228,14 @@
       "horcaImplementation": [],
       "tests": [
         "src/main/daemon/daemon-restore-scrollback-depth.test.ts",
-        "src/main/daemon/hibernation-cold-restore-repro.test.ts"
+        "src/main/daemon/hibernation-cold-restore-repro.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-restore-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "restore-reattach",
       "mapsTo": null,
@@ -3239,13 +3249,14 @@
       "horcaImplementation": [],
       "tests": [
         "src/main/daemon/daemon-restore-scrollback-depth.test.ts",
-        "src/main/daemon/hibernation-cold-restore-repro.test.ts"
+        "src/main/daemon/hibernation-cold-restore-repro.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-restore-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "restore-reattach",
       "mapsTo": null,
@@ -3259,13 +3270,14 @@
       "horcaImplementation": [],
       "tests": [
         "src/main/daemon/daemon-restore-scrollback-depth.test.ts",
-        "src/main/daemon/hibernation-cold-restore-repro.test.ts"
+        "src/main/daemon/hibernation-cold-restore-repro.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-restore-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "restore-reattach",
       "mapsTo": null,
@@ -3279,13 +3291,14 @@
       "horcaImplementation": [],
       "tests": [
         "src/main/daemon/daemon-restore-scrollback-depth.test.ts",
-        "src/main/daemon/hibernation-cold-restore-repro.test.ts"
+        "src/main/daemon/hibernation-cold-restore-repro.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-restore-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "restore-reattach",
       "mapsTo": null,
@@ -3299,13 +3312,14 @@
       "horcaImplementation": [],
       "tests": [
         "src/main/daemon/daemon-restore-scrollback-depth.test.ts",
-        "src/main/daemon/hibernation-cold-restore-repro.test.ts"
+        "src/main/daemon/hibernation-cold-restore-repro.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-restore-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "restore-reattach",
       "mapsTo": null,
@@ -3319,13 +3333,14 @@
       "horcaImplementation": [],
       "tests": [
         "src/main/daemon/daemon-restore-scrollback-depth.test.ts",
-        "src/main/daemon/hibernation-cold-restore-repro.test.ts"
+        "src/main/daemon/hibernation-cold-restore-repro.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-restore-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "restore-reattach",
       "mapsTo": null,
@@ -3356,13 +3371,14 @@
       "horcaImplementation": [],
       "tests": [
         "src/main/daemon/daemon-restore-scrollback-depth.test.ts",
-        "src/main/daemon/hibernation-cold-restore-repro.test.ts"
+        "src/main/daemon/hibernation-cold-restore-repro.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-restore-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "restore-reattach",
       "mapsTo": null,
@@ -3376,13 +3392,14 @@
       "horcaImplementation": [],
       "tests": [
         "src/main/daemon/daemon-restore-scrollback-depth.test.ts",
-        "src/main/daemon/hibernation-cold-restore-repro.test.ts"
+        "src/main/daemon/hibernation-cold-restore-repro.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-restore-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "restore-reattach",
       "mapsTo": null,
@@ -3488,13 +3505,14 @@
       "horcaImplementation": [],
       "tests": [
         "src/main/daemon/daemon-restore-scrollback-depth.test.ts",
-        "src/main/daemon/hibernation-cold-restore-repro.test.ts"
+        "src/main/daemon/hibernation-cold-restore-repro.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-restore-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "restore-reattach",
       "mapsTo": null,
@@ -3632,15 +3650,15 @@
         "src/main/daemon/daemon-restore-scrollback-depth.test.ts",
         "src/main/daemon/hibernation-cold-restore-repro.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "N/A",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
-      "kind": "PRODUCT_CAPABILITY",
+      "status": "NOT_APPLICABLE",
+      "kind": "NOT_APPLICABLE",
       "group": "restore-reattach",
       "mapsTo": null,
-      "naReason": null
+      "naReason": "type-only pending chunk shape; the queue behavior is hidden-output-restore-chunk"
     },
     {
       "capability": "process-exit-startup",
@@ -3788,13 +3806,14 @@
       "horcaImplementation": [],
       "tests": [
         "src/main/daemon/daemon-restore-scrollback-depth.test.ts",
-        "src/main/daemon/hibernation-cold-restore-repro.test.ts"
+        "src/main/daemon/hibernation-cold-restore-repro.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-restore-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "restore-reattach",
       "mapsTo": null,
@@ -3829,15 +3848,15 @@
         "src/main/daemon/daemon-restore-scrollback-depth.test.ts",
         "src/main/daemon/hibernation-cold-restore-repro.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "N/A",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
-      "kind": "PRODUCT_CAPABILITY",
+      "status": "NOT_APPLICABLE",
+      "kind": "NOT_APPLICABLE",
       "group": "restore-reattach",
       "mapsTo": null,
-      "naReason": null
+      "naReason": "type-only reattach payload session pick; the handler is apply-reattach-payload"
     },
     {
       "capability": "reattach-result-handler",
@@ -3847,13 +3866,14 @@
       "horcaImplementation": [],
       "tests": [
         "src/main/daemon/daemon-restore-scrollback-depth.test.ts",
-        "src/main/daemon/hibernation-cold-restore-repro.test.ts"
+        "src/main/daemon/hibernation-cold-restore-repro.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-restore-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "restore-reattach",
       "mapsTo": null,
@@ -4051,13 +4071,14 @@
       "horcaImplementation": [],
       "tests": [
         "src/main/daemon/daemon-restore-scrollback-depth.test.ts",
-        "src/main/daemon/hibernation-cold-restore-repro.test.ts"
+        "src/main/daemon/hibernation-cold-restore-repro.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-restore-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "restore-reattach",
       "mapsTo": null,
@@ -7402,13 +7423,14 @@
       "horcaImplementation": [],
       "tests": [
         "src/main/daemon/daemon-restore-scrollback-depth.test.ts",
-        "src/main/daemon/hibernation-cold-restore-repro.test.ts"
+        "src/main/daemon/hibernation-cold-restore-repro.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-restore-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "restore-reattach",
       "mapsTo": null,
@@ -8897,13 +8919,14 @@
       ],
       "horcaImplementation": [],
       "tests": [
-        "src/renderer/src/components/terminal-pane/terminal-snapshot-replay-paint.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-snapshot-replay-paint.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-restore-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "restore-reattach",
       "mapsTo": null,
@@ -11690,13 +11713,14 @@
       "horcaImplementation": [],
       "tests": [
         "src/main/daemon/daemon-restore-scrollback-depth.test.ts",
-        "src/main/daemon/hibernation-cold-restore-repro.test.ts"
+        "src/main/daemon/hibernation-cold-restore-repro.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-restore-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "restore-reattach",
       "mapsTo": null,
@@ -12084,13 +12108,14 @@
       "horcaImplementation": [],
       "tests": [
         "src/main/daemon/daemon-restore-scrollback-depth.test.ts",
-        "src/main/daemon/hibernation-cold-restore-repro.test.ts"
+        "src/main/daemon/hibernation-cold-restore-repro.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-restore-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "restore-reattach",
       "mapsTo": null,
@@ -12508,13 +12533,14 @@
       "horcaImplementation": [],
       "tests": [
         "src/main/daemon/daemon-restore-scrollback-depth.test.ts",
-        "src/main/daemon/hibernation-cold-restore-repro.test.ts"
+        "src/main/daemon/hibernation-cold-restore-repro.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-restore-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "restore-reattach",
       "mapsTo": null,
