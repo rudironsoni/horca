@@ -9,8 +9,8 @@
     "productCapabilities": 563,
     "implementationEvidence": 0,
     "notApplicable": 47,
-    "pass": 460,
-    "fail": 103
+    "pass": 478,
+    "fail": 85
   },
   "capabilities": [
     {
@@ -76,13 +76,14 @@
       ],
       "horcaImplementation": [],
       "tests": [
-        "src/renderer/src/components/terminal-pane/terminal-url-link-hit-testing.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-url-link-hit-testing.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-link-installers.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "links",
       "mapsTo": null,
@@ -372,13 +373,14 @@
       ],
       "horcaImplementation": [],
       "tests": [
-        "src/renderer/src/components/terminal-pane/terminal-url-link-hit-testing.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-url-link-hit-testing.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-link-installers.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "links",
       "mapsTo": null,
@@ -1620,13 +1622,14 @@
         "overlay/d1-r/src/renderer/src/components/terminal-pane/edge-wrapped-terminal-http-links.ts"
       ],
       "tests": [
-        "src/renderer/src/components/terminal-pane/edge-wrapped-terminal-http-links.test.ts"
+        "src/renderer/src/components/terminal-pane/edge-wrapped-terminal-http-links.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-link-installers.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "links",
       "mapsTo": null,
@@ -1758,13 +1761,14 @@
         "overlay/d1-r/src/renderer/src/components/terminal-pane/hard-wrapped-terminal-http-links.ts"
       ],
       "tests": [
-        "src/renderer/src/components/terminal-pane/hard-wrapped-terminal-http-links.test.ts"
+        "src/renderer/src/components/terminal-pane/hard-wrapped-terminal-http-links.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-link-installers.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "links",
       "mapsTo": null,
@@ -5929,13 +5933,14 @@
       ],
       "horcaImplementation": [],
       "tests": [
-        "src/renderer/src/components/terminal-pane/terminal-file-link-actions.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-file-link-actions.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-link-installers.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "links",
       "mapsTo": null,
@@ -5948,13 +5953,14 @@
       ],
       "horcaImplementation": [],
       "tests": [
-        "src/renderer/src/components/terminal-pane/terminal-url-link-hit-testing.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-url-link-hit-testing.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-link-installers.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "links",
       "mapsTo": null,
@@ -6212,13 +6218,14 @@
       ],
       "horcaImplementation": [],
       "tests": [
-        "src/renderer/src/components/terminal-pane/terminal-http-link-source-owner.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-http-link-source-owner.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-link-installers.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "links",
       "mapsTo": null,
@@ -6954,13 +6961,14 @@
       ],
       "horcaImplementation": [],
       "tests": [
-        "src/renderer/src/components/terminal-pane/terminal-url-link-hit-testing.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-url-link-hit-testing.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-link-installers.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "links",
       "mapsTo": null,
@@ -6973,13 +6981,14 @@
       ],
       "horcaImplementation": [],
       "tests": [
-        "src/renderer/src/components/terminal-pane/terminal-url-link-hit-testing.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-url-link-hit-testing.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-link-installers.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "links",
       "mapsTo": null,
@@ -6992,13 +7001,14 @@
       ],
       "horcaImplementation": [],
       "tests": [
-        "src/renderer/src/components/terminal-pane/terminal-url-link-hit-testing.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-url-link-hit-testing.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-link-installers.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "links",
       "mapsTo": null,
@@ -7052,13 +7062,14 @@
       ],
       "horcaImplementation": [],
       "tests": [
-        "src/renderer/src/components/terminal-pane/terminal-url-link-hit-testing.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-url-link-hit-testing.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-link-installers.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "links",
       "mapsTo": null,
@@ -7094,13 +7105,14 @@
         "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-linkifier-click-priming.ts"
       ],
       "tests": [
-        "src/renderer/src/components/terminal-pane/terminal-linkifier-click-priming.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-linkifier-click-priming.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-link-installers.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "links",
       "mapsTo": null,
@@ -7365,13 +7377,14 @@
       ],
       "horcaImplementation": [],
       "tests": [
-        "src/renderer/src/components/terminal-pane/terminal-url-link-hit-testing.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-url-link-hit-testing.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-link-installers.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "links",
       "mapsTo": null,
@@ -7826,13 +7839,14 @@
       ],
       "horcaImplementation": [],
       "tests": [
-        "src/renderer/src/components/terminal-pane/terminal-url-link-hit-testing.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-url-link-hit-testing.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-link-installers.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "links",
       "mapsTo": null,
@@ -9187,13 +9201,14 @@
         "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-url-link-hit-testing.ts"
       ],
       "tests": [
-        "src/renderer/src/components/terminal-pane/terminal-url-link-hit-testing.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-url-link-hit-testing.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-link-installers.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "links",
       "mapsTo": null,
@@ -9271,13 +9286,14 @@
       ],
       "horcaImplementation": [],
       "tests": [
-        "src/renderer/src/components/terminal-pane/terminal-url-link-hit-testing.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-url-link-hit-testing.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-link-installers.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "links",
       "mapsTo": null,
@@ -10234,13 +10250,14 @@
         "overlay/d1-r/src/renderer/src/components/terminal-pane/wrapped-terminal-link-ranges.ts"
       ],
       "tests": [
-        "src/renderer/src/components/terminal-pane/wrapped-terminal-link-ranges.test.ts"
+        "src/renderer/src/components/terminal-pane/wrapped-terminal-link-ranges.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-link-installers.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "links",
       "mapsTo": null,
@@ -12032,13 +12049,14 @@
         "overlay/d1-r/src/renderer/src/lib/pane-manager/terminal-linkifier-hover-reset-on-write.ts"
       ],
       "tests": [
-        "src/renderer/src/lib/pane-manager/terminal-linkifier-hover-reset-on-write.test.ts"
+        "src/renderer/src/lib/pane-manager/terminal-linkifier-hover-reset-on-write.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-link-installers.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "links",
       "mapsTo": null,
