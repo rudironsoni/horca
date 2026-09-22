@@ -97,7 +97,7 @@ describe('ghostty pane chrome react modules', () => {
     processor.disposePendingSideEffectGauge()
   })
 
-  it('focuses the Ghostty canvas when copy finds no selection', async () => {
+  it('writes the Ghostty selection when the pane menu copies', async () => {
     HTMLCanvasElement.prototype.getContext = (() => ({
       measureText: () => ({ width: 8 })
     })) as never
@@ -108,7 +108,14 @@ describe('ghostty pane chrome react modules', () => {
     const writes: string[] = []
     Object.defineProperty(window, 'api', {
       configurable: true,
-      value: { ui: { writeTerminalClipboardText: async (text: string) => writes.push(text) } }
+      value: {
+        ui: { writeTerminalClipboardText: async (text: string) => writes.push(text) },
+        horcaGhosttyPassthru: {
+          attach: async () => true,
+          detach: async () => undefined,
+          readSelection: () => 'HELLO'
+        }
+      }
     })
     await copyTerminalPaneMenuSelection({
       id: 1,
@@ -116,8 +123,8 @@ describe('ghostty pane chrome react modules', () => {
       container: host,
       terminal
     } as never)
-    expect(terminal.getSelection()).toBe('')
-    expect(writes).toEqual([])
+    expect(terminal.getSelection()).toBe('HELLO')
+    expect(writes).toEqual(['HELLO'])
     expect(document.activeElement).toBe(terminal.element)
     terminal.dispose()
   })

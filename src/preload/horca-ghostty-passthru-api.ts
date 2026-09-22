@@ -5,12 +5,13 @@ import {
 } from '../shared/horca/ghostty-passthru-api'
 
 export function createHorcaGhosttyPassthruApi(
-  ipc: Pick<IpcRenderer, 'invoke'>
+  ipc: Pick<IpcRenderer, 'invoke' | 'sendSync'>
 ): HorcaGhosttyPassthruApi {
   const channels = HORCA_GHOSTTY_PASSTHRU_CHANNELS
   return {
     attach: (payload) => ipc.invoke(channels.attach, payload),
-    detach: (slot) => ipc.invoke(channels.detach, slot)
+    detach: (slot) => ipc.invoke(channels.detach, slot),
+    readSelection: (slot) => String(ipc.sendSync(channels.readSelection, slot) ?? '')
   }
 }
 

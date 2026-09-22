@@ -11,6 +11,7 @@ type PtyWriteBuf = Buffer | Uint8Array | string
 type GhosttyPassthruTerminal = {
   attach(webContents: WebContents, opts?: { slot?: string }): void
   ptyData(data: Buffer): void
+  readSelection?(): string
   destroy(): void
   on(event: 'pty-write', listener: (buf: PtyWriteBuf) => void): void
   on(event: 'pty-resize', listener: (size: { cols: number; rows: number }) => void): void
@@ -19,6 +20,7 @@ type GhosttyPassthruTerminal = {
 export type HorcaGhosttyPassthruEngine = {
   placement: typeof HORCA_GHOSTTY_ENGINE_PLACEMENT
   attach(webContents: WebContents, slot?: string): void
+  readSelection(): string
   destroy(): void
 }
 
@@ -84,6 +86,7 @@ export function createHorcaGhosttyPassthruEngine(
   return {
     placement: HORCA_GHOSTTY_ENGINE_PLACEMENT,
     attach: (webContents, slot) => term.attach(webContents, { slot: slot ?? '' }),
+    readSelection: () => term.readSelection?.() ?? '',
     destroy: () => term.destroy()
   }
 }

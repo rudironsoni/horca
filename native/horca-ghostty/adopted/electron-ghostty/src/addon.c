@@ -1080,6 +1080,23 @@ static napi_value SurfaceRelease(napi_env env, napi_callback_info info) {
 }
 
 /** processExited(h) -> bool */
+static napi_value ReadSelection(napi_env env, napi_callback_info info) {
+  size_t argc = 1;
+  napi_value argv[1];
+  NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, NULL, NULL));
+  Session *s = get_session(env, argv[0]);
+  napi_value out;
+  ghostty_text_s text = {0};
+  if (!s || !s->surface || !ghostty_surface_has_selection(s->surface) ||
+      !ghostty_surface_read_selection(s->surface, &text) || !text.text) {
+    NAPI_CALL(env, napi_create_string_utf8(env, "", 0, &out));
+    return out;
+  }
+  NAPI_CALL(env, napi_create_string_utf8(env, text.text, (size_t)text.text_len, &out));
+  ghostty_surface_free_text(s->surface, &text);
+  return out;
+}
+
 static napi_value ProcessExited(napi_env env, napi_callback_info info) {
   size_t argc = 1;
   napi_value argv[1];
@@ -1112,6 +1129,8 @@ static napi_value Init(napi_env env, napi_value exports) {
       {"setFocus", NULL, SetFocus, NULL, NULL, NULL, napi_default, NULL},
       {"frame", NULL, Frame, NULL, NULL, NULL, napi_default, NULL},
       {"readPixels", NULL, ReadPixels, NULL, NULL, NULL, napi_default, NULL},
+      {"readSelection", NULL, ReadSelection, NULL, NULL, NULL, napi_default,
+       NULL},
       {"size", NULL, GetSize, NULL, NULL, NULL, napi_default, NULL},
       {"resize", NULL, Resize, NULL, NULL, NULL, napi_default, NULL},
       {"text", NULL, Text, NULL, NULL, NULL, napi_default, NULL},

@@ -36,6 +36,10 @@ export function registerHorcaGhosttyPassthruPaneIpc(
     engines.get(key)?.destroy()
     engines.delete(key)
   })
+  const readSelection = (event: { sender: { id: number }; returnValue: string }, slot: string): void => {
+    event.returnValue = engines.get(paneKey(event.sender.id, slot))?.readSelection() ?? ''
+  }
+  ipcMain.on(HORCA_GHOSTTY_PASSTHRU_CHANNELS.readSelection, readSelection)
   const onDestroyed = (contents: WebContents): void => {
     const prefix = `${contents.id}\u0000`
     for (const key of [...engines.keys()]) {
@@ -49,6 +53,7 @@ export function registerHorcaGhosttyPassthruPaneIpc(
   return () => {
     ipcMain.removeHandler(HORCA_GHOSTTY_PASSTHRU_CHANNELS.attach)
     ipcMain.removeHandler(HORCA_GHOSTTY_PASSTHRU_CHANNELS.detach)
+    ipcMain.removeListener(HORCA_GHOSTTY_PASSTHRU_CHANNELS.readSelection, readSelection)
     for (const engine of engines.values()) {
       engine.destroy()
     }

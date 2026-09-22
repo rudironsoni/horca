@@ -15,3 +15,7 @@ export function attachHorcaGhosttyPassthruPane(sessionId: string, slot: string):
 export function detachHorcaGhosttyPassthruPane(slot: string): void {
   void passthruApi()?.detach(slot)
 }
+
+export function readHorcaGhosttySelection(slot: string): string {
+  return passthruApi()?.readSelection(slot) ?? ''
+}

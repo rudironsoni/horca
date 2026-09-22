@@ -153,6 +153,9 @@ class LocalEngine {
   tick() { this._addon.tick(this._handle); }
   draw() { this._addon.draw(this._handle); }
   readPixels() { return this._addon.readPixels(this._handle); }
+  readSelection() {
+    return this._addon.readSelection ? this._addon.readSelection(this._handle) : '';
+  }
 
   destroy() {
     this.stop();
@@ -528,6 +531,10 @@ class GhosttyTerminal extends EventEmitter {
   draw() { this._engine.draw(); }
   /** BGRA copy of the presented frame. Sync only with engine 'main'. */
   readPixels() { return this._engine.readPixels(); }
+  /** Current Ghostty selection. Sync only with engine 'main'. */
+  readSelection() {
+    return this._engine.readSelection ? this._engine.readSelection() : '';
+  }
   /** BGRA copy of the presented frame, any engine. */
   readPixelsAsync() {
     return this._engine.readPixelsAsync

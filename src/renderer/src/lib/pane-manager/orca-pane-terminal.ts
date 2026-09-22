@@ -15,7 +15,8 @@ import { bindOrcaPaneHostChrome, type OrcaPaneHostChrome } from './orca-pane-hos
 import { OrcaPaneListenerHub } from './orca-pane-terminal-events'
 import {
   attachHorcaGhosttyPassthruPane,
-  detachHorcaGhosttyPassthruPane
+  detachHorcaGhosttyPassthruPane,
+  readHorcaGhosttySelection
 } from './horca-ghostty-passthru-attach'
 
 export type { OrcaPaneAppearance } from './orca-pane-appearance'
@@ -218,7 +219,7 @@ export class OrcaPaneTerminal extends OrcaPaneListenerHub {
     this.input(text)
   }
   getSelection(): string {
-    return ''
+    return readHorcaGhosttySelection(this.slot)
   }
   scrollToTop(): void {}
   scrollToBottom(): void {}
