@@ -91,6 +91,13 @@ describe('ghostty pane controller', () => {
     const controller = mounted.controller
     const manager = controller?.managerRef.current
     expect(manager?.getPaneCount()).toBe(1)
+    const firstPane = manager?.getPanes()[0]
+    const splitPane = firstPane ? manager?.splitPane(firstPane.id, 'vertical') : null
+    expect(splitPane).toBeTruthy()
+    expect(view.container.querySelectorAll('canvas[data-ghostty]')).toHaveLength(2)
+    manager?.closePane(splitPane!.id)
+    expect(manager?.getPaneCount()).toBe(1)
+    expect(view.container.querySelectorAll('canvas[data-ghostty]')).toHaveLength(1)
     shutdownBufferCaptures.get('tab-1')?.()
     const layout = useAppStore.getState().terminalLayoutsByTabId['tab-1']
     expect(layout?.root).toBeTruthy()
