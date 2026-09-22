@@ -41,6 +41,7 @@ import { parseCssColor } from '../../components/terminal-pane/terminal-view-attr
 import { haveSameTerminalTabIds } from '../../components/terminal-pane/use-terminal-park-verdict-pin'
 import { resolveTerminalTabStripDropTarget } from '../../components/terminal-pane/terminal-tab-strip-drop-target'
 import { GhosttyPaneTerminal } from './ghostty-renderer/ghostty-pane-terminal'
+import { readSentinelWeightProbe } from '../../components/terminal-pane/terminal-render-desync-weight-probe'
 
 describe('ghostty pane chrome modules', () => {
   it('keeps costly process inspection off the local macOS cadence', () => {
@@ -304,5 +305,18 @@ describe('ghostty pane chrome modules', () => {
     expect(terminal.rows).toBe(24)
     terminal.dispose()
     expect(terminal.isDisposed).toBe(true)
+  })
+
+  it('reads font weight from the pane and not an xterm atlas', () => {
+    const probe = readSentinelWeightProbe(
+      { options: { fontWeight: '400', fontWeightBold: '700' } },
+      null,
+      2,
+      2
+    )
+    expect(probe.optionsFontWeight).toBe('400')
+    expect(probe.optionsFontWeightBold).toBe('700')
+    expect(probe.atlasConfigFontWeight).toBeNull()
+    expect(probe.boldTextCells).toBe(0)
   })
 })

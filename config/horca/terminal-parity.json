@@ -9,8 +9,8 @@
     "productCapabilities": 569,
     "implementationEvidence": 0,
     "notApplicable": 41,
-    "pass": 197,
-    "fail": 372
+    "pass": 198,
+    "fail": 371
   },
   "capabilities": [
     {
@@ -8720,13 +8720,14 @@
         "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-render-desync-weight-probe.ts"
       ],
       "tests": [
+        "src/renderer/src/lib/pane-manager/ghostty-pane-chrome-behavior.test.ts",
         "src/renderer/src/components/terminal-pane/terminal-render-desync-weight-probe.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
