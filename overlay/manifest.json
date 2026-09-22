@@ -6476,6 +6476,62 @@
       "reason": "D2: register Ghostty passthru IPC when the desktop store is ready"
     },
     {
+      "id": "d2-brand-renderer-root-error",
+      "target": "src/renderer/src/main.tsx",
+      "mode": "substitute",
+      "find": "title={translate('app.recoverableError.rootTitle', 'Orca hit a renderer error.')}\n      description={translate(\n        'app.recoverableError.rootDescription',\n        'The app shell could not finish rendering. Retry to remount it, or relaunch Orca if the error persists.'\n      )}",
+      "replace": "title={translate('app.recoverableError.rootTitle', 'Horca hit a renderer error.')}\n      description={translate(\n        'app.recoverableError.rootDescription',\n        'The app shell could not finish rendering. Retry to remount it, or relaunch Horca if the error persists.'\n      )}",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "Horca hit a renderer error."
+      },
+      "reason": "D2: crash fallback copy says Horca"
+    },
+    {
+      "id": "d2-brand-renderer-recovery-prompt",
+      "target": "src/main/window/renderer-recovery-prompt.ts",
+      "mode": "substitute",
+      "find": "or quit and relaunch Orca.",
+      "replace": "or quit and relaunch Horca.",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "or quit and relaunch Horca."
+      },
+      "reason": "D2: renderer recovery dialog says Horca"
+    },
+    {
+      "id": "d2-brand-web-renderer-error",
+      "target": "src/renderer/src/web/main.tsx",
+      "mode": "substitute",
+      "find": "title={translate('app.recoverableError.webTitle', 'Orca web hit a renderer error.')}",
+      "replace": "title={translate('app.recoverableError.webTitle', 'Horca web hit a renderer error.')}",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "Horca web hit a renderer error."
+      },
+      "reason": "D2: web crash fallback copy says Horca"
+    },
+    {
+      "id": "d2-brand-windows-acl-relaunch",
+      "target": "src/main/startup/windows-install-dir-acl-recovery.ts",
+      "mode": "substitute",
+      "find": "then relaunch Orca:",
+      "replace": "then relaunch Horca:",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "then relaunch Horca:"
+      },
+      "reason": "D2: Windows ACL recovery copy says Horca"
+    },
+    {
       "id": "d2-add-src-shared-horca-distribution-build-profile.ts",
       "target": "src/shared/horca/distribution-build-profile.ts",
       "mode": "add",
