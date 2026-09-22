@@ -6,11 +6,11 @@
   },
   "counts": {
     "rows": 610,
-    "productCapabilities": 564,
+    "productCapabilities": 563,
     "implementationEvidence": 0,
-    "notApplicable": 46,
-    "pass": 430,
-    "fail": 134
+    "notApplicable": 47,
+    "pass": 435,
+    "fail": 128
   },
   "capabilities": [
     {
@@ -2242,13 +2242,14 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/keyboard-handlers-ime-composing-chord.test.tsx",
         "src/renderer/src/components/terminal-pane/keyboard-handlers-ime-enter-keyup.test.tsx",
-        "src/renderer/src/components/terminal-pane/keyboard-handlers-ime.test.tsx"
+        "src/renderer/src/components/terminal-pane/keyboard-handlers-ime.test.tsx",
+        "src/renderer/src/lib/pane-manager/ghostty-input-runtime-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "input",
       "mapsTo": null,
@@ -4854,13 +4855,14 @@
       ],
       "horcaImplementation": [],
       "tests": [
-        "src/renderer/src/components/terminal-pane/remote-runtime-pty-batching.test.ts"
+        "src/renderer/src/components/terminal-pane/remote-runtime-pty-batching.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-input-runtime-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "input",
       "mapsTo": null,
@@ -5759,13 +5761,14 @@
       ],
       "horcaImplementation": [],
       "tests": [
-        "src/renderer/src/components/terminal-pane/terminal-drop-runtime-owner.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-drop-runtime-owner.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-input-runtime-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "input",
       "mapsTo": null,
@@ -6322,13 +6325,14 @@
       ],
       "horcaImplementation": [],
       "tests": [
-        "src/renderer/src/components/terminal-pane/terminal-ime-deferred-chord.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-ime-deferred-chord.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-input-runtime-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "input",
       "mapsTo": null,
@@ -6610,15 +6614,15 @@
         "src/renderer/src/components/terminal-pane/keyboard-handlers-ime.test.tsx",
         "src/renderer/src/components/terminal-pane/keyboard-handlers.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "N/A",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
-      "kind": "PRODUCT_CAPABILITY",
+      "status": "NOT_APPLICABLE",
+      "kind": "NOT_APPLICABLE",
       "group": "input",
       "mapsTo": null,
-      "naReason": null
+      "naReason": "type-only keyboard handler dependency bag"
     },
     {
       "capability": "terminal-keyboard-event-handlers",
@@ -8692,13 +8696,14 @@
       ],
       "horcaImplementation": [],
       "tests": [
-        "src/renderer/src/components/terminal-pane/terminal-remote-runtime-recovery-ui-state.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-remote-runtime-recovery-ui-state.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-input-runtime-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "input",
       "mapsTo": null,
