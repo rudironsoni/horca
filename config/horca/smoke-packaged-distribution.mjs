@@ -232,6 +232,32 @@ finally:
     sys.stdout.buffer.write(b"PROBE_DONE\\r\\n")
     sys.stdout.flush()
 `
+const MOUSE_SOURCE = `import os, sys, termios, tty, select, time
+sys.stdout.buffer.write(b"\\x1b[?1000hMOUSE_READY\\r\\n")
+sys.stdout.flush()
+fd = 0
+old = termios.tcgetattr(fd)
+tty.setraw(fd)
+
+def burst():
+    parts = [os.read(fd, 64)]
+    deadline = time.monotonic() + 0.15
+    while time.monotonic() < deadline:
+        ready, _, _ = select.select([fd], [], [], 0.03)
+        if not ready:
+            continue
+        parts.append(os.read(fd, 64))
+        deadline = time.monotonic() + 0.04
+    return b"".join(parts)
+
+try:
+    sys.stdout.buffer.write(b"MOUSEHEX " + burst().hex().encode() + b"\\r\\n")
+    sys.stdout.flush()
+finally:
+    termios.tcsetattr(fd, termios.TCSANOW, old)
+    sys.stdout.buffer.write(b"\\x1b[?1000lMOUSE_DONE\\r\\n")
+    sys.stdout.flush()
+`
 const PASTE_SOURCE = `import os, sys, termios, tty, select, time
 sys.stdout.buffer.write(b"\\x1b[?2004hPASTE_READY\\r\\n")
 sys.stdout.flush()
@@ -707,6 +733,7 @@ try {
     throw new Error('Workbench worktree path is missing')
   }
   writeFileSync(join(worktreePath, 'probe'), PROBE_SOURCE)
+  writeFileSync(join(worktreePath, 'mouseprobe'), MOUSE_SOURCE)
   writeFileSync(join(worktreePath, 'pasteprobe'), PASTE_SOURCE)
   writeFileSync(join(worktreePath, 'screenprobe'), SCREEN_SOURCE)
   const focusedSlot = await evaluate(
@@ -783,6 +810,44 @@ try {
   if (!probeScreen.includes('PROBE_DONE')) {
     throw new Error(`Key probe did not restore the terminal: ${probeScreen.slice(0, 800)}`)
   }
+  await sendLine(session, 'python3 mouseprobe')
+  const mouseReadyDeadline = Date.now() + 8_000
+  let mouseScreen = ''
+  while (Date.now() < mouseReadyDeadline) {
+    mouseScreen = await readScreen(handle)
+    if (mouseScreen.includes('MOUSE_READY')) {
+      break
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 150))
+  }
+  if (!mouseScreen.includes('MOUSE_READY')) {
+    throw new Error(`Mouse probe did not start: ${mouseScreen.slice(0, 800)}`)
+  }
+  await session.call(
+    'Input.dispatchMouseEvent',
+    { type: 'mousePressed', x: canvas.x + 24, y: canvas.y + 24, button: 'left', clickCount: 1 },
+    5_000
+  )
+  await session.call(
+    'Input.dispatchMouseEvent',
+    { type: 'mouseReleased', x: canvas.x + 24, y: canvas.y + 24, button: 'left', clickCount: 1 },
+    5_000
+  )
+  const mouseDeadline = Date.now() + 6_000
+  let mouseHex = ''
+  while (Date.now() < mouseDeadline) {
+    mouseScreen = await readScreen(handle)
+    const match = String(mouseScreen).match(/MOUSEHEX ([0-9a-f]+)/)
+    if (match) {
+      mouseHex = match[1]
+      break
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 150))
+  }
+  if (!mouseHex.startsWith('1b5b4d') && !mouseHex.startsWith('1b5b3c')) {
+    throw new Error(`Mouse click did not report: ${mouseHex || mouseScreen.slice(0, 800)}`)
+  }
+  console.log(`MOUSE_OUTPUT ${mouseHex}`)
   execFileSync('pbcopy', { input: 'PASTE_HORCA' })
   await sendLine(session, 'python3 pasteprobe')
   const pasteReadyDeadline = Date.now() + 8_000
