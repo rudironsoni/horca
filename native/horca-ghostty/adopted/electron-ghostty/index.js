@@ -381,6 +381,7 @@ class GhosttyTerminal extends EventEmitter {
     if (bySlot.has(key))
       throw new Error(`electron-ghostty: slot '${slot}' already attached`);
     bySlot.set(key, this);
+    this._engine.start();
     webContents.once('destroyed', () => {
       // Full teardown, not just stop(): the utility engine's stop() is
       // a no-op, so stopping here would leak the engine process + its

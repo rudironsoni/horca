@@ -365,8 +365,14 @@ try {
           }
         }
         const body = document.body.innerText
+        const sizes = canvases.slice(0, 4).map((canvas) => ({
+          w: canvas.width,
+          h: canvas.height,
+          slot: canvas.getAttribute('data-ghostty')
+        }))
         return {
           canvas: canvases.length,
+          sizes,
           painted,
           primedError: body.includes('libghostty-vt WASM host is not primed'),
           reactError: body.includes('React render error') || body.includes('terminal.workbench'),
@@ -388,7 +394,7 @@ try {
   }
   if (workbench.canvas < 1 || !workbench.painted) {
     throw new Error(
-      `Packaged terminal workbench has no painted Ghostty canvas: canvas=${workbench.canvas} painted=${workbench.painted} ${workbench.body}`
+      `Packaged terminal workbench has no painted Ghostty canvas: canvas=${workbench.canvas} painted=${workbench.painted} sizes=${JSON.stringify(workbench.sizes ?? [])} ${workbench.body}`
     )
   }
   const wasmEntries = await evaluate(
