@@ -44,6 +44,7 @@ describe('MAIN Ghostty pane chrome, lifecycle, and remote bind', () => {
     const { ops } = stubCanvas()
     const root = document.createElement('div')
     document.body.appendChild(root)
+    const focusFlags: Array<boolean | undefined> = []
     const pane = createPaneDOM(
       1,
       '11111111-1111-4111-8111-111111111111' as TerminalLeafId,
@@ -59,7 +60,9 @@ describe('MAIN Ghostty pane chrome, lifecycle, and remote bind', () => {
         applyDividerStyles: () => undefined,
         refitPanesUnder: () => undefined
       },
-      () => undefined,
+      (_id, opts) => {
+        focusFlags.push(opts?.focusTerminal)
+      },
       () => undefined
     )
     root.appendChild(pane.container)
@@ -75,6 +78,19 @@ describe('MAIN Ghostty pane chrome, lifecycle, and remote bind', () => {
       throw new Error('expected compositor canvas')
     }
     expect(canvas.getAttribute('data-ghostty')).toMatch(/^pane-\d+$/)
+    expect(pane.container.querySelectorAll('canvas')).toHaveLength(1)
+    expect(canvas.parentElement).toBe(pane.xtermContainer)
+    expect(pane.container.querySelector('.pane-drag-handle')).not.toBeNull()
+    expect(pane.linkTooltip.style.display).toBe('none')
+    expect(pane.linkTooltip.parentElement).toBe(pane.container)
+    canvas.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))
+    expect(focusFlags.at(-1)).toBe(true)
+    const titleInput = document.createElement('input')
+    pane.container.appendChild(titleInput)
+    titleInput.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))
+    expect(focusFlags.at(-1)).toBe(false)
+    pane.terminal.write('\x1b]0;Build\x07')
+    expect(pane.terminal.title).toBe('Build')
     pane.terminal.write('hello')
     expect(ops.filter((op) => op === 'fillText')).toEqual([])
     expect(pane.terminal.encodeKey(new KeyboardEvent('keydown', { key: 'a' }))).toBe('')

@@ -9,8 +9,8 @@
     "productCapabilities": 569,
     "implementationEvidence": 0,
     "notApplicable": 41,
-    "pass": 13,
-    "fail": 556
+    "pass": 152,
+    "fail": 417
   },
   "capabilities": [
     {
@@ -495,11 +495,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/CloseTerminalDialog.test.tsx"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -514,11 +514,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/MobileDriverOverlay.test.tsx"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -533,11 +533,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/PinnedTabCloseDialog.test.tsx"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -552,11 +552,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/RunningTerminalCloseDialog.test.tsx"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -632,11 +632,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/TerminalAgentSessionForkDialog.test.tsx"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -651,11 +651,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/TerminalContextMenu.test.tsx"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -670,11 +670,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/TerminalErrorToast.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -713,11 +713,11 @@
         "src/renderer/src/components/terminal-pane/TerminalPaneNativeChatPortal.test.tsx",
         "src/renderer/src/components/terminal-pane/TerminalPaneOverlayLayer.react185.test.tsx"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -732,11 +732,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/TerminalPaneHeaderOverlay.test.tsx"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -751,11 +751,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/TerminalPaneNativeChatPortal.test.tsx"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -770,11 +770,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/TerminalPaneOverlayLayer.react185.test.tsx"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -813,11 +813,11 @@
         "src/renderer/src/lib/pane-manager/ghostty-main-pane-capability.test.ts",
         "src/main/horca/ghostty-main-pty-lifecycle.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -832,11 +832,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/TerminalProcessExitOverlay.test.tsx"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -1313,11 +1313,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/agent-interrupt-inference.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -1354,11 +1354,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/agent-process-inspection-queue-rejection-containment.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -1373,11 +1373,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/agent-question-answered-inference.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -1433,11 +1433,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/codex-auto-approval-notification-suppression.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -1452,11 +1452,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/codex-backfill-error-detector.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -1493,11 +1493,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/codex-detached-pane-restart.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -1512,11 +1512,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/command-code-done-settle.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -1531,11 +1531,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/command-code-output-ownership.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -1588,11 +1588,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/desktop-fit-fallback.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -1628,11 +1628,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/expand-collapse.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -1647,11 +1647,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/focus-terminal-pane-event.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -1666,11 +1666,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/focused-pane-rim-flash.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -1685,11 +1685,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/force-park-buffer-capture.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -1704,11 +1704,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/git-bash-console-capacity.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -1811,11 +1811,11 @@
         "src/main/ipc/pty-spawn-runtime-handle-binding.test.ts",
         "src/main/ipc/pty/ipc/spawn-reattach-size-cache.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -1833,11 +1833,11 @@
         "src/main/ipc/pty-spawn-runtime-handle-binding.test.ts",
         "src/main/ipc/pty/ipc/spawn-reattach-size-cache.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -1855,11 +1855,11 @@
         "src/main/ipc/pty-spawn-runtime-handle-binding.test.ts",
         "src/main/ipc/pty/ipc/spawn-reattach-size-cache.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -1877,11 +1877,11 @@
         "src/main/ipc/pty-spawn-runtime-handle-binding.test.ts",
         "src/main/ipc/pty/ipc/spawn-reattach-size-cache.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -1899,11 +1899,11 @@
         "src/main/ipc/pty-spawn-runtime-handle-binding.test.ts",
         "src/main/ipc/pty/ipc/spawn-reattach-size-cache.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -1957,11 +1957,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/manual-terminal-worktree-park-eligibility.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -1976,11 +1976,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/merge-captured-leaf-state.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -1995,11 +1995,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/mobile-driver-overlay-collapse.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -2014,11 +2014,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/mobile-driver-overlay-focus.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -2095,11 +2095,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/native-chat-leaf-title-agent.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -2210,11 +2210,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/override-affected-panes.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -2269,11 +2269,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/pane-foreground-agent-tracker.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -2310,11 +2310,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/pane-helpers.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -2329,11 +2329,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/pane-title-overlay-rects.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -2348,11 +2348,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/parked-terminal-byte-watcher.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -2367,11 +2367,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/parked-terminal-command-status.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -2386,11 +2386,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/parse-osc7.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -4216,11 +4216,11 @@
         "src/renderer/src/components/terminal-pane/pty-dispatcher-pi-routing.test.ts",
         "src/renderer/src/components/terminal-pane/pty-dispatcher-push-reattach.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -4323,11 +4323,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/pty-input-write-queue.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -4408,11 +4408,11 @@
         "src/renderer/src/lib/pane-manager/ghostty-main-pane-capability.test.ts",
         "src/main/horca/ghostty-main-pty-lifecycle.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -4427,11 +4427,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/pty-pre-handler-buffer.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -4446,11 +4446,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/pty-preconnect-input-buffer.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -4465,11 +4465,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/pty-renderer-delivery-claims.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -4484,11 +4484,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/pty-shutdown-data-suspension.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -4503,11 +4503,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/pty-shutdown-exit-deferral.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -4544,11 +4544,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/pty-shutdown-output-queue.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -4563,11 +4563,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/pty-side-effect-pending-census.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -4582,11 +4582,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/pty-size-reassertion.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -4601,11 +4601,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/pty-size-reconcile.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -4682,11 +4682,11 @@
         "src/renderer/src/components/terminal-pane/remote-runtime-pty-transport-stream-reconnect.test.ts",
         "src/renderer/src/components/terminal-pane/remote-runtime-pty-transport-web-mirror-recovery.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -4701,11 +4701,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/regular-terminal-focus-ownership.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -4739,11 +4739,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/remote-execution-host-pty.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -4758,11 +4758,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/remote-pane-layout-push.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -4878,11 +4878,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/renderer-owned-agent-status-registry.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -4994,11 +4994,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/shell-ready-marker-scan.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -5013,11 +5013,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/shutdown-buffer-captures.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -5032,11 +5032,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/sleeping-record-park-exemption.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -5234,11 +5234,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-attention-surface.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -5276,11 +5276,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-capability-replies.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -5376,11 +5376,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-cold-park-recheck-deadlines.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -5416,11 +5416,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-cold-park-withheld-tabs.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -5456,11 +5456,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-context-menu-dismiss.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -5497,11 +5497,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-ctrl-arrow-conpty.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -5516,11 +5516,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-ctrl-enter.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -5535,11 +5535,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-dead-session-reconcile.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -5554,11 +5554,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-delivery-watchdog.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -5573,11 +5573,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-drop-handler.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -5592,11 +5592,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-drop-image-path.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -5655,11 +5655,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-drop-path-writer.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -5693,11 +5693,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-drop-shell.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -5734,11 +5734,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-drop-upload-report.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -5775,11 +5775,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-drop-write-failure.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -5794,11 +5794,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-error-accumulation.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -5813,11 +5813,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-eviction-exempt-tabs.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -5933,11 +5933,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-freeze-report.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -5952,11 +5952,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-handle-copy.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -6033,11 +6033,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-hidden-view-parking.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -6052,11 +6052,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-hidden-worktree-retention.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -6128,11 +6128,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-http-url-extraction.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -6370,11 +6370,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-input-host-platform.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -6389,11 +6389,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-input-quarantine.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -6471,11 +6471,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-jis-yen-input.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -6714,11 +6714,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-layout-leaf-detach.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -6733,11 +6733,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-layout-leaf-ids.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -6752,11 +6752,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-layout-pty-ownership.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -6989,11 +6989,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-live-layout-reconciliation.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -7116,11 +7116,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-non-latin-control-chord.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -7157,11 +7157,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-notification-state.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -7275,11 +7275,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-pane-attention-subscriptions.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -7294,11 +7294,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-pane-close-identity.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -7313,11 +7313,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-pane-host-state.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -7526,11 +7526,11 @@
         "src/renderer/src/lib/pane-manager/ghostty-main-pane-capability.test.ts",
         "src/main/horca/ghostty-main-pty-lifecycle.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -7592,11 +7592,11 @@
         "src/renderer/src/lib/pane-manager/ghostty-main-pane-capability.test.ts",
         "src/main/horca/ghostty-main-pty-lifecycle.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -7784,11 +7784,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-pane-recovery.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -7860,11 +7860,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-pane-tab-detach.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -7918,11 +7918,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-park-verdict-flip-telemetry.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -7959,11 +7959,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-parked-tab-watchers.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -7978,11 +7978,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-parked-watcher-reconciliation.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -7997,11 +7997,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-parked-watcher-registry.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -8016,11 +8016,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-parking-e2e-overrides.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -8035,11 +8035,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-parser-handler-guard.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -8305,11 +8305,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-path-existence-batch.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -8390,11 +8390,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-process-exit-restart.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -8430,11 +8430,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-pty-ack-gate.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -8623,11 +8623,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-render-desync-frame.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -8642,11 +8642,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-render-desync-sentinel.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -8704,11 +8704,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-renderer-policy.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -8763,11 +8763,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-shortcut-policy.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -8803,11 +8803,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-side-effect-facts-handler.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -8841,11 +8841,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-startup-command-classifier.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -8882,11 +8882,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-startup-grid-settle.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -8923,11 +8923,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-tab-agent-type-index.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -8942,11 +8942,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-tab-lookup.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -9005,11 +9005,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-title-evidence.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -9024,11 +9024,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-unified-tab-lookup.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -9066,11 +9066,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-user-input-signal.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -9165,11 +9165,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-windows-shift-enter.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -9203,11 +9203,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/title-agent-identity.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -9244,11 +9244,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/use-manual-terminal-worktree-parking.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -9263,11 +9263,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/use-mobile-overlay-ticks.perf.test.tsx"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -9282,11 +9282,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/use-notification-dispatch.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -9301,11 +9301,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/use-parked-terminal-watcher-synchronization.react185.test.tsx"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -9320,11 +9320,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/use-system-prefers-dark.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -9339,11 +9339,11 @@
       "tests": [
         "src/renderer/src/lib/pane-manager/pane-fit.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -9530,11 +9530,11 @@
         "src/renderer/src/components/terminal-pane/use-terminal-pane-global-effects-file-drop.test.ts",
         "src/renderer/src/components/terminal-pane/use-terminal-pane-global-effects-sync-fit-registration.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -9944,11 +9944,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/use-terminal-park-mount-intent.react185.test.tsx"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -10006,11 +10006,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/use-terminal-tab-cold-parking.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -10027,11 +10027,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/use-terminal-window-wake-recovery.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -10046,11 +10046,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/use-visible-terminal-tab-claim.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -10084,11 +10084,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/useTerminalFontZoom.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -10141,11 +10141,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/xterm-bypass-policy.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
@@ -10959,11 +10959,11 @@
       "tests": [
         "src/renderer/src/lib/pane-manager/pane-overlay-focus.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "terminal-chrome",
       "mapsTo": null,
