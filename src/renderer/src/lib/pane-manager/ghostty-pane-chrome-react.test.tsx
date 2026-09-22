@@ -39,6 +39,18 @@ function render(node: ReturnType<typeof createElement>): { container: HTMLDivEle
 describe('ghostty pane controller', () => {
   it('mounts a Ghostty canvas through the pane hook chain', async () => {
     const unsubscribe = () => undefined
+    const ptyCalls: string[] = []
+    const promiseApi = new Proxy(
+      {},
+      {
+        get: (_target, prop) => {
+          return (..._args: unknown[]) => {
+            ptyCalls.push(String(prop))
+            return Promise.resolve(null)
+          }
+        }
+      }
+    )
     const method = new Proxy(
       function apiMethod() {
         return unsubscribe
@@ -65,6 +77,9 @@ describe('ghostty pane controller', () => {
                 getKeyboardInputSourceId: async () => 'com.apple.keylayout.US',
                 onKeyboardLayoutChanged: () => unsubscribe
               }
+            }
+            if (prop === 'pty' || prop === 'ssh' || prop === 'agentStatus') {
+              return promiseApi
             }
             return method
           }
@@ -142,6 +157,8 @@ describe('ghostty pane controller', () => {
       clearExitedPanePtyLayoutBinding: () => undefined
     })
     expect(binding.isUntouchedFreshSpawnPty('missing')).toBe(false)
+    await new Promise((resolve) => requestAnimationFrame(() => resolve(undefined)))
+    expect(ptyCalls).toContain('declarePendingPaneSerializer')
     binding.dispose()
     const positions = mounted.scrollMemory?.captureViewportPositions(false)
     expect(positions?.size).toBe(1)

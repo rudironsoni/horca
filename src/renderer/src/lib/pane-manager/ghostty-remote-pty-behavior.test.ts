@@ -22,6 +22,9 @@ import {
 import { STARTUP_CWD_FALLBACK_NOTICE } from '../../components/terminal-pane/pty-connection/startup-cwd-fallback-notice'
 import { isAgentTaskCompleteNotificationEnabled } from '../../components/terminal-pane/pty-connection/agent-task-complete-settings'
 import { resolvePaneWslDistro } from '../../components/terminal-pane/terminal-pane-wsl-distro'
+import { resolveSshReconnectModelPaint } from '../../components/terminal-pane/pty-connection/resolve-ssh-reconnect-model-paint'
+import { waitForSshConnection } from '../../components/terminal-pane/pty-connection/ssh-session-connect'
+import { useAppStore } from '../../store'
 import { bindHiddenStartupRendererQueryWrite } from '../../components/terminal-pane/pty-connection/hidden-startup-renderer-query-write'
 
 describe('ghostty remote pty helpers', () => {
@@ -119,6 +122,42 @@ describe('ghostty remote pty helpers', () => {
     const taken = session.takeHiddenStartupRendererQueryPendingForForeground('hello')
     expect(taken.remainingData).toBe('hello')
     expect(taken.consumedCurrentChars).toBe(0)
+  })
+
+  it('skips model paint when reconnect may not use the snapshot', async () => {
+    let fetched = 0
+    const paint = await resolveSshReconnectModelPaint({
+      reconnectMayUseModel: false,
+      replay: '\x1b[?1049h',
+      fetchSnapshot: async () => {
+        fetched += 1
+        return null
+      },
+      readTargetCols: () => 80
+    })
+    expect(fetched).toBe(0)
+    expect(paint).toEqual({
+      altFrameWouldBeSkipped: false,
+      paintsFromModel: false,
+      snapshot: null
+    })
+  })
+
+  it('reports a failed SSH connect from the api error', async () => {
+    Object.defineProperty(window, 'api', {
+      configurable: true,
+      value: {
+        ssh: {
+          connect: async () => {
+            throw new Error('auth failed')
+          }
+        }
+      }
+    })
+    const state = useAppStore.getState()
+    state.sshConnectionStates.delete('ssh-target')
+    const result = await waitForSshConnection('ssh-target')
+    expect(result).toEqual({ connected: false, error: 'auth failed' })
   })
 
   it('names the saved-folder fallback and reads a WSL distro from the UNC path', () => {

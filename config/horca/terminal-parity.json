@@ -6,11 +6,11 @@
   },
   "counts": {
     "rows": 610,
-    "productCapabilities": 567,
+    "productCapabilities": 566,
     "implementationEvidence": 0,
-    "notApplicable": 43,
-    "pass": 363,
-    "fail": 204
+    "notApplicable": 44,
+    "pass": 372,
+    "fail": 194
   },
   "capabilities": [
     {
@@ -2870,11 +2870,11 @@
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
-      "kind": "PRODUCT_CAPABILITY",
+      "status": "NOT_APPLICABLE",
+      "kind": "NOT_APPLICABLE",
       "group": "remote-pty",
       "mapsTo": null,
-      "naReason": null
+      "naReason": "type-only session bag, no runtime function"
     },
     {
       "capability": "connect-pane-pty",
@@ -2948,14 +2948,15 @@
         "src/renderer/src/lib/pane-manager/ghostty-renderer/ghostty-pane-terminal.ts"
       ],
       "tests": [
+        "src/renderer/src/lib/pane-manager/ghostty-pane-chrome-react.test.tsx",
         "src/renderer/src/lib/pane-manager/ghostty-main-pane-capability.test.ts",
         "src/main/horca/ghostty-main-pty-lifecycle.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "remote-pty",
       "mapsTo": null,
@@ -3110,14 +3111,15 @@
         "overlay/d1-r/src/renderer/src/components/terminal-pane/pty-connection/foreground-output-refresh.ts"
       ],
       "tests": [
+        "src/renderer/src/lib/pane-manager/ghostty-pane-chrome-react.test.tsx",
         "src/renderer/src/lib/pane-manager/ghostty-main-pane-capability.test.ts",
         "src/main/horca/ghostty-main-pty-lifecycle.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "remote-pty",
       "mapsTo": null,
@@ -3155,14 +3157,15 @@
         "src/renderer/src/lib/pane-manager/ghostty-renderer/ghostty-pane-terminal.ts"
       ],
       "tests": [
+        "src/renderer/src/lib/pane-manager/ghostty-pane-chrome-react.test.tsx",
         "src/renderer/src/lib/pane-manager/ghostty-main-pane-capability.test.ts",
         "src/main/horca/ghostty-main-pty-lifecycle.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "remote-pty",
       "mapsTo": null,
@@ -3177,14 +3180,15 @@
         "src/renderer/src/lib/pane-manager/ghostty-renderer/ghostty-pane-terminal.ts"
       ],
       "tests": [
+        "src/renderer/src/lib/pane-manager/ghostty-pane-chrome-react.test.tsx",
         "src/renderer/src/lib/pane-manager/ghostty-main-pane-capability.test.ts",
         "src/main/horca/ghostty-main-pty-lifecycle.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "remote-pty",
       "mapsTo": null,
@@ -3462,14 +3466,15 @@
         "overlay/d1-r/src/renderer/src/components/terminal-pane/pty-connection/live-data-callback.ts"
       ],
       "tests": [
+        "src/renderer/src/lib/pane-manager/ghostty-pane-chrome-react.test.tsx",
         "src/renderer/src/lib/pane-manager/ghostty-main-pane-capability.test.ts",
         "src/main/horca/ghostty-main-pty-lifecycle.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "remote-pty",
       "mapsTo": null,
@@ -3863,14 +3868,15 @@
         "overlay/d1-r/src/renderer/src/components/terminal-pane/pty-connection/replay-data-drain.ts"
       ],
       "tests": [
+        "src/renderer/src/lib/pane-manager/ghostty-pane-chrome-react.test.tsx",
         "src/renderer/src/lib/pane-manager/ghostty-main-pane-capability.test.ts",
         "src/main/horca/ghostty-main-pty-lifecycle.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "remote-pty",
       "mapsTo": null,
@@ -3885,14 +3891,15 @@
         "src/renderer/src/lib/pane-manager/ghostty-renderer/ghostty-pane-terminal.ts"
       ],
       "tests": [
+        "src/renderer/src/lib/pane-manager/ghostty-remote-pty-behavior.test.ts",
         "src/renderer/src/lib/pane-manager/ghostty-main-pane-capability.test.ts",
         "src/main/horca/ghostty-main-pty-lifecycle.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "remote-pty",
       "mapsTo": null,
@@ -4022,14 +4029,15 @@
         "src/renderer/src/lib/pane-manager/ghostty-renderer/ghostty-pane-terminal.ts"
       ],
       "tests": [
+        "src/renderer/src/lib/pane-manager/ghostty-remote-pty-behavior.test.ts",
         "src/renderer/src/lib/pane-manager/ghostty-main-pane-capability.test.ts",
         "src/main/horca/ghostty-main-pty-lifecycle.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "remote-pty",
       "mapsTo": null,
@@ -4149,14 +4157,15 @@
         "src/renderer/src/lib/pane-manager/ghostty-renderer/ghostty-pane-terminal.ts"
       ],
       "tests": [
+        "src/renderer/src/lib/pane-manager/ghostty-pane-chrome-react.test.tsx",
         "src/renderer/src/lib/pane-manager/ghostty-main-pane-capability.test.ts",
         "src/main/horca/ghostty-main-pty-lifecycle.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "remote-pty",
       "mapsTo": null,
