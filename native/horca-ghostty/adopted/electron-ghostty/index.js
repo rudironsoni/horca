@@ -49,6 +49,7 @@ const MOUSE_SHAPE_CSS = [
   'zoom-out',
 ];
 const PRESENT_INTERVAL_MS = 8; // ~120Hz poll of ghostty's swap chain
+const { ghosttySurfacePixels } = require('./surface-pixels');
 const RESIZE_DEBOUNCE_MS = 80;
 
 let addonInited = false;
@@ -443,9 +444,8 @@ class GhosttyTerminal extends EventEmitter {
     clearTimeout(this._resizeTimer);
     this._resizeTimer = setTimeout(() => {
       if (this._destroyed) return;
-      this.resize(
-        Math.max(200, Math.round(cssWidth * this.scale)),
-        Math.max(100, Math.round(cssHeight * this.scale)));
+      const pixels = ghosttySurfacePixels(cssWidth, cssHeight, this.scale);
+      this.resize(pixels.widthPx, pixels.heightPx);
     }, RESIZE_DEBOUNCE_MS);
   }
 
