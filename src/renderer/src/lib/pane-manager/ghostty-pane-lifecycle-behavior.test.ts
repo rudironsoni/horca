@@ -62,6 +62,28 @@ import {
   releaseTerminalScrollIntentKey,
   writeKeyedTerminalScrollIntent
 } from './terminal-scroll-intent-key-store'
+import { writeTerminalOutputImpl } from './pane-terminal-output-writer'
+import { drainQueuedOutputImpl } from './pane-terminal-output-drain'
+import { flushTerminalOutputImpl } from './pane-terminal-output-flusher'
+import { writeBackgroundTerminalChunk } from './pane-terminal-output-pipeline'
+import {
+  discardInFlightTerminalOutputAckCredits,
+  registerTerminalOutputAckCredits
+} from './pane-terminal-output-ack-credit'
+import { discardTerminalOutput } from './pane-terminal-output-queue-registry'
+import {
+  disposeParsedDirtyRows,
+  readParsedDirtyRowSpan,
+  resetParsedDirtyRows
+} from './terminal-parsed-dirty-rows'
+import { createDividerFlexFrameScheduler } from './pane-divider-drag'
+import {
+  buildWindowsPtyCompatibilityOptions,
+  isLocalNativeWindowsPty,
+  resolveWindowsShellOverride
+} from './windows-pty-compatibility'
+import { isXtermInstanceDisposed } from './xterm-instance-disposed'
+import { syncTerminalScrollIntentSoon } from './terminal-scroll-intent-settle'
 
 const LEAF = '11111111-1111-4111-8111-111111111111'
 
@@ -356,6 +378,112 @@ describe('ghostty pane lifecycle helpers', () => {
       suppressed.push(ptyId)
     })).toBe('pty-1')
     expect(suppressed).toEqual(['pty-1'])
+  })
+
+  it('writes é through the foreground path and drains a background chunk', () => {
+    const foreground: string[] = []
+    let credits = 0
+    const foregroundTerminal = {
+      write(data: string, callback?: () => void) {
+        foreground.push(data)
+        callback?.()
+      }
+    }
+    writeTerminalOutputImpl(foregroundTerminal as never, 'é', {
+      foreground: true,
+      ackCredit: () => {
+        credits += 1
+      }
+    })
+    expect(foreground).toEqual(['é'])
+    expect(credits).toBe(1)
+    const background: string[] = []
+    const backgroundTerminal = {
+      write(data: string, callback?: () => void) {
+        background.push(data)
+        callback?.()
+      }
+    }
+    writeTerminalOutputImpl(backgroundTerminal as never, 'é', { foreground: false })
+    drainQueuedOutputImpl()
+    expect(background).toEqual(['é'])
+    flushTerminalOutputImpl(backgroundTerminal as never)
+    discardTerminalOutput(foregroundTerminal as never)
+    discardTerminalOutput(backgroundTerminal as never)
+    expect(writeBackgroundTerminalChunk({ write: () => { throw new Error('closed') } } as never, 'x')).toBe(false)
+  })
+
+  it('fires ack credits when the terminal is discarded before parse', () => {
+    const terminal = {}
+    let credits = 0
+    const complete = registerTerminalOutputAckCredits(terminal as never, [() => {
+      credits += 1
+    }])
+    expect(complete).toBeTypeOf('function')
+    discardInFlightTerminalOutputAckCredits(terminal as never)
+    expect(credits).toBe(1)
+    complete?.()
+    expect(credits).toBe(1)
+  })
+
+  it('records the parse dirty-row span and ignores a non-xterm Ghostty surface', () => {
+    let listener: ((event: { start: number; end: number } | undefined) => void) | undefined
+    const terminal = {
+      _core: {
+        _inputHandler: {
+          onRequestRefreshRows(next: (event: { start: number; end: number } | undefined) => void) {
+            listener = next
+            return { dispose() {} }
+          }
+        }
+      }
+    }
+    resetParsedDirtyRows(terminal)
+    listener?.({ start: 2, end: 5 })
+    expect(readParsedDirtyRowSpan(terminal)).toEqual({ start: 2, end: 5 })
+    disposeParsedDirtyRows(terminal)
+    expect(readParsedDirtyRowSpan(terminal)).toBeNull()
+    expect(isXtermInstanceDisposed({ kind: 'ghostty' })).toBe(false)
+    expect(isXtermInstanceDisposed({ _core: { _store: { _isDisposed: true } } })).toBe(true)
+  })
+
+  it('applies a divider flex change on flush and skips ConPTY options off Windows', () => {
+    const applied: number[][] = []
+    const scheduler = createDividerFlexFrameScheduler({
+      apply: (prevFlex, nextFlex) => {
+        applied.push([prevFlex, nextFlex])
+      },
+      requestFrame: () => 1,
+      cancelFrame: () => undefined
+    })
+    scheduler.schedule(1, 3)
+    expect(applied).toEqual([])
+    scheduler.flush()
+    expect(applied).toEqual([[1, 3]])
+    const mac = {
+      userAgent: 'Mozilla/5.0 (Macintosh)',
+      connectionId: null,
+      cwd: '/repo',
+      shellOverride: null,
+      executionHostId: 'local' as const
+    }
+    expect(isLocalNativeWindowsPty(mac)).toBe(false)
+    expect(buildWindowsPtyCompatibilityOptions(mac)).toEqual({})
+    expect(resolveWindowsShellOverride('zsh', 'pwsh')).toBe('zsh')
+  })
+
+  it('does not sample scroll intent when the caller says not to sync', () => {
+    vi.useFakeTimers()
+    let scrolled = 0
+    const terminal = {
+      buffer: { active: { type: 'normal', viewportY: 0, baseY: 0, cursorY: 0 } },
+      scrollToLine: () => {
+        scrolled += 1
+      }
+    }
+    syncTerminalScrollIntentSoon(terminal as never, { shouldSync: () => false })
+    vi.runAllTimers()
+    expect(scrolled).toBe(0)
   })
 
   it('treats the active leaf as the foreground notification pane', () => {

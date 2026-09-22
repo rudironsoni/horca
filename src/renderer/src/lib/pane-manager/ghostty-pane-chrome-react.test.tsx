@@ -10,6 +10,11 @@ import { copyTerminalPaneMenuSelection } from '../../components/terminal-pane/te
 import { usePendingStartupParkPresence } from '../../components/terminal-pane/terminal-pending-startup-park-presence'
 import { GhosttyPaneTerminal } from './ghostty-renderer/ghostty-pane-terminal'
 import { useTerminalPaneController } from '../../components/terminal-pane/use-terminal-pane-controller'
+import { useTerminalScrollVisibilityMemory } from '../../components/terminal-pane/use-terminal-scroll-visibility-memory'
+import { resumeTerminalVisibility } from '../../components/terminal-pane/terminal-visibility-resume'
+import { schedulePaneRevealPresent, schedulePaneRevealRepaint } from './pane-reveal-repaint'
+import { attachTerminalScrollIntentTracking } from './terminal-scroll-intent-dom-tracking'
+import { isXtermInstanceDisposed } from './xterm-instance-disposed'
 import { LinkRoutingPreferenceDialogProvider } from '../../components/link-routing-preference-dialog'
 import { AgentSessionContinuationMenuItem } from '../../components/terminal-pane/AgentSessionContinuationMenuItem'
 import { TerminalQuickCommandEditorDialog } from '../../components/terminal-pane/TerminalQuickCommandEditorDialog'
@@ -65,7 +70,10 @@ describe('ghostty pane controller', () => {
         }
       )
     })
-    const mounted: { controller: TerminalPaneController | null } = { controller: null }
+    const mounted: {
+      controller: TerminalPaneController | null
+      scrollMemory: ReturnType<typeof useTerminalScrollVisibilityMemory> | null
+    } = { controller: null, scrollMemory: null }
     function Harness() {
       const controller = useTerminalPaneController(
         {
@@ -80,6 +88,12 @@ describe('ghostty pane controller', () => {
         null
       )
       mounted.controller = controller
+      mounted.scrollMemory = useTerminalScrollVisibilityMemory({
+        managerRef: controller.managerRef,
+        isVisibleRef: controller.isVisibleRef,
+        visibleResumeCompleteRef: { current: false },
+        paneCount: 1
+      })
       return createElement('div', { ref: controller.containerRef })
     }
     const view = render(
@@ -92,7 +106,29 @@ describe('ghostty pane controller', () => {
     const manager = controller?.managerRef.current
     expect(manager?.getPaneCount()).toBe(1)
     const firstPane = manager?.getPanes()[0]
-    const splitPane = firstPane ? manager?.splitPane(firstPane.id, 'vertical') : null
+    expect(isXtermInstanceDisposed(firstPane?.terminal)).toBe(false)
+    const positions = mounted.scrollMemory?.captureViewportPositions(false)
+    expect(positions?.size).toBe(1)
+    const tracked = attachTerminalScrollIntentTracking(
+      firstPane!.terminal,
+      firstPane!.container,
+      firstPane!.leafId
+    )
+    tracked.dispose()
+    resumeTerminalVisibility({
+      manager: manager!,
+      isActive: true,
+      isChatViewMode: false,
+      wasVisible: true,
+      shouldUseLightTabResume: true,
+      captureViewportPositions: () => new Map(),
+      withSuppressedScrollTracking: (callback) => callback()
+    })
+    schedulePaneRevealRepaint(() => manager!.getPanes() as never)
+    schedulePaneRevealPresent(() => manager!.getPanes() as never)
+    const splitPane = firstPane
+      ? manager?.splitPaneAroundLeafIds([firstPane.leafId], firstPane.id, 'vertical')
+      : null
     expect(splitPane).toBeTruthy()
     expect(view.container.querySelectorAll('canvas[data-ghostty]')).toHaveLength(2)
     expect(manager?.getRenderingDiagnostics()).toHaveLength(2)
