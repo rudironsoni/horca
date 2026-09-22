@@ -6,10 +6,14 @@
  * Loading is lazy so requiring the package on an unsupported platform
  * doesn't throw until the addon is actually needed.
  */
+const fs = require('fs');
+const os = require('os');
 const path = require('path');
 
 const ADDON_PATH = path.join(
   __dirname, 'build', 'Release', 'ghostty_renderer.node');
+const SELECTION_PATH = path.join(
+  __dirname, 'build', 'Release', 'ghostty_selection.node');
 
 let addon = null;
 
@@ -20,7 +24,18 @@ function load() {
         'electron-ghostty: headless rendering is macOS-only for now ' +
         '(Metal + IOSurface); Linux needs the EGL/GBM presenter');
     }
-    addon = require(ADDON_PATH);
+    const mod = { exports: {} };
+    const flags = os.constants.dlopen.RTLD_NOW | os.constants.dlopen.RTLD_GLOBAL;
+    process.dlopen(mod, ADDON_PATH, flags);
+    if (typeof mod.exports.readSelection !== 'function') {
+      if (!fs.existsSync(SELECTION_PATH)) {
+        throw new Error('electron-ghostty: readSelection is not linked');
+      }
+      const selection = { exports: {} };
+      process.dlopen(selection, SELECTION_PATH, os.constants.dlopen.RTLD_NOW);
+      mod.exports.readSelection = selection.exports.readSelection;
+    }
+    addon = mod.exports;
   }
   return addon;
 }

@@ -6,11 +6,11 @@
   },
   "counts": {
     "rows": 610,
-    "productCapabilities": 569,
+    "productCapabilities": 568,
     "implementationEvidence": 0,
-    "notApplicable": 41,
+    "notApplicable": 42,
     "pass": 204,
-    "fail": 365
+    "fail": 364
   },
   "capabilities": [
     {
@@ -7606,15 +7606,15 @@
         "src/renderer/src/lib/pane-manager/ghostty-main-pane-capability.test.ts",
         "src/main/horca/ghostty-main-pty-lifecycle.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "NOT_APPLICABLE",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
-      "kind": "PRODUCT_CAPABILITY",
+      "status": "NOT_APPLICABLE",
+      "kind": "NOT_APPLICABLE",
       "group": "terminal-chrome",
       "mapsTo": null,
-      "naReason": null
+      "naReason": "Type-only mount context. It has no runtime function to call."
     },
     {
       "capability": "terminal-pane-mount-events",

@@ -122,6 +122,18 @@ describe('ghostty key protocol', () => {
   }, 30000)
 })
 
+describe('ghostty selection', () => {
+  it('returns the full mouse selection from the native surface', () => {
+    const electron = findUp('node_modules/.bin/electron')
+    const script = findUp('native/horca-ghostty/harness/electron-43/selection.js')
+    const result = spawnSync(electron, [script], { encoding: 'utf8', timeout: 30000 })
+    const line = result.stdout.split('\n').filter((row) => row.startsWith('{')).at(-1)
+    const report = JSON.parse(line ?? '{}') as { text?: string }
+    expect(result.status).toBe(0)
+    expect(report.text).toBe('HELLO selection')
+  }, 30000)
+})
+
 describe('ghostty preload late canvas', () => {
   it('sends key, paste, composition, and mouse IPC after the canvas appears', () => {
     const sent: Array<[string, { slot?: string; event?: { action?: number; text?: string }; text?: string }]> = []
