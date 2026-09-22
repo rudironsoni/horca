@@ -196,6 +196,14 @@ async function readScreen(handle) {
   }
 }
 
+async function readOutput(handle) {
+  try {
+    return JSON.stringify(runCli(['terminal', 'read', '--terminal', handle, '--json']))
+  } catch (error) {
+    return String(error && error.stdout ? error.stdout : error)
+  }
+}
+
 async function sendKey(session, event) {
   await session.call('Input.dispatchKeyEvent', { type: 'keyDown', ...event }, 5_000)
   await session.call(
@@ -924,11 +932,18 @@ try {
   }
   console.log('SCREEN_OUTPUT alt primary unicode wide combining box')
   const readSttyCols = (text) => {
-    const matches = [...String(text).matchAll(/stty size[^0-9]{0,12}(\d+) (\d+)/g)]
-    if (matches.length === 0) {
+    const found = []
+    for (const match of String(text).matchAll(/stty size[^0-9]{0,80}(\d+) (\d+)/g)) {
+      found.push({ index: match.index ?? 0, cols: Number(match[2]) })
+    }
+    for (const match of String(text).matchAll(/"(\d+) (\d+)"/g)) {
+      found.push({ index: match.index ?? 0, cols: Number(match[2]) })
+    }
+    if (found.length === 0) {
       return null
     }
-    return Number(matches[matches.length - 1][2])
+    found.sort((a, b) => a.index - b.index)
+    return found[found.length - 1].cols
   }
   const maxTailLength = (text) => {
     try {
@@ -957,41 +972,43 @@ try {
     throw new Error(`stty size did not print a grid: ${beforeSize.slice(0, 800)}`)
   }
   const beforeTail = maxTailLength(beforeSize)
-  await evaluate(
+  const shrunkWidth = await evaluate(
     session,
     `(() => {
       const node = document.querySelector('canvas[data-ghostty="${canvas.slot}"]')
-      if (!node) return false
-      node.style.width = '180px'
-      node.style.height = '120px'
-      node.style.flex = '0 0 180px'
-      if (node.parentElement) {
-        node.parentElement.style.width = '180px'
-        node.parentElement.style.maxWidth = '180px'
-      }
+      if (!node) return 0
+      node.style.width = '80px'
+      node.style.height = '400px'
+      node.style.maxWidth = '80px'
+      node.style.flex = '0 0 80px'
       return node.getBoundingClientRect().width
     })()`,
     5_000
   )
-  await new Promise((resolveDelay) => setTimeout(resolveDelay, 800))
+  console.log(`RESIZE_CSS_WIDTH ${shrunkWidth}`)
+  await new Promise((resolveDelay) => setTimeout(resolveDelay, 400))
   await sendLine(session, 'stty size')
   const afterDeadline = Date.now() + 8_000
   let afterSize = ''
-  let afterCols = beforeCols
+  let afterCols = null
   while (Date.now() < afterDeadline) {
-    afterSize = await readScreen(handle)
+    afterSize = await readOutput(handle)
     const nextCols = readSttyCols(afterSize)
-    const nextTail = maxTailLength(afterSize)
-    if ((nextCols && nextCols !== beforeCols) || (beforeTail > 40 && nextTail > 0 && nextTail + 10 < beforeTail)) {
-      afterCols = nextCols && nextCols !== beforeCols ? nextCols : nextTail
+    if (nextCols && nextCols < beforeCols) {
+      afterCols = nextCols
       break
     }
     await new Promise((resolveDelay) => setTimeout(resolveDelay, 200))
   }
-  if (!(afterCols > 0 && afterCols !== beforeCols)) {
-    throw new Error(`Resize did not change columns: before=${beforeCols} after=${afterCols} ${afterSize.slice(0, 800)}`)
+  if (!afterCols) {
+    const seen = [...String(afterSize).matchAll(/stty size[^0-9]{0,20}(\d+) (\d+)/g)].map((match) => match[0])
+    console.log(`STTY_SEEN ${JSON.stringify(seen)}`)
+    console.log(`STTY_TAIL ${String(afterSize).slice(-500)}`)
+    throw new Error(
+      `Narrow pane did not change PTY columns: before=${beforeCols} css=${shrunkWidth} tail=${beforeTail}`
+    )
   }
-  console.log(`RESIZE_OUTPUT cols ${beforeCols} tail ${beforeTail} -> ${afterCols}`)
+  console.log(`RESIZE_OUTPUT cols ${beforeCols} -> ${afterCols}`)
   const second = runCli([
     'terminal',
     'create',
