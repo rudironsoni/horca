@@ -173,6 +173,44 @@ function openCdp(wsUrl) {
   }
 }
 
+async function readScreen(handle) {
+  try {
+    return JSON.stringify(runCli(['terminal', 'read', '--terminal', handle, '--screen', '--json']))
+  } catch (error) {
+    return String(error && error.stdout ? error.stdout : error)
+  }
+}
+
+async function sendKey(session, event) {
+  await session.call('Input.dispatchKeyEvent', { type: 'keyDown', ...event }, 5_000)
+  await session.call(
+    'Input.dispatchKeyEvent',
+    { type: 'keyUp', key: event.key, code: event.code, modifiers: event.modifiers, windowsVirtualKeyCode: event.windowsVirtualKeyCode, nativeVirtualKeyCode: event.nativeVirtualKeyCode },
+    5_000
+  )
+}
+
+async function sendLine(session, text) {
+  for (const char of text) {
+    if (char === ' ') {
+      await sendKey(session, { key: ' ', code: 'Space', text: ' ', windowsVirtualKeyCode: 32, nativeVirtualKeyCode: 49 })
+      continue
+    }
+    if (!/[a-z]/.test(char)) {
+      throw new Error(`smoke sendLine only sends letters and spaces: ${char}`)
+    }
+    await sendKey(session, {
+      key: char,
+      code: `Key${char.toUpperCase()}`,
+      text: char,
+      unmodifiedText: char,
+      windowsVirtualKeyCode: char.toUpperCase().charCodeAt(0),
+      nativeVirtualKeyCode: 0
+    })
+  }
+  await sendKey(session, { key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13, nativeVirtualKeyCode: 36 })
+}
+
 function runCli(args) {
   let stdout = ''
   try {
@@ -556,12 +594,134 @@ try {
     throw new Error(`Ghostty mouse selection did not include HORCA: ${JSON.stringify(selected)}`)
   }
   console.log(`SELECTION_OUTPUT ${JSON.stringify(selected)}`)
+  await sendKey(session, {
+    key: 'c',
+    code: 'KeyC',
+    modifiers: 2,
+    windowsVirtualKeyCode: 67,
+    nativeVirtualKeyCode: 8
+  })
+  const modifierDeadline = Date.now() + 8_000
+  let modifierScreen = ''
+  while (Date.now() < modifierDeadline) {
+    modifierScreen = await readScreen(handle)
+    if (modifierScreen.includes('^C')) {
+      break
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 200))
+  }
+  if (!modifierScreen.includes('^C')) {
+    throw new Error(`Ctrl+C did not reach the terminal: ${modifierScreen.slice(0, 800)}`)
+  }
+  console.log('MODIFIER_OUTPUT ^C')
+  const readSttyCols = (text) => {
+    const matches = [...String(text).matchAll(/stty size[^0-9]{0,12}(\d+) (\d+)/g)]
+    if (matches.length === 0) {
+      return null
+    }
+    return Number(matches[matches.length - 1][2])
+  }
+  const maxTailLength = (text) => {
+    try {
+      const tail = JSON.parse(text)?.result?.terminal?.tail
+      if (!Array.isArray(tail) || tail.length === 0) {
+        return 0
+      }
+      return Math.max(...tail.map((line) => String(line).length))
+    } catch {
+      return 0
+    }
+  }
+  await sendLine(session, 'stty size')
+  const beforeDeadline = Date.now() + 8_000
+  let beforeSize = ''
+  let beforeCols = null
+  while (Date.now() < beforeDeadline) {
+    beforeSize = await readScreen(handle)
+    beforeCols = readSttyCols(beforeSize)
+    if (beforeCols) {
+      break
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 200))
+  }
+  if (!beforeCols) {
+    throw new Error(`stty size did not print a grid: ${beforeSize.slice(0, 800)}`)
+  }
+  const beforeTail = maxTailLength(beforeSize)
+  await evaluate(
+    session,
+    `(() => {
+      const node = document.querySelector('canvas[data-ghostty="${canvas.slot}"]')
+      if (!node) return false
+      node.style.width = '180px'
+      node.style.height = '120px'
+      node.style.flex = '0 0 180px'
+      if (node.parentElement) {
+        node.parentElement.style.width = '180px'
+        node.parentElement.style.maxWidth = '180px'
+      }
+      return node.getBoundingClientRect().width
+    })()`,
+    5_000
+  )
+  await new Promise((resolveDelay) => setTimeout(resolveDelay, 800))
+  await sendLine(session, 'stty size')
+  const afterDeadline = Date.now() + 8_000
+  let afterSize = ''
+  let afterCols = beforeCols
+  while (Date.now() < afterDeadline) {
+    afterSize = await readScreen(handle)
+    const nextCols = readSttyCols(afterSize)
+    const nextTail = maxTailLength(afterSize)
+    if ((nextCols && nextCols !== beforeCols) || (beforeTail > 40 && nextTail > 0 && nextTail + 10 < beforeTail)) {
+      afterCols = nextCols && nextCols !== beforeCols ? nextCols : nextTail
+      break
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 200))
+  }
+  if (!(afterCols > 0 && afterCols !== beforeCols)) {
+    throw new Error(`Resize did not change columns: before=${beforeCols} after=${afterCols} ${afterSize.slice(0, 800)}`)
+  }
+  console.log(`RESIZE_OUTPUT cols ${beforeCols} tail ${beforeTail} -> ${afterCols}`)
+  const second = runCli([
+    'terminal',
+    'create',
+    '--worktree',
+    worktreeSelector,
+    '--command',
+    'printf HORCA_PANE_2',
+    '--focus',
+    '--json'
+  ])
+  const secondHandle = second?.result?.terminal?.handle
+  if (!secondHandle) {
+    throw new Error('Second pane did not return a terminal handle')
+  }
+  const paneDeadline = Date.now() + 12_000
+  let paneScreen = ''
+  let paneCount = 0
+  while (Date.now() < paneDeadline) {
+    paneScreen = await readScreen(secondHandle)
+    paneCount = await evaluate(
+      session,
+      `document.querySelectorAll('canvas[data-ghostty]').length`,
+      5_000
+    )
+    if (paneScreen.includes('HORCA_PANE_2') && Number(paneCount) >= 2) {
+      break
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 250))
+  }
+  if (!paneScreen.includes('HORCA_PANE_2') || Number(paneCount) < 2) {
+    throw new Error(`Multi-pane failed: canvases=${paneCount} screen=${paneScreen.slice(0, 500)}`)
+  }
+  console.log(`MULTIPANE_OUTPUT ${paneCount} HORCA_PANE_2`)
   session.close()
   if (existsSync(join(home, '.orca'))) {
     throw new Error(`Horca created the official Orca state root: ${join(home, '.orca')}`)
   }
   console.log(
-    'Packaged Horca smoke passed: title, renderer, Ghostty workbench, PTY marker, isolated state, no Herdr'
+    'Packaged Horca smoke passed: title, renderer, key, modifier, selection, resize, multi-pane, no Herdr'
   )
   if (app.exitCode === null) {
     app.kill('SIGKILL')
