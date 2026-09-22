@@ -64,7 +64,7 @@ describe('createHorcaGhosttyPassthruEngine', () => {
     expect(FakeGhostty.lastOpts).toEqual({
       engine: 'main',
       passthru: true,
-      config: 'window-vsync = false\n'
+      config: 'window-vsync = false\nmacos-option-as-alt = true\n'
     })
     const term = instances[0]
     expect(term).toBeDefined()
@@ -116,7 +116,9 @@ describe('ghostty key protocol', () => {
     expect(report.out?.enter).toBe('0d')
     expect(report.out?.up).toBe('1b5b41')
     expect(report.out?.ctrlc).toBe('03')
-    expect(report.out?.altq).toBe('1b5b3131333b333b31313375')
+    expect(report.out?.altqPlain).toBe('1b71')
+    expect(report.out?.altqPlain).not.toBe('71')
+    expect(report.out?.altq).toBe('1b5b3131333b3375')
     expect(report.out?.altqRelease).toBe('1b5b3131333b333a3375')
     expect(report.out?.ctrlAltQ).toBe('1b5b3131333b3775')
   }, 30000)

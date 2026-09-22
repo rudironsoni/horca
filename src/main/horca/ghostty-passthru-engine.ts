@@ -72,7 +72,7 @@ export function createHorcaGhosttyPassthruEngine(
   const term = new GhosttyTerminal({
     engine: HORCA_GHOSTTY_ENGINE_PLACEMENT,
     passthru: true,
-    config: 'window-vsync = false\n'
+    config: 'window-vsync = false\nmacos-option-as-alt = true\n'
   })
   handle.onData((data) => {
     term.ptyData(ptyScreenBytes(data))

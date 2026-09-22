@@ -22,7 +22,7 @@ app.whenReady().then(async () => {
   const term = new GhosttyTerminal({
     engine: 'main',
     passthru: true,
-    config: 'window-vsync = false\n',
+    config: 'window-vsync = false\nmacos-option-as-alt = true\n',
     widthPx: 800,
     heightPx: 400,
     scale: 1
@@ -51,6 +51,7 @@ app.whenReady().then(async () => {
   out.ctrlc = await take(() => press(term, { keycode: 8, mods: 2 }))
   out.backspace = await take(() => press(term, { keycode: 51, mods: 0 }))
   out.a = await take(() => press(term, { keycode: 0, mods: 0, text: 'a', unshiftedCodepoint: 97 }))
+  out.altqPlain = await take(() => press(term, { keycode: 12, mods: 4, text: 'q', unshiftedCodepoint: 113 }))
   term.ptyData(Buffer.from('\x1b[<u\x1b[>31u'))
   await settle()
   out.altq = await take(() => press(term, { keycode: 12, mods: 4, text: 'q', unshiftedCodepoint: 113 }))
@@ -82,8 +83,9 @@ app.whenReady().then(async () => {
     ctrlc: '03',
     backspace: '7f',
     a: '61',
-    altq: '1b5b3131333b333b31313375',
-    altqRepeat: '1b5b3131333b333a323b31313375',
+    altqPlain: '1b71',
+    altq: '1b5b3131333b3375',
+    altqRepeat: '1b5b3131333b333a3275',
     altqRelease: '1b5b3131333b333a3375',
     ctrlAltQ: '1b5b3131333b3775',
     shiftEnter: '1b5b31333b32751b5b31333b323a3375',
