@@ -37,7 +37,12 @@ describe('Horca downstream packaging', () => {
       linux: { extraResources: [] }
     })
     expect(config.mac.extraResources).toEqual(
-      expect.arrayContaining([expect.objectContaining({ to: 'horca-ghostty' })])
+      expect.arrayContaining([
+        expect.objectContaining({
+          to: 'horca-ghostty',
+          filter: expect.arrayContaining(['surface-pixels.js'])
+        })
+      ])
     )
     expect(config.win.extraResources).toEqual(
       expect.arrayContaining([expect.objectContaining({ to: 'horca-ghostty' })])
