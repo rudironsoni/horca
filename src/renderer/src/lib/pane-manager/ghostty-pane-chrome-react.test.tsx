@@ -15,6 +15,7 @@ import { resumeTerminalVisibility } from '../../components/terminal-pane/termina
 import { schedulePaneRevealPresent, schedulePaneRevealRepaint } from './pane-reveal-repaint'
 import { attachTerminalScrollIntentTracking } from './terminal-scroll-intent-dom-tracking'
 import { isXtermInstanceDisposed } from './xterm-instance-disposed'
+import { connectPanePty } from '../../components/terminal-pane/pty-connection/connect-pane-pty'
 import { LinkRoutingPreferenceDialogProvider } from '../../components/link-routing-preference-dialog'
 import { AgentSessionContinuationMenuItem } from '../../components/terminal-pane/AgentSessionContinuationMenuItem'
 import { TerminalQuickCommandEditorDialog } from '../../components/terminal-pane/TerminalQuickCommandEditorDialog'
@@ -107,6 +108,41 @@ describe('ghostty pane controller', () => {
     expect(manager?.getPaneCount()).toBe(1)
     const firstPane = manager?.getPanes()[0]
     expect(isXtermInstanceDisposed(firstPane?.terminal)).toBe(false)
+    const binding = connectPanePty(firstPane!, manager!, {
+      tabId: 'tab-1',
+      worktreeId: 'global-floating-terminal',
+      cwd: '/repo',
+      mountFollowsTerminalPark: false,
+      paneTransportsRef: controller!.paneTransportsRef,
+      paneMode2031Ref: controller!.paneMode2031Ref,
+      paneKittyKeyboardModesRef: controller!.paneKittyKeyboardModesRef,
+      paneLastThemeModeRef: controller!.paneLastThemeModeRef,
+      replayingPanesRef: controller!.replayingPanesRef,
+      isActiveRef: controller!.isActiveRef,
+      isVisibleRef: controller!.isVisibleRef,
+      onPtyExitRef: { current: () => undefined },
+      onAgentExitedRef: { current: () => undefined },
+      clearTabPtyId: () => undefined,
+      consumeSuppressedPtyExit: () => false,
+      isPtyShutdownPending: () => false,
+      updateTabTitle: () => undefined,
+      setRuntimePaneTitle: () => undefined,
+      clearRuntimePaneTitle: () => undefined,
+      updateTabPtyId: () => undefined,
+      markWorktreeUnread: () => undefined,
+      markTerminalTabUnread: () => undefined,
+      markTerminalPaneUnread: () => undefined,
+      clearWorktreeUnread: () => undefined,
+      clearTerminalTabUnread: () => undefined,
+      clearTerminalPaneUnread: () => undefined,
+      onShowSessionRestoredBanner: () => undefined,
+      dispatchNotification: () => undefined,
+      setCacheTimerStartedAt: () => undefined,
+      syncPanePtyLayoutBinding: () => undefined,
+      clearExitedPanePtyLayoutBinding: () => undefined
+    })
+    expect(binding.isUntouchedFreshSpawnPty('missing')).toBe(false)
+    binding.dispose()
     const positions = mounted.scrollMemory?.captureViewportPositions(false)
     expect(positions?.size).toBe(1)
     const tracked = attachTerminalScrollIntentTracking(
