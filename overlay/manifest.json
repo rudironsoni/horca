@@ -6178,6 +6178,16 @@
       "reason": "D2: MAIN Ghostty multi-session Buffer PTY lifecycle"
     },
     {
+      "id": "d2-add-src-renderer-ghostty-pane-chrome-react.test.tsx",
+      "target": "src/renderer/src/lib/pane-manager/ghostty-pane-chrome-react.test.tsx",
+      "mode": "add",
+      "source": "src/renderer/src/lib/pane-manager/ghostty-pane-chrome-react.test.tsx",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: invoke pane chrome dialogs and output processors on the Ghostty pane"
+    },
+    {
       "id": "d2-add-src-renderer-ghostty-pane-chrome-behavior.test.ts",
       "target": "src/renderer/src/lib/pane-manager/ghostty-pane-chrome-behavior.test.ts",
       "mode": "add",
