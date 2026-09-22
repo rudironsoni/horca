@@ -18,7 +18,7 @@ const { GhosttyTerminal } = require(
 const drainHandle = require('./drain-handle');
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-const toBin = (s) => Buffer.from(s, 'latin1');
+const toBin = (s) => Buffer.from(s, 'utf8');
 const fromBin = (b) => Buffer.from(b).toString('latin1');
 
 app.whenReady().then(async () => {

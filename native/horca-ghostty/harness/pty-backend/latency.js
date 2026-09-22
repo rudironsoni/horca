@@ -25,7 +25,7 @@ app.whenReady().then(async () => {
     widthPx: 800, heightPx: 400, config: 'window-vsync = false\n',
   });
   handle.onData((data) => {
-    term.ptyData(Buffer.from(data, 'latin1'));
+    term.ptyData(Buffer.from(data, 'utf8'));
     void emulator.write(data, { forwardQueryReplies: false });
   });
   term.on('pty-write', (buf) => handle.write(Buffer.from(buf)));

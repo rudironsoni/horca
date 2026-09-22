@@ -45,11 +45,11 @@ async function session(id, floodBytes) {
     const n = pending.length;
     ipc.outN += 1; ipc.outB += n; if (n > ipc.outMax) ipc.outMax = n;
     term.ptyData(pending);
-    void emulator.write(pending.toString('latin1'), { forwardQueryReplies: false });
+    void emulator.write(pending.toString('utf8'), { forwardQueryReplies: false });
     pending = Buffer.alloc(0);
   };
   handle.onData((data) => {
-    const buf = Buffer.from(data, 'latin1');
+    const buf = Buffer.from(data, 'utf8');
     if (!BATCH) {
       ipc.outN += 1; ipc.outB += buf.length; if (buf.length > ipc.outMax) ipc.outMax = buf.length;
       term.ptyData(buf);

@@ -31,8 +31,8 @@ async function oneSession(id) {
   });
   let ipcOut = 0, ipcOutB = 0, ipcIn = 0, ipcInB = 0;
   handle.onData((data) => {
-    ipcOut += 1; ipcOutB += Buffer.byteLength(data, 'latin1');
-    term.ptyData(Buffer.from(data, 'latin1'));
+    ipcOut += 1; ipcOutB += Buffer.byteLength(data, 'utf8');
+    term.ptyData(Buffer.from(data, 'utf8'));
     void emulator.write(data, { forwardQueryReplies: false });
   });
   term.on('pty-write', (buf) => {

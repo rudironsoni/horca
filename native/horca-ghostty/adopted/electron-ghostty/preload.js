@@ -144,8 +144,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   });
   observer.observe(document.documentElement, { childList: true, subtree: true });
-  if (canvases.size === 0) return;
-  canvases.values().next().value.focus();
+  if (canvases.size > 0) canvases.values().next().value.focus();
 
   window.addEventListener('keydown', (e) => {
     if (e.metaKey) return; // Cmd shortcuts stay with the app

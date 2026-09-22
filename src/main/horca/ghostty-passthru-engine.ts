@@ -56,6 +56,13 @@ function asBuffer(data: PtyWriteBuf): Buffer {
   return Buffer.from(data)
 }
 
+function ptyScreenBytes(data: string | Buffer | Uint8Array): Buffer {
+  if (typeof data === 'string') {
+    return Buffer.from(data, 'utf8')
+  }
+  return Buffer.isBuffer(data) ? data : Buffer.from(data)
+}
+
 export function createHorcaGhosttyPassthruEngine(
   handle: SubprocessHandle,
   GhosttyTerminal = loadGhosttyTerminal()
@@ -66,7 +73,7 @@ export function createHorcaGhosttyPassthruEngine(
     config: 'window-vsync = false\n'
   })
   handle.onData((data) => {
-    term.ptyData(Buffer.from(data, 'latin1'))
+    term.ptyData(ptyScreenBytes(data))
   })
   term.on('pty-write', (buf) => {
     handle.write(asBuffer(buf))
