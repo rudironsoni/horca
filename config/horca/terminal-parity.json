@@ -9,8 +9,8 @@
     "productCapabilities": 562,
     "implementationEvidence": 0,
     "notApplicable": 48,
-    "pass": 534,
-    "fail": 28
+    "pass": 535,
+    "fail": 27
   },
   "capabilities": [
     {
@@ -12145,13 +12145,14 @@
       "horcaImplementation": [],
       "tests": [
         "src/main/daemon/daemon-restore-scrollback-depth.test.ts",
-        "src/main/daemon/hibernation-cold-restore-repro.test.ts"
+        "src/main/daemon/hibernation-cold-restore-repro.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-live-scrollback-restore.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "resize-reflow-scroll",
       "mapsTo": null,
