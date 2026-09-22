@@ -6,11 +6,11 @@
   },
   "counts": {
     "rows": 610,
-    "productCapabilities": 563,
+    "productCapabilities": 562,
     "implementationEvidence": 0,
-    "notApplicable": 47,
-    "pass": 478,
-    "fail": 85
+    "notApplicable": 48,
+    "pass": 499,
+    "fail": 63
   },
   "capabilities": [
     {
@@ -416,13 +416,14 @@
         "src/renderer/src/components/terminal-pane/osc52-clipboard.test.ts",
         "src/renderer/src/components/terminal-pane/terminal-bracketed-paste.test.ts",
         "src/renderer/src/components/terminal-pane/terminal-clipboard-paste.test.ts",
-        "src/renderer/src/components/terminal-pane/terminal-paste-coordinator.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-paste-coordinator.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-clipboard-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "clipboard",
       "mapsTo": null,
@@ -2150,13 +2151,14 @@
       ],
       "horcaImplementation": [],
       "tests": [
-        "src/renderer/src/components/terminal-pane/osc52-clipboard-default-on-notice.test.ts"
+        "src/renderer/src/components/terminal-pane/osc52-clipboard-default-on-notice.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-clipboard-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "clipboard",
       "mapsTo": null,
@@ -2172,13 +2174,14 @@
         "src/renderer/src/components/terminal-pane/osc52-clipboard.test.ts",
         "src/renderer/src/components/terminal-pane/terminal-bracketed-paste.test.ts",
         "src/renderer/src/components/terminal-pane/terminal-clipboard-paste.test.ts",
-        "src/renderer/src/components/terminal-pane/terminal-paste-coordinator.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-paste-coordinator.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-clipboard-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "clipboard",
       "mapsTo": null,
@@ -2210,13 +2213,14 @@
       ],
       "horcaImplementation": [],
       "tests": [
-        "src/renderer/src/components/terminal-pane/osc52-clipboard.test.ts"
+        "src/renderer/src/components/terminal-pane/osc52-clipboard.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-clipboard-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "clipboard",
       "mapsTo": null,
@@ -5223,13 +5227,14 @@
       ],
       "horcaImplementation": [],
       "tests": [
-        "src/renderer/src/components/terminal-pane/terminal-agent-paste-bracketing.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-agent-paste-bracketing.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-clipboard-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "clipboard",
       "mapsTo": null,
@@ -5348,13 +5353,14 @@
         "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-bracketed-paste.ts"
       ],
       "tests": [
-        "src/renderer/src/components/terminal-pane/terminal-bracketed-paste.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-bracketed-paste.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-clipboard-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "clipboard",
       "mapsTo": null,
@@ -5451,13 +5457,14 @@
         "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-clipboard-selection-text.ts"
       ],
       "tests": [
-        "src/renderer/src/components/terminal-pane/terminal-clipboard-selection-text.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-clipboard-selection-text.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-clipboard-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "clipboard",
       "mapsTo": null,
@@ -7190,13 +7197,14 @@
         "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-native-copy-gutter.ts"
       ],
       "tests": [
-        "src/renderer/src/components/terminal-pane/terminal-native-copy-gutter.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-native-copy-gutter.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-clipboard-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "clipboard",
       "mapsTo": null,
@@ -7649,13 +7657,14 @@
         "src/renderer/src/components/terminal-pane/osc52-clipboard.test.ts",
         "src/renderer/src/components/terminal-pane/terminal-bracketed-paste.test.ts",
         "src/renderer/src/components/terminal-pane/terminal-clipboard-paste.test.ts",
-        "src/renderer/src/components/terminal-pane/terminal-paste-coordinator.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-paste-coordinator.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-clipboard-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "clipboard",
       "mapsTo": null,
@@ -7862,13 +7871,14 @@
         "src/renderer/src/components/terminal-pane/osc52-clipboard.test.ts",
         "src/renderer/src/components/terminal-pane/terminal-bracketed-paste.test.ts",
         "src/renderer/src/components/terminal-pane/terminal-clipboard-paste.test.ts",
-        "src/renderer/src/components/terminal-pane/terminal-paste-coordinator.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-paste-coordinator.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-clipboard-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "clipboard",
       "mapsTo": null,
@@ -8199,13 +8209,14 @@
         "src/renderer/src/components/terminal-pane/osc52-clipboard.test.ts",
         "src/renderer/src/components/terminal-pane/terminal-bracketed-paste.test.ts",
         "src/renderer/src/components/terminal-pane/terminal-clipboard-paste.test.ts",
-        "src/renderer/src/components/terminal-pane/terminal-paste-coordinator.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-paste-coordinator.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-clipboard-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "clipboard",
       "mapsTo": null,
@@ -8218,13 +8229,14 @@
       ],
       "horcaImplementation": [],
       "tests": [
-        "src/renderer/src/components/terminal-pane/terminal-paste-coordinator.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-paste-coordinator.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-clipboard-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "clipboard",
       "mapsTo": null,
@@ -8240,13 +8252,14 @@
         "src/renderer/src/components/terminal-pane/osc52-clipboard.test.ts",
         "src/renderer/src/components/terminal-pane/terminal-bracketed-paste.test.ts",
         "src/renderer/src/components/terminal-pane/terminal-clipboard-paste.test.ts",
-        "src/renderer/src/components/terminal-pane/terminal-paste-coordinator.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-paste-coordinator.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-clipboard-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "clipboard",
       "mapsTo": null,
@@ -8262,13 +8275,14 @@
         "src/renderer/src/components/terminal-pane/osc52-clipboard.test.ts",
         "src/renderer/src/components/terminal-pane/terminal-bracketed-paste.test.ts",
         "src/renderer/src/components/terminal-pane/terminal-clipboard-paste.test.ts",
-        "src/renderer/src/components/terminal-pane/terminal-paste-coordinator.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-paste-coordinator.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-clipboard-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "clipboard",
       "mapsTo": null,
@@ -8284,13 +8298,14 @@
         "src/renderer/src/components/terminal-pane/osc52-clipboard.test.ts",
         "src/renderer/src/components/terminal-pane/terminal-bracketed-paste.test.ts",
         "src/renderer/src/components/terminal-pane/terminal-clipboard-paste.test.ts",
-        "src/renderer/src/components/terminal-pane/terminal-paste-coordinator.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-paste-coordinator.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-clipboard-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "clipboard",
       "mapsTo": null,
@@ -8306,13 +8321,14 @@
         "src/renderer/src/components/terminal-pane/osc52-clipboard.test.ts",
         "src/renderer/src/components/terminal-pane/terminal-bracketed-paste.test.ts",
         "src/renderer/src/components/terminal-pane/terminal-clipboard-paste.test.ts",
-        "src/renderer/src/components/terminal-pane/terminal-paste-coordinator.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-paste-coordinator.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-clipboard-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "clipboard",
       "mapsTo": null,
@@ -8330,15 +8346,15 @@
         "src/renderer/src/components/terminal-pane/terminal-clipboard-paste.test.ts",
         "src/renderer/src/components/terminal-pane/terminal-paste-coordinator.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "N/A",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
-      "kind": "PRODUCT_CAPABILITY",
+      "status": "NOT_APPLICABLE",
+      "kind": "NOT_APPLICABLE",
       "group": "clipboard",
       "mapsTo": null,
-      "naReason": null
+      "naReason": "type-only paste plan shapes"
     },
     {
       "capability": "terminal-paste-operation-timeout",
@@ -8369,13 +8385,14 @@
       ],
       "horcaImplementation": [],
       "tests": [
-        "src/renderer/src/components/terminal-pane/terminal-paste-payload-metadata.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-paste-payload-metadata.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-clipboard-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "clipboard",
       "mapsTo": null,
@@ -8411,13 +8428,14 @@
         "src/renderer/src/components/terminal-pane/osc52-clipboard.test.ts",
         "src/renderer/src/components/terminal-pane/terminal-bracketed-paste.test.ts",
         "src/renderer/src/components/terminal-pane/terminal-clipboard-paste.test.ts",
-        "src/renderer/src/components/terminal-pane/terminal-paste-coordinator.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-paste-coordinator.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-clipboard-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "clipboard",
       "mapsTo": null,
@@ -8430,13 +8448,14 @@
       ],
       "horcaImplementation": [],
       "tests": [
-        "src/renderer/src/components/terminal-pane/terminal-paste-target-state.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-paste-target-state.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-clipboard-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "clipboard",
       "mapsTo": null,
@@ -8557,13 +8576,14 @@
         "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-programmatic-text-paste.ts"
       ],
       "tests": [
-        "src/renderer/src/components/terminal-pane/terminal-programmatic-text-paste.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-programmatic-text-paste.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-clipboard-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "clipboard",
       "mapsTo": null,
@@ -8896,13 +8916,14 @@
         "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-selection-copy.ts"
       ],
       "tests": [
-        "src/renderer/src/components/terminal-pane/terminal-selection-copy.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-selection-copy.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-clipboard-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "clipboard",
       "mapsTo": null,
