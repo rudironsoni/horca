@@ -9,8 +9,8 @@
     "productCapabilities": 562,
     "implementationEvidence": 0,
     "notApplicable": 48,
-    "pass": 544,
-    "fail": 18
+    "pass": 562,
+    "fail": 0
   },
   "capabilities": [
     {
@@ -29,13 +29,14 @@
         "src/main/daemon/headless-emulator-production.test.ts",
         "src/main/daemon/headless-emulator-unicode-width.test.ts",
         "src/main/daemon/headless-emulator-wide-char-repaint.test.ts",
-        "src/main/daemon/headless-emulator-wide-char-snapshot.test.ts"
+        "src/main/daemon/headless-emulator-wide-char-snapshot.test.ts",
+        "src/main/daemon/ghostty-headless-parity-remainder.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "headless-vt",
       "mapsTo": null,
@@ -57,13 +58,14 @@
         "src/main/daemon/headless-emulator-production.test.ts",
         "src/main/daemon/headless-emulator-unicode-width.test.ts",
         "src/main/daemon/headless-emulator-wide-char-repaint.test.ts",
-        "src/main/daemon/headless-emulator-wide-char-snapshot.test.ts"
+        "src/main/daemon/headless-emulator-wide-char-snapshot.test.ts",
+        "src/main/daemon/ghostty-headless-parity-remainder.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "headless-vt",
       "mapsTo": null,
@@ -105,13 +107,14 @@
         "src/main/daemon/headless-emulator-production.test.ts",
         "src/main/daemon/headless-emulator-unicode-width.test.ts",
         "src/main/daemon/headless-emulator-wide-char-repaint.test.ts",
-        "src/main/daemon/headless-emulator-wide-char-snapshot.test.ts"
+        "src/main/daemon/headless-emulator-wide-char-snapshot.test.ts",
+        "src/main/daemon/ghostty-headless-parity-remainder.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "headless-vt",
       "mapsTo": null,
@@ -154,13 +157,14 @@
         "src/main/daemon/headless-emulator-production.test.ts",
         "src/main/daemon/headless-emulator-unicode-width.test.ts",
         "src/main/daemon/headless-emulator-wide-char-repaint.test.ts",
-        "src/main/daemon/headless-emulator-wide-char-snapshot.test.ts"
+        "src/main/daemon/headless-emulator-wide-char-snapshot.test.ts",
+        "src/main/daemon/ghostty-headless-parity-remainder.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "headless-vt",
       "mapsTo": null,
@@ -193,13 +197,14 @@
       ],
       "tests": [
         "src/renderer/src/components/TerminalSearch.test.tsx",
-        "src/renderer/src/components/terminal-search-long-wrapped-line.test.ts"
+        "src/renderer/src/components/terminal-search-long-wrapped-line.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-parity-remainder.test.tsx"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "search",
       "mapsTo": null,
@@ -397,13 +402,14 @@
       "horcaImplementation": [],
       "tests": [
         "src/renderer/src/lib/pane-manager/ghostty-main-pane-capability.test.ts",
-        "src/renderer/src/lib/pane-manager/ghostty-main-remaining-surface.test.ts"
+        "src/renderer/src/lib/pane-manager/ghostty-main-remaining-surface.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-parity-remainder.test.tsx"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "settings",
       "mapsTo": null,
@@ -463,13 +469,14 @@
       "horcaImplementation": [],
       "tests": [
         "src/renderer/src/lib/pane-manager/ghostty-main-pane-capability.test.ts",
-        "src/renderer/src/lib/pane-manager/ghostty-main-remaining-surface.test.ts"
+        "src/renderer/src/lib/pane-manager/ghostty-main-remaining-surface.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-parity-remainder.test.tsx"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "settings",
       "mapsTo": null,
@@ -5336,13 +5343,14 @@
         "overlay/d1-r/src/renderer/src/components/terminal-pane/terminal-appearance.ts"
       ],
       "tests": [
-        "src/renderer/src/components/terminal-pane/terminal-appearance.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-appearance.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-parity-remainder.test.tsx"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "rendering",
       "mapsTo": null,
@@ -9360,13 +9368,14 @@
       ],
       "horcaImplementation": [],
       "tests": [
-        "src/renderer/src/components/terminal-pane/terminal-webgl-atlas-recovery.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-webgl-atlas-recovery.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-parity-remainder.test.tsx"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "gpu-lifecycle",
       "mapsTo": null,
@@ -10364,13 +10373,14 @@
       ],
       "tests": [
         "src/renderer/src/components/TerminalSearch.test.tsx",
-        "src/renderer/src/components/terminal-search-long-wrapped-line.test.ts"
+        "src/renderer/src/components/terminal-search-long-wrapped-line.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-parity-remainder.test.tsx"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "search",
       "mapsTo": null,
@@ -11438,13 +11448,14 @@
         "overlay/d1-r/src/renderer/src/lib/pane-manager/pane-terminal-gpu-acceleration.ts"
       ],
       "tests": [
-        "src/renderer/src/lib/pane-manager/pane-terminal-gpu-acceleration.test.ts"
+        "src/renderer/src/lib/pane-manager/pane-terminal-gpu-acceleration.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-parity-remainder.test.tsx"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "gpu-lifecycle",
       "mapsTo": null,
@@ -11480,13 +11491,14 @@
       "horcaImplementation": [],
       "tests": [
         "src/renderer/src/lib/pane-manager/ghostty-main-pane-capability.test.ts",
-        "src/renderer/src/lib/pane-manager/ghostty-main-remaining-surface.test.ts"
+        "src/renderer/src/lib/pane-manager/ghostty-main-remaining-surface.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-parity-remainder.test.tsx"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "settings",
       "mapsTo": null,
@@ -11856,13 +11868,14 @@
         "overlay/d1-r/src/renderer/src/lib/pane-manager/pane-webgl-renderer.ts"
       ],
       "tests": [
-        "src/renderer/src/lib/pane-manager/pane-webgl-renderer.test.ts"
+        "src/renderer/src/lib/pane-manager/pane-webgl-renderer.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-parity-remainder.test.tsx"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "gpu-lifecycle",
       "mapsTo": null,
@@ -11880,13 +11893,14 @@
         "src/main/daemon/headless-emulator-unicode-width.test.ts",
         "src/main/daemon/headless-emulator-wide-char-repaint.test.ts",
         "src/main/daemon/headless-emulator-wide-char-snapshot.test.ts",
-        "src/renderer/src/lib/pane-manager/terminal-arabic-shaping-joiner.test.ts"
+        "src/renderer/src/lib/pane-manager/terminal-arabic-shaping-joiner.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-parity-remainder.test.tsx"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "unicode",
       "mapsTo": null,
@@ -12447,13 +12461,14 @@
       ],
       "horcaImplementation": [],
       "tests": [
-        "src/renderer/src/lib/pane-manager/terminal-webgl-auto-policy.test.ts"
+        "src/renderer/src/lib/pane-manager/terminal-webgl-auto-policy.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-parity-remainder.test.tsx"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "gpu-lifecycle",
       "mapsTo": null,
@@ -12468,13 +12483,14 @@
         "overlay/d1-r/src/renderer/src/lib/pane-manager/terminal-webgl-hidden-retention.ts"
       ],
       "tests": [
-        "src/renderer/src/lib/pane-manager/terminal-webgl-hidden-retention.test.ts"
+        "src/renderer/src/lib/pane-manager/terminal-webgl-hidden-retention.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-parity-remainder.test.tsx"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "gpu-lifecycle",
       "mapsTo": null,
@@ -12589,13 +12605,14 @@
       ],
       "horcaImplementation": [],
       "tests": [
-        "src/renderer/src/components/terminal-pane/compose-active-terminal-theme.test.ts"
+        "src/renderer/src/components/terminal-pane/compose-active-terminal-theme.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-parity-remainder.test.tsx"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "rendering",
       "mapsTo": null,
@@ -12609,13 +12626,14 @@
       "horcaImplementation": [],
       "tests": [
         "src/renderer/src/lib/pane-manager/ghostty-main-pane-capability.test.ts",
-        "src/renderer/src/lib/pane-manager/ghostty-main-remaining-surface.test.ts"
+        "src/renderer/src/lib/pane-manager/ghostty-main-remaining-surface.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-parity-remainder.test.tsx"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "rendering",
       "mapsTo": null,
