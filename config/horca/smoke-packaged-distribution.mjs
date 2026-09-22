@@ -889,10 +889,14 @@ try {
   let pasteHex = ''
   while (Date.now() < pasteDeadline) {
     pasteScreen = await readScreen(handle)
-    const match = String(pasteScreen).match(/PASTEHEX ([0-9a-f]+)/)
-    if (match) {
-      pasteHex = match[1]
-      break
+    const at = String(pasteScreen).indexOf('PASTEHEX')
+    if (at >= 0) {
+      const digits = String(pasteScreen).slice(at + 'PASTEHEX'.length).replace(/[^0-9a-f]/g, '')
+      const closeAt = digits.indexOf('1b5b3230317e')
+      pasteHex = closeAt < 0 ? digits.slice(0, 80) : digits.slice(0, closeAt + '1b5b3230317e'.length)
+      if (closeAt >= 0) {
+        break
+      }
     }
     await new Promise((resolveDelay) => setTimeout(resolveDelay, 150))
   }
