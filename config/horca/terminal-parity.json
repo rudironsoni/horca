@@ -9,8 +9,8 @@
     "productCapabilities": 562,
     "implementationEvidence": 0,
     "notApplicable": 48,
-    "pass": 523,
-    "fail": 39
+    "pass": 534,
+    "fail": 28
   },
   "capabilities": [
     {
@@ -236,13 +236,14 @@
       "horcaImplementation": [],
       "tests": [
         "src/renderer/src/lib/pane-manager/ghostty-main-pane-capability.test.ts",
-        "src/renderer/src/lib/pane-manager/ghostty-main-remaining-surface.test.ts"
+        "src/renderer/src/lib/pane-manager/ghostty-main-remaining-surface.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-resize-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "resize-reflow-scroll",
       "mapsTo": null,
@@ -278,13 +279,14 @@
       ],
       "horcaImplementation": [],
       "tests": [
-        "src/renderer/src/lib/pane-manager/pane-fit.test.ts"
+        "src/renderer/src/lib/pane-manager/pane-fit.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-resize-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "resize-reflow-scroll",
       "mapsTo": null,
@@ -4825,13 +4827,14 @@
       ],
       "horcaImplementation": [],
       "tests": [
-        "src/renderer/src/components/terminal-pane/remote-desktop-viewport-claim.test.ts"
+        "src/renderer/src/components/terminal-pane/remote-desktop-viewport-claim.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-resize-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "resize-reflow-scroll",
       "mapsTo": null,
@@ -5029,13 +5032,14 @@
       ],
       "horcaImplementation": [],
       "tests": [
-        "src/renderer/src/components/terminal-pane/replayed-scrollback-store-release.test.ts"
+        "src/renderer/src/components/terminal-pane/replayed-scrollback-store-release.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-resize-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "resize-reflow-scroll",
       "mapsTo": null,
@@ -6147,13 +6151,14 @@
       ],
       "horcaImplementation": [],
       "tests": [
-        "src/renderer/src/components/terminal-pane/terminal-hidden-restore-scrollback.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-hidden-restore-scrollback.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-resize-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "resize-reflow-scroll",
       "mapsTo": null,
@@ -8917,13 +8922,14 @@
       ],
       "horcaImplementation": [],
       "tests": [
-        "src/renderer/src/components/terminal-pane/terminal-restored-viewport.test.ts"
+        "src/renderer/src/components/terminal-pane/terminal-restored-viewport.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-resize-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "resize-reflow-scroll",
       "mapsTo": null,
@@ -10781,13 +10787,14 @@
         "overlay/d1-r/src/renderer/src/lib/pane-manager/pane-fit-resize-observer.ts"
       ],
       "tests": [
-        "src/renderer/src/lib/pane-manager/pane-fit-resize-observer.test.ts"
+        "src/renderer/src/lib/pane-manager/pane-fit-resize-observer.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-resize-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "resize-reflow-scroll",
       "mapsTo": null,
@@ -11781,13 +11788,14 @@
       "horcaImplementation": [],
       "tests": [
         "src/renderer/src/lib/pane-manager/ghostty-main-pane-capability.test.ts",
-        "src/renderer/src/lib/pane-manager/ghostty-main-remaining-surface.test.ts"
+        "src/renderer/src/lib/pane-manager/ghostty-main-remaining-surface.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-resize-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "resize-reflow-scroll",
       "mapsTo": null,
@@ -12180,13 +12188,14 @@
       "horcaImplementation": [],
       "tests": [
         "src/renderer/src/lib/pane-manager/ghostty-main-pane-capability.test.ts",
-        "src/renderer/src/lib/pane-manager/ghostty-main-remaining-surface.test.ts"
+        "src/renderer/src/lib/pane-manager/ghostty-main-remaining-surface.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-resize-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "resize-reflow-scroll",
       "mapsTo": null,
@@ -12351,13 +12360,14 @@
       "horcaImplementation": [],
       "tests": [
         "src/renderer/src/lib/pane-manager/ghostty-main-pane-capability.test.ts",
-        "src/renderer/src/lib/pane-manager/ghostty-main-remaining-surface.test.ts"
+        "src/renderer/src/lib/pane-manager/ghostty-main-remaining-surface.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-resize-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "resize-reflow-scroll",
       "mapsTo": null,
@@ -12390,13 +12400,14 @@
       "horcaImplementation": [],
       "tests": [
         "src/renderer/src/lib/pane-manager/ghostty-main-pane-capability.test.ts",
-        "src/renderer/src/lib/pane-manager/ghostty-main-remaining-surface.test.ts"
+        "src/renderer/src/lib/pane-manager/ghostty-main-remaining-surface.test.ts",
+        "src/renderer/src/lib/pane-manager/ghostty-resize-behavior.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "resize-reflow-scroll",
       "mapsTo": null,
