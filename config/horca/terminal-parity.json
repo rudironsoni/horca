@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": {
     "orcaCommit": "85d1ffc0726d8403f9494436c421c5e3d7932c47",
-    "note": "status PASS means a Horca test imports that module and asserts its behavior. nativeMac follows that test. webgl and canvas2d stay FAIL because those rasterizers are not the macOS production path. packaged stays FAIL until that row is observed in the packaged app. packaged PASS is only keyboard-handlers (key q), terminal-keyboard-protocol (Ctrl+C), terminal-clipboard-selection-text (mouse selection), pane-fit-resize-observer (visible reflow, pty cols unchanged), and pane-manager-pane-creation (second pane). packaged NOT_APPLICABLE follows status NOT_APPLICABLE. Column FAIL is not a status FAIL."
+    "note": "status PASS means a Horca test imports that module and asserts its behavior. nativeMac follows that test. webgl and canvas2d stay FAIL because those rasterizers are not the macOS production path. packaged stays FAIL until that row is observed in the packaged app. packaged PASS adds terminal-keyboard-event-handlers (Enter 0d, Backspace 7f, Tab 09, ArrowUp 1b5b41, Home 1b5b48, End 1b5b46, PageDown 1b5b367e, PageUp 1b5b357e, F5 1b5b31357e), terminal-unicode-provider (key e-acute c3a9, screen e-acute, CJK, combining mark, box drawing), and pane-pointer-focus (clicked canvas is document.activeElement). Earlier packaged PASS rows stay keyboard-handlers, terminal-keyboard-protocol, terminal-clipboard-selection-text, pane-fit-resize-observer, and pane-manager-pane-creation. packaged NOT_APPLICABLE follows status NOT_APPLICABLE. Column FAIL is not a status FAIL."
   },
   "counts": {
     "rows": 610,
@@ -6703,7 +6703,7 @@
       "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
-      "packaged": "FAIL",
+      "packaged": "PASS",
       "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "input",
@@ -11132,7 +11132,7 @@
       "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
-      "packaged": "FAIL",
+      "packaged": "PASS",
       "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "mouse",
@@ -12734,7 +12734,7 @@
       "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
-      "packaged": "FAIL",
+      "packaged": "PASS",
       "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "unicode",

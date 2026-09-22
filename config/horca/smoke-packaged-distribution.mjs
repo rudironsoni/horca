@@ -173,6 +173,21 @@ function openCdp(wsUrl) {
   }
 }
 
+function smokeKeyOnMarkerLine(text) {
+  try {
+    const tail = JSON.parse(text)?.result?.terminal?.tail
+    if (!Array.isArray(tail)) {
+      return false
+    }
+    return tail.some((line) => {
+      const value = String(line)
+      return value.includes('HORCA_D1_SMOKE') && /q/.test(value)
+    })
+  } catch {
+    return false
+  }
+}
+
 async function readScreen(handle) {
   try {
     return JSON.stringify(runCli(['terminal', 'read', '--terminal', handle, '--screen', '--json']))
@@ -190,14 +205,61 @@ async function sendKey(session, event) {
   )
 }
 
+const PROBE_SOURCE = `import os, sys, termios, tty, select, time
+fd = 0
+old = termios.tcgetattr(fd)
+tty.setraw(fd)
+sys.stdout.buffer.write(b"PROBE_READY\\r\\n")
+sys.stdout.flush()
+
+def burst():
+    parts = [os.read(fd, 64)]
+    deadline = time.monotonic() + 0.08
+    while time.monotonic() < deadline:
+        ready, _, _ = select.select([fd], [], [], 0.02)
+        if not ready:
+            continue
+        parts.append(os.read(fd, 64))
+        deadline = time.monotonic() + 0.04
+    return b"".join(parts)
+
+try:
+    for _ in range(10):
+        sys.stdout.buffer.write(b"HEX " + burst().hex().encode() + b"\\r\\n")
+        sys.stdout.flush()
+finally:
+    termios.tcsetattr(fd, termios.TCSANOW, old)
+    sys.stdout.buffer.write(b"PROBE_DONE\\r\\n")
+    sys.stdout.flush()
+`
+const SCREEN_SOURCE = `import sys, time
+sys.stdout.buffer.write(b"\\x1b[?1049hALTSCREEN_HORCA\\r\\n")
+sys.stdout.flush()
+time.sleep(0.8)
+sys.stdout.buffer.write("\\x1b[?1049lPRIMARY_HORCA é 你 e\\u0301 ┌\\r\\n".encode())
+sys.stdout.flush()
+`
+
 async function sendLine(session, text) {
   for (const char of text) {
     if (char === ' ') {
       await sendKey(session, { key: ' ', code: 'Space', text: ' ', windowsVirtualKeyCode: 32, nativeVirtualKeyCode: 49 })
       continue
     }
+    if (/[0-9]/.test(char)) {
+      const digitCode = { 0: 29, 1: 18, 2: 19, 3: 20, 4: 21, 5: 23, 6: 22, 7: 26, 8: 28, 9: 25 }
+      await sendKey(session, {
+        key: char,
+        code: `Digit${char}`,
+        text: char,
+        unmodifiedText: char,
+        windowsVirtualKeyCode: char.charCodeAt(0),
+        nativeVirtualKeyCode: digitCode[char]
+      })
+      continue
+    }
     if (!/[a-z]/.test(char)) {
-      throw new Error(`smoke sendLine only sends letters and spaces: ${char}`)
+      throw new Error(`smoke sendLine only sends letters, digits, and spaces: ${char}`)
     }
     await sendKey(session, {
       key: char,
@@ -550,12 +612,12 @@ try {
     } catch (error) {
       keyScreen = String(error && error.stdout ? error.stdout : error)
     }
-    if (/HORCA_D1_SMOKE[^"]{0,120}q/.test(String(keyScreen))) {
+    if (smokeKeyOnMarkerLine(keyScreen)) {
       break
     }
     await new Promise((resolveDelay) => setTimeout(resolveDelay, 200))
   }
-  if (!/HORCA_D1_SMOKE[^"]{0,120}q/.test(String(keyScreen))) {
+  if (!smokeKeyOnMarkerLine(keyScreen)) {
     throw new Error(`Ghostty key q did not reach the PTY: ${String(keyScreen).slice(0, 800)}`)
   }
   console.log('KEY_OUTPUT q')
@@ -614,6 +676,109 @@ try {
     throw new Error(`Ctrl+C did not reach the terminal: ${modifierScreen.slice(0, 800)}`)
   }
   console.log('MODIFIER_OUTPUT ^C')
+  const worktreePath = created.result?.worktree?.path
+  if (!worktreePath) {
+    throw new Error('Workbench worktree path is missing')
+  }
+  writeFileSync(join(worktreePath, 'probe'), PROBE_SOURCE)
+  writeFileSync(join(worktreePath, 'screenprobe'), SCREEN_SOURCE)
+  const focusedSlot = await evaluate(
+    session,
+    `document.activeElement && document.activeElement.getAttribute && document.activeElement.getAttribute('data-ghostty')`,
+    5_000
+  )
+  if (focusedSlot !== canvas.slot) {
+    throw new Error(`Ghostty canvas is not focused: ${JSON.stringify(focusedSlot)} slot=${canvas.slot}`)
+  }
+  console.log(`FOCUS_OUTPUT ${focusedSlot}`)
+  await sendLine(session, 'python3 probe')
+  const readyDeadline = Date.now() + 8_000
+  let probeScreen = ''
+  while (Date.now() < readyDeadline) {
+    probeScreen = await readScreen(handle)
+    if (probeScreen.includes('PROBE_READY')) {
+      break
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 200))
+  }
+  if (!probeScreen.includes('PROBE_READY')) {
+    throw new Error(`Key probe did not start: ${probeScreen.slice(0, 800)}`)
+  }
+  const hexLines = (text) => [...String(text).matchAll(/HEX ([0-9a-f]+)/g)].map((match) => match[1])
+  let seenHex = 0
+  const oneKey = async (label, event, accept) => {
+    await sendKey(session, event)
+    const deadline = Date.now() + 6_000
+    let screen = ''
+    while (Date.now() < deadline) {
+      screen = await readScreen(handle)
+      const lines = hexLines(screen)
+      if (lines.length > seenHex) {
+        const hex = lines[lines.length - 1]
+        if (!accept(hex)) {
+          throw new Error(`${label} bytes ${hex} are not the expected terminal sequence`)
+        }
+        console.log(`${label} ${hex}`)
+        seenHex = lines.length
+        return
+      }
+      await new Promise((resolveDelay) => setTimeout(resolveDelay, 150))
+    }
+    throw new Error(`${label} did not reach the PTY: ${screen.slice(0, 800)}`)
+  }
+  await oneKey('ENTER_OUTPUT', { key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13, nativeVirtualKeyCode: 36 }, (hex) => hex === '0d')
+  await oneKey('BACKSPACE_OUTPUT', { key: 'Backspace', code: 'Backspace', windowsVirtualKeyCode: 8, nativeVirtualKeyCode: 51 }, (hex) => hex === '7f')
+  await oneKey('TAB_OUTPUT', { key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9, nativeVirtualKeyCode: 48 }, (hex) => hex === '09')
+  await oneKey('ARROW_OUTPUT', { key: 'ArrowUp', code: 'ArrowUp', windowsVirtualKeyCode: 38, nativeVirtualKeyCode: 126 }, (hex) => hex === '1b5b41')
+  await oneKey('HOME_OUTPUT', { key: 'Home', code: 'Home', windowsVirtualKeyCode: 36, nativeVirtualKeyCode: 115 }, (hex) => hex.startsWith('1b'))
+  await oneKey('PAGE_OUTPUT', { key: 'PageDown', code: 'PageDown', windowsVirtualKeyCode: 34, nativeVirtualKeyCode: 121 }, (hex) => hex.startsWith('1b'))
+  await oneKey('FUNCTION_OUTPUT', { key: 'F5', code: 'F5', windowsVirtualKeyCode: 116, nativeVirtualKeyCode: 96 }, (hex) => hex.startsWith('1b'))
+  await oneKey('END_OUTPUT', { key: 'End', code: 'End', windowsVirtualKeyCode: 35, nativeVirtualKeyCode: 119 }, (hex) => hex.startsWith('1b'))
+  await oneKey('PAGEUP_OUTPUT', { key: 'PageUp', code: 'PageUp', windowsVirtualKeyCode: 33, nativeVirtualKeyCode: 116 }, (hex) => hex.startsWith('1b'))
+  await oneKey(
+    'UNICODE_OUTPUT',
+    { key: 'é', code: 'Unidentified', text: 'é', unmodifiedText: 'é', windowsVirtualKeyCode: 0, nativeVirtualKeyCode: 0 },
+    (hex) => hex === 'c3a9'
+  )
+  const probeDoneDeadline = Date.now() + 6_000
+  while (Date.now() < probeDoneDeadline) {
+    probeScreen = await readScreen(handle)
+    if (probeScreen.includes('PROBE_DONE')) {
+      break
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 150))
+  }
+  if (!probeScreen.includes('PROBE_DONE')) {
+    throw new Error(`Key probe did not restore the terminal: ${probeScreen.slice(0, 800)}`)
+  }
+  await sendLine(session, 'python3 screenprobe')
+  const altDeadline = Date.now() + 8_000
+  let sawAlt = false
+  let sawPrimary = false
+  let screenProbe = ''
+  while (Date.now() < altDeadline) {
+    screenProbe = await readScreen(handle)
+    if (screenProbe.includes('ALTSCREEN_HORCA')) {
+      sawAlt = true
+    }
+    if (
+      screenProbe.includes('PRIMARY_HORCA') &&
+      screenProbe.includes('é') &&
+      screenProbe.includes('你') &&
+      screenProbe.includes('́') &&
+      screenProbe.includes('┌')
+    ) {
+      sawPrimary = true
+    }
+    if (sawAlt && sawPrimary) {
+      break
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 150))
+  }
+  if (!sawAlt || !sawPrimary) {
+    throw new Error(`Screen probe failed alt=${sawAlt} primary=${sawPrimary}: ${screenProbe.slice(0, 800)}`)
+  }
+  console.log('SCREEN_OUTPUT alt primary unicode wide combining box')
   const readSttyCols = (text) => {
     const matches = [...String(text).matchAll(/stty size[^0-9]{0,12}(\d+) (\d+)/g)]
     if (matches.length === 0) {
@@ -721,7 +886,7 @@ try {
     throw new Error(`Horca created the official Orca state root: ${join(home, '.orca')}`)
   }
   console.log(
-    'Packaged Horca smoke passed: title, renderer, key, modifier, selection, resize, multi-pane, no Herdr'
+    'Packaged Horca smoke passed: title, renderer, key, modifier, selection, resize, multi-pane, enter, backspace, tab, arrow, home, page, function, unicode, alt-screen, no Herdr'
   )
   if (app.exitCode === null) {
     app.kill('SIGKILL')
