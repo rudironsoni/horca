@@ -425,6 +425,7 @@ try {
   if (!String(preview).includes('HORCA_D1_SMOKE')) {
     throw new Error(`Ghostty terminal surface did not show HORCA_D1_SMOKE: ${String(preview).slice(0, 800)}`)
   }
+  console.log(`PTY_MARKER HORCA_D1_SMOKE`)
   session.close()
   if (existsSync(join(home, '.orca'))) {
     throw new Error(`Horca created the official Orca state root: ${join(home, '.orca')}`)
