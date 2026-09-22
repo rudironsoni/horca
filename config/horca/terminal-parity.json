@@ -9,8 +9,8 @@
     "productCapabilities": 568,
     "implementationEvidence": 0,
     "notApplicable": 42,
-    "pass": 326,
-    "fail": 242
+    "pass": 333,
+    "fail": 235
   },
   "capabilities": [
     {
@@ -937,11 +937,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/TerminalSshReconnectOverlay.test.tsx"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "remote-pty",
       "mapsTo": null,
@@ -2666,11 +2666,11 @@
         "src/renderer/src/components/terminal-pane/pty-connection/terminal-tab-id.test.ts",
         "src/renderer/src/components/terminal-pane/pty-connection/unbound-pane-spawn-recovery.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "remote-pty",
       "mapsTo": null,
@@ -3083,11 +3083,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/pty-connection/foreground-output-budgets.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "remote-pty",
       "mapsTo": null,
@@ -3536,11 +3536,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/pty-connection/pane-pty-layout-binding.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "remote-pty",
       "mapsTo": null,
@@ -4079,11 +4079,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/pty-connection/terminal-tab-id.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "remote-pty",
       "mapsTo": null,
@@ -4142,11 +4142,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/pty-connection/unbound-pane-spawn-recovery.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "remote-pty",
       "mapsTo": null,
@@ -5070,11 +5070,11 @@
       "tests": [
         "src/renderer/src/components/terminal-pane/ssh-pane-connect-gate.test.ts"
       ],
-      "nativeMac": "FAIL",
+      "nativeMac": "PASS",
       "webgl": "FAIL",
       "canvas2d": "FAIL",
       "packaged": "FAIL",
-      "status": "FAIL",
+      "status": "PASS",
       "kind": "PRODUCT_CAPABILITY",
       "group": "remote-pty",
       "mapsTo": null,
