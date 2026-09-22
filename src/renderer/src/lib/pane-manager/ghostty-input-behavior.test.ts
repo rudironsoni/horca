@@ -371,7 +371,7 @@ describe('ghostty input behavior', () => {
       disposables: [],
       restoreWrite: null
     }
-    const recorded = recordKeystroke(entry as never, 10, 'keyboard', 'é')
+    const recorded = recordKeystroke(entry as never, 10, 'direct', 'é')
     expect(entry.pendingCount).toBe(1)
     expect(recorded.candidate.text).toBe('é')
   })

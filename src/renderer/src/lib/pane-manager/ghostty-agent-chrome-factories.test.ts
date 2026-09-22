@@ -184,7 +184,8 @@ describe('ghostty agent chrome factories', () => {
     expect(controller.completionIdentityFor('done', 'codex', 9.8)).toBe('done:codex:9')
     expect(controller.doneShouldUseQuietWindow({ state: 'done', agentType: 'codex' } as never)).toBe(true)
     expect(controller.dispatchCompletion('title', 'Codex done')).toBe(false)
-    state.pendingHookDoneTimer = setTimeout(() => undefined, 1_000)
+    ;(state as { pendingHookDoneTimer: ReturnType<typeof setTimeout> | null }).pendingHookDoneTimer =
+      setTimeout(() => undefined, 1_000)
     controller.clearPendingHookDone()
     expect(controller.hasPendingHookDone()).toBe(false)
   })

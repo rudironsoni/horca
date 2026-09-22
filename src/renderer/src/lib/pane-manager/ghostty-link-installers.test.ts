@@ -1,6 +1,5 @@
 // @vitest-environment happy-dom
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { collectHeadlessOscLinkRanges } from '../../../../main/daemon/headless-osc-link-ranges'
 import { installPreviewTerminalLinks } from '../../components/dashboard-popout/preview-terminal-links'
 import { buildEdgeWrappedHttpLogicalLineCandidates } from '../../components/terminal-pane/edge-wrapped-terminal-http-links'
 import { buildHardWrappedHttpLogicalLineCandidates } from '../../components/terminal-pane/hard-wrapped-terminal-http-links'
@@ -38,48 +37,6 @@ afterEach(() => {
 })
 
 describe('ghostty link installers', () => {
-  it('returns no OSC ranges when the terminal has no link service', () => {
-    const ranges = collectHeadlessOscLinkRanges(
-      {
-        cols: 4,
-        rows: 1,
-        buffer: { active: { length: 1, getNullCell: () => ({}), getLine: () => undefined } }
-      } as never,
-      undefined
-    )
-    expect(ranges).toEqual([])
-  })
-
-  it('reads one OSC 8 cell into a column range', () => {
-    const scratch: { extended?: { urlId?: number }; hasExtendedAttrs?: () => boolean } = {}
-    const line = {
-      length: 2,
-      getCell: (col: number, cell: typeof scratch) => {
-        cell.extended = { urlId: col === 0 ? 7 : 0 }
-        cell.hasExtendedAttrs = () => col === 0
-        return cell
-      }
-    }
-    const ranges = collectHeadlessOscLinkRanges(
-      {
-        cols: 2,
-        rows: 1,
-        buffer: {
-          active: {
-            length: 1,
-            getNullCell: () => scratch,
-            getLine: () => line
-          }
-        },
-        _core: { _oscLinkService: { getLinkData: () => ({ uri: 'https://example.com/é' }) } }
-      } as never,
-      undefined
-    )
-    expect(ranges).toEqual([
-      { row: 0, startCol: 0, endCol: 1, uri: 'https://example.com/é' }
-    ])
-  })
-
   it('registers a guarded preview link provider', () => {
     const registered: Array<{ provideLinks: (line: number, cb: (links?: unknown) => void) => void }> = []
     const terminal = {

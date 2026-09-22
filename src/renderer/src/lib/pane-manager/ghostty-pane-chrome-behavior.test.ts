@@ -53,7 +53,15 @@ describe('ghostty pane chrome modules', () => {
     expect(
       isAgentTaskCompleteOsNotificationEnabledFromState({
         settings: {
-          notifications: { enabled: true, agentTaskComplete: false },
+          notifications: {
+            enabled: true,
+            agentTaskComplete: false,
+            terminalBell: false,
+            suppressWhenFocused: false,
+            customSoundId: 'system',
+            customSoundPath: '',
+            customSoundVolume: 0
+          },
           experimentalTerminalAttention: false
         }
       })
@@ -110,6 +118,7 @@ describe('ghostty pane chrome modules', () => {
   it('collects split leaves and drops a pruned leaf', () => {
     const tree = {
       type: 'split' as const,
+      direction: 'horizontal' as const,
       first: { type: 'leaf' as const, leafId: 'a' },
       second: { type: 'leaf' as const, leafId: 'b' }
     }

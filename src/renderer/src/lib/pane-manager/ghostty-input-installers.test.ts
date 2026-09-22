@@ -155,8 +155,8 @@ describe('ghostty input installers', () => {
 
   it('starts a remote runtime transport with no pty id', () => {
     const transport = createRemoteRuntimePtyTransport('env-9')
-    expect(transport.getPtyId()).toBeNull()
-    expect(transport.getRuntimeEnvironmentId()).toBe('env-9')
+    expect(transport.getPtyId?.() ?? null).toBeNull()
+    expect(transport.getRuntimeEnvironmentId?.() ?? null).toBe('env-9')
   })
 
   it('does not mark a composer placeholder when the cursor line is empty', () => {
@@ -206,6 +206,9 @@ describe('ghostty input installers', () => {
         type: 'keydown',
         key: 'é',
         code: 'KeyE',
+        metaKey: false,
+        ctrlKey: false,
+        altKey: false,
         repeat: false
       })
     ).toBe(true)
@@ -214,7 +217,9 @@ describe('ghostty input installers', () => {
         type: 'keydown',
         key: 'c',
         code: 'KeyC',
+        metaKey: false,
         ctrlKey: true,
+        altKey: false,
         repeat: false
       })
     ).toBe(false)
@@ -223,7 +228,7 @@ describe('ghostty input installers', () => {
       terminalElement: null,
       isComposing: () => false,
       sendInput: () => undefined
-    }).claimKeyEvent({ type: 'keydown', key: 'a' })).toBe(false)
+    }).claimKeyEvent({ type: 'keydown', key: 'a', metaKey: false, ctrlKey: false, altKey: false })).toBe(false)
   })
 
   it('turns a recorded jamo and its field write into one keystroke', () => {

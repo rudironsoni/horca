@@ -39,7 +39,6 @@ import {
 import { bindReattachLiveDataDeferral } from '../../components/terminal-pane/pty-connection/reattach-live-data-deferral'
 import { bindHandleReattachResult } from '../../components/terminal-pane/pty-connection/reattach-result-handler'
 import { bindPrepaintParkedSshSnapshot } from '../../components/terminal-pane/pty-connection/ssh-snapshot-prepaint'
-import { buildFrameRestoreSnapshotFields } from '../../../../main/daemon/terminal-frame-restore-sequences'
 import {
   clearPaneWebglContextLossForRetry,
   rebuildAttachedWebgl
@@ -76,13 +75,13 @@ describe('ghostty restore behavior', () => {
     expect(
       isSupersededAgentCompletionSnapshot(
         { state: 'working', stateStartedAt: 20 },
-        { state: 'done', stateStartedAt: 10 }
+        { state: 'done', stateStartedAt: 10, prompt: '' }
       )
     ).toBe(true)
     expect(
       isSupersededAgentCompletionSnapshot(
         { state: 'done', stateStartedAt: 10 },
-        { state: 'working', stateStartedAt: 10, turnCompletedAt: 10 }
+        { state: 'working', stateStartedAt: 10, turnCompletedAt: 10, prompt: '' }
       )
     ).toBe(false)
   })
@@ -126,50 +125,6 @@ describe('ghostty restore behavior', () => {
     expect(terminalOwnsDomFocus({})).toBe(false)
   })
 
-  it('emits alt-screen frame sequences and an empty object off the alt screen', () => {
-    const terminal = {
-      cols: 80,
-      rows: 24,
-      modes: {
-        bracketedPasteMode: true,
-        applicationCursorKeysMode: false,
-        applicationKeypadMode: false,
-        insertMode: false,
-        reverseWraparoundMode: false,
-        sendFocusMode: false,
-        wraparoundMode: true,
-        showCursor: true
-      },
-      buffer: { active: { cursorX: 1, cursorY: 2 }, normal: { length: 0 } }
-    }
-    const off = buildFrameRestoreSnapshotFields(
-      { serialize: () => 'PEN' },
-      terminal,
-      {
-        alternateScreen: false,
-        bracketedPaste: true,
-        mouseTracking: false,
-        applicationCursor: false
-      }
-    )
-    expect(off).toEqual({})
-    const on = buildFrameRestoreSnapshotFields(
-      { serialize: () => 'PEN' },
-      terminal,
-      {
-        alternateScreen: true,
-        bracketedPaste: true,
-        mouseTracking: true,
-        mouseTrackingMode: 'vt200',
-        applicationCursor: false
-      }
-    )
-    expect(on.frameRestoreAnsi).toContain('\x1b[?1049h')
-    expect(on.frameRestoreAnsi).toContain('\x1b[?2004h')
-    expect(on.frameRestoreAnsi).toContain('\x1b[?1000h')
-    expect(on.frameRestoreAnsi).toContain('PEN')
-  })
-
   it('caps hidden restore pending bytes and names the skip warning', () => {
     expect(HIDDEN_OUTPUT_RESTORE_PENDING_CHARS).toBe(512 * 1024)
     expect(HIDDEN_OUTPUT_RESTORE_UNAVAILABLE_WARNING).toContain('skipped hidden terminal output')
@@ -189,16 +144,16 @@ describe('ghostty restore behavior', () => {
       salvageRendererQueriesFromDiscardedRestoreData: () => undefined
     }
     bindHiddenOutputRestoreChunk(session as never)
-    session.queueLiveChunkDuringRestore('', { seq: 1 })
+    ;(session as any).queueLiveChunkDuringRestore('', { seq: 1 })
     expect(session.hiddenOutputRestorePendingChunks).toEqual([])
-    session.queueLiveChunkDuringRestore('é', { seq: 10, rawLength: 2 })
+    ;(session as any).queueLiveChunkDuringRestore('é', { seq: 10, rawLength: 2 })
     expect(session.hiddenOutputRestoreNeeded).toBe(true)
     expect(session.hiddenOutputRestorePendingChars).toBe('é'.length)
     expect(session.hiddenOutputRestorePendingChunks).toEqual([
       { data: 'é', seq: 10, rawLength: 2 }
     ])
     expect(
-      session.getChunkDataAfterSnapshot({ data: 'abcd', seq: 10, rawLength: 4 }, 8)
+      (session as any).getChunkDataAfterSnapshot({ data: 'abcd', seq: 10, rawLength: 4 }, 8)
     ).toBe('cd')
   })
 
@@ -212,7 +167,7 @@ describe('ghostty restore behavior', () => {
       }
     }
     bindAbandonHiddenOutputRestore(session as never)
-    session.abandonHiddenOutputRestoreAndDrainPendingForeground('pty-1')
+    ;(session as any).abandonHiddenOutputRestoreAndDrainPendingForeground('pty-1')
     expect(reset).toBe(1)
   })
 
@@ -232,7 +187,7 @@ describe('ghostty restore behavior', () => {
       clearHiddenOutputRestoreForegroundDeadlineTimer: () => undefined
     }
     bindHiddenOutputRestoreDrain(session as never)
-    session.clearPendingLiveChunksDuringRestore()
+    ;(session as any).clearPendingLiveChunksDuringRestore()
     expect(session.hiddenOutputRestorePendingChunks).toEqual([])
     expect(session.hiddenOutputRestorePendingChars).toBe(0)
     expect(session.hiddenOutputRestorePendingOverflow).toBe(false)
@@ -249,7 +204,7 @@ describe('ghostty restore behavior', () => {
       }
     }
     bindHiddenOutputRestoreSnapshot(session as never)
-    session.writeRestoreUnavailableWarning()
+    ;(session as any).writeRestoreUnavailableWarning()
     expect(writes).toEqual(['\x18\x1b[0m'])
   })
 
@@ -264,9 +219,9 @@ describe('ghostty restore behavior', () => {
       hiddenOutputRestoreFloodRepaintTimer: null
     }
     bindSerializeHiddenOutputSnapshot(session as never)
-    expect(session.shouldDeclareHiddenAtSpawn()).toBe(true)
+    expect((session as any).shouldDeclareHiddenAtSpawn()).toBe(true)
     session.disposed = true
-    expect(session.shouldDeclareHiddenAtSpawn()).toBe(false)
+    expect((session as any).shouldDeclareHiddenAtSpawn()).toBe(false)
   })
 
   it('does not request a hidden restore when nothing is pending', () => {
@@ -281,7 +236,7 @@ describe('ghostty restore behavior', () => {
       resetHiddenOutputRestoreIfPtyChanged: () => undefined
     }
     bindHiddenOutputRestoreRequest(session as never)
-    expect(session.requestHiddenOutputRestoreIfNeeded()).toBe(false)
+    expect((session as any).requestHiddenOutputRestoreIfNeeded()).toBe(false)
   })
 
   it('clears hidden restore state and refuses a blank snapshot baseline', () => {
@@ -309,13 +264,13 @@ describe('ghostty restore behavior', () => {
       clearPendingLiveChunksDuringRestore: () => undefined
     }
     bindDeferredColdRestoreAndSnapshot(session as never)
-    session.setRestoredSnapshotBaseline('pty-1', { seq: 4 }, false)
-    expect(session.restoredSnapshotBaselineSeq).toBeNull()
+    ;(session as any).setRestoredSnapshotBaseline('pty-1', { seq: 4 }, false)
+    expect((session as any).restoredSnapshotBaselineSeq).toBeNull()
     bindHiddenRestoreStateAndSshProbe(session as never)
     session.hiddenOutputRestoreGeneration = 3
     session.hiddenOutputRestoreNeeded = true
     session.hiddenOutputRestorePtyId = 'pty-1'
-    session.clearHiddenOutputRestoreState()
+    ;(session as any).clearHiddenOutputRestoreState()
     expect(session.hiddenOutputRestoreGeneration).toBe(4)
     expect(session.hiddenOutputRestoreNeeded).toBe(false)
     expect(session.hiddenOutputRestorePtyId).toBeNull()
@@ -333,7 +288,7 @@ describe('ghostty restore behavior', () => {
       pane: { terminal: {} }
     }
     bindReattachLiveDataDeferral(session as never)
-    session.finishReattachLiveDataDeferral(false)
+    ;(session as any).finishReattachLiveDataDeferral(false)
     expect(owner.failed).toBe(true)
     expect(session.reattachLiveDataDeferralDepth).toBe(0)
   })
@@ -341,7 +296,7 @@ describe('ghostty restore behavior', () => {
   it('returns false from a disposed reattach result', async () => {
     const session = { disposed: true }
     bindHandleReattachResult(session as never)
-    await expect(session.handleReattachResult({ id: 'pty-1' })).resolves.toBe(false)
+    await expect((session as any).handleReattachResult({ id: 'pty-1' })).resolves.toBe(false)
   })
 
   it('skips reattach payload writes when the attempt is no longer current', async () => {
@@ -365,14 +320,14 @@ describe('ghostty restore behavior', () => {
       }
     }
     bindPrepaintParkedSshSnapshot(session as never)
-    session.prepaintParkedSshSnapshot('ssh-1')
+    ;(session as any).prepaintParkedSshSnapshot('ssh-1')
     expect(fetched).toBe(0)
   })
 
   it('returns no cold-restore command while a startup command is still pending', () => {
     const session = { pendingStartupCommand: 'echo hi' }
     bindBuildColdRestoreAgentResumeStartup(session as never)
-    expect(session.buildColdRestoreAgentResumeStartup()).toBeNull()
+    expect((session as any).buildColdRestoreAgentResumeStartup()).toBeNull()
   })
 
   it('starts a remote reattach by prepainting and connecting that session id', () => {
@@ -408,7 +363,7 @@ describe('ghostty restore behavior', () => {
     }
     session.deps.paneTransportsRef.current.set(4, session.transport)
     startDeferredSessionReattach(session as never, 'remote:pane-9')
-    expect(session.allowInitialIdleCacheSeed).toBe(true)
+    expect((session as any).allowInitialIdleCacheSeed).toBe(true)
     expect(painted).toEqual(['remote:pane-9'])
     expect(connected).toEqual(['remote:pane-9'])
   })
@@ -436,7 +391,7 @@ describe('ghostty restore behavior', () => {
     }
     runDeferredSessionReattachChoice(session as never)
     expect(spawned).toBe(1)
-    expect(session.allowInitialIdleCacheSeed).toBe(false)
+    expect((session as any).allowInitialIdleCacheSeed).toBe(false)
   })
 
   it('restores a rootless layout title onto the created pane', () => {
@@ -497,13 +452,13 @@ describe('ghostty restore behavior', () => {
     const host = document.createElement('div')
     document.body.appendChild(host)
     const root = createRoot(host)
-    const reasons = new Map([['pane-a', 'restored' as const]])
+    const reasons = new Map<number, 'restored'>([[1, 'restored']])
     act(() => {
       root.render(
         createElement(SessionRestoredBannerPortals, {
           panes: [
-            { id: 'pane-a', container: shown },
-            { id: 'pane-b', container: hidden }
+            { id: 1, container: shown },
+            { id: 2, container: hidden }
           ],
           paneIds: reasons
         })

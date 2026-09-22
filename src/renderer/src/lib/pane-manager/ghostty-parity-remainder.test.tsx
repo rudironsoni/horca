@@ -89,7 +89,7 @@ describe('ghostty parity remainder', () => {
           findPrevious() {
             return false
           }
-        },
+        } as never,
         searchStateRef: ref
       })
     )
@@ -261,7 +261,7 @@ describe('ghostty parity remainder', () => {
       terminalPaneOpacityTransitionMs: 0,
       terminalFocusFollowsMouse: false,
       terminalCustomThemes: []
-    } as GlobalSettings
+    } as unknown as GlobalSettings
     const { container, root } = render(
       createElement(TerminalSettingsPreview, {
         title: 'Preview title',

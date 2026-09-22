@@ -100,7 +100,7 @@ describe('ghostty resize behavior', () => {
     claim.dispose()
     const fit = createPreviewBoxFit({
       container,
-      getTerminal: () => ({ rows: 24, buffer: { active: { cursorY: 0 } } })
+      getTerminal: () => ({ rows: 24, buffer: { active: { cursorY: 0 } } }) as never
     })
     fit.fit()
     expect(container.style.transform).toBe('')

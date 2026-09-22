@@ -79,7 +79,8 @@
       "horcaImplementation": [],
       "tests": [
         "src/renderer/src/components/terminal-pane/terminal-url-link-hit-testing.test.ts",
-        "src/renderer/src/lib/pane-manager/ghostty-link-installers.test.ts"
+        "src/renderer/src/lib/pane-manager/ghostty-link-installers.test.ts",
+        "src/main/daemon/ghostty-headless-parity-remainder.test.ts"
       ],
       "nativeMac": "PASS",
       "webgl": "FAIL",
@@ -129,7 +130,8 @@
       "tests": [
         "src/main/daemon/daemon-restore-scrollback-depth.test.ts",
         "src/main/daemon/hibernation-cold-restore-repro.test.ts",
-        "src/renderer/src/lib/pane-manager/ghostty-restore-behavior.test.ts"
+        "src/renderer/src/lib/pane-manager/ghostty-restore-behavior.test.ts",
+        "src/main/daemon/ghostty-headless-parity-remainder.test.ts"
       ],
       "nativeMac": "PASS",
       "webgl": "FAIL",
