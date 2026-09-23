@@ -1116,6 +1116,77 @@ try {
     throw new Error(`Copy Terminal ID did not put a terminal handle on the clipboard: ${JSON.stringify(copiedId).slice(0, 200)}`)
   }
   console.log(`CHROME_TERMINAL_ID ${copiedId}`)
+  const copyMenuOpen = async () =>
+    Boolean(
+      await evaluate(
+        session,
+        `[...document.querySelectorAll('[role="menu"][data-state="open"]')].some((menu) => (menu.innerText || '').includes('Copy'))`,
+        5_000
+      )
+    )
+  if (!(await copyMenuOpen())) {
+    await evaluate(
+      session,
+      `(() => {
+        const node = document.querySelector('canvas[data-ghostty="${canvas.slot}"]')
+        if (!node) return false
+        const rect = node.getBoundingClientRect()
+        node.dispatchEvent(new MouseEvent('contextmenu', {
+          bubbles: true,
+          cancelable: true,
+          button: 2,
+          clientX: rect.x + 20,
+          clientY: rect.y + 20
+        }))
+        return true
+      })()`,
+      5_000
+    )
+  }
+  const dismissSeenDeadline = Date.now() + 3_000
+  while (Date.now() < dismissSeenDeadline && !(await copyMenuOpen())) {
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 100))
+  }
+  if (!(await copyMenuOpen())) {
+    throw new Error('Context menu was not open for dismiss')
+  }
+  await new Promise((resolveDelay) => setTimeout(resolveDelay, 250))
+  const dismissPoint = await evaluate(
+    session,
+    `(() => {
+      const node = document.querySelector('canvas[data-ghostty="${canvas.slot}"]')
+      if (!node) return null
+      const rect = node.getBoundingClientRect()
+      return { x: rect.x + Math.max(8, rect.width - 12), y: rect.y + Math.max(8, rect.height - 12) }
+    })()`,
+    5_000
+  )
+  if (!dismissPoint) {
+    throw new Error('Context menu dismiss point was missing')
+  }
+  await session.call(
+    'Input.dispatchMouseEvent',
+    { type: 'mousePressed', x: dismissPoint.x, y: dismissPoint.y, button: 'left', clickCount: 1 },
+    15_000
+  )
+  await session.call(
+    'Input.dispatchMouseEvent',
+    { type: 'mouseReleased', x: dismissPoint.x, y: dismissPoint.y, button: 'left', clickCount: 1 },
+    15_000
+  )
+  const dismissDeadline = Date.now() + 3_000
+  let menuStillOpen = true
+  while (Date.now() < dismissDeadline) {
+    menuStillOpen = await copyMenuOpen()
+    if (!menuStillOpen) {
+      break
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 100))
+  }
+  if (menuStillOpen) {
+    throw new Error('Context menu did not dismiss')
+  }
+  console.log('CHROME_DISMISS closed')
   await evaluate(
     session,
     `document.querySelector('canvas[data-ghostty="${canvas.slot}"]')?.focus()`,
@@ -1670,12 +1741,11 @@ try {
       5_000
     )
   }
-  if (!clearRect || String(clearSelection).includes('clearmark') || String(clearSelection).includes('❯')) {
-    throw new Error(
-      `Clear Screen left the Ghostty grid: selection=${JSON.stringify(clearSelection).slice(0, 180)}`
-    )
+  const clearText = String(clearSelection)
+  if (!clearRect || /clearmark|printf|zsh|┌|HORCA|❯/.test(clearText)) {
+    throw new Error(`Clear Screen left the Ghostty grid: ${JSON.stringify(clearText).slice(0, 200)}`)
   }
-  console.log('CHROME_CLEAR grid-cleared')
+  console.log(`CHROME_CLEAR grid-cleared selection=${JSON.stringify(clearText).slice(0, 80)}`)
   const busyLabelsBefore = await closeLabels()
   runCli([
     'terminal',
