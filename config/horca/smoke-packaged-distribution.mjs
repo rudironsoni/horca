@@ -300,6 +300,12 @@ finally:
     sys.stdout.buffer.write(b"\\x1b[?2004lPASTE_DONE\\r\\n")
     sys.stdout.flush()
 `
+const EXIT_SOURCE = `import sys, time
+sys.stdout.buffer.write("EXIT_MARKER\\n".encode())
+sys.stdout.flush()
+time.sleep(0.4)
+raise SystemExit(0)
+`
 const SCREEN_SOURCE = `import sys, time
 sys.stdout.buffer.write(b"\\x1b[2J\\x1b[HPRIMARY_HORCA\\r\\n")
 sys.stdout.flush()
@@ -761,6 +767,7 @@ try {
   writeFileSync(join(worktreePath, 'mouseprobe'), MOUSE_SOURCE)
   writeFileSync(join(worktreePath, 'pasteprobe'), PASTE_SOURCE)
   writeFileSync(join(worktreePath, 'screenprobe'), SCREEN_SOURCE)
+  writeFileSync(join(worktreePath, 'exitprobe'), EXIT_SOURCE)
   const focusedSlot = await evaluate(
     session,
     `document.activeElement && document.activeElement.getAttribute && document.activeElement.getAttribute('data-ghostty')`,
@@ -1051,6 +1058,35 @@ try {
     throw new Error(`Multi-pane failed: canvases=${paneCount} screen=${paneScreen.slice(0, 500)}`)
   }
   console.log(`MULTIPANE_OUTPUT ${paneCount} HORCA_PANE_2`)
+  const exiting = runCli([
+    'terminal',
+    'create',
+    '--worktree',
+    worktreeSelector,
+    '--command',
+    'exec python3 exitprobe',
+    '--json'
+  ])
+  const exitHandle = exiting?.result?.terminal?.handle
+  if (!exitHandle) {
+    throw new Error('Exit probe did not return a terminal handle')
+  }
+  const exitDeadline = Date.now() + 12_000
+  let exitStatus = ''
+  let exitScreen = ''
+  while (Date.now() < exitDeadline) {
+    const info = runCli(['terminal', 'read', '--terminal', exitHandle, '--json'])
+    exitStatus = String(info?.result?.terminal?.status ?? '')
+    exitScreen = JSON.stringify(info)
+    if (exitStatus === 'exited') {
+      break
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 250))
+  }
+  if (exitStatus !== 'exited') {
+    throw new Error(`Process exit was not observed: status=${exitStatus} ${exitScreen.slice(0, 500)}`)
+  }
+  console.log(`EXIT_OUTPUT ${exitStatus} marker=${exitScreen.includes('EXIT_MARKER')}`)
   session.close()
   if (existsSync(join(home, '.orca'))) {
     throw new Error(`Horca created the official Orca state root: ${join(home, '.orca')}`)
