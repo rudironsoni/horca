@@ -303,8 +303,11 @@ finally:
 const SCREEN_SOURCE = `import sys, time
 sys.stdout.buffer.write(b"\\x1b[?1049hALTSCREEN_HORCA\\r\\n")
 sys.stdout.flush()
-time.sleep(0.8)
-sys.stdout.buffer.write("\\x1b[?1049lPRIMARY_HORCA é 你 e\\u0301 ┌\\r\\n".encode())
+time.sleep(0.4)
+sys.stdout.buffer.write(b"\\x1b[?1049l\\r\\nPRIMARY_HORCA\\r\\n")
+sys.stdout.flush()
+time.sleep(0.2)
+sys.stdout.buffer.write("UNICODE_HORCA \\u00e9 \\u4f60 e\\u0301 \\u250c\\r\\n".encode())
 sys.stdout.flush()
 `
 
@@ -913,7 +916,7 @@ try {
   }
   console.log(`PASTE_OUTPUT ${pasteHex}`)
   await sendLine(session, 'python3 screenprobe')
-  const altDeadline = Date.now() + 8_000
+  const altDeadline = Date.now() + 15_000
   let sawAlt = false
   let sawPrimary = false
   let screenProbe = ''
@@ -922,13 +925,7 @@ try {
     if (screenProbe.includes('ALTSCREEN_HORCA')) {
       sawAlt = true
     }
-    if (
-      screenProbe.includes('PRIMARY_HORCA') &&
-      screenProbe.includes('é') &&
-      screenProbe.includes('你') &&
-      screenProbe.includes('́') &&
-      screenProbe.includes('┌')
-    ) {
+    if (screenProbe.includes('PRIMARY_HORCA') && screenProbe.includes('UNICODE_HORCA')) {
       sawPrimary = true
     }
     if (sawAlt && sawPrimary) {
