@@ -1089,6 +1089,72 @@ try {
     5_000
   )
   console.log(`CHROME_DOM ${JSON.stringify(chrome)}`)
+  const closeTabCount = async () =>
+    evaluate(
+      session,
+      `[...document.querySelectorAll('button')].filter((button) => (button.getAttribute('aria-label') || button.innerText || '').includes('Close tab Terminal')).length`,
+      5_000
+    )
+  const clickLabeled = async (label) => {
+    const point = await evaluate(
+      session,
+      `(() => {
+        const wanted = ${JSON.stringify(label)}
+        const el = [...document.querySelectorAll('button,[role="menuitem"]')].find((item) => {
+          const text = (item.getAttribute('aria-label') || item.innerText || '').trim()
+          return text === wanted || text.startsWith(wanted)
+        })
+        if (!el) return null
+        const rect = el.getBoundingClientRect()
+        if (rect.width < 1 || rect.height < 1) return null
+        return { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 }
+      })()`,
+      5_000
+    )
+    if (!point) {
+      return false
+    }
+    await session.call(
+      'Input.dispatchMouseEvent',
+      { type: 'mousePressed', x: point.x, y: point.y, button: 'left', clickCount: 1 },
+      15_000
+    )
+    await session.call(
+      'Input.dispatchMouseEvent',
+      { type: 'mouseReleased', x: point.x, y: point.y, button: 'left', clickCount: 1 },
+      15_000
+    )
+    return true
+  }
+  const tabsBefore = Number(await closeTabCount())
+  if (!(await clickLabeled('New tab'))) {
+    throw new Error('New tab button was not clickable')
+  }
+  const menuDeadline = Date.now() + 4_000
+  let openedTerminal = false
+  while (Date.now() < menuDeadline) {
+    openedTerminal = await clickLabeled('New Terminal')
+    if (openedTerminal) {
+      break
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 150))
+  }
+  if (!openedTerminal) {
+    throw new Error('New Terminal menu item did not open')
+  }
+  const tabDeadline = Date.now() + 8_000
+  let tabsAfter = tabsBefore
+  while (Date.now() < tabDeadline) {
+    tabsAfter = Number(await closeTabCount())
+    if (tabsAfter > tabsBefore) {
+      break
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 200))
+  }
+  if (tabsAfter <= tabsBefore) {
+    throw new Error(`New Terminal did not add a tab: before=${tabsBefore} after=${tabsAfter}`)
+  }
+  console.log(`CHROME_TAB ${tabsBefore} -> ${tabsAfter}`)
   const exiting = runCli([
     'terminal',
     'create',
