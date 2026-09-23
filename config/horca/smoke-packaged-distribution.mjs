@@ -210,32 +210,41 @@ async function dragReadSelection(session, slot) {
   if (!origin || origin.width < 2 || origin.height < 2) {
     return ''
   }
-  const y = origin.y + 8
   const x2 = origin.x + Math.min(220, Math.max(24, origin.width - 8))
-  await session.call(
-    'Input.dispatchMouseEvent',
-    { type: 'mousePressed', x: origin.x + 4, y, button: 'left', clickCount: 1 },
-    15_000
-  )
-  await session.call(
-    'Input.dispatchMouseEvent',
-    { type: 'mouseMoved', x: x2, y, button: 'left' },
-    15_000
-  )
-  await session.call(
-    'Input.dispatchMouseEvent',
-    { type: 'mouseReleased', x: x2, y, button: 'left', clickCount: 1 },
-    15_000
-  )
-  const selected = await evaluate(
-    session,
-    `(() => {
-      const api = window.api && window.api.horcaGhosttyPassthru
-      return api && api.readSelection ? String(api.readSelection(${JSON.stringify(slot)})) : ''
-    })()`,
-    5_000
-  )
-  return String(selected ?? '')
+  const rows = [8, 28, 48].filter((offset) => offset < origin.height)
+  let selected = ''
+  for (const offset of rows) {
+    const y = origin.y + offset
+    await session.call(
+      'Input.dispatchMouseEvent',
+      { type: 'mousePressed', x: origin.x + 4, y, button: 'left', clickCount: 1 },
+      15_000
+    )
+    await session.call(
+      'Input.dispatchMouseEvent',
+      { type: 'mouseMoved', x: x2, y, button: 'left' },
+      15_000
+    )
+    await session.call(
+      'Input.dispatchMouseEvent',
+      { type: 'mouseReleased', x: x2, y, button: 'left', clickCount: 1 },
+      15_000
+    )
+    selected = String(
+      (await evaluate(
+        session,
+        `(() => {
+          const api = window.api && window.api.horcaGhosttyPassthru
+          return api && api.readSelection ? String(api.readSelection(${JSON.stringify(slot)})) : ''
+        })()`,
+        5_000
+      )) ?? ''
+    )
+    if (selected) {
+      break
+    }
+  }
+  return selected
 }
 
 async function readOutput(handle) {
@@ -1684,16 +1693,15 @@ try {
     throw new Error('Clear Screen canvas was not available')
   }
   console.log(`CHROME_CLEAR_SLOT ${openedClearMenu}`)
-  const clearBeforeDeadline = Date.now() + 8_000
   let clearBefore = ''
-  while (Date.now() < clearBeforeDeadline) {
+  for (let attempt = 0; attempt < 6; attempt += 1) {
     clearBefore = await dragReadSelection(session, openedClearMenu)
-    if (/clearmark|printf|zsh|┌|HORCA|❯/.test(clearBefore)) {
+    if (/clearmark|printf|zsh|┌|─|├|HORCA|❯/.test(clearBefore)) {
       break
     }
-    await new Promise((resolveDelay) => setTimeout(resolveDelay, 250))
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 1000))
   }
-  if (!/clearmark|printf|zsh|┌|HORCA|❯/.test(clearBefore)) {
+  if (!/clearmark|printf|zsh|┌|─|├|HORCA|❯/.test(clearBefore)) {
     throw new Error(`Clear probe grid had no prompt: ${JSON.stringify(clearBefore).slice(0, 200)}`)
   }
   console.log(`CHROME_CLEAR_BEFORE ${JSON.stringify(clearBefore).slice(0, 80)}`)
@@ -1751,13 +1759,16 @@ try {
   if (!clearClicked) {
     throw new Error('Clear Screen menu item was not clickable')
   }
-  const clearedDeadline = Date.now() + 6_000
-  let clearText = await dragReadSelection(session, openedClearMenu)
-  while (Date.now() < clearedDeadline && /clearmark|printf|zsh|┌|HORCA|❯/.test(clearText)) {
-    await new Promise((resolveDelay) => setTimeout(resolveDelay, 200))
+  await new Promise((resolveDelay) => setTimeout(resolveDelay, 400))
+  let clearText = ''
+  for (let attempt = 0; attempt < 3; attempt += 1) {
     clearText = await dragReadSelection(session, openedClearMenu)
+    if (!/clearmark|printf|zsh|┌|─|├|HORCA|❯/.test(clearText)) {
+      break
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 700))
   }
-  if (/clearmark|printf|zsh|┌|HORCA|❯/.test(clearText)) {
+  if (/clearmark|printf|zsh|┌|─|├|HORCA|❯/.test(clearText)) {
     throw new Error(`Clear Screen left the Ghostty grid: ${JSON.stringify(clearText).slice(0, 200)}`)
   }
   console.log(`CHROME_CLEAR grid-cleared selection=${JSON.stringify(clearText).slice(0, 80)}`)
