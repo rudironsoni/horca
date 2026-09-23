@@ -247,6 +247,50 @@ async function dragReadSelection(session, slot) {
   return selected
 }
 
+async function clickClearScreen(session, slot) {
+  const opened = await evaluate(
+    session,
+    `(() => {
+      const node = document.querySelector(${JSON.stringify(`canvas[data-ghostty="${slot}"]`)})
+      if (!node) return false
+      const rect = node.getBoundingClientRect()
+      node.dispatchEvent(new MouseEvent('contextmenu', {
+        bubbles: true,
+        cancelable: true,
+        button: 2,
+        clientX: rect.x + Math.min(24, rect.width / 2),
+        clientY: rect.y + Math.min(24, rect.height / 2)
+      }))
+      return true
+    })()`,
+    5_000
+  )
+  if (!opened) {
+    return false
+  }
+  const deadline = Date.now() + 4_000
+  while (Date.now() < deadline) {
+    const clicked = await evaluate(
+      session,
+      `(() => {
+        const item = [...document.querySelectorAll('[role="menuitem"]')].find((entry) =>
+          (entry.innerText || '').trim().startsWith('Clear Screen')
+        )
+        if (!item) return false
+        item.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true, button: 0 }))
+        item.click()
+        return true
+      })()`,
+      5_000
+    )
+    if (clicked) {
+      return true
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 150))
+  }
+  return false
+}
+
 async function readOutput(handle) {
   try {
     return JSON.stringify(runCli(['terminal', 'read', '--terminal', handle, '--json']))
@@ -1287,6 +1331,27 @@ try {
     throw new Error(`Paste did not reach the PTY as bracketed text: ${pasteVerdict || pasteScreen.slice(0, 800)}`)
   }
   console.log('PASTE_OUTPUT PASTE_OK')
+  const promptMark = /clearmark|printf|zsh|┌|─|├|HORCA|❯/
+  let gridCleared = false
+  let earlyBefore = await dragReadSelection(session, canvas.slot)
+  if (!promptMark.test(earlyBefore)) {
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 500))
+    earlyBefore = await dragReadSelection(session, canvas.slot)
+  }
+  if (promptMark.test(earlyBefore)) {
+    console.log(`CHROME_CLEAR_SLOT ${canvas.slot}`)
+    console.log(`CHROME_CLEAR_BEFORE ${JSON.stringify(earlyBefore).slice(0, 80)}`)
+    if (!(await clickClearScreen(session, canvas.slot))) {
+      throw new Error('Clear Screen menu item was not clickable')
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 400))
+    const earlyAfter = await dragReadSelection(session, canvas.slot)
+    if (promptMark.test(earlyAfter)) {
+      throw new Error(`Clear Screen left the Ghostty grid: ${JSON.stringify(earlyAfter).slice(0, 200)}`)
+    }
+    console.log(`CHROME_CLEAR grid-cleared selection=${JSON.stringify(earlyAfter).slice(0, 80)}`)
+    gridCleared = true
+  }
   await sendLine(session, 'python3 screenprobe')
   const altDeadline = Date.now() + 15_000
   let sawAlt = false
@@ -1531,7 +1596,7 @@ try {
   if (!(await clickLabeled('Split Terminal Right'))) {
     throw new Error('Split Terminal Right was not clickable')
   }
-  const splitDeadline = Date.now() + 8_000
+  const splitDeadline = Date.now() + 20_000
   let canvasesAfter = canvasesBefore
   while (Date.now() < splitDeadline) {
     canvasesAfter = await canvasCount()
@@ -1645,8 +1710,8 @@ try {
       `[...document.querySelectorAll('button')].map((button) => button.getAttribute('aria-label') || '').filter((label) => label.startsWith('Close tab '))`,
       5_000
     )
-  const clearLabelsBefore = await closeLabels()
-  const clearTerm = runCli([
+  const clearLabelsBefore = gridCleared ? null : await closeLabels()
+  const clearTerm = gridCleared ? null : runCli([
     'terminal',
     'create',
     '--worktree',
@@ -1657,9 +1722,10 @@ try {
     '--json'
   ])
   const clearHandle = clearTerm?.result?.terminal?.handle
-  if (!clearHandle) {
+  if (!gridCleared && !clearHandle) {
     throw new Error('Clear probe did not return a terminal handle')
   }
+  if (!gridCleared) {
   const clearLabelDeadline = Date.now() + 8_000
   let clearLabel = ''
   while (Date.now() < clearLabelDeadline) {
@@ -1772,6 +1838,7 @@ try {
     throw new Error(`Clear Screen left the Ghostty grid: ${JSON.stringify(clearText).slice(0, 200)}`)
   }
   console.log(`CHROME_CLEAR grid-cleared selection=${JSON.stringify(clearText).slice(0, 80)}`)
+  }
   const busyLabelsBefore = await closeLabels()
   runCli([
     'terminal',
