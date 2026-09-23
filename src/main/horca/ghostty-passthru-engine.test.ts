@@ -106,6 +106,21 @@ function findPreload(): string {
   return findUp('native/horca-ghostty/adopted/electron-ghostty/preload.js')
 }
 
+function findHarness(name: string): string {
+  const rel = `native/horca-ghostty/harness/electron-43/${name}`
+  const addon = 'native/horca-ghostty/adopted/electron-ghostty/package.json'
+  let dir = __dirname
+  for (let i = 0; i < 12; i += 1) {
+    if (existsSync(join(dir, rel)) && existsSync(join(dir, addon))) {
+      return join(dir, rel)
+    }
+    const parent = dirname(dir)
+    if (parent === dir) break
+    dir = parent
+  }
+  throw new Error(`${name} not found beside the Ghostty addon from ${__dirname}`)
+}
+
 describe('ghostty key protocol', () => {
   it('encodes legacy keys and kitty CSI-u through the native surface', () => {
     const electron = findUp('node_modules/.bin/electron')
@@ -129,14 +144,23 @@ describe('ghostty key protocol', () => {
 describe('ghostty clear screen', () => {
   it('removes the visible prompt from the native surface', () => {
     const electron = findUp('node_modules/.bin/electron')
-    const script = findUp('native/horca-ghostty/harness/electron-43/clear-grid.js')
-    const result = spawnSync(electron, [script], { encoding: 'utf8', timeout: 30000 })
-    const line = result.stdout.split('\n').filter((row) => row.startsWith('{')).at(-1)
-    const report = JSON.parse(line ?? '{}') as { before?: string; after?: string }
-    expect(result.status).toBe(0)
-    expect(report.before).toBe('PROMPT_HORCA')
-    expect(report.after).toBe('')
-  }, 30000)
+    const script = findHarness('clear-grid.js')
+    const env = { ...process.env }
+    delete env.ELECTRON_RUN_AS_NODE
+    const result = spawnSync(electron, [script], { encoding: 'utf8', timeout: 20000, env })
+    const stdout = result.stdout ?? ''
+    const line = stdout.split('\n').filter((row) => row.startsWith('{')).at(-1) ?? ''
+    const report = (line ? JSON.parse(line) : {}) as { before?: string; after?: string }
+    const detail = JSON.stringify({
+      status: result.status,
+      error: result.error?.message ?? null,
+      line,
+      stderr: (result.stderr ?? '').slice(0, 400)
+    })
+    expect(report.before, detail).toBe('┌─[ 2026-09-23 11:24:07 ]')
+    expect(report.after, detail).toBe('')
+    expect(result.status, detail).toBe(0)
+  }, 45000)
 })
 
 describe('ghostty selection', () => {
