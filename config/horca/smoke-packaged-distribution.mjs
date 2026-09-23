@@ -1516,6 +1516,243 @@ try {
     )
   }
   console.log(`CHROME_PANE_CLOSE ${panesBeforeClose} -> ${panesAfterClose}`)
+  const closeLabels = async () =>
+    evaluate(
+      session,
+      `[...document.querySelectorAll('button')].map((button) => button.getAttribute('aria-label') || '').filter((label) => label.startsWith('Close tab '))`,
+      5_000
+    )
+  const clearLabelsBefore = await closeLabels()
+  const clearTerm = runCli([
+    'terminal',
+    'create',
+    '--worktree',
+    worktreeSelector,
+    '--command',
+    'printf clearmarkhorca; cat',
+    '--focus',
+    '--json'
+  ])
+  const clearHandle = clearTerm?.result?.terminal?.handle
+  if (!clearHandle) {
+    throw new Error('Clear probe did not return a terminal handle')
+  }
+  const clearReadyDeadline = Date.now() + 8_000
+  let clearScreen = ''
+  while (Date.now() < clearReadyDeadline) {
+    clearScreen = await readScreen(clearHandle)
+    if (clearScreen.includes('clearmarkhorca')) {
+      break
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 200))
+  }
+  if (!clearScreen.includes('clearmarkhorca')) {
+    throw new Error(`Clear marker did not appear: ${clearScreen.slice(0, 400)}`)
+  }
+  const clearLabelDeadline = Date.now() + 8_000
+  let clearLabel = ''
+  while (Date.now() < clearLabelDeadline) {
+    const labels = await closeLabels()
+    clearLabel = (Array.isArray(labels) ? labels : []).find((label) => !clearLabelsBefore.includes(label)) ?? ''
+    if (clearLabel) {
+      break
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 200))
+  }
+  if (!clearLabel) {
+    throw new Error('Clear probe did not add a terminal tab')
+  }
+  const openedClearMenu = await evaluate(
+    session,
+    `(() => {
+      const visible = [...document.querySelectorAll('canvas[data-ghostty]')].filter((node) => {
+        const rect = node.getBoundingClientRect()
+        return rect.width >= 2 && rect.height >= 2
+      })
+      visible.sort((a, b) => {
+        const slotOf = (node) => Number(String(node.getAttribute('data-ghostty') || '').replace('pane-', '')) || 0
+        return slotOf(a) - slotOf(b)
+      })
+      const node = visible.at(-1)
+      if (!node) return false
+      const rect = node.getBoundingClientRect()
+      node.dispatchEvent(new MouseEvent('contextmenu', {
+        bubbles: true,
+        cancelable: true,
+        button: 2,
+        clientX: rect.x + Math.min(24, rect.width / 2),
+        clientY: rect.y + Math.min(24, rect.height / 2)
+      }))
+      return node.getAttribute('data-ghostty')
+    })()`,
+    5_000
+  )
+  if (!openedClearMenu) {
+    throw new Error('Clear Screen canvas was not available')
+  }
+  console.log(`CHROME_CLEAR_SLOT ${openedClearMenu}`)
+  const clearMenuDeadline = Date.now() + 4_000
+  let sawClear = false
+  while (Date.now() < clearMenuDeadline) {
+    sawClear = Boolean(
+      await evaluate(
+        session,
+        `[...document.querySelectorAll('[role="menuitem"]')].some((item) => (item.innerText || '').trim().startsWith('Clear Screen'))`,
+        5_000
+      )
+    )
+    if (sawClear) {
+      break
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 150))
+  }
+  if (!sawClear) {
+    throw new Error('Clear Screen menu item did not open')
+  }
+  const clearClicked = await evaluate(
+    session,
+    `(() => {
+      const item = [...document.querySelectorAll('[role="menuitem"]')].find((entry) =>
+        (entry.innerText || '').trim().startsWith('Clear Screen')
+      )
+      if (!item) return false
+      item.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true, button: 0 }))
+      item.click()
+      return true
+    })()`,
+    5_000
+  )
+  if (!clearClicked) {
+    throw new Error('Clear Screen menu item was not clickable')
+  }
+  const clearedDeadline = Date.now() + 6_000
+  while (Date.now() < clearedDeadline) {
+    clearScreen = await readScreen(clearHandle)
+    if (!clearScreen.includes('clearmarkhorca')) {
+      break
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 200))
+  }
+  const clearRect = await evaluate(
+    session,
+    `(() => {
+      const slot = ${JSON.stringify(openedClearMenu)}
+      const node = document.querySelector('canvas[data-ghostty="' + slot + '"]')
+      if (!node) return null
+      const rect = node.getBoundingClientRect()
+      return { x: rect.x, y: rect.y }
+    })()`,
+    5_000
+  )
+  let clearSelection = ''
+  if (clearRect) {
+    await session.call(
+      'Input.dispatchMouseEvent',
+      { type: 'mousePressed', x: clearRect.x + 4, y: clearRect.y + 8, button: 'left', clickCount: 1 },
+      15_000
+    )
+    await session.call(
+      'Input.dispatchMouseEvent',
+      { type: 'mouseMoved', x: clearRect.x + 180, y: clearRect.y + 8, button: 'left' },
+      15_000
+    )
+    await session.call(
+      'Input.dispatchMouseEvent',
+      { type: 'mouseReleased', x: clearRect.x + 180, y: clearRect.y + 8, button: 'left', clickCount: 1 },
+      15_000
+    )
+    clearSelection = await evaluate(
+      session,
+      `(() => {
+        const api = window.api && window.api.horcaGhosttyPassthru
+        return api && api.readSelection ? String(api.readSelection(${JSON.stringify(openedClearMenu)})) : ''
+      })()`,
+      5_000
+    )
+  }
+  if (clearScreen.includes('clearmarkhorca') || String(clearSelection).includes('clearmark') || String(clearSelection).includes('❯')) {
+    console.log(
+      `CHROME_CLEAR_FAIL cli=${clearScreen.includes('clearmarkhorca')} selection=${JSON.stringify(clearSelection).slice(0, 120)}`
+    )
+  } else {
+    console.log('CHROME_CLEAR marker-gone')
+  }
+  const busyLabelsBefore = await closeLabels()
+  runCli([
+    'terminal',
+    'create',
+    '--worktree',
+    worktreeSelector,
+    '--command',
+    'cat',
+    '--focus',
+    '--json'
+  ])
+  const busyLabelDeadline = Date.now() + 8_000
+  let busyLabel = ''
+  while (Date.now() < busyLabelDeadline) {
+    const labels = await closeLabels()
+    busyLabel = (Array.isArray(labels) ? labels : []).find((label) => !busyLabelsBefore.includes(label)) ?? ''
+    if (busyLabel) {
+      break
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 200))
+  }
+  if (!busyLabel) {
+    throw new Error('Busy terminal did not add a tab')
+  }
+  const busyDeadline = Date.now() + 8_000
+  let busyClicked = false
+  while (Date.now() < busyDeadline) {
+    busyClicked = Boolean(
+      await evaluate(
+        session,
+        `(() => {
+          const button = [...document.querySelectorAll('button')].find((entry) =>
+            (entry.getAttribute('aria-label') || '') === ${JSON.stringify(busyLabel)}
+          )
+          if (!button) return false
+          button.click()
+          return true
+        })()`,
+        5_000
+      )
+    )
+    if (busyClicked) {
+      break
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 200))
+  }
+  if (!busyClicked) {
+    throw new Error(`Busy close button was not clickable: ${busyLabel}`)
+  }
+  const busyConfirmDeadline = Date.now() + 8_000
+  let sawStopAndClose = false
+  while (Date.now() < busyConfirmDeadline) {
+    sawStopAndClose = Boolean(
+      await evaluate(
+        session,
+        `(() => {
+          const button = [...document.querySelectorAll('button')].find((entry) =>
+            (entry.innerText || '').trim().startsWith('Stop and Close')
+          )
+          if (!button) return false
+          button.click()
+          return true
+        })()`,
+        5_000
+      )
+    )
+    if (sawStopAndClose) {
+      break
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 200))
+  }
+  if (!sawStopAndClose) {
+    const dialogText = await evaluate(session, `document.body.innerText.slice(0, 300)`, 5_000)
+    throw new Error(`Running cat close did not ask: ${JSON.stringify(dialogText)}`)
+  }
+  console.log('CHROME_CLOSE_DIALOG Stop and Close')
   const closesBefore = Number(await closeTabCount())
   const closeTabClicked = await evaluate(
     session,
