@@ -17,6 +17,7 @@ import {
   attachHorcaGhosttyPassthruPane,
   detachHorcaGhosttyPassthruPane,
   readHorcaGhosttySelection,
+  scrollHorcaGhosttyViewport,
   sendHorcaGhosttyText
 } from './horca-ghostty-passthru-attach'
 
@@ -222,10 +223,16 @@ export class OrcaPaneTerminal extends OrcaPaneListenerHub {
   getSelection(): string {
     return readHorcaGhosttySelection(this.slot)
   }
-  scrollToTop(): void {}
-  scrollToBottom(): void {}
+  scrollToTop(): void {
+    scrollHorcaGhosttyViewport(this.slot, 1_000_000)
+  }
+  scrollToBottom(): void {
+    scrollHorcaGhosttyViewport(this.slot, -1_000_000)
+  }
   scrollToLine(_line: number): void {}
-  scrollLines(_delta: number): void {}
+  scrollLines(delta: number): void {
+    scrollHorcaGhosttyViewport(this.slot, -delta)
+  }
   encodeKey(_event: KeyboardEvent): string {
     return ''
   }

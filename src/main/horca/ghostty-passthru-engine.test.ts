@@ -17,6 +17,7 @@ class FakeGhostty extends EventEmitter {
   static lastOpts: { engine: string; passthru: boolean; config?: string } | undefined
   attach = vi.fn()
   ptyData = vi.fn()
+  mouseScroll = vi.fn()
   destroy = vi.fn()
   constructor(opts: { engine: string; passthru: boolean; config?: string }) {
     super()
@@ -87,6 +88,8 @@ describe('createHorcaGhosttyPassthruEngine', () => {
     expect(handle.resize).toHaveBeenCalledWith(100, 30)
     engine.clearScreen()
     expect(term.ptyData).toHaveBeenCalledWith(Buffer.from('\x1b[H\x1b[2J\x1b[3J', 'utf8'))
+    engine.scrollBy(-120)
+    expect(term.mouseScroll).toHaveBeenCalledWith(1, 1, 0, -120)
   })
 })
 

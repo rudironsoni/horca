@@ -27,3 +27,7 @@ export function sendHorcaGhosttyText(slot: string, text: string): void {
 export function clearHorcaGhosttyScreen(slot: string): void {
   passthruApi()?.clearScreen(slot)
 }
+
+export function scrollHorcaGhosttyViewport(slot: string, dy: number): void {
+  passthruApi()?.scroll(slot, dy)
+}

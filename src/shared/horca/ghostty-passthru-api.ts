@@ -2,7 +2,8 @@ export const HORCA_GHOSTTY_PASSTHRU_CHANNELS = {
   attach: 'horca:ghostty-passthru:attach',
   detach: 'horca:ghostty-passthru:detach',
   readSelection: 'horca:ghostty-passthru:read-selection',
-  clearScreen: 'horca:ghostty-passthru:clear-screen'
+  clearScreen: 'horca:ghostty-passthru:clear-screen',
+  scroll: 'horca:ghostty-passthru:scroll'
 } as const
 
 export type HorcaGhosttyPassthruAttachPayload = {
@@ -16,4 +17,5 @@ export type HorcaGhosttyPassthruApi = {
   readSelection(slot: string): string
   pasteText(slot: string, text: string): void
   clearScreen(slot: string): void
+  scroll(slot: string, dy: number): void
 }
