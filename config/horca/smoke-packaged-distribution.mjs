@@ -1331,29 +1331,7 @@ try {
     throw new Error(`Paste did not reach the PTY as bracketed text: ${pasteVerdict || pasteScreen.slice(0, 800)}`)
   }
   console.log('PASTE_OUTPUT PASTE_OK')
-  const promptMark = /clearmark|printf|zsh|┌|─|├|HORCA|❯/
   let gridCleared = false
-  let earlyBefore = await dragReadSelection(session, canvas.slot)
-  if (!promptMark.test(earlyBefore)) {
-    await new Promise((resolveDelay) => setTimeout(resolveDelay, 500))
-    earlyBefore = await dragReadSelection(session, canvas.slot)
-  }
-  if (promptMark.test(earlyBefore)) {
-    console.log(`CHROME_CLEAR_SLOT ${canvas.slot}`)
-    console.log(`CHROME_CLEAR_BEFORE ${JSON.stringify(earlyBefore).slice(0, 80)}`)
-    if (!(await clickClearScreen(session, canvas.slot))) {
-      throw new Error('Clear Screen menu item was not clickable')
-    }
-    await new Promise((resolveDelay) => setTimeout(resolveDelay, 400))
-    const earlyAfter = await dragReadSelection(session, canvas.slot)
-    if (promptMark.test(earlyAfter)) {
-      throw new Error(`Clear Screen left the Ghostty grid: ${JSON.stringify(earlyAfter).slice(0, 200)}`)
-    }
-    console.log(`CHROME_CLEAR grid-cleared selection=${JSON.stringify(earlyAfter).slice(0, 80)}`)
-    gridCleared = true
-  } else {
-    console.log(`CHROME_CLEAR_MISS ${JSON.stringify(earlyBefore).slice(0, 120)}`)
-  }
   await sendLine(session, 'python3 screenprobe')
   const altDeadline = Date.now() + 15_000
   let sawAlt = false
@@ -1378,6 +1356,28 @@ try {
     )
   }
   console.log('SCREEN_OUTPUT alt primary')
+  const promptMark = /clearmark|printf|zsh|┌|─|├|HORCA|❯/
+  let earlyBefore = await dragReadSelection(session, canvas.slot)
+  if (!promptMark.test(earlyBefore)) {
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 500))
+    earlyBefore = await dragReadSelection(session, canvas.slot)
+  }
+  if (promptMark.test(earlyBefore)) {
+    console.log(`CHROME_CLEAR_SLOT ${canvas.slot}`)
+    console.log(`CHROME_CLEAR_BEFORE ${JSON.stringify(earlyBefore).slice(0, 80)}`)
+    if (!(await clickClearScreen(session, canvas.slot))) {
+      throw new Error('Clear Screen menu item was not clickable')
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 400))
+    const earlyAfter = await dragReadSelection(session, canvas.slot)
+    if (promptMark.test(earlyAfter)) {
+      throw new Error(`Clear Screen left the Ghostty grid: ${JSON.stringify(earlyAfter).slice(0, 200)}`)
+    }
+    console.log(`CHROME_CLEAR grid-cleared selection=${JSON.stringify(earlyAfter).slice(0, 80)}`)
+    gridCleared = true
+  } else {
+    console.log(`CHROME_CLEAR_MISS ${JSON.stringify(earlyBefore).slice(0, 120)}`)
+  }
   const readSttyCols = (text) => {
     const found = []
     for (const match of String(text).matchAll(/stty size[^0-9]{0,80}(\d+) (\d+)/g)) {
