@@ -126,6 +126,19 @@ describe('ghostty key protocol', () => {
   }, 30000)
 })
 
+describe('ghostty clear screen', () => {
+  it('removes the visible prompt from the native surface', () => {
+    const electron = findUp('node_modules/.bin/electron')
+    const script = findUp('native/horca-ghostty/harness/electron-43/clear-grid.js')
+    const result = spawnSync(electron, [script], { encoding: 'utf8', timeout: 30000 })
+    const line = result.stdout.split('\n').filter((row) => row.startsWith('{')).at(-1)
+    const report = JSON.parse(line ?? '{}') as { before?: string; after?: string }
+    expect(result.status).toBe(0)
+    expect(report.before).toBe('PROMPT_HORCA')
+    expect(report.after).toBe('')
+  }, 30000)
+})
+
 describe('ghostty selection', () => {
   it('returns the full mouse selection from the native surface', () => {
     const electron = findUp('node_modules/.bin/electron')
