@@ -4960,6 +4960,16 @@
       "reason": "D1-H: Ghostty parity repair"
     },
     {
+      "id": "gate-d1-h-add-src-main-daemon-ghostty-headless-parity-remainder.test.ts",
+      "target": "src/main/daemon/ghostty-headless-parity-remainder.test.ts",
+      "mode": "add",
+      "source": "src/main/daemon/ghostty-headless-parity-remainder.test.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-H: Ghostty parity repair"
+    },
+    {
       "id": "gate-d1-h-add-src-main-daemon-ghostty-headless-emulator.test.ts",
       "target": "src/main/daemon/ghostty-headless-emulator.test.ts",
       "mode": "add",
