@@ -286,6 +286,8 @@ try:
     sys.stdout.buffer.write(b"MOUSEHEX " + burst().hex().encode() + b"\\r\\n")
     sys.stdout.flush()
 finally:
+    sys.stdout.buffer.write(b"\\x1b[?1000l")
+    sys.stdout.flush()
     termios.tcsetattr(fd, termios.TCSANOW, old)
     sys.stdout.buffer.write(b"\\x1b[?1000lMOUSE_DONE\\r\\n")
     sys.stdout.flush()
@@ -938,6 +940,116 @@ try {
     throw new Error(`Mouse click did not report: ${mouseHex || mouseScreen.slice(0, 800)}`)
   }
   console.log(`MOUSE_OUTPUT ${mouseHex}`)
+  let copySelection = ''
+  for (const rowOffset of [8, 28, 48, 68, 88, 108]) {
+    const dragY = canvas.y + rowOffset
+    await session.call(
+      'Input.dispatchMouseEvent',
+      { type: 'mousePressed', x: canvas.x + 4, y: dragY, button: 'left', clickCount: 1 },
+      15_000
+    )
+    await session.call(
+      'Input.dispatchMouseEvent',
+      { type: 'mouseMoved', x: canvas.x + 140, y: dragY, button: 'left' },
+      15_000
+    )
+    await session.call(
+      'Input.dispatchMouseEvent',
+      { type: 'mouseReleased', x: canvas.x + 140, y: dragY, button: 'left', clickCount: 1 },
+      15_000
+    )
+    copySelection = await evaluate(
+      session,
+      `(() => {
+        const api = window.api && window.api.horcaGhosttyPassthru
+        if (!api || typeof api.readSelection !== 'function') return ''
+        return String(api.readSelection(${JSON.stringify(canvas.slot)}))
+      })()`,
+      5_000
+    )
+    if (String(copySelection).includes('HORCA')) {
+      break
+    }
+  }
+  if (!String(copySelection).includes('HORCA')) {
+    throw new Error(`Copy selection did not include HORCA: ${JSON.stringify(copySelection)}`)
+  }
+  const openedCopyMenu = await evaluate(
+    session,
+    `(() => {
+      const node = document.querySelector('canvas[data-ghostty="${canvas.slot}"]')
+      if (!node) return false
+      const rect = node.getBoundingClientRect()
+      node.dispatchEvent(new MouseEvent('contextmenu', {
+        bubbles: true,
+        cancelable: true,
+        button: 2,
+        clientX: rect.x + 20,
+        clientY: rect.y + 20
+      }))
+      return true
+    })()`,
+    5_000
+  )
+  if (!openedCopyMenu) {
+    throw new Error('Selection canvas was not available for Copy')
+  }
+  const copyMenuDeadline = Date.now() + 4_000
+  let sawCopy = false
+  while (Date.now() < copyMenuDeadline) {
+    sawCopy = Boolean(
+      await evaluate(
+        session,
+        `[...document.querySelectorAll('[role="menuitem"]')].some((item) => (item.innerText || '').trim().split('\\n')[0].trim() === 'Copy')`,
+        5_000
+      )
+    )
+    if (sawCopy) {
+      break
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 150))
+  }
+  if (!sawCopy) {
+    throw new Error('Copy menu item did not open')
+  }
+  const copyClicked = await evaluate(
+    session,
+    `(() => {
+      const item = [...document.querySelectorAll('[role="menuitem"]')].find((entry) =>
+        (entry.innerText || '').trim().split('\\n')[0].trim() === 'Copy'
+      )
+      if (!item) return false
+      item.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true, button: 0 }))
+      item.click()
+      return true
+    })()`,
+    5_000
+  )
+  if (!copyClicked) {
+    throw new Error('Copy menu item was not clickable')
+  }
+  const copyDeadline = Date.now() + 4_000
+  let copied = ''
+  while (Date.now() < copyDeadline) {
+    try {
+      copied = execFileSync('pbpaste', { encoding: 'utf8' })
+    } catch {
+      copied = ''
+    }
+    if (copied.includes('HORCA')) {
+      break
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 150))
+  }
+  if (!copied.includes('HORCA')) {
+    throw new Error(`Copy menu did not put HORCA on the clipboard: ${JSON.stringify(copied).slice(0, 200)}`)
+  }
+  console.log('CHROME_COPY HORCA')
+  await evaluate(
+    session,
+    `document.querySelector('canvas[data-ghostty="${canvas.slot}"]')?.focus()`,
+    5_000
+  )
   execFileSync('pbcopy', { input: 'PASTE_HORCA' })
   await sendLine(session, 'python3 pasteprobe')
   const pasteReadyDeadline = Date.now() + 8_000
@@ -1334,13 +1446,36 @@ try {
   }
   console.log(`CHROME_PANE_CLOSE ${panesBeforeClose} -> ${panesAfterClose}`)
   const closesBefore = Number(await closeTabCount())
-  if (!(await clickLabeled('Close tab Terminal'))) {
+  const closeTabClicked = await evaluate(
+    session,
+    `(() => {
+      const button = [...document.querySelectorAll('button')].filter((entry) =>
+        (entry.getAttribute('aria-label') || entry.innerText || '').includes('Close tab Terminal')
+      ).at(-1)
+      if (!button) return false
+      button.click()
+      return true
+    })()`,
+    5_000
+  )
+  if (!closeTabClicked) {
     throw new Error('Close tab button was not clickable')
   }
   const closeDeadline = Date.now() + 8_000
   let closesAfter = closesBefore
   while (Date.now() < closeDeadline) {
-    await clickLabeled('Stop and Close')
+    await evaluate(
+      session,
+      `(() => {
+        const button = [...document.querySelectorAll('button')].find((entry) =>
+          (entry.innerText || '').trim().startsWith('Stop and Close')
+        )
+        if (!button) return false
+        button.click()
+        return true
+      })()`,
+      5_000
+    )
     closesAfter = Number(await closeTabCount())
     if (closesAfter < closesBefore) {
       break
@@ -1348,8 +1483,9 @@ try {
     await new Promise((resolveDelay) => setTimeout(resolveDelay, 200))
   }
   if (closesAfter >= closesBefore) {
+    const dialogText = await evaluate(session, `document.body.innerText.slice(0, 300)`, 5_000)
     throw new Error(
-      `Close tab did not remove a terminal tab: before=${closesBefore} after=${closesAfter}`
+      `Close tab did not remove a terminal tab: before=${closesBefore} after=${closesAfter} text=${JSON.stringify(dialogText)}`
     )
   }
   console.log(`CHROME_CLOSE ${closesBefore} -> ${closesAfter}`)
