@@ -1240,6 +1240,99 @@ try {
     )
   }
   console.log(`CHROME_SPLIT ${canvasesBefore} -> ${canvasesAfter}`)
+  const panePoint = await evaluate(
+    session,
+    `(() => {
+      const canvas = [...document.querySelectorAll('canvas[data-ghostty]')].find((item) => {
+        const rect = item.getBoundingClientRect()
+        return rect.width >= 2 && rect.height >= 2
+      })
+      if (!canvas) return null
+      const rect = canvas.getBoundingClientRect()
+      return { x: rect.x + Math.min(30, rect.width / 2), y: rect.y + Math.min(40, rect.height / 2) }
+    })()`,
+    5_000
+  )
+  if (!panePoint) {
+    throw new Error('No Ghostty canvas for the context menu')
+  }
+  await session.call(
+    'Input.dispatchMouseEvent',
+    { type: 'mousePressed', x: panePoint.x, y: panePoint.y, button: 'right', clickCount: 1 },
+    15_000
+  )
+  await session.call(
+    'Input.dispatchMouseEvent',
+    { type: 'mouseReleased', x: panePoint.x, y: panePoint.y, button: 'right', clickCount: 1 },
+    15_000
+  )
+  const paneMenuDeadline = Date.now() + 4_000
+  let sawClosePane = false
+  while (Date.now() < paneMenuDeadline) {
+    sawClosePane = Boolean(
+      await evaluate(
+        session,
+        `[...document.querySelectorAll('[role="menuitem"]')].some((item) => (item.innerText || '').trim().startsWith('Close Pane'))`,
+        5_000
+      )
+    )
+    if (sawClosePane) {
+      break
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 150))
+  }
+  if (!sawClosePane) {
+    throw new Error('Close Pane menu item did not open')
+  }
+  const panesBeforeClose = await canvasCount()
+  const closePaneClicked = await evaluate(
+    session,
+    `(() => {
+      const item = [...document.querySelectorAll('[role="menuitem"]')].find((entry) =>
+        (entry.innerText || '').trim().startsWith('Close Pane')
+      )
+      if (!item) return false
+      item.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true, button: 0 }))
+      item.click()
+      return true
+    })()`,
+    5_000
+  )
+  if (!closePaneClicked) {
+    throw new Error('Close Pane menu item was not clickable')
+  }
+  const paneCloseDeadline = Date.now() + 8_000
+  let panesAfterClose = panesBeforeClose
+  while (Date.now() < paneCloseDeadline) {
+    await evaluate(
+      session,
+      `(() => {
+        const button = [...document.querySelectorAll('button')].find((entry) =>
+          (entry.innerText || '').trim().startsWith('Stop and Close')
+        )
+        if (!button) return false
+        button.click()
+        return true
+      })()`,
+      5_000
+    )
+    panesAfterClose = await canvasCount()
+    if (panesAfterClose < panesBeforeClose) {
+      break
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 200))
+  }
+  if (panesAfterClose >= panesBeforeClose) {
+    const dialogText = await evaluate(
+      session,
+      `document.body.innerText.slice(0, 400)`,
+      5_000
+    )
+    throw new Error(
+      `Close Pane did not remove a surface: before=${panesBeforeClose} after=${panesAfterClose} text=${JSON.stringify(dialogText)}`
+    )
+  }
+  console.log(`CHROME_PANE_CLOSE ${panesBeforeClose} -> ${panesAfterClose}`)
   const closesBefore = Number(await closeTabCount())
   if (!(await clickLabeled('Close tab Terminal'))) {
     throw new Error('Close tab button was not clickable')
