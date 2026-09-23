@@ -636,15 +636,20 @@ try {
   }
   const clickX = canvas.x + 12
   const clickY = canvas.y + 12
+  try {
+    execFileSync('osascript', ['-e', 'tell application "Horca" to activate'], { stdio: 'ignore' })
+  } catch {
+    void 0
+  }
   await session.call(
     'Input.dispatchMouseEvent',
     { type: 'mousePressed', x: clickX, y: clickY, button: 'left', clickCount: 1 },
-    5_000
+    15_000
   )
   await session.call(
     'Input.dispatchMouseEvent',
     { type: 'mouseReleased', x: clickX, y: clickY, button: 'left', clickCount: 1 },
-    5_000
+    15_000
   )
   await session.call(
     'Input.dispatchKeyEvent',
@@ -695,17 +700,17 @@ try {
     await session.call(
       'Input.dispatchMouseEvent',
       { type: 'mousePressed', x: canvas.x + 4, y: dragY, button: 'left', clickCount: 1 },
-      5_000
+      15_000
     )
     await session.call(
       'Input.dispatchMouseEvent',
       { type: 'mouseMoved', x: canvas.x + 140, y: dragY, button: 'left' },
-      5_000
+      15_000
     )
     await session.call(
       'Input.dispatchMouseEvent',
       { type: 'mouseReleased', x: canvas.x + 140, y: dragY, button: 'left', clickCount: 1 },
-      5_000
+      15_000
     )
     selected = await evaluate(
       session,
@@ -842,12 +847,12 @@ try {
   await session.call(
     'Input.dispatchMouseEvent',
     { type: 'mousePressed', x: canvas.x + 24, y: canvas.y + 24, button: 'left', clickCount: 1 },
-    5_000
+    15_000
   )
   await session.call(
     'Input.dispatchMouseEvent',
     { type: 'mouseReleased', x: canvas.x + 24, y: canvas.y + 24, button: 'left', clickCount: 1 },
-    5_000
+    15_000
   )
   const mouseDeadline = Date.now() + 6_000
   let mouseHex = ''
