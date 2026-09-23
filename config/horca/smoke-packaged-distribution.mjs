@@ -361,7 +361,15 @@ def burst():
     return b"".join(parts)
 
 try:
-    sys.stdout.buffer.write(b"PASTEHEX " + burst().hex().encode() + b"\\r\\n")
+    blob = burst()
+    exact = b"\\x1b[200~PASTE_HORCA\\x1b[201~"
+    if exact in blob:
+        line = b"PASTE_OK\\r\\n"
+    elif b"\\x1b[200~PASTE_HORCA" in blob and b"\\x1b[201~" in blob:
+        line = b"PASTE_SPLIT\\r\\n"
+    else:
+        line = b"PASTE_BAD " + blob[:48].hex().encode() + b"\\r\\n"
+    sys.stdout.buffer.write(line)
     sys.stdout.flush()
 finally:
     termios.tcsetattr(fd, termios.TCSANOW, old)
@@ -1248,27 +1256,28 @@ try {
     nativeVirtualKeyCode: 9
   })
   const pasteDeadline = Date.now() + 6_000
-  let pasteHex = ''
+  let pasteVerdict = ''
   while (Date.now() < pasteDeadline) {
     pasteScreen = await readScreen(handle)
-    const at = String(pasteScreen).indexOf('PASTEHEX')
-    if (at >= 0) {
-      const digits = String(pasteScreen).slice(at + 'PASTEHEX'.length).replace(/[^0-9a-f]/g, '')
-      const closeAt = digits.indexOf('1b5b3230317e')
-      pasteHex = closeAt < 0 ? digits.slice(0, 80) : digits.slice(0, closeAt + '1b5b3230317e'.length)
-      if (closeAt >= 0) {
-        break
-      }
+    if (String(pasteScreen).includes('PASTE_OK')) {
+      pasteVerdict = 'PASTE_OK'
+      break
+    }
+    if (String(pasteScreen).includes('PASTE_SPLIT')) {
+      pasteVerdict = 'PASTE_SPLIT'
+      break
+    }
+    const badAt = String(pasteScreen).indexOf('PASTE_BAD')
+    if (badAt >= 0) {
+      pasteVerdict = String(pasteScreen).slice(badAt, badAt + 120)
+      break
     }
     await new Promise((resolveDelay) => setTimeout(resolveDelay, 150))
   }
-  if (
-    !pasteHex.includes('1b5b3230307e50415354455f484f524341') ||
-    !pasteHex.includes('1b5b3230317e')
-  ) {
-    throw new Error(`Paste did not reach the PTY as bracketed text: ${pasteHex || pasteScreen.slice(0, 800)}`)
+  if (pasteVerdict !== 'PASTE_OK') {
+    throw new Error(`Paste did not reach the PTY as bracketed text: ${pasteVerdict || pasteScreen.slice(0, 800)}`)
   }
-  console.log(`PASTE_OUTPUT ${pasteHex}`)
+  console.log('PASTE_OUTPUT PASTE_OK')
   await sendLine(session, 'python3 screenprobe')
   const altDeadline = Date.now() + 15_000
   let sawAlt = false
