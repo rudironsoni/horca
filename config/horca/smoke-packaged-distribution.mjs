@@ -1595,8 +1595,8 @@ try {
       )
     )
   let canvasesBefore = await canvasCount()
-  if (canvasesBefore >= 4) {
-    await evaluate(
+  while (canvasesBefore >= 3) {
+    const closed = await evaluate(
       session,
       `(() => {
         const button = [...document.querySelectorAll('button')].find((entry) =>
@@ -1608,7 +1608,11 @@ try {
       })()`,
       5_000
     )
+    if (!closed) {
+      break
+    }
     const trimDeadline = Date.now() + 8_000
+    let trimmed = canvasesBefore
     while (Date.now() < trimDeadline) {
       await evaluate(
         session,
@@ -1622,13 +1626,16 @@ try {
         })()`,
         5_000
       )
-      const trimmed = await canvasCount()
+      trimmed = await canvasCount()
       if (trimmed < canvasesBefore) {
-        canvasesBefore = trimmed
         break
       }
       await new Promise((resolveDelay) => setTimeout(resolveDelay, 200))
     }
+    if (trimmed >= canvasesBefore) {
+      break
+    }
+    canvasesBefore = trimmed
     console.log(`CHROME_TRIM ${canvasesBefore}`)
   }
   if (!(await clickLabeled('Split Terminal Right'))) {
