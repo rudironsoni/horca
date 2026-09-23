@@ -1155,6 +1155,33 @@ try {
     throw new Error(`New Terminal did not add a tab: before=${tabsBefore} after=${tabsAfter}`)
   }
   console.log(`CHROME_TAB ${tabsBefore} -> ${tabsAfter}`)
+  const canvasCount = async () =>
+    Number(
+      await evaluate(
+        session,
+        `document.querySelectorAll('canvas[data-ghostty]').length`,
+        5_000
+      )
+    )
+  const canvasesBefore = await canvasCount()
+  if (!(await clickLabeled('Split Terminal Right'))) {
+    throw new Error('Split Terminal Right was not clickable')
+  }
+  const splitDeadline = Date.now() + 8_000
+  let canvasesAfter = canvasesBefore
+  while (Date.now() < splitDeadline) {
+    canvasesAfter = await canvasCount()
+    if (canvasesAfter > canvasesBefore) {
+      break
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 200))
+  }
+  if (canvasesAfter <= canvasesBefore) {
+    throw new Error(
+      `Split Terminal Right did not add a surface: before=${canvasesBefore} after=${canvasesAfter}`
+    )
+  }
+  console.log(`CHROME_SPLIT ${canvasesBefore} -> ${canvasesAfter}`)
   const exiting = runCli([
     'terminal',
     'create',
