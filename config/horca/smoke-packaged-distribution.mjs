@@ -301,13 +301,13 @@ finally:
     sys.stdout.flush()
 `
 const SCREEN_SOURCE = `import sys, time
-sys.stdout.buffer.write(b"\\x1b[?1049hALTSCREEN_HORCA\\r\\n")
+sys.stdout.buffer.write(b"\\x1b[?1049h" + b"ALTSCREEN_HORCA\\r\\n" * 8)
 sys.stdout.flush()
-time.sleep(0.4)
-sys.stdout.buffer.write(b"\\x1b[?1049l\\r\\nPRIMARY_HORCA\\r\\n")
+time.sleep(0.3)
+sys.stdout.buffer.write(b"\\x1b[?1049l" + b"PRIMARY_HORCA\\r\\n" * 8)
 sys.stdout.flush()
 time.sleep(0.2)
-sys.stdout.buffer.write("UNICODE_HORCA \\u00e9 \\u4f60 e\\u0301 \\u250c\\r\\n".encode())
+sys.stdout.buffer.write(("UNICODE_HORCA \\u00e9 \\u4f60 e\\u0301 \\u250c\\r\\n" * 5).encode())
 sys.stdout.flush()
 `
 
@@ -921,7 +921,7 @@ try {
   let sawPrimary = false
   let screenProbe = ''
   while (Date.now() < altDeadline) {
-    screenProbe = await readScreen(handle)
+    screenProbe = `${await readScreen(handle)}\n${await readOutput(handle)}`
     if (screenProbe.includes('ALTSCREEN_HORCA')) {
       sawAlt = true
     }
@@ -967,7 +967,7 @@ try {
   let beforeSize = ''
   let beforeCols = null
   while (Date.now() < beforeDeadline) {
-    beforeSize = await readScreen(handle)
+    beforeSize = await readOutput(handle)
     beforeCols = readSttyCols(beforeSize)
     if (beforeCols) {
       break
