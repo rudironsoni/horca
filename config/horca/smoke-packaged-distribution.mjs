@@ -1670,13 +1670,12 @@ try {
       5_000
     )
   }
-  if (clearScreen.includes('clearmarkhorca') || String(clearSelection).includes('clearmark') || String(clearSelection).includes('❯')) {
-    console.log(
-      `CHROME_CLEAR_FAIL cli=${clearScreen.includes('clearmarkhorca')} selection=${JSON.stringify(clearSelection).slice(0, 120)}`
+  if (!clearRect || String(clearSelection).includes('clearmark') || String(clearSelection).includes('❯')) {
+    throw new Error(
+      `Clear Screen left the Ghostty grid: selection=${JSON.stringify(clearSelection).slice(0, 180)}`
     )
-  } else {
-    console.log('CHROME_CLEAR marker-gone')
   }
+  console.log('CHROME_CLEAR grid-cleared')
   const busyLabelsBefore = await closeLabels()
   runCli([
     'terminal',
