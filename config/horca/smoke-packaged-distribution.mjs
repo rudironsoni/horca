@@ -196,6 +196,48 @@ async function readScreen(handle) {
   }
 }
 
+async function dragReadSelection(session, slot) {
+  const origin = await evaluate(
+    session,
+    `(() => {
+      const node = document.querySelector(${JSON.stringify(`canvas[data-ghostty="${slot}"]`)})
+      if (!node) return null
+      const rect = node.getBoundingClientRect()
+      return { x: rect.x, y: rect.y, width: rect.width, height: rect.height }
+    })()`,
+    5_000
+  )
+  if (!origin || origin.width < 2 || origin.height < 2) {
+    return ''
+  }
+  const y = origin.y + 8
+  const x2 = origin.x + Math.min(220, Math.max(24, origin.width - 8))
+  await session.call(
+    'Input.dispatchMouseEvent',
+    { type: 'mousePressed', x: origin.x + 4, y, button: 'left', clickCount: 1 },
+    15_000
+  )
+  await session.call(
+    'Input.dispatchMouseEvent',
+    { type: 'mouseMoved', x: x2, y, button: 'left' },
+    15_000
+  )
+  await session.call(
+    'Input.dispatchMouseEvent',
+    { type: 'mouseReleased', x: x2, y, button: 'left', clickCount: 1 },
+    15_000
+  )
+  const selected = await evaluate(
+    session,
+    `(() => {
+      const api = window.api && window.api.horcaGhosttyPassthru
+      return api && api.readSelection ? String(api.readSelection(${JSON.stringify(slot)})) : ''
+    })()`,
+    5_000
+  )
+  return String(selected ?? '')
+}
+
 async function readOutput(handle) {
   try {
     return JSON.stringify(runCli(['terminal', 'read', '--terminal', handle, '--json']))
@@ -1151,29 +1193,21 @@ try {
     throw new Error('Context menu was not open for dismiss')
   }
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 250))
-  const dismissPoint = await evaluate(
+  const dismissedByChrome = await evaluate(
     session,
     `(() => {
-      const node = document.querySelector('canvas[data-ghostty="${canvas.slot}"]')
-      if (!node) return null
-      const rect = node.getBoundingClientRect()
-      return { x: rect.x + Math.max(8, rect.width - 12), y: rect.y + Math.max(8, rect.height - 12) }
+      const button = [...document.querySelectorAll('button')].find((entry) =>
+        (entry.getAttribute('aria-label') || entry.innerText || '').trim() === 'Go back'
+      )
+      if (!button) return false
+      button.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true, button: 0 }))
+      return true
     })()`,
     5_000
   )
-  if (!dismissPoint) {
-    throw new Error('Context menu dismiss point was missing')
+  if (!dismissedByChrome) {
+    throw new Error('Context menu dismiss control was missing')
   }
-  await session.call(
-    'Input.dispatchMouseEvent',
-    { type: 'mousePressed', x: dismissPoint.x, y: dismissPoint.y, button: 'left', clickCount: 1 },
-    15_000
-  )
-  await session.call(
-    'Input.dispatchMouseEvent',
-    { type: 'mouseReleased', x: dismissPoint.x, y: dismissPoint.y, button: 'left', clickCount: 1 },
-    15_000
-  )
   const dismissDeadline = Date.now() + 3_000
   let menuStillOpen = true
   while (Date.now() < dismissDeadline) {
@@ -1608,18 +1642,6 @@ try {
   if (!clearHandle) {
     throw new Error('Clear probe did not return a terminal handle')
   }
-  const clearReadyDeadline = Date.now() + 8_000
-  let clearScreen = ''
-  while (Date.now() < clearReadyDeadline) {
-    clearScreen = await readScreen(clearHandle)
-    if (clearScreen.includes('clearmarkhorca')) {
-      break
-    }
-    await new Promise((resolveDelay) => setTimeout(resolveDelay, 200))
-  }
-  if (!clearScreen.includes('clearmarkhorca')) {
-    throw new Error(`Clear marker did not appear: ${clearScreen.slice(0, 400)}`)
-  }
   const clearLabelDeadline = Date.now() + 8_000
   let clearLabel = ''
   while (Date.now() < clearLabelDeadline) {
@@ -1645,6 +1667,31 @@ try {
         return slotOf(a) - slotOf(b)
       })
       const node = visible.at(-1)
+      return node ? node.getAttribute('data-ghostty') : ''
+    })()`,
+    5_000
+  )
+  if (!openedClearMenu) {
+    throw new Error('Clear Screen canvas was not available')
+  }
+  console.log(`CHROME_CLEAR_SLOT ${openedClearMenu}`)
+  const clearBeforeDeadline = Date.now() + 8_000
+  let clearBefore = ''
+  while (Date.now() < clearBeforeDeadline) {
+    clearBefore = await dragReadSelection(session, openedClearMenu)
+    if (/clearmark|printf|zsh|┌|HORCA|❯/.test(clearBefore)) {
+      break
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 250))
+  }
+  if (!/clearmark|printf|zsh|┌|HORCA|❯/.test(clearBefore)) {
+    throw new Error(`Clear probe grid had no prompt: ${JSON.stringify(clearBefore).slice(0, 200)}`)
+  }
+  console.log(`CHROME_CLEAR_BEFORE ${JSON.stringify(clearBefore).slice(0, 80)}`)
+  const openedClear = await evaluate(
+    session,
+    `(() => {
+      const node = document.querySelector(${JSON.stringify(`canvas[data-ghostty="${openedClearMenu}"]`)})
       if (!node) return false
       const rect = node.getBoundingClientRect()
       node.dispatchEvent(new MouseEvent('contextmenu', {
@@ -1654,14 +1701,13 @@ try {
         clientX: rect.x + Math.min(24, rect.width / 2),
         clientY: rect.y + Math.min(24, rect.height / 2)
       }))
-      return node.getAttribute('data-ghostty')
+      return true
     })()`,
     5_000
   )
-  if (!openedClearMenu) {
+  if (!openedClear) {
     throw new Error('Clear Screen canvas was not available')
   }
-  console.log(`CHROME_CLEAR_SLOT ${openedClearMenu}`)
   const clearMenuDeadline = Date.now() + 4_000
   let sawClear = false
   while (Date.now() < clearMenuDeadline) {
@@ -1697,52 +1743,12 @@ try {
     throw new Error('Clear Screen menu item was not clickable')
   }
   const clearedDeadline = Date.now() + 6_000
-  while (Date.now() < clearedDeadline) {
-    clearScreen = await readScreen(clearHandle)
-    if (!clearScreen.includes('clearmarkhorca')) {
-      break
-    }
+  let clearText = await dragReadSelection(session, openedClearMenu)
+  while (Date.now() < clearedDeadline && /clearmark|printf|zsh|┌|HORCA|❯/.test(clearText)) {
     await new Promise((resolveDelay) => setTimeout(resolveDelay, 200))
+    clearText = await dragReadSelection(session, openedClearMenu)
   }
-  const clearRect = await evaluate(
-    session,
-    `(() => {
-      const slot = ${JSON.stringify(openedClearMenu)}
-      const node = document.querySelector('canvas[data-ghostty="' + slot + '"]')
-      if (!node) return null
-      const rect = node.getBoundingClientRect()
-      return { x: rect.x, y: rect.y }
-    })()`,
-    5_000
-  )
-  let clearSelection = ''
-  if (clearRect) {
-    await session.call(
-      'Input.dispatchMouseEvent',
-      { type: 'mousePressed', x: clearRect.x + 4, y: clearRect.y + 8, button: 'left', clickCount: 1 },
-      15_000
-    )
-    await session.call(
-      'Input.dispatchMouseEvent',
-      { type: 'mouseMoved', x: clearRect.x + 180, y: clearRect.y + 8, button: 'left' },
-      15_000
-    )
-    await session.call(
-      'Input.dispatchMouseEvent',
-      { type: 'mouseReleased', x: clearRect.x + 180, y: clearRect.y + 8, button: 'left', clickCount: 1 },
-      15_000
-    )
-    clearSelection = await evaluate(
-      session,
-      `(() => {
-        const api = window.api && window.api.horcaGhosttyPassthru
-        return api && api.readSelection ? String(api.readSelection(${JSON.stringify(openedClearMenu)})) : ''
-      })()`,
-      5_000
-    )
-  }
-  const clearText = String(clearSelection)
-  if (!clearRect || /clearmark|printf|zsh|┌|HORCA|❯/.test(clearText)) {
+  if (/clearmark|printf|zsh|┌|HORCA|❯/.test(clearText)) {
     throw new Error(`Clear Screen left the Ghostty grid: ${JSON.stringify(clearText).slice(0, 200)}`)
   }
   console.log(`CHROME_CLEAR grid-cleared selection=${JSON.stringify(clearText).slice(0, 80)}`)
