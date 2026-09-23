@@ -1240,6 +1240,26 @@ try {
     )
   }
   console.log(`CHROME_SPLIT ${canvasesBefore} -> ${canvasesAfter}`)
+  const closesBefore = Number(await closeTabCount())
+  if (!(await clickLabeled('Close tab Terminal'))) {
+    throw new Error('Close tab button was not clickable')
+  }
+  const closeDeadline = Date.now() + 8_000
+  let closesAfter = closesBefore
+  while (Date.now() < closeDeadline) {
+    await clickLabeled('Stop and Close')
+    closesAfter = Number(await closeTabCount())
+    if (closesAfter < closesBefore) {
+      break
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 200))
+  }
+  if (closesAfter >= closesBefore) {
+    throw new Error(
+      `Close tab did not remove a terminal tab: before=${closesBefore} after=${closesAfter}`
+    )
+  }
+  console.log(`CHROME_CLOSE ${closesBefore} -> ${closesAfter}`)
   const exiting = runCli([
     'terminal',
     'create',
