@@ -21,6 +21,7 @@ export type HorcaGhosttyPassthruEngine = {
   placement: typeof HORCA_GHOSTTY_ENGINE_PLACEMENT
   attach(webContents: WebContents, slot?: string): void
   readSelection(): string
+  clearScreen(): void
   destroy(): void
 }
 
@@ -87,6 +88,7 @@ export function createHorcaGhosttyPassthruEngine(
     placement: HORCA_GHOSTTY_ENGINE_PLACEMENT,
     attach: (webContents, slot) => term.attach(webContents, { slot: slot ?? '' }),
     readSelection: () => term.readSelection?.() ?? '',
+    clearScreen: () => term.ptyData(Buffer.from('\x1b[H\x1b[2J\x1b[3J', 'utf8')),
     destroy: () => term.destroy()
   }
 }

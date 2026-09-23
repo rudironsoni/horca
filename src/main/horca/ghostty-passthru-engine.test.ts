@@ -85,6 +85,8 @@ describe('createHorcaGhosttyPassthruEngine', () => {
     expect(Buffer.isBuffer(handle.write.mock.calls[0][0])).toBe(true)
     term.emit('pty-resize', { cols: 100, rows: 30 })
     expect(handle.resize).toHaveBeenCalledWith(100, 30)
+    engine.clearScreen()
+    expect(term.ptyData).toHaveBeenCalledWith(Buffer.from('\x1b[H\x1b[2J\x1b[3J', 'utf8'))
   })
 })
 

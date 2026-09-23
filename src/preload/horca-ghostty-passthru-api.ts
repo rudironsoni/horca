@@ -12,7 +12,8 @@ export function createHorcaGhosttyPassthruApi(
     attach: (payload) => ipc.invoke(channels.attach, payload),
     detach: (slot) => ipc.invoke(channels.detach, slot),
     readSelection: (slot) => String(ipc.sendSync(channels.readSelection, slot) ?? ''),
-    pasteText: (slot, text) => ipc.send('electron-ghostty:text', { slot, text })
+    pasteText: (slot, text) => ipc.send('electron-ghostty:text', { slot, text }),
+    clearScreen: (slot) => ipc.send(channels.clearScreen, slot)
   }
 }
 

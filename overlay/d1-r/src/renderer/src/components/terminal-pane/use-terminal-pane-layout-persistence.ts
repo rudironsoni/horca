@@ -6,6 +6,7 @@ import { mergeCapturedLeafState } from './merge-captured-leaf-state'
 import { resolveTerminalLayoutActiveLeafId } from './terminal-layout-leaf-ids'
 import { isRemoteRuntimePtyId } from '@/runtime/runtime-terminal-inspection'
 import { clearTerminalScrollbackAndFollowOutput } from '@/lib/pane-manager/terminal-scrollback-clear'
+import { clearHorcaGhosttyScreen } from '@/lib/pane-manager/horca-ghostty-passthru-attach'
 import { clearWebRuntimeTerminalBuffer } from '@/runtime/web-runtime-session'
 import {
   isSyntheticSinglePaneTitle,
@@ -126,6 +127,10 @@ export function useTerminalPaneLayoutPersistence(controller: TerminalPaneStartup
     (pane: ManagedPane): void => {
       clearedScrollbackLeafIdsRef.current.add(pane.leafId)
       clearTerminalScrollbackAndFollowOutput(pane.terminal)
+      const ghosttySlot = (pane.terminal as { slot?: string }).slot
+      if (ghosttySlot) {
+        clearHorcaGhosttyScreen(ghosttySlot)
+      }
       const ptyId = paneTransportsRef.current.get(pane.id)?.getPtyId() ?? null
       const clearedRemoteHostBuffer = clearWebRuntimeTerminalBuffer(ptyId)
       if (!clearedRemoteHostBuffer && ptyId) {
