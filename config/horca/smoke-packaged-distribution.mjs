@@ -240,6 +240,30 @@ finally:
     sys.stdout.buffer.write(b"PROBE_DONE\\r\\n")
     sys.stdout.flush()
 `
+const IME_SOURCE = `import os, sys, termios, tty, select, time
+sys.stdout.buffer.write(b"IME_READY\\r\\n")
+sys.stdout.flush()
+fd = 0
+old = termios.tcgetattr(fd)
+tty.setraw(fd)
+
+def burst():
+    parts = [os.read(fd, 64)]
+    deadline = time.monotonic() + 0.25
+    while time.monotonic() < deadline:
+        ready, _, _ = select.select([fd], [], [], 0.03)
+        if not ready:
+            continue
+        parts.append(os.read(fd, 64))
+        deadline = time.monotonic() + 0.04
+    return b"".join(parts)
+
+try:
+    sys.stdout.buffer.write(b"IMEHEX " + burst().hex().encode() + b"\\r\\n")
+    sys.stdout.flush()
+finally:
+    termios.tcsetattr(fd, termios.TCSANOW, old)
+`
 const MOUSE_SOURCE = `import os, sys, termios, tty, select, time
 sys.stdout.buffer.write(b"\\x1b[?1000hMOUSE_READY\\r\\n")
 sys.stdout.flush()
@@ -767,6 +791,7 @@ try {
   writeFileSync(join(worktreePath, 'mouseprobe'), MOUSE_SOURCE)
   writeFileSync(join(worktreePath, 'pasteprobe'), PASTE_SOURCE)
   writeFileSync(join(worktreePath, 'screenprobe'), SCREEN_SOURCE)
+  writeFileSync(join(worktreePath, 'imeprobe'), IME_SOURCE)
   writeFileSync(join(worktreePath, 'exitprobe'), EXIT_SOURCE)
   const focusedSlot = await evaluate(
     session,
@@ -842,6 +867,39 @@ try {
   if (!probeScreen.includes('PROBE_DONE')) {
     throw new Error(`Key probe did not restore the terminal: ${probeScreen.slice(0, 800)}`)
   }
+  await sendLine(session, 'python3 imeprobe')
+  const imeReadyDeadline = Date.now() + 8_000
+  let imeScreen = ''
+  while (Date.now() < imeReadyDeadline) {
+    imeScreen = await readScreen(handle)
+    if (imeScreen.includes('IME_READY')) {
+      break
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 200))
+  }
+  if (!imeScreen.includes('IME_READY')) {
+    throw new Error(`IME probe did not start: ${imeScreen.slice(0, 800)}`)
+  }
+  await evaluate(
+    session,
+    `window.dispatchEvent(new CompositionEvent('compositionend', { data: '你', bubbles: true }))`,
+    5_000
+  )
+  const imeDeadline = Date.now() + 6_000
+  let imeHex = ''
+  while (Date.now() < imeDeadline) {
+    imeScreen = await readScreen(handle)
+    const match = String(imeScreen).match(/IMEHEX ([0-9a-f]+)/)
+    if (match) {
+      imeHex = match[1]
+      break
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 150))
+  }
+  if (imeHex !== 'e4bda0') {
+    throw new Error(`compositionend did not write 你 as e4bda0: ${imeHex || imeScreen.slice(0, 800)}`)
+  }
+  console.log(`IME_OUTPUT ${imeHex}`)
   await sendLine(session, 'python3 mouseprobe')
   const mouseReadyDeadline = Date.now() + 8_000
   let mouseScreen = ''
