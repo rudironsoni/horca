@@ -4252,7 +4252,7 @@
         "expectedBlobSha256": "c30dd4300896884e1a79845bee59be0a3fa45058af921a6f732fc978c447b864"
       },
       "postcondition": {
-        "resultingBlobSha256": "ffc123356c79bcd187a00e2bf338b776ba5c8edd9105b60d617b1dccd04216c8"
+        "resultingBlobSha256": "2947997d0b2715d8ffe35196a26cda8416f774b3dfe45e49619adf7b1863ef01"
       }
     },
     {
