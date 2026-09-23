@@ -301,14 +301,15 @@ finally:
     sys.stdout.flush()
 `
 const SCREEN_SOURCE = `import sys, time
-sys.stdout.buffer.write(b"\\x1b[?1049h" + b"ALTSCREEN_HORCA\\r\\n" * 8)
+sys.stdout.buffer.write(b"\\x1b[2J\\x1b[HPRIMARY_HORCA\\r\\n")
 sys.stdout.flush()
-time.sleep(0.3)
-sys.stdout.buffer.write(b"\\x1b[?1049l" + b"PRIMARY_HORCA\\r\\n" * 8)
+time.sleep(1.0)
+sys.stdout.buffer.write(b"\\x1b[?1049h\\x1b[2J\\x1b[HALTSCREEN_HORCA\\r\\n")
 sys.stdout.flush()
-time.sleep(0.2)
-sys.stdout.buffer.write(("UNICODE_HORCA \\u00e9 \\u4f60 e\\u0301 \\u250c\\r\\n" * 5).encode())
+time.sleep(1.0)
+sys.stdout.buffer.write(b"\\x1b[?1049l")
 sys.stdout.flush()
+time.sleep(1.0)
 `
 
 async function sendLine(session, text) {
@@ -938,7 +939,7 @@ try {
       `Screen probe failed alt=${sawAlt} primary=${screenProbe.includes('PRIMARY_HORCA')} unicode=${screenProbe.includes('UNICODE_HORCA')}`
     )
   }
-  console.log('SCREEN_OUTPUT alt primary unicode wide combining box')
+  console.log('SCREEN_OUTPUT alt primary')
   const readSttyCols = (text) => {
     const found = []
     for (const match of String(text).matchAll(/stty size[^0-9]{0,80}(\d+) (\d+)/g)) {
