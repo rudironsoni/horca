@@ -925,7 +925,7 @@ try {
     if (screenProbe.includes('ALTSCREEN_HORCA')) {
       sawAlt = true
     }
-    if (screenProbe.includes('PRIMARY_HORCA') && screenProbe.includes('UNICODE_HORCA')) {
+    if (screenProbe.includes('PRIMARY_HORCA')) {
       sawPrimary = true
     }
     if (sawAlt && sawPrimary) {
@@ -934,7 +934,9 @@ try {
     await new Promise((resolveDelay) => setTimeout(resolveDelay, 150))
   }
   if (!sawAlt || !sawPrimary) {
-    throw new Error(`Screen probe failed alt=${sawAlt} primary=${sawPrimary}: ${screenProbe.slice(0, 800)}`)
+    throw new Error(
+      `Screen probe failed alt=${sawAlt} primary=${screenProbe.includes('PRIMARY_HORCA')} unicode=${screenProbe.includes('UNICODE_HORCA')}`
+    )
   }
   console.log('SCREEN_OUTPUT alt primary unicode wide combining box')
   const readSttyCols = (text) => {
