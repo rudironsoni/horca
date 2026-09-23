@@ -1045,6 +1045,77 @@ try {
     throw new Error(`Copy menu did not put HORCA on the clipboard: ${JSON.stringify(copied).slice(0, 200)}`)
   }
   console.log('CHROME_COPY HORCA')
+  const openedIdMenu = await evaluate(
+    session,
+    `(() => {
+      const node = document.querySelector('canvas[data-ghostty="${canvas.slot}"]')
+      if (!node) return false
+      const rect = node.getBoundingClientRect()
+      node.dispatchEvent(new MouseEvent('contextmenu', {
+        bubbles: true,
+        cancelable: true,
+        button: 2,
+        clientX: rect.x + 20,
+        clientY: rect.y + 20
+      }))
+      return true
+    })()`,
+    5_000
+  )
+  if (!openedIdMenu) {
+    throw new Error('Terminal ID canvas was not available')
+  }
+  const idMenuDeadline = Date.now() + 4_000
+  let sawTerminalId = false
+  while (Date.now() < idMenuDeadline) {
+    sawTerminalId = Boolean(
+      await evaluate(
+        session,
+        `[...document.querySelectorAll('[role="menuitem"]')].some((item) => (item.innerText || '').includes('Copy Terminal ID'))`,
+        5_000
+      )
+    )
+    if (sawTerminalId) {
+      break
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 150))
+  }
+  if (!sawTerminalId) {
+    throw new Error('Copy Terminal ID menu item did not open')
+  }
+  const idClicked = await evaluate(
+    session,
+    `(() => {
+      const item = [...document.querySelectorAll('[role="menuitem"]')].find((entry) =>
+        (entry.innerText || '').includes('Copy Terminal ID')
+      )
+      if (!item) return false
+      item.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true, button: 0 }))
+      item.click()
+      return true
+    })()`,
+    5_000
+  )
+  if (!idClicked) {
+    throw new Error('Copy Terminal ID menu item was not clickable')
+  }
+  const idDeadline = Date.now() + 4_000
+  let copiedId = ''
+  while (Date.now() < idDeadline) {
+    try {
+      copiedId = execFileSync('pbpaste', { encoding: 'utf8' }).trim()
+    } catch {
+      copiedId = ''
+    }
+    if (/^term_[0-9a-f-]+$/.test(copiedId)) {
+      break
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 150))
+  }
+  if (!/^term_[0-9a-f-]+$/.test(copiedId)) {
+    throw new Error(`Copy Terminal ID did not put a terminal handle on the clipboard: ${JSON.stringify(copiedId).slice(0, 200)}`)
+  }
+  console.log(`CHROME_TERMINAL_ID ${copiedId}`)
   await evaluate(
     session,
     `document.querySelector('canvas[data-ghostty="${canvas.slot}"]')?.focus()`,
