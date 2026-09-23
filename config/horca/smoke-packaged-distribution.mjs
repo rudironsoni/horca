@@ -1058,6 +1058,37 @@ try {
     throw new Error(`Multi-pane failed: canvases=${paneCount} screen=${paneScreen.slice(0, 500)}`)
   }
   console.log(`MULTIPANE_OUTPUT ${paneCount} HORCA_PANE_2`)
+  await evaluate(
+    session,
+    `(() => {
+      const canvas = document.querySelector('canvas[data-ghostty]')
+      if (!canvas) return false
+      const rect = canvas.getBoundingClientRect()
+      canvas.dispatchEvent(new MouseEvent('contextmenu', {
+        bubbles: true,
+        cancelable: true,
+        clientX: rect.x + 20,
+        clientY: rect.y + 20,
+        button: 2
+      }))
+      return true
+    })()`,
+    5_000
+  )
+  await new Promise((resolveDelay) => setTimeout(resolveDelay, 400))
+  const chrome = await evaluate(
+    session,
+    `(() => {
+      const texts = []
+      for (const el of document.querySelectorAll('button,[role="tab"],[role="menuitem"],[role="menu"],header')) {
+        const text = (el.innerText || el.getAttribute('aria-label') || '').trim().replace(/\\s+/g, ' ').slice(0, 80)
+        if (text) texts.push(el.tagName + ':' + text)
+      }
+      return texts.slice(0, 40)
+    })()`,
+    5_000
+  )
+  console.log(`CHROME_DOM ${JSON.stringify(chrome)}`)
   const exiting = runCli([
     'terminal',
     'create',
