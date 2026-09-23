@@ -13,6 +13,9 @@ type GhosttyPassthruTerminal = {
   ptyData(data: Buffer): void
   readSelection?(): string
   mouseScroll?(x: number, y: number, dx: number, dy: number): void
+  selectAll?(): void
+  search?(needle: string, direction?: 'next' | 'previous'): boolean
+  hyperlinkAt?(x: number, y: number): string
   destroy(): void
   on(event: 'pty-write', listener: (buf: PtyWriteBuf) => void): void
   on(event: 'pty-resize', listener: (size: { cols: number; rows: number }) => void): void
@@ -24,6 +27,9 @@ export type HorcaGhosttyPassthruEngine = {
   readSelection(): string
   clearScreen(): void
   scrollBy(dy: number): void
+  selectAll(): void
+  search(needle: string, direction?: 'next' | 'previous'): boolean
+  hyperlinkAt(x: number, y: number): string
   destroy(): void
 }
 
@@ -92,6 +98,9 @@ export function createHorcaGhosttyPassthruEngine(
     readSelection: () => term.readSelection?.() ?? '',
     clearScreen: () => term.ptyData(Buffer.from('\x1b[H\x1b[2J\x1b[3J', 'utf8')),
     scrollBy: (dy) => term.mouseScroll?.(1, 1, 0, dy),
+    selectAll: () => term.selectAll?.(),
+    search: (needle, direction) => term.search?.(needle, direction) ?? false,
+    hyperlinkAt: (x, y) => term.hyperlinkAt?.(x, y) ?? '',
     destroy: () => term.destroy()
   }
 }

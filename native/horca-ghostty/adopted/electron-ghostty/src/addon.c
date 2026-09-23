@@ -92,6 +92,7 @@ typedef struct {
   void *last_surface;     /* previous frame's IOSurfaceRef */
   pthread_mutex_t ev_mu;
   Event *ev_head, *ev_tail;
+  ssize_t search_total;
 } Session;
 
 static void session_push_event(Session *s, EventType type, const char *str,
@@ -145,6 +146,11 @@ static bool cb_action(ghostty_app_t app, ghostty_target_s target,
     case GHOSTTY_ACTION_MOUSE_SHAPE:
       session_push_event(s, EV_MOUSE_SHAPE, NULL, 0,
                          (double)action.action.mouse_shape, NULL);
+      return true;
+    case GHOSTTY_ACTION_SEARCH_TOTAL:
+      pthread_mutex_lock(&s->ev_mu);
+      s->search_total = action.action.search_total.total;
+      pthread_mutex_unlock(&s->ev_mu);
       return true;
     default:
       return false; /* unhandled; ghostty proceeds with defaults */
@@ -1079,6 +1085,69 @@ static napi_value SurfaceRelease(napi_env env, napi_callback_info info) {
   return NULL;
 }
 
+static napi_value BindingAction(napi_env env, napi_callback_info info) {
+  size_t argc = 2;
+  napi_value argv[2];
+  NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, NULL, NULL));
+  Session *s = get_session(env, argv[0]);
+  napi_value out;
+  if (!s || !s->surface) {
+    NAPI_CALL(env, napi_get_boolean(env, false, &out));
+    return out;
+  }
+  char buf[8192];
+  size_t n = 0;
+  NAPI_CALL(env, napi_get_value_string_utf8(env, argv[1], buf, sizeof(buf), &n));
+  if (n >= 7 && memcmp(buf, "search:", 7) == 0) {
+    pthread_mutex_lock(&s->ev_mu);
+    s->search_total = -1;
+    pthread_mutex_unlock(&s->ev_mu);
+  }
+  bool ok = ghostty_surface_binding_action(s->surface, buf, n);
+  NAPI_CALL(env, napi_get_boolean(env, ok, &out));
+  return out;
+}
+
+static napi_value SearchTotal(napi_env env, napi_callback_info info) {
+  size_t argc = 1;
+  napi_value argv[1];
+  NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, NULL, NULL));
+  Session *s = get_session(env, argv[0]);
+  ssize_t total = 0;
+  if (s) {
+    pthread_mutex_lock(&s->ev_mu);
+    total = s->search_total;
+    pthread_mutex_unlock(&s->ev_mu);
+  }
+  napi_value out;
+  NAPI_CALL(env, napi_create_int32(env, (int32_t)total, &out));
+  return out;
+}
+
+static napi_value HyperlinkAt(napi_env env, napi_callback_info info) {
+  size_t argc = 3;
+  napi_value argv[3];
+  NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, NULL, NULL));
+  Session *s = get_session(env, argv[0]);
+  napi_value out;
+  if (!s || !s->surface) {
+    NAPI_CALL(env, napi_create_string_utf8(env, "", 0, &out));
+    return out;
+  }
+  double x = 0;
+  double y = 0;
+  NAPI_CALL(env, napi_get_value_double(env, argv[1], &x));
+  NAPI_CALL(env, napi_get_value_double(env, argv[2], &y));
+  ghostty_text_s text = {0};
+  if (!ghostty_surface_hyperlink_at(s->surface, x, y, &text) || !text.text) {
+    NAPI_CALL(env, napi_create_string_utf8(env, "", 0, &out));
+    return out;
+  }
+  NAPI_CALL(env, napi_create_string_utf8(env, text.text, (size_t)text.text_len, &out));
+  ghostty_surface_free_text(s->surface, &text);
+  return out;
+}
+
 /** processExited(h) -> bool */
 static napi_value ReadSelection(napi_env env, napi_callback_info info) {
   size_t argc = 1;
@@ -1130,6 +1199,12 @@ static napi_value Init(napi_env env, napi_value exports) {
       {"frame", NULL, Frame, NULL, NULL, NULL, napi_default, NULL},
       {"readPixels", NULL, ReadPixels, NULL, NULL, NULL, napi_default, NULL},
       {"readSelection", NULL, ReadSelection, NULL, NULL, NULL, napi_default,
+       NULL},
+      {"bindingAction", NULL, BindingAction, NULL, NULL, NULL, napi_default,
+       NULL},
+      {"searchTotal", NULL, SearchTotal, NULL, NULL, NULL, napi_default,
+       NULL},
+      {"hyperlinkAt", NULL, HyperlinkAt, NULL, NULL, NULL, napi_default,
        NULL},
       {"size", NULL, GetSize, NULL, NULL, NULL, napi_default, NULL},
       {"resize", NULL, Resize, NULL, NULL, NULL, napi_default, NULL},

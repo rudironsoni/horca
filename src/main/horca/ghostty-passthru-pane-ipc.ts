@@ -48,6 +48,28 @@ export function registerHorcaGhosttyPassthruPaneIpc(
     engines.get(paneKey(event.sender.id, slot))?.scrollBy(dy)
   }
   ipcMain.on(HORCA_GHOSTTY_PASSTHRU_CHANNELS.scroll, scroll)
+  const selectAll = (event: { sender: { id: number } }, slot: string): void => {
+    engines.get(paneKey(event.sender.id, slot))?.selectAll()
+  }
+  ipcMain.on(HORCA_GHOSTTY_PASSTHRU_CHANNELS.selectAll, selectAll)
+  const search = (
+    event: { sender: { id: number }; returnValue: boolean },
+    slot: string,
+    needle: string,
+    direction?: 'next' | 'previous'
+  ): void => {
+    event.returnValue = engines.get(paneKey(event.sender.id, slot))?.search(needle, direction) ?? false
+  }
+  ipcMain.on(HORCA_GHOSTTY_PASSTHRU_CHANNELS.search, search)
+  const hyperlinkAt = (
+    event: { sender: { id: number }; returnValue: string },
+    slot: string,
+    x: number,
+    y: number
+  ): void => {
+    event.returnValue = engines.get(paneKey(event.sender.id, slot))?.hyperlinkAt(x, y) ?? ''
+  }
+  ipcMain.on(HORCA_GHOSTTY_PASSTHRU_CHANNELS.hyperlinkAt, hyperlinkAt)
   const onDestroyed = (contents: WebContents): void => {
     const prefix = `${contents.id}\u0000`
     for (const key of [...engines.keys()]) {
@@ -64,6 +86,9 @@ export function registerHorcaGhosttyPassthruPaneIpc(
     ipcMain.removeListener(HORCA_GHOSTTY_PASSTHRU_CHANNELS.readSelection, readSelection)
     ipcMain.removeListener(HORCA_GHOSTTY_PASSTHRU_CHANNELS.clearScreen, clearScreen)
     ipcMain.removeListener(HORCA_GHOSTTY_PASSTHRU_CHANNELS.scroll, scroll)
+    ipcMain.removeListener(HORCA_GHOSTTY_PASSTHRU_CHANNELS.selectAll, selectAll)
+    ipcMain.removeListener(HORCA_GHOSTTY_PASSTHRU_CHANNELS.search, search)
+    ipcMain.removeListener(HORCA_GHOSTTY_PASSTHRU_CHANNELS.hyperlinkAt, hyperlinkAt)
     for (const engine of engines.values()) {
       engine.destroy()
     }

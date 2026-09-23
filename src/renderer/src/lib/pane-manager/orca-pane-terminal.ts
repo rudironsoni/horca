@@ -16,8 +16,11 @@ import { OrcaPaneListenerHub } from './orca-pane-terminal-events'
 import {
   attachHorcaGhosttyPassthruPane,
   detachHorcaGhosttyPassthruPane,
+  hyperlinkAtHorcaGhostty,
   readHorcaGhosttySelection,
   scrollHorcaGhosttyViewport,
+  searchHorcaGhostty,
+  selectAllHorcaGhostty,
   sendHorcaGhosttyText
 } from './horca-ghostty-passthru-attach'
 
@@ -216,7 +219,9 @@ export class OrcaPaneTerminal extends OrcaPaneListenerHub {
     }
   }
   setPreedit(_text: string): void {}
-  selectAll(): void {}
+  selectAll(): void {
+    selectAllHorcaGhostty(this.slot)
+  }
   paste(text: string): void {
     sendHorcaGhosttyText(this.slot, text)
   }
@@ -239,11 +244,11 @@ export class OrcaPaneTerminal extends OrcaPaneListenerHub {
   encodeMouse(_event: MouseEvent & { deltaY?: number }): string {
     return ''
   }
-  findNext(_query: string, _options?: { caseSensitive?: boolean; regex?: boolean }): boolean {
-    return this._ingest.includes(_query)
+  findNext(query: string, _options?: { caseSensitive?: boolean; regex?: boolean }): boolean {
+    return searchHorcaGhostty(this.slot, query, 'next')
   }
-  findPrevious(query: string, options?: { caseSensitive?: boolean; regex?: boolean }): boolean {
-    return this.findNext(query, options)
+  findPrevious(query: string, _options?: { caseSensitive?: boolean; regex?: boolean }): boolean {
+    return searchHorcaGhostty(this.slot, query, 'previous')
   }
   serialize(_opts?: { scrollback?: number }): string {
     return this._ingest
@@ -261,8 +266,10 @@ export class OrcaPaneTerminal extends OrcaPaneListenerHub {
     this.cellHeight = cells.height
     this.resize(this.cols, this.rows)
   }
-  hyperlinkAt(_clientX: number, _clientY: number): string | null {
-    return null
+  hyperlinkAt(clientX: number, clientY: number): string | null {
+    const rect = this.element.getBoundingClientRect()
+    const uri = hyperlinkAtHorcaGhostty(this.slot, clientX - rect.left, clientY - rect.top)
+    return uri.length > 0 ? uri : null
   }
   get isDisposed(): boolean {
     return this._disposed

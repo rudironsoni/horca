@@ -18,6 +18,9 @@ class FakeGhostty extends EventEmitter {
   attach = vi.fn()
   ptyData = vi.fn()
   mouseScroll = vi.fn()
+  selectAll = vi.fn()
+  search = vi.fn(() => true)
+  hyperlinkAt = vi.fn(() => 'https://horca.example/d2')
   destroy = vi.fn()
   constructor(opts: { engine: string; passthru: boolean; config?: string }) {
     super()
@@ -90,6 +93,12 @@ describe('createHorcaGhosttyPassthruEngine', () => {
     expect(term.ptyData).toHaveBeenCalledWith(Buffer.from('\x1b[H\x1b[2J\x1b[3J', 'utf8'))
     engine.scrollBy(-120)
     expect(term.mouseScroll).toHaveBeenCalledWith(1, 1, 0, -120)
+    engine.selectAll()
+    expect(term.selectAll).toHaveBeenCalledOnce()
+    expect(engine.search('BETA', 'next')).toBe(true)
+    expect(term.search).toHaveBeenCalledWith('BETA', 'next')
+    expect(engine.hyperlinkAt(4, 8)).toBe('https://horca.example/d2')
+    expect(term.hyperlinkAt).toHaveBeenCalledWith(4, 8)
   })
 })
 
@@ -162,6 +171,35 @@ describe('ghostty clear screen', () => {
     })
     expect(report.before, detail).toBe('┌─[ 2026-09-23 11:24:07 ]')
     expect(report.after, detail).toBe('')
+    expect(result.status, detail).toBe(0)
+  }, 45000)
+})
+
+describe('ghostty surface actions', () => {
+  it('selects the grid, searches it, and reads an OSC 8 link', () => {
+    const electron = findUp('node_modules/.bin/electron')
+    const script = findHarness('surface-actions.js')
+    const env = { ...process.env }
+    delete env.ELECTRON_RUN_AS_NODE
+    const result = spawnSync(electron, [script], { encoding: 'utf8', timeout: 20000, env })
+    const line = (result.stdout ?? '').split('\n').filter((row) => row.startsWith('{')).at(-1) ?? ''
+    const report = (line ? JSON.parse(line) : {}) as {
+      link?: string
+      selected?: string
+      found?: boolean
+      missed?: boolean
+    }
+    const detail = JSON.stringify({
+      status: result.status,
+      error: result.error?.message ?? null,
+      line,
+      stderr: (result.stderr ?? '').slice(0, 500)
+    })
+    expect(report.link, detail).toBe('https://horca.example/d2')
+    expect(report.selected, detail).toContain('ALPHA')
+    expect(report.selected, detail).toContain('BETA')
+    expect(report.found, detail).toBe(true)
+    expect(report.missed, detail).toBe(false)
     expect(result.status, detail).toBe(0)
   }, 45000)
 })

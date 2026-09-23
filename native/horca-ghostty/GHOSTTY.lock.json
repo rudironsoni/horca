@@ -25,6 +25,7 @@
     "patches/0002-apprt-embedded-headless-platform.patch",
     "patches/0003-termio-passthru-io-backend.patch",
     "patches/0004-build-libghostty-static-step.patch",
-    "patches/0005-macos-tolerate-display-link-failure.patch"
+    "patches/0005-macos-tolerate-display-link-failure.patch",
+    "patches/0006-surface-hyperlink-at.patch"
   ]
 }

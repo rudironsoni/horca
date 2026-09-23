@@ -14,7 +14,11 @@ export function createHorcaGhosttyPassthruApi(
     readSelection: (slot) => String(ipc.sendSync(channels.readSelection, slot) ?? ''),
     pasteText: (slot, text) => ipc.send('electron-ghostty:text', { slot, text }),
     clearScreen: (slot) => ipc.send(channels.clearScreen, slot),
-    scroll: (slot, dy) => ipc.send(channels.scroll, slot, dy)
+    scroll: (slot, dy) => ipc.send(channels.scroll, slot, dy),
+    selectAll: (slot) => ipc.send(channels.selectAll, slot),
+    search: (slot, needle, direction) =>
+      Boolean(ipc.sendSync(channels.search, slot, needle, direction ?? 'next')),
+    hyperlinkAt: (slot, x, y) => String(ipc.sendSync(channels.hyperlinkAt, slot, x, y) ?? '')
   }
 }
 

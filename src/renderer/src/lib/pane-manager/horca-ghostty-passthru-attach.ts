@@ -31,3 +31,19 @@ export function clearHorcaGhosttyScreen(slot: string): void {
 export function scrollHorcaGhosttyViewport(slot: string, dy: number): void {
   passthruApi()?.scroll(slot, dy)
 }
+
+export function selectAllHorcaGhostty(slot: string): void {
+  passthruApi()?.selectAll(slot)
+}
+
+export function searchHorcaGhostty(
+  slot: string,
+  needle: string,
+  direction?: 'next' | 'previous'
+): boolean {
+  return passthruApi()?.search(slot, needle, direction) ?? false
+}
+
+export function hyperlinkAtHorcaGhostty(slot: string, x: number, y: number): string {
+  return passthruApi()?.hyperlinkAt(slot, x, y) ?? ''
+}

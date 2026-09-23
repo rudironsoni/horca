@@ -157,6 +157,17 @@ class LocalEngine {
   readSelection() {
     return this._addon.readSelection ? this._addon.readSelection(this._handle) : '';
   }
+  bindingAction(action) {
+    return this._addon.bindingAction
+      ? !!this._addon.bindingAction(this._handle, action)
+      : false;
+  }
+  searchTotal() {
+    return this._addon.searchTotal ? this._addon.searchTotal(this._handle) : -1;
+  }
+  hyperlinkAt(x, y) {
+    return this._addon.hyperlinkAt ? this._addon.hyperlinkAt(this._handle, x, y) : '';
+  }
 
   destroy() {
     this.stop();
@@ -534,6 +545,35 @@ class GhosttyTerminal extends EventEmitter {
   /** Current Ghostty selection. Sync only with engine 'main'. */
   readSelection() {
     return this._engine.readSelection ? this._engine.readSelection() : '';
+  }
+  selectAll() {
+    if (this._engine.bindingAction) this._engine.bindingAction('select_all');
+  }
+  search(needle, direction) {
+    if (!this._engine.bindingAction) return false;
+    const text = needle ?? '';
+    const same = this._searchNeedle === text && text.length > 0;
+    this._searchNeedle = text;
+    const action = text.length === 0
+      ? 'search:'
+      : same
+        ? `navigate_search:${direction === 'previous' ? 'previous' : 'next'}`
+        : `search:${text}`;
+    if (!this._engine.bindingAction(action)) return false;
+    if (text.length === 0) return false;
+    const pause = new Int32Array(new SharedArrayBuffer(4));
+    const start = Date.now();
+    let total = this._engine.searchTotal ? this._engine.searchTotal() : -1;
+    while (total < 0 && Date.now() - start < 300) {
+      this._engine.tick();
+      total = this._engine.searchTotal();
+      if (total >= 0) break;
+      Atomics.wait(pause, 0, 0, 2);
+    }
+    return total > 0;
+  }
+  hyperlinkAt(x, y) {
+    return this._engine.hyperlinkAt ? this._engine.hyperlinkAt(x, y) : '';
   }
   /** BGRA copy of the presented frame, any engine. */
   readPixelsAsync() {
