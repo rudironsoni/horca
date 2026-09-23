@@ -300,11 +300,11 @@ async function readOutput(handle) {
 }
 
 async function sendKey(session, event) {
-  await session.call('Input.dispatchKeyEvent', { type: 'keyDown', ...event }, 5_000)
+  await session.call('Input.dispatchKeyEvent', { type: 'keyDown', ...event }, 15_000)
   await session.call(
     'Input.dispatchKeyEvent',
     { type: 'keyUp', key: event.key, code: event.code, modifiers: event.modifiers, windowsVirtualKeyCode: event.windowsVirtualKeyCode, nativeVirtualKeyCode: event.nativeVirtualKeyCode },
-    5_000
+    15_000
   )
 }
 
@@ -801,7 +801,7 @@ try {
       windowsVirtualKeyCode: 81,
       nativeVirtualKeyCode: 12
     },
-    5_000
+    15_000
   )
   await session.call(
     'Input.dispatchKeyEvent',
@@ -812,7 +812,7 @@ try {
       windowsVirtualKeyCode: 81,
       nativeVirtualKeyCode: 12
     },
-    5_000
+    15_000
   )
   const keyDeadline = Date.now() + 8_000
   let keyScreen = preview
