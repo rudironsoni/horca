@@ -211,7 +211,7 @@ async function dragReadSelection(session, slot) {
     return ''
   }
   const x2 = origin.x + Math.min(220, Math.max(24, origin.width - 8))
-  const rows = [8, 28, 48].filter((offset) => offset < origin.height)
+  const rows = [8, 28, 48, 68, 88, 108].filter((offset) => offset < origin.height)
   let selected = ''
   for (const offset of rows) {
     const y = origin.y + offset
@@ -1351,6 +1351,8 @@ try {
     }
     console.log(`CHROME_CLEAR grid-cleared selection=${JSON.stringify(earlyAfter).slice(0, 80)}`)
     gridCleared = true
+  } else {
+    console.log(`CHROME_CLEAR_MISS ${JSON.stringify(earlyBefore).slice(0, 120)}`)
   }
   await sendLine(session, 'python3 screenprobe')
   const altDeadline = Date.now() + 15_000
@@ -1592,7 +1594,43 @@ try {
         5_000
       )
     )
-  const canvasesBefore = await canvasCount()
+  let canvasesBefore = await canvasCount()
+  if (canvasesBefore >= 4) {
+    await evaluate(
+      session,
+      `(() => {
+        const button = [...document.querySelectorAll('button')].find((entry) =>
+          (entry.getAttribute('aria-label') || '').startsWith('Close tab ')
+        )
+        if (!button) return false
+        button.click()
+        return true
+      })()`,
+      5_000
+    )
+    const trimDeadline = Date.now() + 8_000
+    while (Date.now() < trimDeadline) {
+      await evaluate(
+        session,
+        `(() => {
+          const button = [...document.querySelectorAll('button')].find((entry) =>
+            (entry.innerText || '').trim().startsWith('Stop and Close')
+          )
+          if (!button) return false
+          button.click()
+          return true
+        })()`,
+        5_000
+      )
+      const trimmed = await canvasCount()
+      if (trimmed < canvasesBefore) {
+        canvasesBefore = trimmed
+        break
+      }
+      await new Promise((resolveDelay) => setTimeout(resolveDelay, 200))
+    }
+    console.log(`CHROME_TRIM ${canvasesBefore}`)
+  }
   if (!(await clickLabeled('Split Terminal Right'))) {
     throw new Error('Split Terminal Right was not clickable')
   }
