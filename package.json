@@ -16,5 +16,13 @@
     "horca:verify:no-embedding": "node scripts/verify-no-upstream-embedding.mjs",
     "horca:cleanup": "bash scripts/cleanup-worktrees.sh",
     "horca:guard:deps": "node scripts/guard-dependency-domain.mjs"
-  }
+  },
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "devDependencies": {},
+  "keywords": [],
+  "author": ""
 }
