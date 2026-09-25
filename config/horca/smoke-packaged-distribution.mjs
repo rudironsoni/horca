@@ -473,6 +473,219 @@ sys.stdout.buffer.write(b"\\x1b[?1049l")
 sys.stdout.flush()
 time.sleep(1.0)
 `
+const CHORD_SOURCE = `import os, sys, termios, tty, select, time
+sys.stdout.buffer.write(b"\\x1b[<u\\x1b[>31uCHORD_READY\\r\\n")
+sys.stdout.flush()
+fd = 0
+old = termios.tcgetattr(fd)
+tty.setraw(fd)
+
+def burst():
+    parts = [os.read(fd, 128)]
+    deadline = time.monotonic() + 0.2
+    while time.monotonic() < deadline:
+        ready, _, _ = select.select([fd], [], [], 0.03)
+        if not ready:
+            continue
+        parts.append(os.read(fd, 128))
+        deadline = time.monotonic() + 0.04
+    return b"".join(parts)
+
+try:
+    for _ in range(6):
+        sys.stdout.buffer.write(b"CHORDHEX " + burst().hex().encode() + b"\\r\\n")
+        sys.stdout.flush()
+finally:
+    termios.tcsetattr(fd, termios.TCSANOW, old)
+    sys.stdout.buffer.write(b"\\x1b[<uCHORD_DONE\\r\\n")
+    sys.stdout.flush()
+`
+const IME_MULTI_SOURCE = `import os, sys, termios, tty, select, time
+sys.stdout.buffer.write(b"IME2_READY\\r\\n")
+sys.stdout.flush()
+fd = 0
+old = termios.tcgetattr(fd)
+tty.setraw(fd)
+
+def burst():
+    parts = [os.read(fd, 128)]
+    deadline = time.monotonic() + 0.35
+    while time.monotonic() < deadline:
+        ready, _, _ = select.select([fd], [], [], 0.03)
+        if not ready:
+            continue
+        parts.append(os.read(fd, 128))
+        deadline = time.monotonic() + 0.04
+    return b"".join(parts)
+
+try:
+    sys.stdout.buffer.write(b"IME2HEX " + burst().hex().encode() + b"\\r\\n")
+    sys.stdout.flush()
+finally:
+    termios.tcsetattr(fd, termios.TCSANOW, old)
+`
+const WHEEL_SOURCE = `import os, sys, termios, tty, select, time
+sys.stdout.buffer.write(b"\\x1b[?1002h\\x1b[?1006hWHEEL_READY\\r\\n")
+sys.stdout.flush()
+fd = 0
+old = termios.tcgetattr(fd)
+tty.setraw(fd)
+
+def burst():
+    parts = [os.read(fd, 128)]
+    deadline = time.monotonic() + 0.25
+    while time.monotonic() < deadline:
+        ready, _, _ = select.select([fd], [], [], 0.03)
+        if not ready:
+            continue
+        parts.append(os.read(fd, 128))
+        deadline = time.monotonic() + 0.04
+    return b"".join(parts)
+
+try:
+    for _ in range(2):
+        sys.stdout.buffer.write(b"WHEELHEX " + burst().hex().encode() + b"\\r\\n")
+        sys.stdout.flush()
+finally:
+    sys.stdout.buffer.write(b"\\x1b[?1002l\\x1b[?1006l")
+    sys.stdout.flush()
+    termios.tcsetattr(fd, termios.TCSANOW, old)
+    sys.stdout.buffer.write(b"WHEEL_DONE\\r\\n")
+    sys.stdout.flush()
+`
+const FILL_SOURCE = `import sys
+sys.stdout.write("SCROLLTOP\\n")
+sys.stdout.write("REFLOWHORCA" + ("x" * 180) + "\\n")
+for i in range(80):
+    sys.stdout.write("SCROLLROW\\n")
+sys.stdout.write("SEARCHHORCA one\\n")
+sys.stdout.write("SEARCHHORCA two\\n")
+sys.stdout.write("SCROLLBOT\\n")
+sys.stdout.flush()
+`
+const LINK_SOURCE = `import os, sys
+path = os.getcwd() + "/linkfile"
+open(path, "w").write("link\\n")
+sys.stdout.write("http://127.0.0.1/HORCALINK\\n")
+sys.stdout.write(path + "\\n")
+sys.stdout.write("http://127.0.0.1/HORCAWRAP" + ("w" * 180) + "\\n")
+sys.stdout.buffer.write(b"\\x1b]8;;http://127.0.0.1/OSC8HORCA\\x1b\\\\OSC8HORCA\\x1b]8;;\\x1b\\\\\\n")
+sys.stdout.write("LINK_READY\\n")
+sys.stdout.flush()
+`
+const OSC52_SOURCE = `import sys
+sys.stdout.buffer.write(b"\\x1b]52;c;T1NDNTJIT1JDQQ==\\x07")
+sys.stdout.flush()
+sys.stdout.write("OSC52_WROTE\\n")
+sys.stdout.flush()
+`
+const OSC52_OFF_SOURCE = `import sys
+sys.stdout.buffer.write(b"\\x1b]52;c;T1NDNTJPRkY=\\x07")
+sys.stdout.flush()
+sys.stdout.write("OSC52_OFF_WROTE\\n")
+sys.stdout.flush()
+`
+const FOLLOW_SOURCE = `import sys, time
+sys.stdout.write("FOLLOWREADY\\n")
+sys.stdout.flush()
+time.sleep(1.2)
+sys.stdout.write("FOLLOWHORCA\\n")
+sys.stdout.flush()
+`
+const SLEEP_SOURCE = `import sys, time
+sys.stdout.buffer.write(b"SLEEP_READY\\n")
+sys.stdout.flush()
+time.sleep(60)
+sys.stdout.buffer.write(b"SLEEP_DONE\\n")
+sys.stdout.flush()
+`
+const SSH_SOURCE = `import os, sys, subprocess, termios, tty, select, time
+sys.stdout.buffer.write(b"SSHSCROLLHORCA\\n\\x1b[?2004hSSH_READY\\r\\n")
+sys.stdout.flush()
+fd = 0
+old = termios.tcgetattr(fd)
+tty.setraw(fd)
+
+def burst():
+    parts = []
+    close = bytes.fromhex("1b5b3230317e")
+    deadline = time.monotonic() + 1.5
+    while time.monotonic() < deadline:
+        ready, _, _ = select.select([fd], [], [], 0.05)
+        if not ready:
+            if parts and close in b"".join(parts):
+                break
+            continue
+        parts.append(os.read(fd, 256))
+        blob = b"".join(parts)
+        if close in blob:
+            break
+    return b"".join(parts)
+
+try:
+    blob = burst()
+    exact = b"\\x1b[200~PASTE_HORCA\\x1b[201~"
+    if exact in blob:
+        line = b"PASTE_OK\\r\\n"
+    else:
+        line = b"PASTE_BAD " + blob[:48].hex().encode() + b"\\r\\n"
+    sys.stdout.buffer.write(line)
+    sys.stdout.flush()
+finally:
+    termios.tcsetattr(fd, termios.TCSANOW, old)
+    sys.stdout.buffer.write(b"\\x1b[?2004l")
+    sys.stdout.flush()
+subprocess.call(["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=1", "-o", "ConnectionAttempts=1", "127.0.0.1", "true"])
+sys.stdout.buffer.write(b"SSHDROPPED\\n")
+sys.stdout.flush()
+`
+const STARTUP_SOURCE = `import os, sys, termios, tty, select, time
+sys.stdout.buffer.write(b"\\x1b[?2004hSTARTUP_READY\\r\\n")
+sys.stdout.flush()
+fd = 0
+old = termios.tcgetattr(fd)
+tty.setraw(fd)
+
+def burst():
+    parts = []
+    close = bytes.fromhex("1b5b3230317e")
+    open_ = bytes.fromhex("1b5b3230307e")
+    deadline = time.monotonic() + 1.2
+    while time.monotonic() < deadline:
+        ready, _, _ = select.select([fd], [], [], 0.05)
+        if not ready:
+            if parts and open_ in b"".join(parts) and close in b"".join(parts):
+                break
+            continue
+        parts.append(os.read(fd, 256))
+        blob = b"".join(parts)
+        if open_ in blob and close in blob:
+            break
+    return b"".join(parts)
+
+try:
+    blob = burst()
+    if bytes.fromhex("1b5b3230307e") in blob and bytes.fromhex("1b5b3230317e") in blob and len(blob) > 12:
+        line = b"STARTUP_OK\\r\\n"
+    else:
+        line = b"STARTUP_BAD " + blob[:48].hex().encode() + b"\\r\\n"
+    sys.stdout.buffer.write(line)
+    sys.stdout.flush()
+finally:
+    termios.tcsetattr(fd, termios.TCSANOW, old)
+`
+const CWD_SOURCE = `import os, sys
+sys.stdout.write("CWDHORCA " + os.getcwd() + "\\n")
+sys.stdout.flush()
+`
+const RELAUNCH_SOURCE = `import sys, time
+sys.stdout.write("RELAUNCHA\\n")
+sys.stdout.write("RELAUNCHROW\\n" * 60)
+sys.stdout.flush()
+time.sleep(1.2)
+sys.stdout.write("HIDDENHORCA\\n")
+sys.stdout.flush()
+`
 
 async function sendLine(session, text) {
   for (const char of text) {
@@ -583,8 +796,1160 @@ async function evaluate(session, expression, timeoutMs) {
   return result?.result?.value
 }
 
+function readClipboard() {
+  try {
+    return execFileSync('pbpaste', { encoding: 'utf8' })
+  } catch {
+    return ''
+  }
+}
+
+function tailLines(text) {
+  try {
+    const tail = JSON.parse(text)?.result?.terminal?.tail
+    return Array.isArray(tail) ? tail.map((line) => String(line)) : []
+  } catch {
+    return []
+  }
+}
+
+function writeClipboard(text) {
+  execFileSync('pbcopy', { input: text })
+}
+
+async function pollUntil(label, timeoutMs, read) {
+  const deadline = Date.now() + timeoutMs
+  let last = null
+  while (Date.now() < deadline) {
+    last = await read()
+    if (last) {
+      return last
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 150))
+  }
+  throw new Error(`${label}: ${JSON.stringify(last).slice(0, 800)}`)
+}
+
+async function ghosttyCanvasCount(session) {
+  return Number(
+    await evaluate(session, `document.querySelectorAll('canvas[data-ghostty]').length`, 5_000)
+  )
+}
+
+async function ghosttySlots(session) {
+  const slots = await evaluate(
+    session,
+    `[...document.querySelectorAll('canvas[data-ghostty]')].map((node) => node.getAttribute('data-ghostty')).filter(Boolean)`,
+    5_000
+  )
+  return Array.isArray(slots) ? slots : []
+}
+
+async function ghosttyRect(session, slot) {
+  return evaluate(
+    session,
+    `(() => {
+      const node = document.querySelector(${JSON.stringify(`canvas[data-ghostty="${slot}"]`)})
+      if (!node) return null
+      const rect = node.getBoundingClientRect()
+      return { x: rect.x, y: rect.y, width: rect.width, height: rect.height, slot: ${JSON.stringify(slot)} }
+    })()`,
+    5_000
+  )
+}
+
+async function focusGhosttySlot(session, slot) {
+  await evaluate(
+    session,
+    `document.querySelector(${JSON.stringify(`canvas[data-ghostty="${slot}"]`)})?.focus()`,
+    5_000
+  )
+}
+
+async function openContextMenu(session, slot) {
+  const opened = await evaluate(
+    session,
+    `(() => {
+      const node = document.querySelector(${JSON.stringify(`canvas[data-ghostty="${slot}"]`)})
+      if (!node) return false
+      const rect = node.getBoundingClientRect()
+      node.dispatchEvent(new MouseEvent('contextmenu', {
+        bubbles: true,
+        cancelable: true,
+        button: 2,
+        clientX: rect.x + Math.min(24, rect.width / 2),
+        clientY: rect.y + Math.min(24, rect.height / 2)
+      }))
+      return true
+    })()`,
+    5_000
+  )
+  if (!opened) {
+    throw new Error(`Context menu canvas was not available: ${slot}`)
+  }
+}
+
+async function clickLabeledControl(session, label) {
+  const deadline = Date.now() + 4_000
+  while (Date.now() < deadline) {
+    const point = await evaluate(
+      session,
+      `(() => {
+        const wanted = ${JSON.stringify(label)}
+        const el = [...document.querySelectorAll('button,[role="menuitem"]')].find((item) => {
+          const text = (item.getAttribute('aria-label') || item.getAttribute('title') || item.innerText || '').trim()
+          return text === wanted || text.startsWith(wanted)
+        })
+        if (!el) return null
+        const rect = el.getBoundingClientRect()
+        if (rect.width < 1 || rect.height < 1) return null
+        return { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 }
+      })()`,
+      5_000
+    )
+    if (point) {
+      await session.call(
+        'Input.dispatchMouseEvent',
+        { type: 'mousePressed', x: point.x, y: point.y, button: 'left', clickCount: 1 },
+        15_000
+      )
+      await session.call(
+        'Input.dispatchMouseEvent',
+        { type: 'mouseReleased', x: point.x, y: point.y, button: 'left', clickCount: 1 },
+        15_000
+      )
+      return true
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 150))
+  }
+  return false
+}
+
+async function confirmStopAndClose(session) {
+  await evaluate(
+    session,
+    `(() => {
+      const button = [...document.querySelectorAll('button')].find((entry) =>
+        (entry.innerText || '').trim().startsWith('Stop and Close')
+      )
+      if (!button) return false
+      button.click()
+      return true
+    })()`,
+    5_000
+  )
+}
+
+async function closeNewestTerminalTab(session) {
+  const before = await ghosttyCanvasCount(session)
+  const clicked = await evaluate(
+    session,
+    `(() => {
+      const button = [...document.querySelectorAll('button')].filter((entry) =>
+        (entry.getAttribute('aria-label') || entry.innerText || '').includes('Close tab')
+      ).at(-1)
+      if (!button) return false
+      button.click()
+      return true
+    })()`,
+    5_000
+  )
+  if (!clicked) {
+    throw new Error('Close tab button was not available')
+  }
+  const next = await pollUntil(
+    'Close tab did not release a Ghostty surface',
+    8_000,
+    async () => {
+      await confirmStopAndClose(session)
+      const count = await ghosttyCanvasCount(session)
+      return count < before ? count : null
+    }
+  )
+  return next
+}
+
+async function closePaneSlot(session, slot) {
+  const before = await ghosttyCanvasCount(session)
+  await openContextMenu(session, slot)
+  const closed = await pollUntil('Close Pane did not open', 4_000, () => clickLabeledControl(session, 'Close Pane'))
+  if (!closed) {
+    throw new Error('Close Pane was not clickable')
+  }
+  await pollUntil('Close Pane did not release a Ghostty surface', 8_000, async () => {
+    await confirmStopAndClose(session)
+    const slots = await ghosttySlots(session)
+    return slots.includes(slot) ? null : slots.length
+  })
+  const after = await ghosttyCanvasCount(session)
+  if (after >= before) {
+    throw new Error(`Close Pane left the surface: before=${before} after=${after}`)
+  }
+}
+
+async function keepGhosttyCanvases(session, limit) {
+  let count = await ghosttyCanvasCount(session)
+  let guard = 0
+  while (count > limit && guard < 6) {
+    guard += 1
+    count = await closeNewestTerminalTab(session)
+  }
+  if (count > limit) {
+    throw new Error(`Ghostty surfaces stayed above ${limit}: ${count}`)
+  }
+  return count
+}
+
+async function wheelAt(session, rect, deltaY) {
+  await session.call(
+    'Input.dispatchMouseEvent',
+    {
+      type: 'mouseWheel',
+      x: rect.x + Math.min(40, rect.width / 2),
+      y: rect.y + Math.min(40, rect.height / 2),
+      deltaX: 0,
+      deltaY,
+      button: 'none'
+    },
+    15_000
+  )
+}
+
+async function passthruCall(session, slot, expression) {
+  return evaluate(
+    session,
+    `(() => {
+      const api = window.api && window.api.horcaGhosttyPassthru
+      const slot = ${JSON.stringify(slot)}
+      if (!api) return null
+      ${expression}
+    })()`,
+    5_000
+  )
+}
+
+async function runBracketedPaste(session, handle, trigger) {
+  await sendLine(session, 'python3 pasteprobe')
+  await pollUntil('Paste probe did not start', 8_000, async () => {
+    const screen = await readScreen(handle)
+    return screen.includes('PASTE_READY') ? screen : null
+  })
+  writeClipboard('PASTE_HORCA')
+  await trigger()
+  const verdict = await pollUntil('Paste did not reach the PTY', 6_000, async () => {
+    const screen = await readScreen(handle)
+    if (screen.includes('PASTE_OK')) return 'PASTE_OK'
+    if (screen.includes('PASTE_BAD') || screen.includes('PASTE_SPLIT')) return screen.slice(0, 180)
+    return null
+  })
+  if (verdict !== 'PASTE_OK') {
+    throw new Error(`Paste did not reach the PTY as bracketed text: ${verdict}`)
+  }
+}
+
+async function probePackagedBehaviors(ctx) {
+  const { session, handle, worktreePath, worktreeSelector } = ctx
+  let slot = ctx.slot
+  writeFileSync(join(worktreePath, 'chordprobe'), CHORD_SOURCE)
+  writeFileSync(join(worktreePath, 'imemulti'), IME_MULTI_SOURCE)
+  writeFileSync(join(worktreePath, 'wheelprobe'), WHEEL_SOURCE)
+  writeFileSync(join(worktreePath, 'fillprobe'), FILL_SOURCE)
+  writeFileSync(join(worktreePath, 'linkprobe'), LINK_SOURCE)
+  writeFileSync(join(worktreePath, 'osc52probe'), OSC52_SOURCE)
+  writeFileSync(join(worktreePath, 'osc52off'), OSC52_OFF_SOURCE)
+  writeFileSync(join(worktreePath, 'sleepprobe'), SLEEP_SOURCE)
+  writeFileSync(join(worktreePath, 'followprobe'), FOLLOW_SOURCE)
+  writeFileSync(join(worktreePath, 'sshprobe'), SSH_SOURCE)
+  writeFileSync(join(worktreePath, 'startupprobe'), STARTUP_SOURCE)
+  writeFileSync(join(worktreePath, 'cwdprobe'), CWD_SOURCE)
+  writeFileSync(join(worktreePath, 'relaunchprobe'), RELAUNCH_SOURCE)
+
+  const nextChord = async (label, send, accept) => {
+    const before = [...String(await readScreen(handle)).matchAll(/CHORDHEX ([0-9a-f]+)/g)].length
+    await send()
+    const hex = await pollUntil(`${label} did not reach the PTY`, 6_000, async () => {
+      const lines = [...String(await readScreen(handle)).matchAll(/CHORDHEX ([0-9a-f]+)/g)].map((match) => match[1])
+      return lines.length > before ? lines[lines.length - 1] : null
+    })
+    if (!accept(hex)) {
+      throw new Error(`${label} bytes ${hex} are not the expected terminal sequence`)
+    }
+    console.log(`${label} ${hex}`)
+    return hex
+  }
+
+  await focusGhosttySlot(session, slot)
+  await sendLine(session, 'python3 chordprobe')
+  await pollUntil('Chord probe did not start', 8_000, async () => {
+    const screen = await readScreen(handle)
+    return screen.includes('CHORD_READY') ? screen : null
+  })
+  await nextChord(
+    'CHORD_CTRL_ENTER',
+    () => sendKey(session, { key: 'Enter', code: 'Enter', modifiers: 2, windowsVirtualKeyCode: 13, nativeVirtualKeyCode: 36 }),
+    (hex) => hex.includes('1b5b31333b3575')
+  )
+  await nextChord(
+    'CHORD_OPTION_ARROW',
+    () => sendKey(session, { key: 'ArrowUp', code: 'ArrowUp', modifiers: 1, windowsVirtualKeyCode: 38, nativeVirtualKeyCode: 126 }),
+    (hex) => hex.includes('1b5b313b33') && hex.includes('41')
+  )
+  await nextChord(
+    'CHORD_NONLATIN',
+    () => sendKey(session, { key: 'ф', code: 'KeyA', text: 'ф', modifiers: 2, windowsVirtualKeyCode: 65, nativeVirtualKeyCode: 0 }),
+    (hex) => hex.includes('1b5b39373b3575') || hex.includes('1b5b313039323b3575')
+  )
+  await nextChord(
+    'CHORD_KEYUP',
+    () => sendKey(session, { key: 'q', code: 'KeyQ', modifiers: 1, windowsVirtualKeyCode: 81, nativeVirtualKeyCode: 12 }),
+    (hex) => hex.includes('1b5b3131333b333a3375')
+  )
+  const surfacesBeforeSplit = await ghosttyCanvasCount(session)
+  await nextChord(
+    'CHORD_SPLIT_SHORTCUT',
+    async () => {
+      await sendKey(session, { key: 'd', code: 'KeyD', modifiers: 4, windowsVirtualKeyCode: 68, nativeVirtualKeyCode: 2 })
+      await focusGhosttySlot(session, slot)
+      await sendKey(session, { key: 'a', code: 'KeyA', text: 'a', unmodifiedText: 'a', windowsVirtualKeyCode: 65, nativeVirtualKeyCode: 0 })
+    },
+    (hex) => !hex.includes('1b5b3130303b') && (hex === '61' || hex.includes('1b5b39373b3175'))
+  )
+  if ((await ghosttyCanvasCount(session)) > surfacesBeforeSplit) {
+    const extra = (await ghosttySlots(session)).find((item) => item !== slot)
+    if (extra) {
+      await closePaneSlot(session, extra)
+    }
+    await focusGhosttySlot(session, slot)
+  }
+  await nextChord(
+    'CHORD_YEN',
+    () => sendKey(session, { key: '¥', code: 'IntlYen', text: '¥', unmodifiedText: '¥', windowsVirtualKeyCode: 220, nativeVirtualKeyCode: 93 }),
+    (hex) => hex.includes('c2a5') || hex.includes('1b5b313635')
+  )
+  await pollUntil('Chord probe did not restore the terminal', 6_000, async () => {
+    const screen = await readScreen(handle)
+    return screen.includes('CHORD_DONE') ? screen : null
+  })
+
+  await sendLine(session, 'python3 imemulti')
+  await pollUntil('IME probe did not start', 8_000, async () => {
+    const screen = await readScreen(handle)
+    return screen.includes('IME2_READY') ? screen : null
+  })
+  await evaluate(
+    session,
+    `(() => {
+      const node = document.querySelector(${JSON.stringify(`canvas[data-ghostty="${slot}"]`)}) || window
+      const fire = (type, data) => node.dispatchEvent(new CompositionEvent(type, { data, bubbles: true }))
+      fire('compositionstart', '')
+      fire('compositionupdate', 'ㅎ')
+      fire('compositionupdate', '하')
+      fire('compositionupdate', '한')
+      return true
+    })()`,
+    5_000
+  )
+  const preedit = await pollUntil('IME preedit was not drawn', 4_000, async () => {
+    const screen = await readScreen(handle)
+    const dom = await evaluate(
+      session,
+      `(() => {
+        const canvas = document.querySelector(${JSON.stringify(`canvas[data-ghostty="${slot}"]`)})
+        if (!canvas) return null
+        const rect = canvas.getBoundingClientRect()
+        const node = [...document.querySelectorAll('body *')].find((entry) => {
+          const text = entry.innerText || entry.textContent || ''
+          if (!text.includes('한') && !text.includes('하') && !text.includes('ㅎ')) return false
+          if (entry === canvas) return false
+          const box = entry.getBoundingClientRect()
+          return box.width > 0 && box.height > 0 && box.left >= rect.left - 2 && box.top >= rect.top - 2 && box.left <= rect.right && box.top <= rect.bottom
+        })
+        if (!node) return null
+        const box = node.getBoundingClientRect()
+        return { text: (node.innerText || node.textContent || '').slice(0, 20), left: box.left, top: box.top }
+      })()`,
+      5_000
+    )
+    if (!dom) return null
+    return { screen: screen.includes('한') || screen.includes('하') || screen.includes('ㅎ'), dom }
+  })
+  console.log(`IME_PREEDIT ${JSON.stringify(preedit)}`)
+  await evaluate(
+    session,
+    `(() => {
+      const event = new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter', bubbles: true, cancelable: true })
+      Object.defineProperty(event, 'keyCode', { get: () => 229 })
+      Object.defineProperty(event, 'isComposing', { get: () => true })
+      window.dispatchEvent(event)
+      const node = document.querySelector(${JSON.stringify(`canvas[data-ghostty="${slot}"]`)}) || window
+      window.dispatchEvent(new CompositionEvent('compositionend', { data: '한', bubbles: true }))
+      return true
+    })()`,
+    5_000
+  )
+  const imeHex = await pollUntil('IME commit did not reach the PTY', 6_000, async () => {
+    const match = String(await readScreen(handle)).match(/IME2HEX ([0-9a-f]+)/)
+    return match ? match[1] : null
+  })
+  if (imeHex.includes('0d') || imeHex.split('ed959c').length - 1 !== 1) {
+    throw new Error(`IME commit was not one syllable without CR: ${imeHex}`)
+  }
+  console.log(`IME_MULTI ${imeHex}`)
+
+  await sendLine(session, 'python3 fillprobe')
+  await pollUntil('Fill probe did not paint', 8_000, async () => {
+    const screen = await readScreen(handle)
+    return screen.includes('SCROLLBOT') ? screen : null
+  })
+  const beforeWheel = tailLines(await readScreen(handle))
+  const rect = await ghosttyRect(session, slot)
+  if (!rect) {
+    throw new Error('Wheel canvas was not available')
+  }
+  await wheelAt(session, rect, -480)
+  const afterWheel = await pollUntil('Wheel did not scroll the viewport', 6_000, async () => {
+    const lines = tailLines(await readScreen(handle))
+    const hadBottom = beforeWheel.some((line) => line.includes('SCROLLBOT'))
+    const hasBottom = lines.some((line) => line.includes('SCROLLBOT'))
+    if (hadBottom && !hasBottom) return lines
+    return null
+  })
+  if (afterWheel.some((line) => line.includes('WHEELHEX'))) {
+    throw new Error('Wheel over the shell inserted mouse text')
+  }
+  console.log('WHEEL_SCROLL viewport')
+  const barBefore = await evaluate(
+    session,
+    `(() => {
+      const slider = document.querySelector('.orca-terminal-scrollbar .orca-terminal-slider')
+      if (!slider) return null
+      return { top: slider.style.top || '', display: slider.parentElement ? slider.parentElement.style.display : '' }
+    })()`,
+    5_000
+  )
+  await wheelAt(session, rect, 480)
+  const barAfter = await pollUntil('Scrollbar did not follow the viewport', 4_000, async () => {
+    const slider = await evaluate(
+      session,
+      `(() => {
+        const track = document.querySelector('.orca-terminal-scrollbar')
+        const slider = document.querySelector('.orca-terminal-scrollbar .orca-terminal-slider')
+        if (!track || !slider) return null
+        return { top: slider.style.top || '0px', display: track.style.display || '' }
+      })()`,
+      5_000
+    )
+    if (!slider) return null
+    if (barBefore && slider.top === barBefore.top && slider.display === barBefore.display) return null
+    return slider
+  })
+  console.log(`SCROLLBAR ${JSON.stringify(barBefore)} -> ${JSON.stringify(barAfter)}`)
+
+  await sendLine(session, 'python3 wheelprobe')
+  await pollUntil('Mouse tracking probe did not start', 8_000, async () => {
+    const screen = await readScreen(handle)
+    return screen.includes('WHEEL_READY') ? screen : null
+  })
+  const trackRect = (await ghosttyRect(session, slot)) || rect
+  await wheelAt(session, trackRect, 120)
+  const wheelHex = await pollUntil('Tracking wheel did not report', 6_000, async () => {
+    const lines = [...String(await readScreen(handle)).matchAll(/WHEELHEX ([0-9a-f]+)/g)].map((match) => match[1])
+    return lines[0] || null
+  })
+  if (!wheelHex.startsWith('1b5b3c')) {
+    throw new Error(`Tracking wheel was not an SGR report: ${wheelHex}`)
+  }
+  await session.call(
+    'Input.dispatchMouseEvent',
+    { type: 'mousePressed', x: trackRect.x + 24, y: trackRect.y + 24, button: 'left', clickCount: 1 },
+    15_000
+  )
+  await session.call(
+    'Input.dispatchMouseEvent',
+    { type: 'mouseReleased', x: trackRect.x + 24, y: trackRect.y + 24, button: 'left', clickCount: 1 },
+    15_000
+  )
+  const clickHex = await pollUntil('Tracking click did not report', 6_000, async () => {
+    const lines = [...String(await readScreen(handle)).matchAll(/WHEELHEX ([0-9a-f]+)/g)].map((match) => match[1])
+    return lines[1] || null
+  })
+  if (!clickHex.startsWith('1b5b3c')) {
+    throw new Error(`Tracking click was not an SGR report: ${clickHex}`)
+  }
+  console.log(`WHEEL_SGR ${wheelHex} ${clickHex}`)
+  await sendKey(session, { key: 'z', code: 'KeyZ', text: 'z', unmodifiedText: 'z', windowsVirtualKeyCode: 90, nativeVirtualKeyCode: 6 })
+  const hiddenCursor = await pollUntil('Pointer did not hide while typing', 4_000, async () => {
+    const cursor = await evaluate(
+      session,
+      `(() => {
+        const node = document.querySelector(${JSON.stringify(`canvas[data-ghostty="${slot}"]`)})
+        let el = node
+        while (el) {
+          const value = getComputedStyle(el).cursor
+          if (value && value !== 'auto') return value
+          el = el.parentElement
+        }
+        return ''
+      })()`,
+      5_000
+    )
+    return cursor === 'none' ? cursor : null
+  })
+  await session.call(
+    'Input.dispatchMouseEvent',
+    { type: 'mouseMoved', x: rect.x + 30, y: rect.y + 30, button: 'none' },
+    15_000
+  )
+  const shownCursor = await pollUntil('Pointer stayed hidden after the mouse moved', 4_000, async () => {
+    const cursor = await evaluate(
+      session,
+      `(() => {
+        const node = document.querySelector(${JSON.stringify(`canvas[data-ghostty="${slot}"]`)})
+        let el = node
+        while (el) {
+          const value = getComputedStyle(el).cursor
+          if (value && value !== 'auto') return value
+          el = el.parentElement
+        }
+        return 'auto'
+      })()`,
+      5_000
+    )
+    return cursor === 'none' ? null : cursor
+  })
+  console.log(`POINTER_CURSOR ${hiddenCursor} ${shownCursor}`)
+
+  const copyMarker = await dragReadSelection(session, slot)
+  if (!String(copyMarker).includes('HORCA') && !String(copyMarker).includes('SCROLL')) {
+    throw new Error(`Shortcut copy selection was empty: ${JSON.stringify(copyMarker).slice(0, 120)}`)
+  }
+  writeClipboard('REPLACE_ME')
+  await sendKey(session, { key: 'c', code: 'KeyC', modifiers: 4, windowsVirtualKeyCode: 67, nativeVirtualKeyCode: 8 })
+  const shortcutCopied = await pollUntil('Shortcut copy did not reach the clipboard', 4_000, async () => {
+    const copied = readClipboard()
+    return copied && copied !== 'REPLACE_ME' ? copied : null
+  })
+  if (shortcutCopied.trim() !== String(copyMarker).trim()) {
+    throw new Error(`Shortcut copy clipboard did not match the selection: ${JSON.stringify(shortcutCopied).slice(0, 120)}`)
+  }
+  console.log('COPY_SHORTCUT matched')
+  await session.call(
+    'Input.dispatchMouseEvent',
+    { type: 'mousePressed', x: rect.x + 8, y: rect.y + 8, button: 'left', clickCount: 1 },
+    15_000
+  )
+  await session.call(
+    'Input.dispatchMouseEvent',
+    { type: 'mouseReleased', x: rect.x + 8, y: rect.y + 8, button: 'left', clickCount: 1 },
+    15_000
+  )
+  writeClipboard('KEEPCLIP')
+  await sendKey(session, { key: 'c', code: 'KeyC', modifiers: 4, windowsVirtualKeyCode: 67, nativeVirtualKeyCode: 8 })
+  const kept = readClipboard()
+  if (kept.trim() !== 'KEEPCLIP') {
+    throw new Error(`Empty selection copy changed the clipboard: ${JSON.stringify(kept).slice(0, 120)}`)
+  }
+  console.log('COPY_SHORTCUT empty-kept')
+
+  await runBracketedPaste(session, handle, async () => {
+    await evaluate(session, `window.dispatchEvent(new Event('orca-app-menu-paste'))`, 5_000)
+  })
+  console.log('PASTE_MENU PASTE_OK')
+  await runBracketedPaste(session, handle, async () => {
+    await openContextMenu(session, slot)
+    const clicked = await pollUntil('Paste menu item did not open', 4_000, () => clickLabeledControl(session, 'Paste'))
+    if (!clicked) {
+      throw new Error('Paste menu item was not clickable')
+    }
+  })
+  console.log('PASTE_CONTEXT PASTE_OK')
+  await runBracketedPaste(session, handle, async () => {
+    await passthruCall(session, slot, `api.pasteText && api.pasteText(slot, 'PASTE_HORCA'); return true`)
+  })
+  console.log('PASTE_PROGRAMMATIC PASTE_OK')
+
+  await keepGhosttyCanvases(session, 1)
+  const startup = runCli([
+    'terminal',
+    'create',
+    '--worktree',
+    worktreeSelector,
+    '--command',
+    'python3 startupprobe',
+    '--focus',
+    '--json'
+  ])
+  const startupHandle = startup?.result?.terminal?.handle
+  if (!startupHandle) {
+    throw new Error('Startup paste probe did not return a terminal handle')
+  }
+  const startupVerdict = await pollUntil('Startup paste was not bracketed', 8_000, async () => {
+    const screen = await readScreen(startupHandle)
+    if (screen.includes('STARTUP_OK')) return 'STARTUP_OK'
+    if (screen.includes('STARTUP_BAD')) return screen.slice(screen.indexOf('STARTUP_BAD'), screen.indexOf('STARTUP_BAD') + 140)
+    return null
+  })
+  if (startupVerdict !== 'STARTUP_OK') {
+    throw new Error(`Startup command paste was not bracketed: ${startupVerdict}`)
+  }
+  console.log('PASTE_STARTUP STARTUP_OK')
+  await closeNewestTerminalTab(session)
+  await focusGhosttySlot(session, slot)
+
+  await sendLine(session, 'python3 osc52probe')
+  await pollUntil('OSC 52 did not change the clipboard', 6_000, async () => {
+    return readClipboard().includes('OSC52HORCA') ? readClipboard() : null
+  })
+  const oscToast = await pollUntil('OSC 52 toast did not appear', 4_000, async () => {
+    const text = await evaluate(
+      session,
+      `(() => {
+        const nodes = [...document.querySelectorAll('[data-sonner-toast],[role="status"],[role="alert"]')]
+        return nodes.map((node) => (node.innerText || '').trim()).filter(Boolean).join(' | ')
+      })()`,
+      5_000
+    )
+    return text ? text : null
+  })
+  console.log(`OSC52_CLIPBOARD OSC52HORCA ${String(oscToast).slice(0, 80)}`)
+  const setting = await evaluate(
+    session,
+    `(() => {
+      const node = document.querySelector('#terminal-osc52-clipboard, [data-setting-id="terminal-osc52-clipboard"], [name="terminal-osc52-clipboard"]')
+      if (!node) return false
+      if ('checked' in node && node.checked) node.click()
+      return true
+    })()`,
+    5_000
+  )
+  if (!setting) {
+    throw new Error('OSC 52 setting control was not on the packaged surface')
+  }
+  writeClipboard('OSC52HELD')
+  await sendLine(session, 'python3 osc52off')
+  const held = await pollUntil('OSC 52 off-state did not finish', 6_000, async () => {
+    const screen = await readScreen(handle)
+    return screen.includes('OSC52_OFF_WROTE') ? readClipboard() : null
+  })
+  if (String(held).includes('OSC52OFF')) {
+    throw new Error(`OSC 52 wrote the clipboard while the setting was off: ${JSON.stringify(held).slice(0, 80)}`)
+  }
+  console.log('OSC52_OFF held')
+
+  await sendKey(session, { key: 'f', code: 'KeyF', modifiers: 4, windowsVirtualKeyCode: 70, nativeVirtualKeyCode: 3 })
+  await pollUntil('Find bar did not open', 4_000, async () => {
+    const open = await evaluate(session, `Boolean(document.querySelector('[data-terminal-search-root]'))`, 5_000)
+    return open ? true : null
+  })
+  await evaluate(
+    session,
+    `(() => {
+      const field = document.querySelector('[data-terminal-search-root] input')
+      if (!field) return false
+      field.focus()
+      field.value = 'SEARCHHORCA'
+      field.dispatchEvent(new Event('input', { bubbles: true }))
+      return true
+    })()`,
+    5_000
+  )
+  const found = await passthruCall(session, slot, `return api.search ? api.search(slot, 'SEARCHHORCA', 'next') : false`)
+  if (!found) {
+    throw new Error('Search did not match SEARCHHORCA')
+  }
+  if (!(await clickLabeledControl(session, 'Next match'))) {
+    throw new Error('Next match was not clickable')
+  }
+  const foundAgain = await passthruCall(session, slot, `return api.search ? api.search(slot, 'SEARCHHORCA', 'next') : false`)
+  if (!(await clickLabeledControl(session, 'Previous match'))) {
+    throw new Error('Previous match was not clickable')
+  }
+  const foundPrev = await passthruCall(session, slot, `return api.search ? api.search(slot, 'SEARCHHORCA', 'previous') : false`)
+  if (!foundAgain || !foundPrev) {
+    throw new Error(`Search next/previous failed: next=${foundAgain} previous=${foundPrev}`)
+  }
+  if (!(await clickLabeledControl(session, 'Case sensitive'))) {
+    throw new Error('Case sensitive search control was not clickable')
+  }
+  if (!(await clickLabeledControl(session, 'Regex'))) {
+    throw new Error('Regex search control was not clickable')
+  }
+  const bad = await evaluate(
+    session,
+    `(() => {
+      try {
+        const api = window.api && window.api.horcaGhosttyPassthru
+        if (api && api.search) api.search(${JSON.stringify(slot)}, '(?', 'next')
+        return 'ok'
+      } catch (error) {
+        return String(error)
+      }
+    })()`,
+    5_000
+  )
+  if (bad !== 'ok') {
+    throw new Error(`Bad search pattern threw: ${bad}`)
+  }
+  await sendKey(session, { key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27, nativeVirtualKeyCode: 53 })
+  const searchClosed = await pollUntil('Find bar stayed open', 4_000, async () => {
+    const open = await evaluate(session, `Boolean(document.querySelector('[data-terminal-search-root]'))`, 5_000)
+    return open ? null : true
+  })
+  if (!searchClosed) {
+    throw new Error('Find bar stayed open')
+  }
+  console.log('SEARCH_OUTPUT next previous case regex closed')
+
+  await sendLine(session, 'python3 linkprobe')
+  await pollUntil('Link probe did not paint', 8_000, async () => {
+    const screen = await readScreen(handle)
+    return screen.includes('LINK_READY') ? screen : null
+  })
+  const linkRect = await ghosttyRect(session, slot)
+  const links = await evaluate(
+    session,
+    `(() => {
+      const api = window.api && window.api.horcaGhosttyPassthru
+      const canvas = document.querySelector(${JSON.stringify(`canvas[data-ghostty="${slot}"]`)})
+      if (!api || !api.hyperlinkAt || !canvas) return []
+      const rect = canvas.getBoundingClientRect()
+      const hits = []
+      for (let y = 4; y < rect.height; y += 12) {
+        for (let x = 4; x < Math.min(rect.width, 420); x += 28) {
+          const uri = String(api.hyperlinkAt(${JSON.stringify(slot)}, x, y) || '')
+          if (uri) hits.push({ x, y, uri })
+        }
+      }
+      return hits
+    })()`,
+    15_000
+  )
+  const uris = (Array.isArray(links) ? links : []).map((hit) => hit.uri)
+  const http = (Array.isArray(links) ? links : []).find((hit) => hit.uri.includes('http://127.0.0.1/HORCALINK'))
+  const file = uris.find((uri) => uri.includes('linkfile'))
+  const wrapped = uris.find((uri) => uri.includes('HORCAWRAP') && uri.includes('www'))
+  const osc8 = uris.find((uri) => uri.includes('http://127.0.0.1/OSC8HORCA'))
+  if (!http || !file || !wrapped || !osc8) {
+    throw new Error(`Link hits missed http=${Boolean(http)} file=${Boolean(file)} wrapped=${Boolean(wrapped)} osc8=${Boolean(osc8)}`)
+  }
+  await evaluate(
+    session,
+    `(() => {
+      window.__horcaOpened = []
+      const orig = window.open
+      window.open = (...args) => { window.__horcaOpened.push(String(args[0] || '')); return null }
+      window.__horcaOpen = orig
+      return true
+    })()`,
+    5_000
+  )
+  await session.call(
+    'Input.dispatchMouseEvent',
+    { type: 'mousePressed', x: linkRect.x + http.x, y: linkRect.y + http.y, button: 'left', clickCount: 1 },
+    15_000
+  )
+  await session.call(
+    'Input.dispatchMouseEvent',
+    { type: 'mouseReleased', x: linkRect.x + http.x, y: linkRect.y + http.y, button: 'left', clickCount: 1 },
+    15_000
+  )
+  const opened = await pollUntil('HTTP link did not open outside the app', 4_000, async () => {
+    const value = await evaluate(session, `Array.isArray(window.__horcaOpened) ? window.__horcaOpened.join(',') : ''`, 5_000)
+    return String(value).includes('http://127.0.0.1/HORCALINK') ? value : null
+  })
+  console.log(`LINK_HTTP ${opened}`)
+  const fileHit = (Array.isArray(links) ? links : []).find((hit) => hit.uri.includes('linkfile'))
+  await session.call(
+    'Input.dispatchMouseEvent',
+    { type: 'mousePressed', x: linkRect.x + fileHit.x, y: linkRect.y + fileHit.y, button: 'left', clickCount: 1 },
+    15_000
+  )
+  await session.call(
+    'Input.dispatchMouseEvent',
+    { type: 'mouseReleased', x: linkRect.x + fileHit.x, y: linkRect.y + fileHit.y, button: 'left', clickCount: 1 },
+    15_000
+  )
+  await pollUntil('File link did not open in the editor', 6_000, async () => {
+    const text = await evaluate(session, `document.body.innerText.slice(0, 2000)`, 5_000)
+    return String(text).includes('linkfile') ? text : null
+  })
+  console.log('LINK_FILE linkfile')
+  await session.call(
+    'Input.dispatchMouseEvent',
+    { type: 'mouseMoved', x: linkRect.x + http.x, y: linkRect.y + http.y, button: 'none' },
+    15_000
+  )
+  await pollUntil('Link hover did not show', 3_000, async () => {
+    const text = await evaluate(session, `document.body.innerText`, 5_000)
+    return String(text).includes('HORCALINK') ? true : null
+  })
+  await session.call(
+    'Input.dispatchMouseEvent',
+    { type: 'mouseMoved', x: Math.max(0, linkRect.x - 20), y: Math.max(0, linkRect.y - 20), button: 'none' },
+    15_000
+  )
+  await evaluate(
+    session,
+    `document.querySelector(${JSON.stringify(`canvas[data-ghostty="${slot}"]`)})?.dispatchEvent(new MouseEvent('mouseleave', { bubbles: true }))`,
+    5_000
+  )
+  const hoverCleared = await pollUntil('Link hover stayed after the pointer left', 3_000, async () => {
+    const showing = await evaluate(
+      session,
+      `(() => {
+        const nodes = [...document.querySelectorAll('[role="tooltip"], .terminal-link-tooltip, .xterm-hover')]
+        return nodes.some((node) => (node.innerText || '').includes('HORCALINK') && node.style.display !== 'none')
+      })()`,
+      5_000
+    )
+    return showing ? null : true
+  })
+  if (!hoverCleared) {
+    throw new Error('Link hover stayed after the pointer left')
+  }
+  console.log(`LINK_OUTPUT http file wrapped osc8`)
+
+  const wide = tailLines(await readScreen(handle))
+  const wideLength = wide.reduce((longest, line) => Math.max(longest, line.length), 0)
+  if (!wide.some((line) => line.includes('HORCAWRAP'))) {
+    throw new Error('Reflow line was not on the grid')
+  }
+  await evaluate(
+    session,
+    `(() => {
+      const node = document.querySelector(${JSON.stringify(`canvas[data-ghostty="${slot}"]`)})
+      if (!node) return 0
+      node.style.width = '80px'
+      node.style.maxWidth = '80px'
+      node.style.flex = '0 0 80px'
+      return node.getBoundingClientRect().width
+    })()`,
+    5_000
+  )
+  const wrappedScreen = await pollUntil('Narrow window did not wrap the long line', 6_000, async () => {
+    const lines = tailLines(await readScreen(handle))
+    if (!lines.some((line) => line.includes('HORCAWRAP'))) return null
+    const longest = lines.reduce((length, line) => Math.max(length, line.length), 0)
+    return longest < wideLength ? lines : null
+  })
+  await evaluate(
+    session,
+    `(() => {
+      const node = document.querySelector(${JSON.stringify(`canvas[data-ghostty="${slot}"]`)})
+      if (!node) return 0
+      node.style.width = ''
+      node.style.maxWidth = ''
+      node.style.flex = ''
+      return node.getBoundingClientRect().width
+    })()`,
+    5_000
+  )
+  const unwrapped = await pollUntil('Widened window did not unwrap the line', 6_000, async () => {
+    const lines = tailLines(await readScreen(handle))
+    if (!lines.some((line) => line.includes('HORCAWRAP'))) return null
+    const longest = lines.reduce((length, line) => Math.max(length, line.length), 0)
+    const wrappedLongest = wrappedScreen.reduce((length, line) => Math.max(length, line.length), 0)
+    return longest > wrappedLongest ? lines : null
+  })
+  if (!unwrapped.some((line) => line.includes('HORCAWRAP'))) {
+    throw new Error('Unwrapped viewport lost the long line')
+  }
+  console.log('REFLOW_OUTPUT wrap unwrap')
+
+  await sendLine(session, 'python3 followprobe')
+  await pollUntil('Follow probe did not start', 8_000, async () => {
+    const lines = tailLines(await readScreen(handle))
+    return lines.some((line) => line.includes('FOLLOWREADY')) ? lines : null
+  })
+  const followRect = await ghosttyRect(session, slot)
+  if (!followRect) {
+    throw new Error('Scroll canvas was not available')
+  }
+  await wheelAt(session, followRect, -800)
+  await pollUntil('Scroll up did not leave the bottom', 4_000, async () => {
+    const lines = tailLines(await readScreen(handle))
+    return lines.some((line) => line.includes('FOLLOWREADY')) ? null : lines
+  })
+  const parkedOutput = await pollUntil('Output while scrolled up stayed on screen', 6_000, async () => {
+    const screen = tailLines(await readScreen(handle))
+    const output = await readOutput(handle)
+    if (!output.includes('FOLLOWHORCA')) return null
+    if (screen.some((line) => line.includes('FOLLOWHORCA'))) return null
+    return output
+  })
+  if (!parkedOutput.includes('FOLLOWHORCA')) {
+    throw new Error('Parked output was missing from the scrollback')
+  }
+  await wheelAt(session, followRect, 1600)
+  await pollUntil('Returning to the bottom did not show the parked output', 6_000, async () => {
+    const lines = tailLines(await readScreen(handle))
+    return lines.some((line) => line.includes('FOLLOWHORCA')) ? lines : null
+  })
+  await sendLine(session, 'printf FOLLOWAGAIN')
+  await pollUntil('Output at the bottom did not follow', 6_000, async () => {
+    const lines = tailLines(await readScreen(handle))
+    return lines.some((line) => line.includes('FOLLOWAGAIN')) ? lines : null
+  })
+  console.log('SCROLL_FOLLOW parked then followed')
+
+  await sendLine(session, 'python3 sleepprobe')
+  await pollUntil('Sleep probe did not start', 8_000, async () => {
+    const screen = await readScreen(handle)
+    return screen.includes('SLEEP_READY') ? screen : null
+  })
+  await sendKey(session, { key: 'c', code: 'KeyC', modifiers: 2, windowsVirtualKeyCode: 67, nativeVirtualKeyCode: 8 })
+  await sendLine(session, 'printf INTHORCA')
+  const interrupted = await pollUntil('Ctrl-C did not return the prompt', 8_000, async () => {
+    const screen = await readScreen(handle)
+    if (screen.includes('SLEEP_DONE')) return 'SLEEP_DONE'
+    return screen.includes('INTHORCA') ? screen : null
+  })
+  if (String(interrupted).includes('SLEEP_DONE')) {
+    throw new Error('Ctrl-C left sleep running until it finished')
+  }
+  console.log('CTRL_C_PROMPT INTHORCA')
+
+  await sendLine(session, 'python3 cwdprobe')
+  const parentCwd = await pollUntil('Parent cwd was not printed', 6_000, async () => {
+    const match = String(await readScreen(handle)).match(/CWDHORCA (\S+)/)
+    return match ? match[1] : null
+  })
+  const beforeSplit = await ghosttyCanvasCount(session)
+  if (!(await clickLabeledControl(session, 'Split Terminal Right'))) {
+    throw new Error('Split Terminal Right was not clickable')
+  }
+  await pollUntil('Split did not add a surface', 12_000, async () => {
+    const count = await ghosttyCanvasCount(session)
+    return count > beforeSplit ? count : null
+  })
+  const splitSlot = (await ghosttySlots(session)).find((item) => item !== slot)
+  if (!splitSlot) {
+    throw new Error('Split did not create a second Ghostty slot')
+  }
+  await focusGhosttySlot(session, splitSlot)
+  await sendLine(session, 'python3 cwdprobe')
+  const childCwd = await pollUntil('Split pane cwd was not printed', 8_000, async () => {
+    const selected = await dragReadSelection(session, splitSlot)
+    const match = String(selected).match(/CWDHORCA (\S+)/)
+    return match ? match[1] : null
+  })
+  if (childCwd !== parentCwd) {
+    throw new Error(`Split cwd did not match the parent: parent=${parentCwd} child=${childCwd}`)
+  }
+  await sendLine(session, 'printf ONLYFOCUS')
+  const childSawFocus = await pollUntil('Focused pane did not echo its key', 6_000, async () => {
+    const selected = await dragReadSelection(session, splitSlot)
+    return String(selected).includes('ONLYFOCUS') ? selected : null
+  })
+  const parentSawFocus = await readScreen(handle)
+  if (parentSawFocus.includes('ONLYFOCUS') || !String(childSawFocus).includes('ONLYFOCUS')) {
+    throw new Error('A key reached a pane that was not focused')
+  }
+  const widthsBefore = await evaluate(
+    session,
+    `[...document.querySelectorAll('canvas[data-ghostty]')].map((node) => Math.round(node.getBoundingClientRect().width))`,
+    5_000
+  )
+  const divider = await evaluate(
+    session,
+    `(() => {
+      const node = document.querySelector('.pane-divider')
+      if (!node) return null
+      const rect = node.getBoundingClientRect()
+      return { x: rect.x + rect.width / 2, y: rect.y + Math.min(40, rect.height / 2) }
+    })()`,
+    5_000
+  )
+  if (!divider) {
+    throw new Error('Split divider was not available')
+  }
+  await session.call('Input.dispatchMouseEvent', { type: 'mousePressed', x: divider.x, y: divider.y, button: 'left', clickCount: 1 }, 15_000)
+  await session.call('Input.dispatchMouseEvent', { type: 'mouseMoved', x: divider.x + 80, y: divider.y, button: 'left' }, 15_000)
+  await session.call('Input.dispatchMouseEvent', { type: 'mouseReleased', x: divider.x + 80, y: divider.y, button: 'left', clickCount: 1 }, 15_000)
+  const widthsDragged = await pollUntil('Divider drag did not reflow both panes', 6_000, async () => {
+    const widths = await evaluate(
+      session,
+      `[...document.querySelectorAll('canvas[data-ghostty]')].map((node) => Math.round(node.getBoundingClientRect().width))`,
+      5_000
+    )
+    if (!Array.isArray(widths) || widths.length < 2) return null
+    if (!Array.isArray(widthsBefore) || widthsBefore.length < 2) return null
+    const changed = widths.filter((width, index) => width !== widthsBefore[index])
+    return changed.length >= 2 ? widths : null
+  })
+  await session.call('Input.dispatchMouseEvent', { type: 'mousePressed', x: divider.x + 80, y: divider.y, button: 'left', clickCount: 2 }, 15_000)
+  await session.call('Input.dispatchMouseEvent', { type: 'mouseReleased', x: divider.x + 80, y: divider.y, button: 'left', clickCount: 2 }, 15_000)
+  const widthsEqual = await pollUntil('Equalize did not match the pane widths', 4_000, async () => {
+    const widths = await evaluate(
+      session,
+      `[...document.querySelectorAll('canvas[data-ghostty]')].map((node) => Math.round(node.getBoundingClientRect().width))`,
+      5_000
+    )
+    if (!Array.isArray(widths) || widths.length < 2) return null
+    return Math.abs(widths[0] - widths[1]) < 48 ? widths : null
+  })
+  console.log(`MULTIPANE_CWD ${parentCwd} widths ${JSON.stringify(widthsDragged)} equal ${JSON.stringify(widthsEqual)}`)
+  await closePaneSlot(session, splitSlot)
+  await focusGhosttySlot(session, slot)
+  await keepGhosttyCanvases(session, 1)
+  if (!(await clickLabeledControl(session, 'New tab'))) {
+    throw new Error('New tab was not clickable for reorder')
+  }
+  if (!(await pollUntil('New Terminal did not open for reorder', 4_000, () => clickLabeledControl(session, 'New Terminal')))) {
+    throw new Error('New Terminal was not clickable for reorder')
+  }
+  await pollUntil('Reorder tab did not add a surface', 12_000, async () => {
+    const count = await ghosttyCanvasCount(session)
+    return count === 2 ? count : null
+  })
+  const orderBefore = await ghosttySlots(session)
+  const tab = await pollUntil('Reorder tabs were not on the strip', 4_000, async () =>
+    evaluate(
+      session,
+      `(() => {
+        const tabs = [...document.querySelectorAll('[role="tab"]')].filter((node) => node.getBoundingClientRect().width > 2)
+        if (tabs.length < 2) return null
+        const rect = tabs[tabs.length - 1].getBoundingClientRect()
+        const first = tabs[0].getBoundingClientRect()
+        return { fromX: rect.x + rect.width / 2, fromY: rect.y + rect.height / 2, toX: first.x + 8, toY: first.y + first.height / 2, labels: tabs.map((node) => (node.innerText || '').trim().slice(0, 40)) }
+      })()`,
+      5_000
+    )
+  )
+  await session.call('Input.dispatchMouseEvent', { type: 'mousePressed', x: tab.fromX, y: tab.fromY, button: 'left', clickCount: 1 }, 15_000)
+  await session.call('Input.dispatchMouseEvent', { type: 'mouseMoved', x: tab.toX, y: tab.toY, button: 'left' }, 15_000)
+  await session.call('Input.dispatchMouseEvent', { type: 'mouseReleased', x: tab.toX, y: tab.toY, button: 'left', clickCount: 1 }, 15_000)
+  const orderAfter = await ghosttySlots(session)
+  const labelsAfter = await evaluate(
+    session,
+    `[...document.querySelectorAll('[role="tab"]')].filter((node) => node.getBoundingClientRect().width > 2).map((node) => (node.innerText || '').trim().slice(0, 40))`,
+    5_000
+  )
+  if (JSON.stringify(labelsAfter) === JSON.stringify(tab.labels) && JSON.stringify(orderAfter) === JSON.stringify(orderBefore)) {
+    throw new Error('Pane drag did not reorder the tabs')
+  }
+  console.log('MULTIPANE_REORDER')
+  await closeNewestTerminalTab(session)
+  await focusGhosttySlot(session, slot)
+
+  await keepGhosttyCanvases(session, 1)
+  if (!(await clickLabeledControl(session, 'New tab'))) {
+    throw new Error('New tab button was not clickable for an agent pane')
+  }
+  const agentLabel = await pollUntil('Agent menu item did not open', 4_000, async () => {
+    const label = await evaluate(
+      session,
+      `(() => {
+        const item = [...document.querySelectorAll('[role="menuitem"]')].find((entry) => /agent/i.test(entry.innerText || ''))
+        return item ? (item.innerText || '').trim().split('\\n')[0].trim() : ''
+      })()`,
+      5_000
+    )
+    return label || null
+  })
+  if (!(await clickLabeledControl(session, agentLabel))) {
+    throw new Error(`Agent menu item was not clickable: ${agentLabel}`)
+  }
+  const agentSlot = await pollUntil('Agent pane did not add a surface', 12_000, async () => {
+    const extra = (await ghosttySlots(session)).find((item) => item !== slot)
+    return extra || null
+  })
+  await focusGhosttySlot(session, agentSlot)
+  await sendLine(session, 'python3 pasteprobe')
+  const agentHandle = await pollUntil('Agent pane did not publish a handle', 8_000, async () => {
+    await openContextMenu(session, agentSlot)
+    if (!(await clickLabeledControl(session, 'Copy Terminal ID'))) return null
+    const copied = readClipboard().trim()
+    return /^term_[0-9a-f-]+$/.test(copied) ? copied : null
+  })
+  writeClipboard('PASTE_HORCA')
+  await passthruCall(session, agentSlot, `api.pasteText && api.pasteText(slot, 'PASTE_HORCA'); return true`)
+  const agentPaste = await pollUntil('Agent paste was not bracketed', 6_000, async () => {
+    const screen = await readScreen(agentHandle)
+    if (screen.includes('PASTE_OK')) return 'PASTE_OK'
+    if (screen.includes('PASTE_BAD')) return screen.slice(0, 160)
+    return null
+  })
+  if (agentPaste !== 'PASTE_OK') {
+    throw new Error(`Agent pane paste was not bracketed: ${agentPaste}`)
+  }
+  console.log('PASTE_AGENT PASTE_OK')
+  await closeNewestTerminalTab(session)
+  await focusGhosttySlot(session, slot)
+
+  await keepGhosttyCanvases(session, 1)
+  const ssh = runCli([
+    'terminal',
+    'create',
+    '--worktree',
+    worktreeSelector,
+    '--command',
+    'python3 sshprobe',
+    '--focus',
+    '--json'
+  ])
+  const sshHandle = ssh?.result?.terminal?.handle
+  if (!sshHandle) {
+    throw new Error('SSH probe did not return a terminal handle')
+  }
+  await pollUntil('SSH paste probe did not start', 8_000, async () => {
+    const screen = await readScreen(sshHandle)
+    return screen.includes('SSH_READY') ? screen : null
+  })
+  const sshSlot = (await ghosttySlots(session)).find((item) => item !== slot) || slot
+  await focusGhosttySlot(session, sshSlot)
+  writeClipboard('PASTE_HORCA')
+  await passthruCall(session, sshSlot, `api.pasteText && api.pasteText(slot, 'PASTE_HORCA'); return true`)
+  const sshPaste = await pollUntil('SSH paste was not bracketed', 6_000, async () => {
+    const screen = await readScreen(sshHandle)
+    if (screen.includes('PASTE_OK')) return 'PASTE_OK'
+    if (screen.includes('PASTE_BAD')) return screen.slice(0, 160)
+    return null
+  })
+  if (sshPaste !== 'PASTE_OK') {
+    throw new Error(`SSH pane paste was not bracketed: ${sshPaste}`)
+  }
+  console.log('PASTE_SSH PASTE_OK')
+  await pollUntil('SSH drop was not observed', 8_000, async () => {
+    const screen = await readScreen(sshHandle)
+    return screen.includes('SSHDROPPED') ? screen : null
+  })
+  const reconnect = await pollUntil('SSH reconnect overlay did not show', 6_000, async () => {
+    const marker = await evaluate(
+      session,
+      `(() => {
+        const banner = document.querySelector('[data-terminal-remote-runtime-reconnect-banner]')
+        if (banner) return banner.getAttribute('data-terminal-remote-runtime-reconnect-banner') || 'banner'
+        const button = [...document.querySelectorAll('button')].find((entry) => /reconnect/i.test(entry.innerText || ''))
+        return button ? 'button' : ''
+      })()`,
+      5_000
+    )
+    return marker || null
+  })
+  if (!(await clickLabeledControl(session, 'Reconnect'))) {
+    throw new Error(`SSH reconnect control was not clickable: ${reconnect}`)
+  }
+  const restoredSsh = await pollUntil('SSH reconnect did not keep the scrollback', 8_000, async () => {
+    const screen = await readScreen(sshHandle)
+    return screen.includes('SSHSCROLLHORCA') ? screen : null
+  })
+  await focusGhosttySlot(session, sshSlot)
+  await sendKey(session, { key: 'q', code: 'KeyQ', text: 'q', unmodifiedText: 'q', windowsVirtualKeyCode: 81, nativeVirtualKeyCode: 12 })
+  await pollUntil('SSH reconnect did not accept a key', 6_000, async () => {
+    const screen = await readScreen(sshHandle)
+    return screen.includes('q') ? screen : null
+  })
+  console.log(`SSH_RECONNECT ${reconnect} ${restoredSsh.includes('SSHSCROLLHORCA')}`)
+  await closeNewestTerminalTab(session)
+  await focusGhosttySlot(session, slot)
+  if ((await ghosttyCanvasCount(session)) > 2) {
+    await keepGhosttyCanvases(session, 2)
+  }
+}
+
 const assignedPort = await reservePort()
-const app = spawn(
+let app = spawn(
   executablePath,
   [
     '--use-mock-keychain',
@@ -620,7 +1985,7 @@ try {
   if (!page.webSocketDebuggerUrl) {
     throw new Error('Packaged Horca page has no CDP websocket')
   }
-  const session = openCdp(page.webSocketDebuggerUrl)
+  let session = openCdp(page.webSocketDebuggerUrl)
   await session.call('Runtime.enable', {}, 10_000)
   console.log('CDP Runtime.enable ok')
   const titleDeadline = Date.now() + 20_000
@@ -1358,6 +2723,13 @@ try {
     throw new Error(`Paste did not reach the PTY as bracketed text: ${pasteVerdict || pasteScreen.slice(0, 800)}`)
   }
   console.log('PASTE_OUTPUT PASTE_OK')
+  await probePackagedBehaviors({
+    session,
+    handle,
+    slot: canvas.slot,
+    worktreePath,
+    worktreeSelector
+  })
   let gridCleared = false
   await sendLine(session, 'python3 screenprobe')
   const altDeadline = Date.now() + 15_000
@@ -2060,6 +3432,175 @@ try {
     throw new Error(`Process exit was not observed: status=${exitStatus} ${exitScreen.slice(0, 500)}`)
   }
   console.log(`EXIT_OUTPUT ${exitStatus} marker=${exitScreen.includes('EXIT_MARKER')}`)
+  const exitSlot = (await ghosttySlots(session)).at(-1)
+  if (exitSlot) {
+    await focusGhosttySlot(session, exitSlot)
+  }
+  if (!(await pollUntil('Exit overlay did not offer Restart', 6_000, () => clickLabeledControl(session, 'Restart')))) {
+    throw new Error('Restart was not clickable')
+  }
+  const restartSlot = (await ghosttySlots(session)).at(-1) || exitSlot
+  if (restartSlot) {
+    await focusGhosttySlot(session, restartSlot)
+  }
+  await sendLine(session, 'printf RESTARTHORCA')
+  await pollUntil('Restart did not yield a shell that echoes a key', 8_000, async () => {
+    if (restartSlot) {
+      const selected = await dragReadSelection(session, restartSlot)
+      if (String(selected).includes('RESTARTHORCA')) return selected
+    }
+    const screen = await readScreen(exitHandle)
+    return screen.includes('RESTARTHORCA') ? screen : null
+  })
+  console.log('EXIT_RESTART RESTARTHORCA')
+  await keepGhosttyCanvases(session, 1)
+  const restoreSlot = (await ghosttySlots(session))[0]
+  if (!restoreSlot) {
+    throw new Error('Relaunch probe had no Ghostty surface')
+  }
+  await focusGhosttySlot(session, restoreSlot)
+  await openContextMenu(session, restoreSlot)
+  if (!(await clickLabeledControl(session, 'Copy Terminal ID'))) {
+    throw new Error('Relaunch pane did not copy a terminal id')
+  }
+  const restoreHandle = readClipboard().trim()
+  if (!/^term_[0-9a-f-]+$/.test(restoreHandle)) {
+    throw new Error(`Relaunch pane id was not a terminal handle: ${restoreHandle}`)
+  }
+  await sendLine(session, 'python3 relaunchprobe')
+  await pollUntil('Relaunch marker was not on the grid', 8_000, async () => {
+    const lines = tailLines(await readScreen(restoreHandle))
+    return lines.some((line) => line.includes('RELAUNCHA')) ? lines : null
+  })
+  const restoreRect = await ghosttyRect(session, restoreSlot)
+  if (!restoreRect) {
+    throw new Error('Relaunch canvas was not available')
+  }
+  await wheelAt(session, restoreRect, -900)
+  await pollUntil('Relaunch viewport did not stay up', 4_000, async () => {
+    const lines = tailLines(await readScreen(restoreHandle))
+    return lines.some((line) => line.includes('RELAUNCHA')) && !lines.some((line) => line.includes('HIDDENHORCA'))
+      ? lines
+      : null
+  })
+  const hiddenWhileUp = await pollUntil('Output while the pane was hidden was not in the scrollback', 6_000, async () => {
+    const screen = tailLines(await readScreen(restoreHandle))
+    const output = await readOutput(restoreHandle)
+    if (!output.includes('HIDDENHORCA')) return null
+    if (screen.some((line) => line.includes('HIDDENHORCA'))) return null
+    return output
+  })
+  if (!hiddenWhileUp.includes('HIDDENHORCA')) {
+    throw new Error('Hidden output was missing from the scrollback')
+  }
+  const companion = runCli([
+    'terminal',
+    'create',
+    '--worktree',
+    worktreeSelector,
+    '--command',
+    'printf RELAUNCHB',
+    '--json'
+  ])
+  const companionHandle = companion?.result?.terminal?.handle
+  if (!companionHandle) {
+    throw new Error('Relaunch companion tab did not return a handle')
+  }
+  await pollUntil('Companion tab did not show its marker', 8_000, async () => {
+    const screen = await readScreen(companionHandle)
+    return screen.includes('RELAUNCHB') ? screen : null
+  })
+  if ((await ghosttyCanvasCount(session)) > 2) {
+    throw new Error(`Relaunch left more than two Ghostty surfaces: ${await ghosttyCanvasCount(session)}`)
+  }
+  session.close()
+  const exited = new Promise((resolveExit, rejectExit) => {
+    const timer = setTimeout(() => rejectExit(new Error('Packaged Horca did not exit for relaunch')), 15_000)
+    app.once('exit', (code) => {
+      clearTimeout(timer)
+      resolveExit(code)
+    })
+  })
+  try {
+    execFileSync('osascript', ['-e', 'tell application "Horca" to quit'], { stdio: 'ignore' })
+  } catch {
+    app.kill('SIGTERM')
+  }
+  await exited
+  const relaunchPort = await reservePort()
+  app = spawn(
+    executablePath,
+    ['--use-mock-keychain', `--remote-debugging-port=${relaunchPort}`, '--remote-allow-origins=*'],
+    { env: launchEnvironment, stdio: ['ignore', 'ignore', 'pipe'] }
+  )
+  await new Promise((resolveReady, rejectReady) => {
+    const timeout = setTimeout(() => rejectReady(new Error('Relaunched Horca did not publish a CDP endpoint')), 20_000)
+    app.once('exit', (code) => {
+      clearTimeout(timeout)
+      rejectReady(new Error(`Relaunched Horca exited before CDP was ready: ${code}`))
+    })
+    app.stderr.setEncoding('utf8')
+    app.stderr.on('data', (chunk) => {
+      process.stderr.write(chunk)
+      if (/DevTools listening on ws:\/\/\S+/.test(chunk)) {
+        clearTimeout(timeout)
+        resolveReady()
+      }
+    })
+  })
+  const relaunchPage = await waitForTargets(relaunchPort)
+  session = openCdp(relaunchPage.webSocketDebuggerUrl)
+  await session.call('Runtime.enable', {}, 10_000)
+  await pollUntil('Relaunched renderer title is not Horca', 20_000, async () => {
+    const title = await evaluate(session, 'document.title', 5_000)
+    return title === 'Horca' ? title : null
+  })
+  await waitForRuntime()
+  await pollUntil('Relaunch did not restore the scrolled viewport', 12_000, async () => {
+    const screen = await readScreen(restoreHandle)
+    const lines = tailLines(screen)
+    if (!lines.some((line) => line.includes('RELAUNCHA'))) return null
+    if (lines.some((line) => line.includes('HIDDENHORCA'))) return null
+    return screen
+  })
+  const restoredHidden = await readOutput(restoreHandle)
+  if (!restoredHidden.includes('HIDDENHORCA')) {
+    throw new Error('Relaunch scrollback lost the hidden output')
+  }
+  const restoredCompanion = await readScreen(companionHandle)
+  if (!restoredCompanion.includes('RELAUNCHB')) {
+    throw new Error(`Relaunch did not restore the companion tab: ${restoredCompanion.slice(0, 300)}`)
+  }
+  const restoredSlot = (await ghosttySlots(session))[0]
+  if (restoredSlot) {
+    await focusGhosttySlot(session, restoredSlot)
+  }
+  await sendKey(session, { key: 'q', code: 'KeyQ', text: 'q', unmodifiedText: 'q', windowsVirtualKeyCode: 81, nativeVirtualKeyCode: 12 })
+  await pollUntil('Restored shell did not accept a key', 8_000, async () => {
+    const screen = await readScreen(restoreHandle)
+    return screen.includes('q') ? screen : null
+  })
+  await pollUntil('Restored banner was not on the packaged surface', 6_000, async () => {
+    const text = await evaluate(session, `document.body.innerText`, 5_000)
+    return String(text).toLowerCase().includes('session restored') ? text : null
+  })
+  await evaluate(
+    session,
+    `(() => {
+      const node = [...document.querySelectorAll('button, [role="button"]')].find((entry) =>
+        /dismiss|close|got it/i.test(entry.innerText || entry.getAttribute('aria-label') || '')
+      ) || [...document.querySelectorAll('*')].find((entry) => (entry.innerText || '').toLowerCase().includes('session restored'))
+      if (!node) return false
+      node.click()
+      return true
+    })()`,
+    5_000
+  )
+  await pollUntil('Restored banner did not dismiss', 4_000, async () => {
+    const text = await evaluate(session, `document.body.innerText`, 5_000)
+    return String(text).toLowerCase().includes('session restored') ? null : true
+  })
+  console.log('RELAUNCH_OUTPUT tabs scrollback key')
   session.close()
   if (existsSync(join(home, '.orca'))) {
     throw new Error(`Horca created the official Orca state root: ${join(home, '.orca')}`)
