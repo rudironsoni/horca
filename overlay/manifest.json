@@ -6660,6 +6660,21 @@
         "kind": "file-absent"
       },
       "reason": "D2: preload adapter for horcaTerminalSettings"
+    },
+    {
+      "id": "d2-daemon-entry-await-pty-dispose",
+      "target": "src/main/daemon/daemon-entry.ts",
+      "mode": "substitute",
+      "find": "  let shuttingDown = false\n  // Bound the wait so a wedged native shutdown can't leave the daemon running\n  // forever on SIGTERM/SIGINT (it would then survive a real quit, not just updates).\n  const SHUTDOWN_TIMEOUT_MS = 5000\n\n  const shutdown = async (reason: string): Promise<void> => {\n    // SIGTERM and SIGINT can both fire; guard against a double daemon.shutdown().\n    if (shuttingDown) {\n      return\n    }\n    shuttingDown = true\n    deathWatch?.stop()\n    daemonLog.log('shutdown', { reason })\n    try {\n      if (daemon) {\n        await Promise.race([\n          daemon.shutdown(),\n          new Promise((_, reject) =>\n            setTimeout(() => reject(new Error('shutdown timeout')), SHUTDOWN_TIMEOUT_MS)\n          )\n        ])\n        daemon = null\n      }\n    } catch (err) {",
+      "replace": "  let shuttingDown = false\n  // Why: host.dispose() waits out the 8s physical-exit budget. A 5s race\n  // process.exit()s while that wait is still running and orphans the PTY.\n  // Exit only after daemon.shutdown() settles.\n\n  const shutdown = async (reason: string): Promise<void> => {\n    // SIGTERM and SIGINT can both fire; guard against a double daemon.shutdown().\n    if (shuttingDown) {\n      return\n    }\n    shuttingDown = true\n    deathWatch?.stop()\n    daemonLog.log('shutdown', { reason })\n    try {\n      if (daemon) {\n        await daemon.shutdown()\n        daemon = null\n      }\n    } catch (err) {",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "await daemon.shutdown()",
+        "mustNotOccur": "SHUTDOWN_TIMEOUT_MS"
+      },
+      "reason": "D2: do not process.exit while host.dispose() is still waiting on the 8s physical-exit budget"
     }
   ]
 }

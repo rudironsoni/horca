@@ -9,29 +9,46 @@ let createPtySubprocess;
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const seq = [];
+const sessionIds = [];
 const handles = new Map();
-const mark = (e) => {
-  seq.push({ n: seq.length + 1, e, t: Date.now() });
+const mark = (e, sessionId) => {
+  const entry = { n: seq.length + 1, e, t: Date.now() };
+  if (sessionId) entry.sessionId = sessionId;
+  seq.push(entry);
 };
+
+function exitPrecedesDispose(ids) {
+  if (!ids.length) return false;
+  return ids.every((sessionId) => {
+    let exitN = 0;
+    let disposeN = 0;
+    for (const entry of seq) {
+      if (entry.sessionId !== sessionId) continue;
+      if (!exitN && entry.e === 'NATIVE_NODE_PTY_EXIT') exitN = entry.n;
+      if (!disposeN && entry.e === 'SUBPROCESS_HANDLE_DISPOSED') disposeN = entry.n;
+    }
+    return exitN > 0 && disposeN > 0 && exitN < disposeN;
+  });
+}
 
 process.on('uncaughtException', (err) => {
   console.error('uncaughtException', err && err.stack || err);
+  app.exit(1);
 });
 process.on('unhandledRejection', (err) => {
   console.error('unhandledRejection', err);
 });
 
-function instrumentHandle(handle) {
+function instrumentHandle(handle, sessionId) {
   const origDispose = handle.dispose.bind(handle);
   const origOnExit = handle.onExit.bind(handle);
   handle.dispose = () => {
-    mark('SUBPROCESS_HANDLE_DISPOSED');
+    mark('SUBPROCESS_HANDLE_DISPOSED', sessionId);
     return origDispose();
   };
   handle.onExit = (cb) =>
     origOnExit((code, cause) => {
-      mark('NATIVE_NODE_PTY_EXIT');
-      mark('PHYSICAL_EXIT_TRACKER_RESOLVED');
+      mark('NATIVE_NODE_PTY_EXIT', sessionId);
       cb(code, cause);
     });
   return handle;
@@ -43,9 +60,11 @@ async function spawnSubprocess(opts) {
       ...opts,
       cwd: opts.cwd || __dirname,
       env: { ...process.env, PYTHONUNBUFFERED: '1', ...(opts.env || {}) },
-    })
+    }),
+    opts.sessionId
   );
   handles.set(opts.sessionId, handle);
+  sessionIds.push(opts.sessionId);
   return handle;
 }
 
@@ -106,15 +125,19 @@ function armWillQuitBarrier() {
       .then(() => {
         hostShutdownResolved = true;
         mark('TERMINAL_HOST_SHUTDOWN_RESOLVED');
-        mark('ELECTRON_ENVIRONMENT_EXIT');
+        const ok = exitPrecedesDispose(sessionIds);
         console.log(
           JSON.stringify({
-            ok: true,
+            ok,
             mode: MODE,
             seq,
             hostShutdownResolved,
           })
         );
+        if (!ok) {
+          app.exit(1);
+          return;
+        }
         app.quit();
       })
       .catch((err) => {
@@ -133,7 +156,6 @@ app.whenReady().then(async () => {
   const { TerminalHost } = jiti(path.join(WT, 'src/main/daemon/terminal-host.ts'));
   fs.writeSync(1, 'JITI_LOADED\n');
   if (MODE === 'whenready') {
-    mark('ELECTRON_ENVIRONMENT_EXIT');
     console.log(JSON.stringify({ ok: true, mode: MODE, seq }));
     app.exit(0);
     return;
@@ -150,8 +172,8 @@ app.whenReady().then(async () => {
         command: 'printf NAT_READY\\n; exit 0',
       });
       sessions.push({ id, ...s });
-      const nat = await waitUntil(() => s.getConsumerExit() > 0 || s.getOutput().includes('NAT_READY'), 4000);
-      if (!nat) throw new Error('natural child did not exit or print NAT_READY');
+      const exited = await waitUntil(() => s.getConsumerExit() > 0, 4000);
+      if (!exited) throw new Error('natural child did not exit');
     } else if (MODE === 'inflight') {
       const s = await attachSession(host, id);
       sessions.push({ id, ...s });
