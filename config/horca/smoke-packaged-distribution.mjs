@@ -196,7 +196,24 @@ async function readScreen(handle) {
   }
 }
 
-async function dragReadSelection(session, slot) {
+function clearProbeSelectionPlan(origin) {
+  return {
+    rows: [8, 28, 48, 68, 88, 108].filter((offset) => offset < origin.height),
+    x2: origin.x + Math.max(24, origin.width - 8)
+  }
+}
+
+function clearProbeSelectionCoversPromptRow(origin) {
+  const plan = clearProbeSelectionPlan(origin)
+  const bannerClip = Math.min(220, Math.max(24, origin.width - 8))
+  return plan.rows.some((offset) => offset > 8) && plan.x2 - origin.x > bannerClip
+}
+
+if (!clearProbeSelectionCoversPromptRow({ x: 0, y: 0, width: 800, height: 400 })) {
+  throw new Error('Clear probe drag does not cover the prompt row')
+}
+
+async function dragReadSelection(session, slot, coverPromptRow = false) {
   const origin = await evaluate(
     session,
     `(() => {
@@ -210,8 +227,12 @@ async function dragReadSelection(session, slot) {
   if (!origin || origin.width < 2 || origin.height < 2) {
     return ''
   }
-  const x2 = origin.x + Math.min(220, Math.max(24, origin.width - 8))
-  const rows = [8, 28, 48, 68, 88, 108].filter((offset) => offset < origin.height)
+  const plan = clearProbeSelectionPlan(origin)
+  const x2 = coverPromptRow
+    ? plan.x2
+    : origin.x + Math.min(220, Math.max(24, origin.width - 8))
+  const rows = plan.rows
+  const covered = []
   let selected = ''
   for (const offset of rows) {
     const y = origin.y + offset
@@ -240,11 +261,17 @@ async function dragReadSelection(session, slot) {
         5_000
       )) ?? ''
     )
+    if (coverPromptRow) {
+      if (selected) {
+        covered.push(selected)
+      }
+      continue
+    }
     if (selected) {
       break
     }
   }
-  return selected
+  return coverPromptRow ? covered.join('\n') : selected
 }
 
 async function clickClearScreen(session, slot) {
@@ -1806,7 +1833,7 @@ try {
   console.log(`CHROME_CLEAR_SLOT ${openedClearMenu}`)
   let clearBefore = ''
   for (let attempt = 0; attempt < 6; attempt += 1) {
-    clearBefore = await dragReadSelection(session, openedClearMenu)
+    clearBefore = await dragReadSelection(session, openedClearMenu, true)
     if (/clearmark|printf|zsh|┌|─|├|HORCA|❯/.test(clearBefore)) {
       break
     }
@@ -1873,7 +1900,7 @@ try {
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 400))
   let clearText = ''
   for (let attempt = 0; attempt < 3; attempt += 1) {
-    clearText = await dragReadSelection(session, openedClearMenu)
+    clearText = await dragReadSelection(session, openedClearMenu, true)
     if (!/clearmark|printf|zsh|┌|─|├|HORCA|❯/.test(clearText)) {
       break
     }
