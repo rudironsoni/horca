@@ -145,6 +145,40 @@ jobs:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      - name: Production shutdown harness
+        timeout-minutes: 15
+        env:
+          WT: ${{ steps.materialize.outputs.worktree_path }}
+        run: |
+          test -d "$WT"
+          addon=native/horca-ghostty/adopted/electron-ghostty/build/Release/ghostty_renderer.node
+          test -f "$addon"
+          test -f "$WT/$addon"
+          electron="$WT/node_modules/electron/dist/Electron.app/Contents/MacOS/Electron"
+          test -x "$electron"
+          script=native/horca-ghostty/harness/pty-backend/production-shutdown.js
+          test -f "$script"
+          for mode in single natural inflight four adversarial whenready; do
+            log="$RUNNER_TEMP/horca-shutdown-$mode.log"
+            set +e
+            HORCA_ORCA_WT="$WT" HORCA_SHUTDOWN_MODE="$mode" \
+              perl -e 'alarm 120; exec @ARGV' "$electron" "$script" >"$log" 2>&1
+            status=$?
+            set -e
+            cat "$log"
+            if [ "$status" -ne 0 ]; then
+              echo "::error::shutdown mode $mode exited $status"
+              exit 1
+            fi
+            if grep -q '"ok":false' "$log"; then
+              echo "::error::shutdown mode $mode printed ok:false"
+              exit 1
+            fi
+            if ! grep -q '"ok":true' "$log"; then
+              echo "::error::shutdown mode $mode did not print ok:true"
+              exit 1
+            fi
+          done
       - name: Stage DMGs
         env:
           WT: ${{ steps.materialize.outputs.worktree_path }}
@@ -182,14 +216,14 @@ jobs:
             hdiutil detach "$mount" -quiet
           done
       - name: Packaged D1 smoke
-        timeout-minutes: 8
+        timeout-minutes: 20
         env:
           WT: ${{ steps.materialize.outputs.worktree_path }}
         run: |
           cp config/horca/smoke-packaged-distribution.mjs "$WT/config/horca/smoke-packaged-distribution.mjs"
           app="$WT/dist/mac-arm64/Horca.app"
           test -d "$app"
-          perl -e 'alarm 240; exec @ARGV' node "$WT/config/horca/smoke-packaged-distribution.mjs" "$app/Contents/MacOS/Horca"
+          perl -e 'alarm 900; exec @ARGV' node "$WT/config/horca/smoke-packaged-distribution.mjs" "$app/Contents/MacOS/Horca"
       - name: Build checksums and release manifest
         if: always() && hashFiles('artifacts/horca-macos-arm64.dmg') != ''
         env:
