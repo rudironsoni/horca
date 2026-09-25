@@ -474,7 +474,9 @@ sys.stdout.flush()
 time.sleep(1.0)
 `
 const CHORD_SOURCE = `import os, sys, termios, tty, select, time
-sys.stdout.buffer.write(b"\\x1b[<u\\x1b[>31uCHORD_READY\\r\\n")
+sys.stdout.buffer.write(b"CHORD_READY\\r\\n")
+sys.stdout.flush()
+sys.stdout.buffer.write(b"\\x1b[<u\\x1b[>31u")
 sys.stdout.flush()
 fd = 0
 old = termios.tcgetattr(fd)
@@ -1079,11 +1081,36 @@ async function probePackagedBehaviors(ctx) {
   }
 
   await focusGhosttySlot(session, slot)
-  await sendLine(session, 'python3 chordprobe')
-  await pollUntil('Chord probe did not start', 8_000, async () => {
+  await pollUntil('Paste probe did not return the shell', 8_000, async () => {
     const screen = await readScreen(handle)
-    return screen.includes('CHORD_READY') ? screen : null
+    return screen.includes('PASTE_DONE') ? screen : null
   })
+  // Cmd+V set the meta modifier. The packaged canvas drops keydowns while metaKey is set.
+  await session.call(
+    'Input.dispatchKeyEvent',
+    {
+      type: 'keyUp',
+      key: 'Meta',
+      code: 'MetaLeft',
+      windowsVirtualKeyCode: 91,
+      nativeVirtualKeyCode: 55,
+      modifiers: 0
+    },
+    15_000
+  )
+  await sendLine(session, 'python3 chordprobe')
+  const chordStartDeadline = Date.now() + 8_000
+  let chordScreen = ''
+  while (Date.now() < chordStartDeadline) {
+    chordScreen = await readScreen(handle)
+    if (chordScreen.includes('CHORD_READY')) {
+      break
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 150))
+  }
+  if (!chordScreen.includes('CHORD_READY')) {
+    throw new Error(`Chord probe did not start: ${chordScreen.slice(0, 800)}`)
+  }
   await nextChord(
     'CHORD_CTRL_ENTER',
     () => sendKey(session, { key: 'Enter', code: 'Enter', modifiers: 2, windowsVirtualKeyCode: 13, nativeVirtualKeyCode: 36 }),
