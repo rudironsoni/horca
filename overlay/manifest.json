@@ -6675,6 +6675,143 @@
         "mustNotOccur": "const SHUTDOWN_TIMEOUT_MS = 5000"
       },
       "reason": "D2: shutdown timeout stays strictly above the 8s physical-exit budget"
+    },
+    {
+      "id": "d2-brand-popout-title",
+      "target": "src/renderer/popout.html",
+      "mode": "substitute",
+      "find": "    <title>Orca Agent Dashboard</title>",
+      "replace": "    <title>Horca Agent Dashboard</title>",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "    <title>Orca Agent Dashboard</title>",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "    <title>Horca Agent Dashboard</title>"
+      },
+      "reason": "Packaged popout document title says Horca"
+    },
+    {
+      "id": "d2-brand-web-title",
+      "target": "src/renderer/web-index.html",
+      "mode": "substitute",
+      "find": "    <title>Orca Web</title>",
+      "replace": "    <title>Horca Web</title>",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "    <title>Orca Web</title>",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "    <title>Horca Web</title>"
+      },
+      "reason": "Packaged web document title says Horca"
+    },
+    {
+      "id": "d2-brand-main-translation-catalog-plugin",
+      "target": "electron.vite.config.ts",
+      "mode": "substitute",
+      "find": "export const electronViteConfig: UserConfig = {\n  main: {\n    build: {\n",
+      "replace": "export const electronViteConfig: UserConfig = {\n  main: {\n    plugins: [createDistributionTranslationCatalogPlugin('horca')],\n    build: {\n",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "export const electronViteConfig: UserConfig = {\n  main: {\n    build: {\n",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "plugins: [createDistributionTranslationCatalogPlugin('horca')],\n    build: {"
+      },
+      "reason": "Rewrite non-English catalogs imported by the main process so packaged menus say Horca"
+    },
+    {
+      "id": "d2-brand-renderer-translate-import",
+      "target": "src/renderer/src/i18n/i18n.ts",
+      "mode": "substitute",
+      "find": "import type { PluginLanguagePackRegistration } from '../../../shared/plugins/plugin-language-pack-artifact'\n",
+      "replace": "import type { PluginLanguagePackRegistration } from '../../../shared/plugins/plugin-language-pack-artifact'\nimport { applyDistributionProductName } from '../../../shared/distribution-product-copy'\n",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "import type { PluginLanguagePackRegistration } from '../../../shared/plugins/plugin-language-pack-artifact'\n",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "import { applyDistributionProductName } from '../../../shared/distribution-product-copy'"
+      },
+      "reason": "Renderer translation fallbacks can use the Horca product name"
+    },
+    {
+      "id": "d2-brand-renderer-translate-fallback",
+      "target": "src/renderer/src/i18n/i18n.ts",
+      "mode": "substitute",
+      "find": "export function translate(key: string, fallback: string, options?: TOptions): string {\n  const value = i18n.t(key, { defaultValue: fallback, ...options })\n",
+      "replace": "export function translate(key: string, fallback: string, options?: TOptions): string {\n  const value = i18n.t(key, {\n    defaultValue: applyDistributionProductName(fallback),\n    ...options\n  })\n",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "export function translate(key: string, fallback: string, options?: TOptions): string {\n  const value = i18n.t(key, { defaultValue: fallback, ...options })\n",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "defaultValue: applyDistributionProductName(fallback),"
+      },
+      "reason": "English renderer copy that is not in the pruned catalog says Horca"
+    },
+    {
+      "id": "d2-brand-main-translate-import",
+      "target": "src/main/i18n/main-i18n.ts",
+      "mode": "substitute",
+      "find": "import type { PluginLanguagePackRegistration } from '../../shared/plugins/plugin-language-pack-artifact'\n",
+      "replace": "import type { PluginLanguagePackRegistration } from '../../shared/plugins/plugin-language-pack-artifact'\nimport { applyDistributionProductName } from '../../shared/distribution-product-copy'\n",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "import type { PluginLanguagePackRegistration } from '../../shared/plugins/plugin-language-pack-artifact'\n",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "import { applyDistributionProductName } from '../../shared/distribution-product-copy'"
+      },
+      "reason": "Main-process translation fallbacks can use the Horca product name"
+    },
+    {
+      "id": "d2-brand-main-translate-fallback",
+      "target": "src/main/i18n/main-i18n.ts",
+      "mode": "substitute",
+      "find": "  const raw = initialized ? mainI18n.t(key, { defaultValue: fallback, ...options }) : fallback\n  const value = typeof raw === 'string' && raw.length > 0 ? raw : fallback\n",
+      "replace": "  const productFallback = applyDistributionProductName(fallback)\n  const raw = initialized\n    ? mainI18n.t(key, { defaultValue: productFallback, ...options })\n    : productFallback\n  const value = typeof raw === 'string' && raw.length > 0 ? raw : productFallback\n",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "  const raw = initialized ? mainI18n.t(key, { defaultValue: fallback, ...options }) : fallback\n  const value = typeof raw === 'string' && raw.length > 0 ? raw : fallback\n",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "const productFallback = applyDistributionProductName(fallback)"
+      },
+      "reason": "Main-process English dialogs and menus say Horca"
+    },
+    {
+      "id": "d2-brand-mac-privacy-prompts",
+      "target": "config/electron-builder.config.cjs",
+      "mode": "substitute",
+      "find": "      NSAppleEventsUsageDescription:\n        'Orca allows terminal-launched developer tools to automate local apps when you request it.',\n      NSBluetoothAlwaysUsageDescription:\n        'Orca allows terminal-launched developer tools to access Bluetooth devices when you request it.',\n      NSBluetoothPeripheralUsageDescription:\n        'Orca allows terminal-launched developer tools to access Bluetooth devices when you request it.',\n      NSCameraUsageDescription: \"Application requests access to the device's camera.\",\n      NSLocationUsageDescription:\n        'Orca allows terminal-launched developer tools to access location when you request it.',\n      NSLocalNetworkUsageDescription:\n        'Orca allows terminal-launched developer tools to discover and connect to local development servers when you request it.',\n      NSMicrophoneUsageDescription: \"Application requests access to the device's microphone.\",\n      NSAudioCaptureUsageDescription:\n        'Orca allows terminal-launched developer tools to capture desktop audio when you request it.',\n",
+      "replace": "      NSAppleEventsUsageDescription:\n        'Horca allows terminal-launched developer tools to automate local apps when you request it.',\n      NSBluetoothAlwaysUsageDescription:\n        'Horca allows terminal-launched developer tools to access Bluetooth devices when you request it.',\n      NSBluetoothPeripheralUsageDescription:\n        'Horca allows terminal-launched developer tools to access Bluetooth devices when you request it.',\n      NSCameraUsageDescription: \"Application requests access to the device's camera.\",\n      NSLocationUsageDescription:\n        'Horca allows terminal-launched developer tools to access location when you request it.',\n      NSLocalNetworkUsageDescription:\n        'Horca allows terminal-launched developer tools to discover and connect to local development servers when you request it.',\n      NSMicrophoneUsageDescription: \"Application requests access to the device's microphone.\",\n      NSAudioCaptureUsageDescription:\n        'Horca allows terminal-launched developer tools to capture desktop audio when you request it.',\n",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "      NSAppleEventsUsageDescription:\n        'Orca allows terminal-launched developer tools to automate local apps when you request it.',\n",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "'Horca allows terminal-launched developer tools to automate local apps when you request it.'",
+        "mustNotOccur": "'Orca allows terminal-launched developer tools"
+      },
+      "reason": "macOS privacy prompts use the Horca product name"
     }
   ]
 }

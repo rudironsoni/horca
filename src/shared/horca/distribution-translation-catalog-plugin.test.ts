@@ -36,6 +36,23 @@ describe('distribution translation catalog plugin', () => {
     }
   })
 
+  it('rewrites the eager English runtime catalog the renderer imports', () => {
+    const source = JSON.stringify({
+      'auto.components.artifacts.ArtifactsPage.signInHeading': 'Sign in to Orca',
+      website: 'https://onOrca.dev'
+    })
+    const transformed = transform(
+      createDistributionTranslationCatalogPlugin('horca'),
+      source,
+      '/repo/src/renderer/src/i18n/en-runtime-required.json'
+    )
+
+    expect(JSON.parse(transformed as string)).toEqual({
+      'auto.components.artifacts.ArtifactsPage.signInHeading': 'Sign in to Horca',
+      website: 'https://onOrca.dev'
+    })
+  })
+
   it('keeps official catalogs and non-catalog JSON unchanged', () => {
     const source = '{"title":"Open Orca"}'
 

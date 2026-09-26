@@ -2,6 +2,7 @@ import { DISTRIBUTION_IDENTITIES, type OrcaDistribution } from '../distribution-
 import { applyDistributionProductNameToCatalog } from '../distribution-product-copy'
 
 const TRANSLATION_CATALOG_DIRECTORY = '/src/renderer/src/i18n/locales/'
+const RUNTIME_REQUIRED_CATALOG = '/src/renderer/src/i18n/en-runtime-required.json'
 
 export type DistributionTranslationCatalogPlugin = {
   name: string
@@ -11,6 +12,9 @@ export type DistributionTranslationCatalogPlugin = {
 
 function isTranslationCatalog(id: string): boolean {
   const normalizedId = id.split('?', 1)[0].replaceAll('\\', '/')
+  if (normalizedId.endsWith(RUNTIME_REQUIRED_CATALOG)) {
+    return true
+  }
   return normalizedId.includes(TRANSLATION_CATALOG_DIRECTORY) && normalizedId.endsWith('.json')
 }
 
