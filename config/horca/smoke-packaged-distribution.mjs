@@ -451,10 +451,13 @@ try:
         line = b"PASTE_BAD " + blob[:48].hex().encode() + b"\\r\\n"
     sys.stdout.buffer.write(line)
     sys.stdout.flush()
-finally:
-    termios.tcsetattr(fd, termios.TCSANOW, old)
+    # The packaged screen read showed PASTE_OK, which is written while the
+    # tty is still raw. The same read never showed PASTE_DONE once it was
+    # written after tcsetattr, so the shell-return marker is printed here.
     sys.stdout.buffer.write(b"PASTE_DONE\\r\\n")
     sys.stdout.flush()
+finally:
+    termios.tcsetattr(fd, termios.TCSANOW, old)
     sys.stdout.buffer.write(b"\\x1b[?2004l")
     sys.stdout.flush()
 `
@@ -1083,9 +1086,8 @@ async function probePackagedBehaviors(ctx) {
   }
 
   await focusGhosttySlot(session, slot)
-  // PASTE_DONE is printed after the tty restore. The rendered screen missed it
-  // when it shared a write with the bracketed-paste reset, so also accept the
-  // PTY transcript, which still contains a marker the grid did not show.
+  // PASTE_DONE is printed with PASTE_OK, before the tty restore. Accept it
+  // from the rendered screen or the PTY transcript.
   const pasteDoneDeadline = Date.now() + 8_000
   let pasteDoneSample = ''
   while (Date.now() < pasteDoneDeadline) {
