@@ -1,0 +1,26 @@
+name: 'Horca: D2 Rehearsal'
+
+# Push to feat/d2-ghostty-gpu reuses the stable release workflow with publish
+# false. Do not add that branch under on.push in horca_release.yml.
+# Trigger-toggle commits that add and remove it already exist and must not
+# be added again. A caller push keeps github.event_name == push, so the
+# callee sets PUBLISH only for refs/heads/main.
+
+on:
+  push:
+    branches: [feat/d2-ghostty-gpu]
+
+permissions:
+  contents: write
+  attestations: write
+  id-token: write
+  issues: write
+
+jobs:
+  release:
+    uses: ./.github/workflows/horca_release.yml
+    with:
+      channel: stable
+      source_ref: ${{ github.sha }}
+      publish: false
+    secrets: inherit
