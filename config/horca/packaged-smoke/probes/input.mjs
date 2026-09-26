@@ -187,6 +187,48 @@ async function runKeys(ctx) {
   )
 }
 
+async function submitChordCommand(session) {
+  const text = 'python3 chordprobe'
+  for (const char of text) {
+    if (char === ' ') {
+      await sendKey(session, {
+        key: ' ',
+        code: 'Space',
+        text: ' ',
+        unmodifiedText: ' ',
+        windowsVirtualKeyCode: 32,
+        nativeVirtualKeyCode: 49
+      })
+    } else if (/[0-9]/.test(char)) {
+      const digitCode = { 0: 29, 1: 18, 2: 19, 3: 20, 4: 21, 5: 23, 6: 22, 7: 26, 8: 28, 9: 25 }
+      await sendKey(session, {
+        key: char,
+        code: `Digit${char}`,
+        text: char,
+        unmodifiedText: char,
+        windowsVirtualKeyCode: char.charCodeAt(0),
+        nativeVirtualKeyCode: digitCode[char]
+      })
+    } else {
+      await sendKey(session, {
+        key: char,
+        code: `Key${char.toUpperCase()}`,
+        text: char,
+        unmodifiedText: char,
+        windowsVirtualKeyCode: char.toUpperCase().charCodeAt(0),
+        nativeVirtualKeyCode: 0
+      })
+    }
+    await delay(20)
+  }
+  await sendKey(session, {
+    key: 'Enter',
+    code: 'Enter',
+    windowsVirtualKeyCode: 13,
+    nativeVirtualKeyCode: 36
+  })
+}
+
 async function collectChordOutput(ctx, handle) {
   const deadline = Date.now() + 8_000
   let chordOutput = ''
@@ -210,7 +252,7 @@ async function runChords(ctx) {
     if (!shellPromptAfter(ready, 'CHORD_SHELL_READY')) {
       throw new Error('Chord shell was not ready on its own terminal')
     }
-    await sendLine(ctx.session, 'python3 chordprobe', { text: '\r' })
+    await submitChordCommand(ctx.session)
     const chordOutput = await collectChordOutput(ctx, term.handle)
     const classified = classifyChordStart(chordOutput)
     if (!classified.chordReady) {
