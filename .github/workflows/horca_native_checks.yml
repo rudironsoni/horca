@@ -1,0 +1,82 @@
+name: Horca: Native checks
+
+on:
+  push:
+    branches: [cursor/d2-native-checks]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: horca-native-checks-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  macos:
+    runs-on: macos-15
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
+        with:
+          run_install: false
+
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: package.json
+
+      - name: Fetch pinned Orca
+        run: node scripts/fetch-upstream.mjs
+
+      - name: Materialize disposable Orca worktree
+        id: materialize
+        run: |
+          node scripts/materialize.mjs
+          echo "worktree_path=$(tr -d '\n' < .cache/release-worktree-path)" >> "$GITHUB_OUTPUT"
+
+      - name: Apply overlays
+        run: |
+          WT=$(cat .cache/release-worktree-path)
+          test -d "$WT"
+          node scripts/apply-overlays.mjs "$WT"
+
+      - name: Install worktree dependencies
+        working-directory: ${{ steps.materialize.outputs.worktree_path }}
+        run: pnpm install --frozen-lockfile
+
+      - name: Native verifier
+        id: native
+        continue-on-error: true
+        working-directory: ${{ steps.materialize.outputs.worktree_path }}
+        run: pnpm verify:computer-native
+
+      - name: Build Ghostty addon for this runner
+        run: |
+          case "$(uname -m)" in
+            arm64) arch=arm64 ;;
+            x86_64) arch=x64 ;;
+            *) echo "unsupported arch $(uname -m)"; exit 1 ;;
+          esac
+          HORCA_GHOSTTY_ARCHS="$arch" node scripts/build-horca-ghostty-macos-addon.mjs
+
+      - name: Electron 43 addon load
+        id: electron43
+        continue-on-error: true
+        env:
+          WT: ${{ steps.materialize.outputs.worktree_path }}
+        run: |
+          electron=$(node -e "process.chdir(process.env.WT); process.stdout.write(require('electron'))")
+          test -x "$electron"
+          "$electron" native/horca-ghostty/harness/electron-43/addon-load.js
+
+      - name: Require native and Electron 43
+        if: always()
+        run: |
+          echo "native=${{ steps.native.outcome }}"
+          echo "electron43=${{ steps.electron43.outcome }}"
+          test "${{ steps.native.outcome }}" = success
+          test "${{ steps.electron43.outcome }}" = success
