@@ -220,12 +220,9 @@ export function shellPromptAfter(text, marker) {
     if (markerAt < 0) {
       return false
     }
-    for (let index = markerAt + 1; index < rows.length; index += 1) {
-      if (rows[index].includes('runner$')) {
-        return true
-      }
-    }
-    return false
+    const rest = rows.slice(markerAt).join('')
+    const at = rest.lastIndexOf(marker)
+    return at >= 0 && rest.slice(at + marker.length).includes('runner$')
   } catch {
     return false
   }
@@ -630,7 +627,7 @@ export async function closeNewestTerminalTab(session) {
   return pollUntil('Close tab did not release a Ghostty surface', 8_000, async () => {
     await confirmStopAndClose(session)
     const count = await ghosttyCanvasCount(session)
-    return count < before ? count : null
+    return count < before ? { count } : null
   })
 }
 
@@ -644,7 +641,7 @@ export async function closePaneSlot(session, slot) {
   await pollUntil('Close Pane did not release a Ghostty surface', 8_000, async () => {
     await confirmStopAndClose(session)
     const slots = await ghosttySlots(session)
-    return slots.includes(slot) ? null : slots.length
+    return slots.includes(slot) ? null : { count: slots.length }
   })
   const after = await ghosttyCanvasCount(session)
   if (after >= before) {
@@ -657,7 +654,7 @@ export async function keepGhosttyCanvases(session, limit) {
   let guard = 0
   while (count > limit && guard < 6) {
     guard += 1
-    count = await closeNewestTerminalTab(session)
+    count = (await closeNewestTerminalTab(session)).count
   }
   if (count > limit) {
     throw new Error(`Ghostty surfaces stayed above ${limit}: ${count}`)
@@ -725,7 +722,7 @@ export async function closeTabByLabel(ctx, label) {
   await pollUntil(`Close tab did not release a surface: ${label}`, 8_000, async () => {
     await confirmStopAndClose(ctx.session)
     const count = await ghosttyCanvasCount(ctx.session)
-    return count < before ? count : null
+    return count < before ? { count } : null
   })
 }
 
@@ -865,7 +862,7 @@ export async function openOwnedTerminal(ctx, { command, marker, markerTimeout = 
 
 export async function openShell(ctx, readyMarker) {
   const term = await openOwnedTerminal(ctx, {
-    command: `printf '%s\\n' ${readyMarker}`,
+    command: `PS1='runner$ '; printf '%s\\n' ${readyMarker}`,
     marker: readyMarker,
     markerTimeout: 8_000
   })
