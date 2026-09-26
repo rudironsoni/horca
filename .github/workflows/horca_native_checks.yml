@@ -48,6 +48,10 @@ jobs:
         working-directory: ${{ steps.materialize.outputs.worktree_path }}
         run: pnpm install --frozen-lockfile
 
+      - name: Build macOS computer-use helper
+        working-directory: ${{ steps.materialize.outputs.worktree_path }}
+        run: pnpm build:computer-macos
+
       - name: Native verifier
         id: native
         continue-on-error: true
