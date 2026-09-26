@@ -2,7 +2,7 @@ name: 'Horca: Stable Release'
 
 on:
   push:
-    branches: [main]
+    branches: [main, feat/d2-ghostty-gpu]
   workflow_dispatch:
     inputs:
       publish:
@@ -161,8 +161,17 @@ jobs:
           for mode in single natural inflight four adversarial whenready; do
             log="$RUNNER_TEMP/horca-shutdown-$mode.log"
             set +e
-            HORCA_ORCA_WT="$WT" HORCA_SHUTDOWN_MODE="$mode" \
-              perl -e 'alarm 120; exec @ARGV' "$electron" "$script" >"$log" 2>&1
+            if [ "$mode" = "adversarial" ]; then
+              # Diagnostic only. Prints Napi::Error::what() if this mode aborts.
+              # Does not change the harness, the PTY order, or the exit check.
+              HORCA_ORCA_WT="$WT" HORCA_SHUTDOWN_MODE="$mode" \
+                perl -e 'alarm 120; exec @ARGV' \
+                bash native/horca-ghostty/harness/pty-backend/adversarial-terminate-diagnostic.sh \
+                "$electron" >"$log" 2>&1
+            else
+              HORCA_ORCA_WT="$WT" HORCA_SHUTDOWN_MODE="$mode" \
+                perl -e 'alarm 120; exec @ARGV' "$electron" "$script" >"$log" 2>&1
+            fi
             status=$?
             set -e
             cat "$log"
