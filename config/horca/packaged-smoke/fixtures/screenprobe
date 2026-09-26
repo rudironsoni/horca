@@ -1,0 +1,10 @@
+import sys, time
+sys.stdout.buffer.write(b"\x1b[2J\x1b[HPRIMARY_HORCA\r\n")
+sys.stdout.flush()
+time.sleep(1.0)
+sys.stdout.buffer.write(b"\x1b[?1049h\x1b[2J\x1b[HALTSCREEN_HORCA\r\n")
+sys.stdout.flush()
+time.sleep(1.0)
+sys.stdout.buffer.write(b"\x1b[?1049l")
+sys.stdout.flush()
+time.sleep(1.0)

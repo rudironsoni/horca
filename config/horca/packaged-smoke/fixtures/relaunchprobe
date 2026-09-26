@@ -1,0 +1,7 @@
+import sys, time
+sys.stdout.write("RELAUNCHA\n")
+sys.stdout.write("RELAUNCHROW\n" * 60)
+sys.stdout.flush()
+time.sleep(1.2)
+sys.stdout.write("HIDDENHORCA\n")
+sys.stdout.flush()

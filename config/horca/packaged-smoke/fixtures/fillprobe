@@ -1,0 +1,9 @@
+import sys
+sys.stdout.write("SCROLLTOP\n")
+sys.stdout.write("REFLOWHORCA" + ("x" * 180) + "\n")
+for i in range(80):
+    sys.stdout.write("SCROLLROW\n")
+sys.stdout.write("SEARCHHORCA one\n")
+sys.stdout.write("SEARCHHORCA two\n")
+sys.stdout.write("SCROLLBOT\n")
+sys.stdout.flush()

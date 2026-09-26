@@ -1,0 +1,5 @@
+import sys
+sys.stdout.buffer.write(b"\x1b]52;c;T1NDNTJIT1JDQQ==\x07")
+sys.stdout.flush()
+sys.stdout.write("OSC52_WROTE\n")
+sys.stdout.flush()

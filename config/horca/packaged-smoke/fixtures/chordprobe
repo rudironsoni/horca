@@ -1,0 +1,28 @@
+import os, sys, termios, tty, select, time
+sys.stdout.buffer.write(b"CHORD_READY\r\n")
+sys.stdout.flush()
+sys.stdout.buffer.write(b"\x1b[<u\x1b[>31u")
+sys.stdout.flush()
+fd = 0
+old = termios.tcgetattr(fd)
+tty.setraw(fd)
+
+def burst():
+    parts = [os.read(fd, 128)]
+    deadline = time.monotonic() + 0.2
+    while time.monotonic() < deadline:
+        ready, _, _ = select.select([fd], [], [], 0.03)
+        if not ready:
+            continue
+        parts.append(os.read(fd, 128))
+        deadline = time.monotonic() + 0.04
+    return b"".join(parts)
+
+try:
+    for _ in range(6):
+        sys.stdout.buffer.write(b"CHORDHEX " + burst().hex().encode() + b"\r\n")
+        sys.stdout.flush()
+finally:
+    termios.tcsetattr(fd, termios.TCSANOW, old)
+    sys.stdout.buffer.write(b"\x1b[<uCHORD_DONE\r\n")
+    sys.stdout.flush()

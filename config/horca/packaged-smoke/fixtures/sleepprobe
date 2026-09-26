@@ -1,0 +1,6 @@
+import sys, time
+sys.stdout.buffer.write(b"SLEEP_READY\n")
+sys.stdout.flush()
+time.sleep(60)
+sys.stdout.buffer.write(b"SLEEP_DONE\n")
+sys.stdout.flush()

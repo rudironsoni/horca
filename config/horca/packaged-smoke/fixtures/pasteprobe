@@ -1,0 +1,46 @@
+import os, sys, termios, tty, select, time
+sys.stdout.buffer.write(b"\x1b[?2004hPASTE_READY\r\n")
+sys.stdout.flush()
+fd = 0
+old = termios.tcgetattr(fd)
+tty.setraw(fd)
+
+def burst():
+    parts = []
+    close = bytes.fromhex("1b5b3230317e")
+    deadline = time.monotonic() + 1.5
+    while time.monotonic() < deadline:
+        ready, _, _ = select.select([fd], [], [], 0.05)
+        if not ready:
+            if parts and close in b"".join(parts):
+                break
+            continue
+        parts.append(os.read(fd, 256))
+        blob = b"".join(parts)
+        if close in blob:
+            time.sleep(0.05)
+            while select.select([fd], [], [], 0)[0]:
+                parts.append(os.read(fd, 256))
+            break
+    return b"".join(parts)
+
+try:
+    blob = burst()
+    exact = b"\x1b[200~PASTE_HORCA\x1b[201~"
+    if exact in blob:
+        line = b"PASTE_OK\r\n"
+    elif b"\x1b[200~PASTE_HORCA" in blob and b"\x1b[201~" in blob:
+        line = b"PASTE_SPLIT\r\n"
+    else:
+        line = b"PASTE_BAD " + blob[:48].hex().encode() + b"\r\n"
+    sys.stdout.buffer.write(line)
+    sys.stdout.flush()
+    # The packaged screen read showed PASTE_OK, which is written while the
+    # tty is still raw. The same read never showed PASTE_DONE once it was
+    # written after tcsetattr, so the shell-return marker is printed here.
+    sys.stdout.buffer.write(b"PASTE_DONE\r\n")
+    sys.stdout.flush()
+finally:
+    termios.tcsetattr(fd, termios.TCSANOW, old)
+    sys.stdout.buffer.write(b"\x1b[?2004l")
+    sys.stdout.flush()

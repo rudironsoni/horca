@@ -1,0 +1,6 @@
+import sys, time
+sys.stdout.write("FOLLOWREADY\n")
+sys.stdout.flush()
+time.sleep(1.2)
+sys.stdout.write("FOLLOWHORCA\n")
+sys.stdout.flush()
