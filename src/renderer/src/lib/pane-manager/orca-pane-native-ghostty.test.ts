@@ -38,8 +38,7 @@ describe('orca pane native Ghostty GPU', () => {
     expect(canvas.style.display).not.toBe('none')
   })
 
-  it('forwards writes without hiding the in-process canvas when the preload reports GPU', async () => {
-    const writes: string[] = []
+  it('does not attach an NSView overlay when a surface API is present', () => {
     const api = {
       isAvailable: () => true,
       attach: vi.fn(async () => 7),
@@ -47,25 +46,17 @@ describe('orca pane native Ghostty GPU', () => {
       setBounds: vi.fn(async () => undefined),
       setOcclusion: vi.fn(async () => undefined),
       setVisible: vi.fn(async () => undefined),
-      write: vi.fn(async (_id: number, data: string) => {
-        writes.push(data)
-      }),
+      write: vi.fn(async () => undefined),
       resize: vi.fn(async () => undefined)
     }
     const restore = installSurfaceApi(api)
     const canvas = document.createElement('canvas')
     const host = document.createElement('div')
-    document.body.appendChild(host)
     const native = attachOrcaPaneNativeGhostty(canvas, host)
-    expect(native.attached).toBe(true)
-    expect(canvas.style.display).not.toBe('none')
+    expect(native.attached).toBe(false)
     native.write('hello')
-    await api.attach.mock.results[0]?.value
-    await Promise.resolve()
-    expect(writes).toEqual(['hello'])
-    native.dispose()
-    expect(api.destroy).toHaveBeenCalledWith(7)
-    expect(canvas.style.display).not.toBe('none')
+    expect(api.attach).not.toHaveBeenCalled()
+    expect(api.write).not.toHaveBeenCalled()
     restore()
   })
 })

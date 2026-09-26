@@ -1,0 +1,717 @@
+From ea0622bc4a3a2acada488574cf4bd83b297a6c68 Mon Sep 17 00:00:00 2001
+From: Max Lv <max.c.lv@gmail.com>
+Date: Fri, 29 May 2026 15:22:05 +0800
+Subject: [PATCH] termio: add passthru IO backend for embedder-provided IO
+ (SSH)
+
+Add a new `passthru` termio backend that owns no subprocess or pty.
+Instead, the embedder provides IO:
+
+  * Incoming data is injected via the new C API ghostty_surface_pty_data,
+    which feeds Termio.processOutput (the same ingress the exec backend's
+    read thread uses).
+  * Outgoing data (keyboard input, query responses, etc.) flows through
+    the single queueWrite chokepoint to an embedder-provided callback.
+  * Resizes are reported via a callback so the embedder can notify the
+    remote (e.g. an SSH window-change request).
+
+The backend is selected via a new `io_backend` field on
+ghostty_surface_config_s, with pty_write_cb / pty_resize_cb callbacks.
+Surface.init branches on the apprt's ioBackend()/passthruConfig()
+(detected at comptime so only the embedded/libghostty apprt is affected)
+to skip subprocess creation.
+
+This enables driving libghostty from a network transport such as SSH,
+e.g. on iOS where fork/exec is unavailable. Used by the gterm iOS app.
+
+Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>
+---
+ include/ghostty.h       |  33 +++++
+ src/Surface.zig         |  46 ++++++-
+ src/apprt.zig           |  10 ++
+ src/apprt/embedded.zig  |  64 +++++++++
+ src/termio.zig          |   1 +
+ src/termio/Passthru.zig | 288 ++++++++++++++++++++++++++++++++++++++++
+ src/termio/backend.zig  |  23 +++-
+ 7 files changed, 460 insertions(+), 5 deletions(-)
+ create mode 100644 src/termio/Passthru.zig
+
+diff --git a/include/ghostty.h b/include/ghostty.h
+index fbfe3ee..4fc48ea 100644
+--- a/include/ghostty.h
++++ b/include/ghostty.h
+@@ -464,6 +464,31 @@ typedef enum {
+   GHOSTTY_SURFACE_CONTEXT_SPLIT = 2,
+ } ghostty_surface_context_e;
+ 
++// Selects the terminal IO backend for a surface.
++typedef enum {
++  // Run a local subprocess on a pty (the default).
++  GHOSTTY_IO_BACKEND_EXEC = 0,
++  // No subprocess; the embedder provides IO via the callbacks below and
++  // ghostty_surface_pty_data. Used to drive the terminal from an external
++  // transport such as SSH (e.g. on iOS, where fork/exec is unavailable).
++  GHOSTTY_IO_BACKEND_PASSTHRU = 1,
++} ghostty_io_backend_e;
++
++// Invoked (on the IO thread) with bytes the terminal wants to send to the
++// "pty": keyboard input, query responses, clipboard, etc. The embedder
++// forwards these to its transport. MUST NOT block.
++typedef void (*ghostty_surface_pty_write_cb)(void* userdata,
++                                             const uint8_t* ptr,
++                                             uintptr_t len);
++
++// Invoked (on the IO thread) when the terminal is resized so the embedder can
++// notify the remote (e.g. an SSH window-change request).
++typedef void (*ghostty_surface_pty_resize_cb)(void* userdata,
++                                              uint16_t columns,
++                                              uint16_t rows,
++                                              uint32_t width_px,
++                                              uint32_t height_px);
++
+ typedef struct {
+   ghostty_platform_e platform_tag;
+   ghostty_platform_u platform;
+@@ -477,6 +502,13 @@ typedef struct {
+   const char* initial_input;
+   bool wait_after_command;
+   ghostty_surface_context_e context;
++
++  // IO backend selection and passthru callbacks. The callbacks are only used
++  // when io_backend == GHOSTTY_IO_BACKEND_PASSTHRU and receive `userdata`
++  // (above) as their first argument.
++  ghostty_io_backend_e io_backend;
++  ghostty_surface_pty_write_cb pty_write_cb;
++  ghostty_surface_pty_resize_cb pty_resize_cb;
+ } ghostty_surface_config_s;
+ 
+ typedef struct {
+@@ -1126,6 +1158,7 @@ GHOSTTY_API bool ghostty_surface_key_is_binding(ghostty_surface_t,
+                                                    ghostty_input_key_s,
+                                                    ghostty_binding_flags_e*);
+ GHOSTTY_API void ghostty_surface_text(ghostty_surface_t, const char*, uintptr_t);
++GHOSTTY_API void ghostty_surface_pty_data(ghostty_surface_t, const uint8_t*, uintptr_t);
+ GHOSTTY_API void ghostty_surface_preedit(ghostty_surface_t, const char*, uintptr_t);
+ GHOSTTY_API bool ghostty_surface_mouse_captured(ghostty_surface_t);
+ GHOSTTY_API bool ghostty_surface_mouse_button(ghostty_surface_t,
+diff --git a/src/Surface.zig b/src/Surface.zig
+index 410f717..fed037f 100644
+--- a/src/Surface.zig
++++ b/src/Surface.zig
+@@ -624,10 +624,44 @@ pub fn init(
+         break :command config.command;
+     };
+ 
++    // Whether this apprt supports the "passthru" IO backend (embedder-provided
++    // IO, e.g. an SSH transport). Only apprts that declare these methods on
++    // their Surface support it; everyone else always uses exec.
++    const supports_passthru = @hasDecl(@TypeOf(rt_surface.*), "passthruConfig") and
++        @hasDecl(@TypeOf(rt_surface.*), "ioBackend");
++
+     // Start our IO implementation
+     // This separate block ({}) is important because our errdefers must
+     // be scoped here to be valid.
+-    {
++    io_init: {
++        // Passthru backend: no subprocess, IO comes from the embedder.
++        if (comptime supports_passthru) {
++            if (rt_surface.ioBackend() == .passthru) {
++                var io_passthru = try termio.Passthru.init(
++                    alloc,
++                    rt_surface.passthruConfig(),
++                );
++                errdefer io_passthru.deinit();
++
++                var io_mailbox = try termio.Mailbox.initSPSC(alloc);
++                errdefer io_mailbox.deinit(alloc);
++
++                try termio.Termio.init(&self.io, alloc, .{
++                    .size = size,
++                    .full_config = config,
++                    .config = try termio.Termio.DerivedConfig.init(alloc, config),
++                    .backend = .{ .passthru = io_passthru },
++                    .mailbox = io_mailbox,
++                    .renderer_state = &self.renderer_state,
++                    .renderer_wakeup = render_thread.wakeup,
++                    .renderer_mailbox = render_thread.mailbox,
++                    .surface_mailbox = .{ .surface = self, .app = app_mailbox },
++                });
++
++                break :io_init;
++            }
++        }
++
+         var env = rt_surface.defaultTermioEnv() catch |err| env: {
+             // If an error occurs, we don't want to block surface startup.
+             log.warn("error getting env map for surface err={}", .{err});
+@@ -1311,9 +1345,13 @@ fn childExitedAbnormally(
+     const alloc = arena.allocator();
+ 
+     // Build up our command for the error message
+-    const command = try std.mem.join(alloc, " ", switch (self.io.backend) {
+-        .exec => |*exec| exec.subprocess.args,
+-    });
++    const command = switch (self.io.backend) {
++        .exec => |*exec| try std.mem.join(alloc, " ", exec.subprocess.args),
++        // Passthru owns no subprocess, so there's no command to report. This
++        // path is effectively unreachable for passthru (no child to exit) but
++        // must be handled for the switch to be exhaustive.
++        .passthru => try alloc.dupe(u8, ""),
++    };
+     const runtime_str = try std.fmt.allocPrint(alloc, "{d} ms", .{info.runtime_ms});
+ 
+     self.renderer_state.mutex.lock();
+diff --git a/src/apprt.zig b/src/apprt.zig
+index c467f18..57013e1 100644
+--- a/src/apprt.zig
++++ b/src/apprt.zig
+@@ -24,6 +24,16 @@ pub const Action = action.Action;
+ pub const Runtime = @import("apprt/runtime.zig").Runtime;
+ pub const Target = action.Target;
+ 
++/// Selects the terminal IO backend for a surface. `exec` runs a local
++/// subprocess on a pty (the default). `passthru` owns no process and lets the
++/// embedder provide IO (e.g. an SSH transport); see termio.Passthru. Only
++/// apprts that declare `ioBackend`/`passthruConfig` on their Surface support
++/// `passthru` (currently the embedded/libghostty apprt).
++pub const IOBackend = enum(c_int) {
++    exec = 0,
++    passthru = 1,
++};
++
+ pub const ContentScale = structs.ContentScale;
+ pub const Clipboard = structs.Clipboard;
+ pub const ClipboardContent = structs.ClipboardContent;
+diff --git a/src/apprt/embedded.zig b/src/apprt/embedded.zig
+index 7310159..629455d 100644
+--- a/src/apprt/embedded.zig
++++ b/src/apprt/embedded.zig
+@@ -19,6 +19,7 @@ const CoreApp = @import("../App.zig");
+ const CoreInspector = @import("../inspector/main.zig").Inspector;
+ const CoreSurface = @import("../Surface.zig");
+ const configpkg = @import("../config.zig");
++const termio = @import("../termio.zig");
+ const Config = configpkg.Config;
+ const String = @import("../main_c.zig").String;
+ 
+@@ -417,6 +418,13 @@ pub const Surface = struct {
+     cursor_pos: apprt.CursorPos,
+     inspector: ?*Inspector = null,
+ 
++    /// The IO backend selected for this surface and the passthru callbacks
++    /// (only meaningful when io_backend == .passthru). These are read by the
++    /// core surface during init via ioBackend()/passthruConfig().
++    io_backend: apprt.IOBackend = .exec,
++    pty_write_cb: ?termio.Passthru.WriteFn = null,
++    pty_resize_cb: ?termio.Passthru.ResizeFn = null,
++
+     /// The current title of the surface. The embedded apprt saves this so
+     /// that getTitle works without the implementer needing to save it.
+     title: ?[:0]const u8 = null,
+@@ -462,6 +470,23 @@ pub const Surface = struct {
+ 
+         /// Context for the new surface
+         context: apprt.surface.NewSurfaceContext = .window,
++
++        /// Selects the IO backend. The default (exec) runs a local subprocess
++        /// on a pty. `passthru` owns no process and routes IO through the
++        /// callbacks below; this is used to drive the terminal from an external
++        /// transport such as SSH (e.g. on iOS). See termio.Passthru.
++        io_backend: apprt.IOBackend = .exec,
++
++        /// For the passthru backend: invoked with bytes the terminal wants to
++        /// send to the "pty" (keyboard input, query responses, etc.). The
++        /// `userdata` above is passed as the first argument. Invoked on the IO
++        /// thread; must not block. Ignored for the exec backend.
++        pty_write_cb: ?termio.Passthru.WriteFn = null,
++
++        /// For the passthru backend: invoked when the terminal is resized so
++        /// the embedder can notify the remote (e.g. SSH window-change). Args:
++        /// userdata, columns, rows, width_px, height_px. Ignored for exec.
++        pty_resize_cb: ?termio.Passthru.ResizeFn = null,
+     };
+ 
+     pub fn init(self: *Surface, app: *App, opts: Options) !void {
+@@ -476,6 +501,9 @@ pub const Surface = struct {
+             },
+             .size = .{ .width = 800, .height = 600 },
+             .cursor_pos = .{ .x = -1, .y = -1 },
++            .io_backend = opts.io_backend,
++            .pty_write_cb = opts.pty_write_cb,
++            .pty_resize_cb = opts.pty_resize_cb,
+         };
+ 
+         // Add ourselves to the list of surfaces on the app.
+@@ -638,6 +666,23 @@ pub const Surface = struct {
+         return self.app;
+     }
+ 
++    /// The IO backend selected for this surface. Read by the core surface
++    /// during init to decide between the exec and passthru backends.
++    pub fn ioBackend(self: *const Surface) apprt.IOBackend {
++        return self.io_backend;
++    }
++
++    /// The passthru backend configuration for this surface. Only meaningful
++    /// when ioBackend() == .passthru. The callbacks receive this surface's
++    /// userdata so the embedder can recover its own object.
++    pub fn passthruConfig(self: *const Surface) termio.Passthru.Config {
++        return .{
++            .userdata = self.userdata,
++            .write_cb = self.pty_write_cb,
++            .resize_cb = self.pty_resize_cb,
++        };
++    }
++
+     pub fn close(self: *const Surface, process_alive: bool) void {
+         const func = self.app.opts.close_surface orelse {
+             log.info("runtime embedder does not support closing a surface", .{});
+@@ -1823,6 +1868,25 @@ pub const CAPI = struct {
+         surface.textCallback(ptr[0..len]);
+     }
+ 
++    /// Inject incoming data into a passthru-backed surface, as if it had been
++    /// read from a pty. This is how an embedder (e.g. an SSH client) feeds
++    /// received bytes into the terminal. It is only valid for surfaces created
++    /// with io_backend == GHOSTTY_IO_BACKEND_PASSTHRU; for other backends it is
++    /// ignored. Safe to call from any thread (it takes the renderer lock), the
++    /// same way the exec backend's read thread delivers pty output.
++    export fn ghostty_surface_pty_data(
++        surface: *Surface,
++        ptr: [*]const u8,
++        len: usize,
++    ) void {
++        if (surface.io_backend != .passthru) {
++            log.warn("ghostty_surface_pty_data called on non-passthru surface; ignoring", .{});
++            return;
++        }
++        if (len == 0) return;
++        surface.core_surface.io.processOutput(ptr[0..len]);
++    }
++
+     /// Set the preedit text for the surface. This is used for IME
+     /// composition. If the length is 0, then the preedit text is cleared.
+     export fn ghostty_surface_preedit(
+diff --git a/src/termio.zig b/src/termio.zig
+index b168851..af06fc6 100644
+--- a/src/termio.zig
++++ b/src/termio.zig
+@@ -23,6 +23,7 @@ const message = @import("termio/message.zig");
+ pub const backend = @import("termio/backend.zig");
+ pub const mailbox = @import("termio/mailbox.zig");
+ pub const Exec = @import("termio/Exec.zig");
++pub const Passthru = @import("termio/Passthru.zig");
+ pub const Options = @import("termio/Options.zig");
+ pub const Termio = @import("termio/Termio.zig");
+ pub const Thread = @import("termio/Thread.zig");
+diff --git a/src/termio/Passthru.zig b/src/termio/Passthru.zig
+new file mode 100644
+index 0000000..e460c38
+--- /dev/null
++++ b/src/termio/Passthru.zig
+@@ -0,0 +1,288 @@
++//! Passthru implements a termio backend that owns no subprocess and no pty.
++//!
++//! Instead of reading/writing a local pty, the embedder provides the IO:
++//!
++//!   * Incoming data (what would normally be read from the pty) is injected by
++//!     the embedder by calling `Termio.processOutput` (exposed via the C API
++//!     `ghostty_surface_pty_data`). This is the exact same ingress the exec
++//!     backend's read thread uses.
++//!
++//!   * Outgoing data (keyboard input, terminal query responses, etc.) flows
++//!     through `Termio.queueWrite` -> `Backend.queueWrite` -> here, where we
++//!     hand the bytes to an embedder-provided callback instead of writing them
++//!     to a pty fd. `queueWrite` is the single chokepoint for all terminal ->
++//!     pty writes, so this captures everything.
++//!
++//!   * Resizes are reported to the embedder via a callback so the remote end
++//!     can be notified (e.g. an SSH window-change request).
++//!
++//! This is what allows libghostty to be driven by a network transport such as
++//! an SSH connection (e.g. on iOS where fork/exec is unavailable).
++const Passthru = @This();
++
++const std = @import("std");
++const Allocator = std.mem.Allocator;
++const renderer = @import("../renderer.zig");
++const terminal = @import("../terminal/main.zig");
++const termio = @import("../termio.zig");
++const ProcessInfo = @import("../pty.zig").ProcessInfo;
++
++const log = std.log.scoped(.io_passthru);
++
++/// Callback invoked with bytes the terminal wants to send to the "pty"
++/// (keyboard input, query responses, clipboard, etc.). The embedder forwards
++/// these to its transport. Invoked on the termio (IO) thread; it MUST NOT
++/// block (e.g. hop to your network event loop instead of doing sync IO).
++pub const WriteFn = *const fn (?*anyopaque, [*]const u8, usize) callconv(.c) void;
++
++/// Callback invoked when the terminal is resized so the embedder can notify
++/// the remote (e.g. SSH window-change). Args: userdata, columns, rows,
++/// width_px, height_px. May be invoked during surface init (before the
++/// embedder's transport is ready), so the embedder should tolerate that.
++pub const ResizeFn = *const fn (?*anyopaque, u16, u16, u32, u32) callconv(.c) void;
++
++pub const Config = struct {
++    /// Opaque userdata passed to the callbacks. Typically the surface
++    /// userdata so the embedder can recover its own object.
++    userdata: ?*anyopaque = null,
++
++    /// Invoked with outgoing terminal bytes. If null, outgoing data is
++    /// silently dropped.
++    write_cb: ?WriteFn = null,
++
++    /// Invoked on resize. If null, resizes are not reported.
++    resize_cb: ?ResizeFn = null,
++};
++
++userdata: ?*anyopaque,
++write_cb: ?WriteFn,
++resize_cb: ?ResizeFn,
++
++/// Last reported size, cached for completeness/debugging.
++grid_size: renderer.GridSize = .{},
++screen_size: renderer.ScreenSize = .{ .width = 0, .height = 0 },
++
++pub fn init(alloc: Allocator, cfg: Config) !Passthru {
++    _ = alloc;
++    return .{
++        .userdata = cfg.userdata,
++        .write_cb = cfg.write_cb,
++        .resize_cb = cfg.resize_cb,
++    };
++}
++
++pub fn deinit(self: *Passthru) void {
++    _ = self;
++}
++
++/// Set up the initial terminal state. Mirrors Exec: report the initial size.
++pub fn initTerminal(self: *Passthru, term: *terminal.Terminal) void {
++    self.resize(.{
++        .columns = term.cols,
++        .rows = term.rows,
++    }, .{
++        .width = term.width_px,
++        .height = term.height_px,
++    }) catch unreachable;
++}
++
++pub fn threadEnter(
++    self: *Passthru,
++    alloc: Allocator,
++    io: *termio.Termio,
++    td: *termio.Termio.ThreadData,
++) !void {
++    _ = self;
++    _ = alloc;
++    _ = io;
++
++    // No read thread, no pty, no process. We just need backend thread data.
++    td.backend = .{ .passthru = .{} };
++}
++
++pub fn threadExit(self: *Passthru, td: *termio.Termio.ThreadData) void {
++    _ = self;
++    _ = td;
++}
++
++pub fn focusGained(
++    self: *Passthru,
++    td: *termio.Termio.ThreadData,
++    focused: bool,
++) !void {
++    _ = self;
++    _ = td;
++    _ = focused;
++}
++
++pub fn resize(
++    self: *Passthru,
++    grid_size: renderer.GridSize,
++    screen_size: renderer.ScreenSize,
++) !void {
++    self.grid_size = grid_size;
++    self.screen_size = screen_size;
++    if (self.resize_cb) |cb| {
++        cb(
++            self.userdata,
++            @intCast(grid_size.columns),
++            @intCast(grid_size.rows),
++            screen_size.width,
++            screen_size.height,
++        );
++    }
++}
++
++pub fn queueWrite(
++    self: *Passthru,
++    alloc: Allocator,
++    td: *termio.Termio.ThreadData,
++    data: []const u8,
++    linefeed: bool,
++) !void {
++    _ = td;
++
++    const cb = self.write_cb orelse return;
++    if (data.len == 0) return;
++
++    // Fast path: no linefeed translation requested.
++    if (!linefeed) {
++        cb(self.userdata, data.ptr, data.len);
++        return;
++    }
++
++    // Linefeed mode (terminal mode 20, LNM): translate each '\r' to "\r\n",
++    // matching the exec backend's behavior so writes are identical regardless
++    // of backend.
++    var count: usize = 0;
++    for (data) |ch| {
++        if (ch == '\r') count += 1;
++    }
++    if (count == 0) {
++        cb(self.userdata, data.ptr, data.len);
++        return;
++    }
++
++    const buf = try alloc.alloc(u8, data.len + count);
++    defer alloc.free(buf);
++    var j: usize = 0;
++    for (data) |ch| {
++        buf[j] = ch;
++        j += 1;
++        if (ch == '\r') {
++            buf[j] = '\n';
++            j += 1;
++        }
++    }
++    cb(self.userdata, buf.ptr, j);
++}
++
++pub fn childExitedAbnormally(
++    self: *Passthru,
++    gpa: Allocator,
++    t: *terminal.Terminal,
++    exit_code: u32,
++    runtime_ms: u64,
++) !void {
++    _ = self;
++    _ = gpa;
++    _ = t;
++    _ = exit_code;
++    _ = runtime_ms;
++}
++
++pub fn getProcessInfo(
++    self: *Passthru,
++    comptime info: ProcessInfo,
++) ?ProcessInfo.Type(info) {
++    _ = self;
++    return null;
++}
++
++/// The thread local data for the passthru backend. There is no pty or
++/// process, so this is empty.
++pub const ThreadData = struct {
++    pub fn deinit(self: *ThreadData, alloc: Allocator) void {
++        _ = self;
++        _ = alloc;
++    }
++};
++
++// -- Tests ------------------------------------------------------------------
++
++const testing = std.testing;
++
++const TestCtx = struct {
++    out: std.ArrayList(u8) = .{},
++    cols: u16 = 0,
++    rows: u16 = 0,
++    width: u32 = 0,
++    height: u32 = 0,
++
++    fn onWrite(ud: ?*anyopaque, ptr: [*]const u8, len: usize) callconv(.c) void {
++        const self: *TestCtx = @ptrCast(@alignCast(ud.?));
++        self.out.appendSlice(testing.allocator, ptr[0..len]) catch unreachable;
++    }
++
++    fn onResize(ud: ?*anyopaque, cols: u16, rows: u16, w: u32, h: u32) callconv(.c) void {
++        const self: *TestCtx = @ptrCast(@alignCast(ud.?));
++        self.cols = cols;
++        self.rows = rows;
++        self.width = w;
++        self.height = h;
++    }
++};
++
++test "queueWrite forwards bytes verbatim" {
++    var ctx: TestCtx = .{};
++    defer ctx.out.deinit(testing.allocator);
++
++    var pt = try Passthru.init(testing.allocator, .{
++        .userdata = &ctx,
++        .write_cb = TestCtx.onWrite,
++    });
++    defer pt.deinit();
++
++    try pt.queueWrite(testing.allocator, undefined, "hello world", false);
++    try testing.expectEqualStrings("hello world", ctx.out.items);
++}
++
++test "queueWrite translates CR to CRLF in linefeed mode" {
++    var ctx: TestCtx = .{};
++    defer ctx.out.deinit(testing.allocator);
++
++    var pt = try Passthru.init(testing.allocator, .{
++        .userdata = &ctx,
++        .write_cb = TestCtx.onWrite,
++    });
++    defer pt.deinit();
++
++    try pt.queueWrite(testing.allocator, undefined, "a\rb\r", true);
++    try testing.expectEqualStrings("a\r\nb\r\n", ctx.out.items);
++}
++
++test "queueWrite with no callback is a no-op" {
++    var pt = try Passthru.init(testing.allocator, .{});
++    defer pt.deinit();
++    try pt.queueWrite(testing.allocator, undefined, "ignored", false);
++}
++
++test "resize reports size to callback" {
++    var ctx: TestCtx = .{};
++    defer ctx.out.deinit(testing.allocator);
++
++    var pt = try Passthru.init(testing.allocator, .{
++        .userdata = &ctx,
++        .resize_cb = TestCtx.onResize,
++    });
++    defer pt.deinit();
++
++    try pt.resize(
++        .{ .columns = 120, .rows = 40 },
++        .{ .width = 1200, .height = 800 },
++    );
++    try testing.expectEqual(@as(u16, 120), ctx.cols);
++    try testing.expectEqual(@as(u16, 40), ctx.rows);
++    try testing.expectEqual(@as(u32, 1200), ctx.width);
++    try testing.expectEqual(@as(u32, 800), ctx.height);
++}
+diff --git a/src/termio/backend.zig b/src/termio/backend.zig
+index c29009a..15ee633 100644
+--- a/src/termio/backend.zig
++++ b/src/termio/backend.zig
+@@ -11,28 +11,35 @@ const ProcessInfo = @import("../pty.zig").ProcessInfo;
+ const WRITE_REQ_PREALLOC = std.math.pow(usize, 2, 5);
+ 
+ /// The kinds of backends.
+-pub const Kind = enum { exec };
++pub const Kind = enum { exec, passthru };
+ 
+ /// Configuration for the various backend types.
+ pub const Config = union(Kind) {
+     /// Exec uses posix exec to run a command with a pty.
+     exec: termio.Exec.Config,
++
++    /// Passthru owns no process; IO is provided by the embedder (e.g. a
++    /// network/SSH transport). See termio.Passthru.
++    passthru: termio.Passthru.Config,
+ };
+ 
+ /// Backend implementations. A backend is responsible for owning the pty
+ /// behavior and providing read/write capabilities.
+ pub const Backend = union(Kind) {
+     exec: termio.Exec,
++    passthru: termio.Passthru,
+ 
+     pub fn deinit(self: *Backend) void {
+         switch (self.*) {
+             .exec => |*exec| exec.deinit(),
++            .passthru => |*passthru| passthru.deinit(),
+         }
+     }
+ 
+     pub fn initTerminal(self: *Backend, t: *terminal.Terminal) void {
+         switch (self.*) {
+             .exec => |*exec| exec.initTerminal(t),
++            .passthru => |*passthru| passthru.initTerminal(t),
+         }
+     }
+ 
+@@ -44,12 +51,14 @@ pub const Backend = union(Kind) {
+     ) !void {
+         switch (self.*) {
+             .exec => |*exec| try exec.threadEnter(alloc, io, td),
++            .passthru => |*passthru| try passthru.threadEnter(alloc, io, td),
+         }
+     }
+ 
+     pub fn threadExit(self: *Backend, td: *termio.Termio.ThreadData) void {
+         switch (self.*) {
+             .exec => |*exec| exec.threadExit(td),
++            .passthru => |*passthru| passthru.threadExit(td),
+         }
+     }
+ 
+@@ -60,6 +69,7 @@ pub const Backend = union(Kind) {
+     ) !void {
+         switch (self.*) {
+             .exec => |*exec| try exec.focusGained(td, focused),
++            .passthru => |*passthru| try passthru.focusGained(td, focused),
+         }
+     }
+ 
+@@ -70,6 +80,7 @@ pub const Backend = union(Kind) {
+     ) !void {
+         switch (self.*) {
+             .exec => |*exec| try exec.resize(grid_size, screen_size),
++            .passthru => |*passthru| try passthru.resize(grid_size, screen_size),
+         }
+     }
+ 
+@@ -82,6 +93,7 @@ pub const Backend = union(Kind) {
+     ) !void {
+         switch (self.*) {
+             .exec => |*exec| try exec.queueWrite(alloc, td, data, linefeed),
++            .passthru => |*passthru| try passthru.queueWrite(alloc, td, data, linefeed),
+         }
+     }
+ 
+@@ -99,6 +111,12 @@ pub const Backend = union(Kind) {
+                 exit_code,
+                 runtime_ms,
+             ),
++            .passthru => |*passthru| try passthru.childExitedAbnormally(
++                gpa,
++                t,
++                exit_code,
++                runtime_ms,
++            ),
+         }
+     }
+ 
+@@ -108,6 +126,7 @@ pub const Backend = union(Kind) {
+     pub fn getProcessInfo(self: *Backend, comptime info: ProcessInfo) ?ProcessInfo.Type(info) {
+         return switch (self.*) {
+             .exec => |*exec| exec.getProcessInfo(info),
++            .passthru => |*passthru| passthru.getProcessInfo(info),
+         };
+     }
+ };
+@@ -115,10 +134,12 @@ pub const Backend = union(Kind) {
+ /// Termio thread data. See termio.ThreadData for docs.
+ pub const ThreadData = union(Kind) {
+     exec: termio.Exec.ThreadData,
++    passthru: termio.Passthru.ThreadData,
+ 
+     pub fn deinit(self: *ThreadData, alloc: Allocator) void {
+         switch (self.*) {
+             .exec => |*exec| exec.deinit(alloc),
++            .passthru => |*passthru| passthru.deinit(alloc),
+         }
+     }
+ 
+-- 
+2.55.0
+

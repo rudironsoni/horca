@@ -233,6 +233,20 @@
       "reason": "packaged daemon can load libghostty-vt WASM next to unpacked main chunks"
     },
     {
+      "id": "d2-packaging-mac-horca-ghostty-extra-resources",
+      "target": "config/electron-builder.config.cjs",
+      "mode": "substitute",
+      "find": "      {\n        from: 'native/computer-use-macos/.build/release/Orca Computer Use.app',\n        to: 'Orca Computer Use.app'\n      },\n      featureWallResources",
+      "replace": "      {\n        from: 'native/computer-use-macos/.build/release/Orca Computer Use.app',\n        to: 'Orca Computer Use.app'\n      },\n      {\n        from: 'native/horca-ghostty/adopted/electron-ghostty',\n        to: 'horca-ghostty',\n        filter: [\n          'addon.js',\n          'host.js',\n          'index.js',\n          'surface-pixels.js',\n          'preload.js',\n          'protocol.js',\n          'package.json',\n          'LICENSE',\n          'build/Release/ghostty_renderer.node'\n        ]\n      },\n      featureWallResources",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "to: 'horca-ghostty'"
+      },
+      "reason": "D2: pack MAIN Ghostty addon into mac extraResources"
+    },
+    {
       "id": "release-packaging-ghostty-wasm-asar-unpack",
       "target": "config/electron-builder.config.cjs",
       "mode": "substitute",
@@ -4238,7 +4252,7 @@
         "expectedBlobSha256": "c30dd4300896884e1a79845bee59be0a3fa45058af921a6f732fc978c447b864"
       },
       "postcondition": {
-        "resultingBlobSha256": "ffc123356c79bcd187a00e2bf338b776ba5c8edd9105b60d617b1dccd04216c8"
+        "resultingBlobSha256": "2947997d0b2715d8ffe35196a26cda8416f774b3dfe45e49619adf7b1863ef01"
       }
     },
     {
@@ -4940,6 +4954,16 @@
       "target": "src/main/daemon/ghostty-headless-parity-clusters.test.ts",
       "mode": "add",
       "source": "src/main/daemon/ghostty-headless-parity-clusters.test.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-H: Ghostty parity repair"
+    },
+    {
+      "id": "gate-d1-h-add-src-main-daemon-ghostty-headless-parity-remainder.test.ts",
+      "target": "src/main/daemon/ghostty-headless-parity-remainder.test.ts",
+      "mode": "add",
+      "source": "src/main/daemon/ghostty-headless-parity-remainder.test.ts",
       "precondition": {
         "kind": "file-absent"
       },
@@ -5924,6 +5948,733 @@
         "mustOccurExactlyOnce": "void bootGhosttyVtHostThen(() => {"
       },
       "reason": "Await Ghostty VT host priming before React can construct terminal panes"
+    },
+    {
+      "id": "gate-c-add-distribution-product-copy",
+      "target": "src/shared/distribution-product-copy.ts",
+      "mode": "add",
+      "source": "src/shared/distribution-product-copy.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "Rewrite user-visible Orca product copy to Horca"
+    },
+    {
+      "id": "gate-c-add-translation-catalog-plugin",
+      "target": "src/shared/horca/distribution-translation-catalog-plugin.ts",
+      "mode": "add",
+      "source": "src/shared/horca/distribution-translation-catalog-plugin.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "Vite plugin that rewrites i18n catalogs at pack time"
+    },
+    {
+      "id": "gate-c-vite-catalog-plugin-import",
+      "target": "electron.vite.config.ts",
+      "mode": "substitute",
+      "find": "import { createPlainNodeEntryGuardPlugin } from './config/build-plugins/plain-node-entry-guard'\n",
+      "replace": "import { createPlainNodeEntryGuardPlugin } from './config/build-plugins/plain-node-entry-guard'\nimport { createDistributionTranslationCatalogPlugin } from './src/shared/horca/distribution-translation-catalog-plugin'\n",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "import { createPlainNodeEntryGuardPlugin } from './config/build-plugins/plain-node-entry-guard'\n",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "import { createDistributionTranslationCatalogPlugin } from './src/shared/horca/distribution-translation-catalog-plugin'"
+      },
+      "reason": "Import Horca i18n catalog rewrite plugin"
+    },
+    {
+      "id": "gate-c-vite-catalog-plugin-renderer",
+      "target": "electron.vite.config.ts",
+      "mode": "substitute",
+      "find": "    plugins: [react(), tailwindcss()],\n",
+      "replace": "    plugins: [createDistributionTranslationCatalogPlugin('horca'), react(), tailwindcss()],\n",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "    plugins: [react(), tailwindcss()],\n",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "createDistributionTranslationCatalogPlugin('horca')"
+      },
+      "reason": "Rewrite renderer translation catalogs so packaged UI says Horca"
+    },
+    {
+      "id": "gate-c-add-src-renderer-src-horca-product-identity-ts",
+      "target": "src/renderer/src/horca/product-identity.ts",
+      "mode": "add",
+      "source": "src/renderer/src/horca/product-identity.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "Ship Horca-owned UI identity files into the generated tree"
+    },
+    {
+      "id": "gate-c-add-src-renderer-src-horca-terminal-settings-horca-terminal-settings-copy-ts",
+      "target": "src/renderer/src/horca/terminal-settings/horca-terminal-settings-copy.ts",
+      "mode": "add",
+      "source": "src/renderer/src/horca/terminal-settings/horca-terminal-settings-copy.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "Ship Horca-owned UI identity files into the generated tree"
+    },
+    {
+      "id": "gate-c-add-src-renderer-src-horca-terminal-settings-HorcaProjectTerminalBackendSetting-tsx",
+      "target": "src/renderer/src/horca/terminal-settings/HorcaProjectTerminalBackendSetting.tsx",
+      "mode": "add",
+      "source": "src/renderer/src/horca/terminal-settings/HorcaProjectTerminalBackendSetting.tsx",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "Ship Horca-owned UI identity files into the generated tree"
+    },
+    {
+      "id": "gate-c-add-src-renderer-src-horca-terminal-settings-HorcaTerminalBackendSection-tsx",
+      "target": "src/renderer/src/horca/terminal-settings/HorcaTerminalBackendSection.tsx",
+      "mode": "add",
+      "source": "src/renderer/src/horca/terminal-settings/HorcaTerminalBackendSection.tsx",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "Ship Horca-owned UI identity files into the generated tree"
+    },
+    {
+      "id": "gate-c-add-src-renderer-src-horca-terminal-settings-HorcaTerminalBackendSection-test-tsx",
+      "target": "src/renderer/src/horca/terminal-settings/HorcaTerminalBackendSection.test.tsx",
+      "mode": "add",
+      "source": "src/renderer/src/horca/terminal-settings/HorcaTerminalBackendSection.test.tsx",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "Ship Horca-owned UI identity files into the generated tree"
+    },
+    {
+      "id": "gate-c-add-src-renderer-src-horca-terminal-settings-use-horca-terminal-settings-ts",
+      "target": "src/renderer/src/horca/terminal-settings/use-horca-terminal-settings.ts",
+      "mode": "add",
+      "source": "src/renderer/src/horca/terminal-settings/use-horca-terminal-settings.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "Ship Horca-owned UI identity files into the generated tree"
+    },
+    {
+      "id": "gate-c-add-src-shared-distribution-identity-ts",
+      "target": "src/shared/distribution-identity.ts",
+      "mode": "add",
+      "source": "src/shared/distribution-identity.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "Horca distribution identity used by catalog rewrite"
+    },
+    {
+      "id": "gate-c-add-src-shared-distribution-identity-json",
+      "target": "src/shared/distribution-identity.json",
+      "mode": "add",
+      "source": "src/shared/distribution-identity.json",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "Horca distribution identity used by catalog rewrite"
+    },
+    {
+      "id": "gate-d1-h-add-src-main-daemon-ghostty-headless-emulator-protocol-authority.test.ts",
+      "target": "src/main/daemon/ghostty-headless-emulator-protocol-authority.test.ts",
+      "mode": "add",
+      "source": "src/main/daemon/ghostty-headless-emulator-protocol-authority.test.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D1-H: protocol authority and model sequence"
+    },
+    {
+      "id": "d2-subprocess-handle-write-buffer",
+      "target": "src/main/daemon/session-subprocess-handle.ts",
+      "mode": "substitute",
+      "find": "  write(data: string): void",
+      "replace": "  write(data: string | Buffer): void",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "  write(data: string | Buffer): void"
+      },
+      "reason": "D2: Ghostty pty_write_cb bytes must reach node-pty as Buffer, not latin1/UTF-8 strings"
+    },
+    {
+      "id": "d2-subprocess-handle-write-contract-test",
+      "target": "src/main/daemon/subprocess-handle-write-contract.test.ts",
+      "mode": "add",
+      "source": "src/main/daemon/subprocess-handle-write-contract.test.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: Buffer vs string write contract at daemon PTY wrapper"
+    },
+    {
+      "id": "d2-add-src-main-horca-ghostty-passthru-engine.ts",
+      "target": "src/main/horca/ghostty-passthru-engine.ts",
+      "mode": "add",
+      "source": "src/main/horca/ghostty-passthru-engine.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: MAIN Ghostty passthru engine bound to Horca SubprocessHandle Buffer writes"
+    },
+    {
+      "id": "d2-add-src-main-horca-ghostty-passthru-engine.test.ts",
+      "target": "src/main/horca/ghostty-passthru-engine.test.ts",
+      "mode": "add",
+      "source": "src/main/horca/ghostty-passthru-engine.test.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: MAIN passthru Buffer write contract"
+    },
+    {
+      "id": "d2-add-src-main-horca-ghostty-passthru-pane-ipc.ts",
+      "target": "src/main/horca/ghostty-passthru-pane-ipc.ts",
+      "mode": "add",
+      "source": "src/main/horca/ghostty-passthru-pane-ipc.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: attach MAIN passthru engine to pane sharedTexture slots"
+    },
+    {
+      "id": "d2-add-src-main-horca-initialize-horca.ts",
+      "target": "src/main/horca/initialize-horca.ts",
+      "mode": "add",
+      "source": "src/main/horca/initialize-horca.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: bind passthru lookup to live daemon PTY handles"
+    },
+    {
+      "id": "d2-add-src-main-horca-pty-handle-registry.ts",
+      "target": "src/main/horca/horca-pty-handle-registry.ts",
+      "mode": "add",
+      "source": "src/main/horca/horca-pty-handle-registry.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: Electron-main lookup of live daemon PTY handles"
+    },
+    {
+      "id": "d2-add-src-main-horca-pty-handle-registry.test.ts",
+      "target": "src/main/horca/horca-pty-handle-registry.test.ts",
+      "mode": "add",
+      "source": "src/main/horca/horca-pty-handle-registry.test.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: Buffer writeExact adapter contract"
+    },
+    {
+      "id": "d2-add-src-main-horca-ghostty-main-pty-lifecycle.test.ts",
+      "target": "src/main/horca/ghostty-main-pty-lifecycle.test.ts",
+      "mode": "add",
+      "source": "src/main/horca/ghostty-main-pty-lifecycle.test.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: MAIN Ghostty multi-session Buffer PTY lifecycle"
+    },
+    {
+      "id": "d2-add-src-renderer-ghostty-pane-chrome-react.test.tsx",
+      "target": "src/renderer/src/lib/pane-manager/ghostty-pane-chrome-react.test.tsx",
+      "mode": "add",
+      "source": "src/renderer/src/lib/pane-manager/ghostty-pane-chrome-react.test.tsx",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: invoke pane chrome dialogs and output processors on the Ghostty pane"
+    },
+    {
+      "id": "d2-add-src-renderer-ghostty-pane-chrome-behavior.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/ghostty-pane-chrome-behavior.test.ts",
+      "mode": "add",
+      "source": "src/renderer/src/lib/pane-manager/ghostty-pane-chrome-behavior.test.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: behavior of pane chrome modules on the Ghostty pane path"
+    },
+    {
+      "id": "d2-add-src-renderer-ghostty-main-pane-capability.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/ghostty-main-pane-capability.test.ts",
+      "mode": "add",
+      "source": "src/renderer/src/lib/pane-manager/ghostty-main-pane-capability.test.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: MAIN Ghostty pane chrome, lifecycle, and remote bind"
+    },
+    {
+      "id": "d2-add-src-renderer-ghostty-main-remaining-surface.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/ghostty-main-remaining-surface.test.ts",
+      "mode": "add",
+      "source": "src/renderer/src/lib/pane-manager/ghostty-main-remaining-surface.test.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: remaining Ghostty surface, theme, preview-grid, and scrollback tests"
+    },
+    {
+      "id": "d2-add-src-shared-horca-ghostty-passthru-api.ts",
+      "target": "src/shared/horca/ghostty-passthru-api.ts",
+      "mode": "add",
+      "source": "src/shared/horca/ghostty-passthru-api.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: passthru attach IPC contract"
+    },
+    {
+      "id": "d2-add-src-preload-horca-ghostty-passthru-api.ts",
+      "target": "src/preload/horca-ghostty-passthru-api.ts",
+      "mode": "add",
+      "source": "src/preload/horca-ghostty-passthru-api.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: compose electron-ghostty preload and passthru attach API"
+    },
+    {
+      "id": "d2-add-src-renderer-horca-ghostty-passthru-attach.ts",
+      "target": "src/renderer/src/lib/pane-manager/horca-ghostty-passthru-attach.ts",
+      "mode": "add",
+      "source": "src/renderer/src/lib/pane-manager/horca-ghostty-passthru-attach.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: renderer attach of MAIN Ghostty surface per pane"
+    },
+    {
+      "id": "d2-add-src-renderer-horca-ghostty-passthru-attach.test.ts",
+      "target": "src/renderer/src/lib/pane-manager/horca-ghostty-passthru-attach.test.ts",
+      "mode": "add",
+      "source": "src/renderer/src/lib/pane-manager/horca-ghostty-passthru-attach.test.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: renderer attach payload"
+    },
+    {
+      "id": "d2-tsconfig-node-exclude-herdr",
+      "target": "config/tsconfig.node.json",
+      "mode": "substitute",
+      "find": "    \"../src/types/**/*\"\n  ],",
+      "replace": "    \"../src/types/**/*\"\n  ],\n  \"exclude\": [\n    \"../src/main/providers/multiplexer/herdr/**\",\n    \"../src/main/horca/terminal-backend/register-herdr-terminal-backend.ts\",\n    \"../src/main/horca/terminal-backend/register-herdr-terminal-backend.test.ts\",\n    \"../src/main/horca/terminal-backend/horca-herdr-health.ts\",\n    \"../src/main/horca/terminal-backend/horca-herdr-health.test.ts\",\n    \"../src/main/horca/terminal-backend/electron-herdr-desktop-surface.ts\",\n    \"../src/main/horca/terminal-backend/herdr-desktop-surface.ts\"\n  ],",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "../src/main/providers/multiplexer/herdr/**"
+      },
+      "reason": "D2: Herdr is out of D2; keep node typecheck on the Ghostty PTY graph"
+    },
+    {
+      "id": "d2-pty-provider-write-exact",
+      "target": "src/main/providers/pty-provider-contract.ts",
+      "mode": "substitute",
+      "find": "  write(id: string, data: string): boolean | void",
+      "replace": "  write(id: string, data: string): boolean | void\n  writeExact?: (id: string, data: Buffer) => boolean | void",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "  writeExact?: (id: string, data: Buffer) => boolean | void"
+      },
+      "reason": "D2: optional Buffer writeExact so Ghostty bytes skip latin1 string hops"
+    },
+    {
+      "id": "d2-daemon-pty-session-input-write-exact",
+      "target": "src/main/daemon/daemon-pty-session-input.ts",
+      "mode": "substitute",
+      "find": "  write(id: string, data: string): boolean {\n    const recoverable = this.prepareWrite(id)\n    return this.finishWrite(id, this.client.notify('write', { sessionId: id, data }), recoverable)\n  }",
+      "replace": "  write(id: string, data: string): boolean {\n    const recoverable = this.prepareWrite(id)\n    return this.finishWrite(id, this.client.notify('write', { sessionId: id, data }), recoverable)\n  }\n\n  writeExact(id: string, data: Buffer): boolean {\n    const recoverable = this.prepareWrite(id)\n    return this.finishWrite(\n      id,\n      this.client.notify('write', { sessionId: id, dataBase64: data.toString('base64') }),\n      recoverable\n    )\n  }",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "dataBase64: data.toString('base64')"
+      },
+      "reason": "D2: daemon NDJSON writeExact carries Ghostty bytes as dataBase64"
+    },
+    {
+      "id": "d2-daemon-write-request-datab64",
+      "target": "src/main/daemon/types.ts",
+      "mode": "substitute",
+      "find": "  payload: {\n    sessionId: string\n    data: string\n  }\n}\n\nexport type ResizeRequest = {",
+      "replace": "  payload: {\n    sessionId: string\n    data: string\n    dataBase64?: string\n  }\n}\n\nexport type ResizeRequest = {",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "    dataBase64?: string"
+      },
+      "reason": "D2: WriteRequest carries optional dataBase64 for Ghostty Buffer writes"
+    },
+    {
+      "id": "d2-daemon-request-router-write-buffer",
+      "target": "src/main/daemon/daemon-request-router.ts",
+      "mode": "substitute",
+      "find": "      case 'write':\n        return this.write(client, request.payload.sessionId, request.payload.data)",
+      "replace": "      case 'write':\n        return this.write(\n          client,\n          request.payload.sessionId,\n          typeof request.payload.dataBase64 === 'string'\n            ? Buffer.from(request.payload.dataBase64, 'base64')\n            : request.payload.data\n        )",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "Buffer.from(request.payload.dataBase64, 'base64')"
+      },
+      "reason": "D2: daemon write handler decodes dataBase64 to Buffer"
+    },
+    {
+      "id": "d2-daemon-request-router-write-signature",
+      "target": "src/main/daemon/daemon-request-router.ts",
+      "mode": "substitute",
+      "find": "  private write(\n    client: ConnectedDaemonClient | undefined,\n    sessionId: string,\n    data: string\n  ): Record<string, never> {",
+      "replace": "  private write(\n    client: ConnectedDaemonClient | undefined,\n    sessionId: string,\n    data: string | Buffer\n  ): Record<string, never> {",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "    data: string | Buffer\n  ): Record<string, never> {"
+      },
+      "reason": "D2: daemon router write accepts Buffer"
+    },
+    {
+      "id": "d2-terminal-host-write-buffer",
+      "target": "src/main/daemon/terminal-host.ts",
+      "mode": "substitute",
+      "find": "  write(sessionId: string, data: string): void {\n    this.getAliveSession(sessionId).write(data)\n  }",
+      "replace": "  write(sessionId: string, data: string | Buffer): void {\n    this.getAliveSession(sessionId).write(data)\n  }",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "  write(sessionId: string, data: string | Buffer): void {"
+      },
+      "reason": "D2: TerminalHost.write forwards Buffer"
+    },
+    {
+      "id": "d2-session-write-buffer",
+      "target": "src/main/daemon/session.ts",
+      "mode": "substitute",
+      "find": "  write(data: string): void {\n    if (this._state === 'exited' || this._disposed) {\n      return\n    }\n\n    // Daemon POSIX PTYs need the local provider's cooked-echo containment (#13137).\n    // DA1/CPR stay immediate unless an echo-risk reply is already held (#13892, #15559).\n    if (this.startupIngress.answerLiveQueryReply(data)) {\n      return\n    }\n\n    // Why: keep queuing during the post-ready flush-gate window ('ready' but not yet flushed); a\n    // direct write would race fresh input ahead of the buffered startup command.\n    if (this.shellReady.tryEnqueue(data)) {\n      return\n    }\n\n    this.subprocess.write(data)\n  }",
+      "replace": "  write(data: string | Buffer): void {\n    if (this._state === 'exited' || this._disposed) {\n      return\n    }\n\n    if (typeof data !== 'string') {\n      this.subprocess.write(data)\n      return\n    }\n\n    // Daemon POSIX PTYs need the local provider's cooked-echo containment (#13137).\n    // DA1/CPR stay immediate unless an echo-risk reply is already held (#13892, #15559).\n    if (this.startupIngress.answerLiveQueryReply(data)) {\n      return\n    }\n\n    // Why: keep queuing during the post-ready flush-gate window ('ready' but not yet flushed); a\n    // direct write would race fresh input ahead of the buffered startup command.\n    if (this.shellReady.tryEnqueue(data)) {\n      return\n    }\n\n    this.subprocess.write(data)\n  }",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "  write(data: string | Buffer): void {"
+      },
+      "reason": "D2: Session.write sends Ghostty Buffer bytes to the PTY without string interceptors"
+    },
+    {
+      "id": "d2-local-pty-write-exact",
+      "target": "src/main/providers/local-pty-session-operations.ts",
+      "mode": "substitute",
+      "find": "export function writeLocalPty(id: string, data: string): boolean {\n  // Cooked PTYs echo private DSR/OSC replies; CPR/DA stay immediate unless one of\n  // those is still held, which they must not overtake (#13137, #7329, #15559).\n  if (startupIngressByPty.get(id)?.answerLiveQueryReply(data)) {\n    return true\n  }\n  const proc = ptyProcesses.get(id)\n  if (!proc) {\n    return false\n  }\n  proc.write(data)\n  return true\n}",
+      "replace": "export function writeLocalPty(id: string, data: string): boolean {\n  // Cooked PTYs echo private DSR/OSC replies; CPR/DA stay immediate unless one of\n  // those is still held, which they must not overtake (#13137, #7329, #15559).\n  if (startupIngressByPty.get(id)?.answerLiveQueryReply(data)) {\n    return true\n  }\n  const proc = ptyProcesses.get(id)\n  if (!proc) {\n    return false\n  }\n  proc.write(data)\n  return true\n}\n\nexport function writeLocalPtyExact(id: string, data: Buffer): boolean {\n  const proc = ptyProcesses.get(id)\n  if (!proc) {\n    return false\n  }\n  proc.write(data)\n  return true\n}",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "export function writeLocalPtyExact(id: string, data: Buffer): boolean {"
+      },
+      "reason": "D2: local node-pty writeExact keeps Ghostty Buffer bytes"
+    },
+    {
+      "id": "d2-local-pty-provider-write-exact",
+      "target": "src/main/providers/local-pty-provider.ts",
+      "mode": "substitute",
+      "find": "  write(id: string, data: string): boolean {\n    return writeLocalPty(id, data)\n  }",
+      "replace": "  write(id: string, data: string): boolean {\n    return writeLocalPty(id, data)\n  }\n  writeExact(id: string, data: Buffer): boolean {\n    return writeLocalPtyExact(id, data)\n  }",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "return writeLocalPtyExact(id, data)"
+      },
+      "reason": "D2: LocalPtyProvider exposes writeExact"
+    },
+    {
+      "id": "d2-local-pty-provider-import-write-exact",
+      "target": "src/main/providers/local-pty-provider.ts",
+      "mode": "substitute",
+      "find": "  writeLocalPty\n} from './local-pty-session-operations'",
+      "replace": "  writeLocalPty,\n  writeLocalPtyExact\n} from './local-pty-session-operations'",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "writeLocalPtyExact\n} from './local-pty-session-operations'"
+      },
+      "reason": "D2: import writeLocalPtyExact"
+    },
+    {
+      "id": "d2-preload-api-passthru",
+      "target": "src/preload/api-types.ts",
+      "mode": "substitute",
+      "find": "  speech: SpeechApi\n}",
+      "replace": "  speech: SpeechApi\n  horcaGhosttyPassthru?: import('../shared/horca/ghostty-passthru-api').HorcaGhosttyPassthruApi\n  horcaTerminalSettings?: import('../shared/horca/terminal-settings-api').HorcaTerminalSettingsApi\n}",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "horcaTerminalSettings?"
+      },
+      "reason": "D2: PreloadApi passthru attach"
+    },
+    {
+      "id": "d2-preload-compose-electron-ghostty",
+      "target": "src/preload/index.ts",
+      "mode": "substitute",
+      "find": "installNativeFileDropHandlers()\ninstallBrowserFindListener()",
+      "replace": "installNativeFileDropHandlers()\ninstallBrowserFindListener()\nrequire('./horca-ghostty-passthru-api').loadElectronGhosttyPreload()",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "loadElectronGhosttyPreload()"
+      },
+      "reason": "D2: load electron-ghostty canvas/sharedTexture preload"
+    },
+    {
+      "id": "d2-preload-expose-passthru-api",
+      "target": "src/preload/index.ts",
+      "mode": "substitute",
+      "find": "  speech: speechApi\n} satisfies PreloadApi",
+      "replace": "  speech: speechApi,\n  horcaGhosttyPassthru: require('./horca-ghostty-passthru-api').createHorcaGhosttyPassthruApi(ipcRenderer),\n  horcaTerminalSettings: require('./horca-terminal-settings-api').createHorcaTerminalSettingsApi(ipcRenderer)\n} satisfies PreloadApi",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "horcaTerminalSettings: require('./horca-terminal-settings-api').createHorcaTerminalSettingsApi(ipcRenderer)"
+      },
+      "reason": "D2: expose passthru attach on window.api"
+    },
+    {
+      "id": "d2-pane-bind-pty-on-fit-binding",
+      "target": "src/renderer/src/components/terminal-pane/pty-connection/terminal-keydown-fit.ts",
+      "mode": "substitute",
+      "find": "    session.pane.container.dataset.ptyId = ptyId",
+      "replace": "    session.pane.container.dataset.ptyId = ptyId\n    session.pane.terminal.bindPty?.(ptyId)",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "session.pane.terminal.bindPty?.(ptyId)"
+      },
+      "reason": "D2: attach MAIN Ghostty engine when a pane binds its PTY id"
+    },
+    {
+      "id": "d2-startup-import-initialize-horca",
+      "target": "src/main/startup/main-process-ready-foundation.ts",
+      "mode": "substitute",
+      "find": "import { Store, getCanonicalUserDataPath } from '../persistence'\n",
+      "replace": "import { Store, getCanonicalUserDataPath } from '../persistence'\nimport { initializeHorca } from '../horca/initialize-horca'\n",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "import { initializeHorca } from '../horca/initialize-horca'"
+      },
+      "reason": "D2: main process imports Horca Ghostty registration"
+    },
+    {
+      "id": "d2-startup-call-initialize-horca",
+      "target": "src/main/startup/main-process-ready-foundation.ts",
+      "mode": "substitute",
+      "find": "  state.store = store\n",
+      "replace": "  state.store = store\n  initializeHorca(store)\n",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "  initializeHorca(store)"
+      },
+      "reason": "D2: register Ghostty passthru IPC when the desktop store is ready"
+    },
+    {
+      "id": "d2-brand-renderer-root-error",
+      "target": "src/renderer/src/main.tsx",
+      "mode": "substitute",
+      "find": "title={translate('app.recoverableError.rootTitle', 'Orca hit a renderer error.')}\n      description={translate(\n        'app.recoverableError.rootDescription',\n        'The app shell could not finish rendering. Retry to remount it, or relaunch Orca if the error persists.'\n      )}",
+      "replace": "title={translate('app.recoverableError.rootTitle', 'Horca hit a renderer error.')}\n      description={translate(\n        'app.recoverableError.rootDescription',\n        'The app shell could not finish rendering. Retry to remount it, or relaunch Horca if the error persists.'\n      )}",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "Horca hit a renderer error."
+      },
+      "reason": "D2: crash fallback copy says Horca"
+    },
+    {
+      "id": "d2-brand-renderer-recovery-prompt",
+      "target": "src/main/window/renderer-recovery-prompt.ts",
+      "mode": "substitute",
+      "find": "or quit and relaunch Orca.",
+      "replace": "or quit and relaunch Horca.",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "or quit and relaunch Horca."
+      },
+      "reason": "D2: renderer recovery dialog says Horca"
+    },
+    {
+      "id": "d2-brand-web-renderer-error",
+      "target": "src/renderer/src/web/main.tsx",
+      "mode": "substitute",
+      "find": "title={translate('app.recoverableError.webTitle', 'Orca web hit a renderer error.')}",
+      "replace": "title={translate('app.recoverableError.webTitle', 'Horca web hit a renderer error.')}",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "Horca web hit a renderer error."
+      },
+      "reason": "D2: web crash fallback copy says Horca"
+    },
+    {
+      "id": "d2-brand-windows-acl-relaunch",
+      "target": "src/main/startup/windows-install-dir-acl-recovery.ts",
+      "mode": "substitute",
+      "find": "then relaunch Orca:",
+      "replace": "then relaunch Horca:",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "then relaunch Horca:"
+      },
+      "reason": "D2: Windows ACL recovery copy says Horca"
+    },
+    {
+      "id": "d2-add-src-shared-horca-distribution-build-profile.ts",
+      "target": "src/shared/horca/distribution-build-profile.ts",
+      "mode": "add",
+      "source": "src/shared/horca/distribution-build-profile.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: Horca compile-time distribution profile imported by distribution-identity"
+    },
+    {
+      "id": "d2-add-src-shared-horca-terminal-backend.ts",
+      "target": "src/shared/horca/terminal-backend.ts",
+      "mode": "add",
+      "source": "src/shared/horca/terminal-backend.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: terminal backend types for settings IPC"
+    },
+    {
+      "id": "d2-add-src-shared-horca-terminal-settings-api.ts",
+      "target": "src/shared/horca/terminal-settings-api.ts",
+      "mode": "add",
+      "source": "src/shared/horca/terminal-settings-api.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: shared terminal settings API used by preload and renderer"
+    },
+    {
+      "id": "d2-add-src-main-local-state-root.ts",
+      "target": "src/main/local-state-root.ts",
+      "mode": "add",
+      "source": "src/main/local-state-root.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: Horca local state root used by terminal settings file path"
+    },
+    {
+      "id": "d2-add-src-main-horca-ghostty-surface-host.ts",
+      "target": "src/main/horca/ghostty-surface-host.ts",
+      "mode": "add",
+      "source": "src/main/horca/ghostty-surface-host.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: NSView Ghostty surface host stays unloaded; IPC still typechecks"
+    },
+    {
+      "id": "d2-add-src-main-horca-ghostty-surface-ipc.ts",
+      "target": "src/main/horca/ghostty-surface-ipc.ts",
+      "mode": "add",
+      "source": "src/main/horca/ghostty-surface-ipc.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: initializeHorca registers Ghostty surface IPC"
+    },
+    {
+      "id": "d2-add-src-main-horca-terminal-backend-horca-terminal-settings.ts",
+      "target": "src/main/horca/terminal-backend/horca-terminal-settings.ts",
+      "mode": "add",
+      "source": "src/main/horca/terminal-backend/horca-terminal-settings.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: terminal settings source used by initializeHorca"
+    },
+    {
+      "id": "d2-add-src-main-horca-terminal-backend-horca-terminal-settings-file.ts",
+      "target": "src/main/horca/terminal-backend/horca-terminal-settings-file.ts",
+      "mode": "add",
+      "source": "src/main/horca/terminal-backend/horca-terminal-settings-file.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: terminal settings persistence file"
+    },
+    {
+      "id": "d2-add-src-main-horca-terminal-backend-horca-terminal-settings-ipc.ts",
+      "target": "src/main/horca/terminal-backend/horca-terminal-settings-ipc.ts",
+      "mode": "add",
+      "source": "src/main/horca/terminal-backend/horca-terminal-settings-ipc.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: terminal settings IPC registered at Horca boot"
+    },
+    {
+      "id": "d2-add-src-preload-horca-terminal-settings-api.ts",
+      "target": "src/preload/horca-terminal-settings-api.ts",
+      "mode": "add",
+      "source": "src/preload/horca-terminal-settings-api.ts",
+      "precondition": {
+        "kind": "file-absent"
+      },
+      "reason": "D2: preload adapter for horcaTerminalSettings"
+    },
+    {
+      "id": "d2-daemon-entry-await-pty-dispose",
+      "target": "src/main/daemon/daemon-entry.ts",
+      "mode": "substitute",
+      "find": "  let shuttingDown = false\n  // Bound the wait so a wedged native shutdown can't leave the daemon running\n  // forever on SIGTERM/SIGINT (it would then survive a real quit, not just updates).\n  const SHUTDOWN_TIMEOUT_MS = 5000\n\n  const shutdown = async (reason: string): Promise<void> => {\n    // SIGTERM and SIGINT can both fire; guard against a double daemon.shutdown().\n    if (shuttingDown) {\n      return\n    }\n    shuttingDown = true\n    deathWatch?.stop()\n    daemonLog.log('shutdown', { reason })\n    try {\n      if (daemon) {\n        await Promise.race([\n          daemon.shutdown(),\n          new Promise((_, reject) =>\n            setTimeout(() => reject(new Error('shutdown timeout')), SHUTDOWN_TIMEOUT_MS)\n          )\n        ])\n        daemon = null\n      }\n    } catch (err) {",
+      "replace": "  let shuttingDown = false\n  // Bound the wait so a wedged native shutdown can't leave the daemon running\n  // forever on SIGTERM/SIGINT (it would then survive a real quit, not just updates).\n  // Strictly above the 8s physical-exit budget so this race cannot process.exit\n  // while host.dispose() is still waiting on that budget.\n  const SHUTDOWN_TIMEOUT_MS = 10_000\n\n  const shutdown = async (reason: string): Promise<void> => {\n    // SIGTERM and SIGINT can both fire; guard against a double daemon.shutdown().\n    if (shuttingDown) {\n      return\n    }\n    shuttingDown = true\n    deathWatch?.stop()\n    daemonLog.log('shutdown', { reason })\n    try {\n      if (daemon) {\n        await Promise.race([\n          daemon.shutdown(),\n          new Promise((_, reject) =>\n            setTimeout(() => reject(new Error('shutdown timeout')), SHUTDOWN_TIMEOUT_MS)\n          )\n        ])\n        daemon = null\n      }\n    } catch (err) {",
+      "precondition": {
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "mustOccurExactlyOnce": "const SHUTDOWN_TIMEOUT_MS = 10_000",
+        "mustNotOccur": "const SHUTDOWN_TIMEOUT_MS = 5000"
+      },
+      "reason": "D2: shutdown timeout stays strictly above the 8s physical-exit budget"
     }
   ]
 }

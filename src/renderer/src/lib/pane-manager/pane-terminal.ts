@@ -43,6 +43,8 @@ export type PaneTerminal = {
   readonly rows: number
   readonly element: HTMLElement | undefined
   readonly textarea?: HTMLTextAreaElement
+  readonly slot?: string
+  bindPty?: (sessionId: string) => void
   options: PaneTerminalOptions
   readonly buffer: { active: OrcaTerminalGrid }
   readonly modes: {

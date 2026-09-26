@@ -58,6 +58,8 @@ export class GhosttyHeadlessEmulator {
   private partialEscapeTail = ''
   private cursorStyle = 'block'
   private cursorBlink = false
+  private modelSeq = 0
+  private projectionAppliedModelSeq = 0
 
   constructor(opts: HeadlessEmulatorOptions) {
     this.oscText = new TerminalOscCwdTitleScanner({
@@ -116,22 +118,43 @@ export class GhosttyHeadlessEmulator {
     this.onQueryReply = null
   }
 
+  getModelSeq(): number {
+    return this.modelSeq
+  }
+
+  getProjectionAppliedModelSeq(): number {
+    return this.projectionAppliedModelSeq
+  }
+
+  canPublishSnapshot(targetSeq: number): boolean {
+    return this.projectionAppliedModelSeq >= targetSeq
+  }
+
   write(data: string, opts: HeadlessEmulatorWriteOptions = {}): Promise<void> {
+    this.modelSeq += 1
+    const seq = this.modelSeq
     this.applyWrite(data, opts)
+    this.projectionAppliedModelSeq = seq
     return Promise.resolve()
   }
 
   writeSync(data: string): boolean {
     if (this.disposed) return false
+    this.modelSeq += 1
+    const seq = this.modelSeq
     this.applyWrite(data)
+    this.projectionAppliedModelSeq = seq
     return true
   }
 
   resize(cols: number, rows: number): void {
     if (this.disposed) return
     if (this.engine.cols === cols && this.engine.rows === rows) return
+    this.modelSeq += 1
+    const seq = this.modelSeq
     this.restoredOscLinks = []
     this.engine.resize({ cols, rows })
+    this.projectionAppliedModelSeq = seq
   }
 
   getAppliedSize(): { cols: number; rows: number } {

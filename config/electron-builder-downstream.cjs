@@ -136,6 +136,34 @@ function addBundledHerdr(resources) {
   })
 }
 
+function addHorcaGhostty(resources) {
+  if (!Array.isArray(resources)) {
+    return
+  }
+  resources.push({
+    from: resolve(
+      __dirname,
+      '..',
+      'native',
+      'horca-ghostty',
+      'adopted',
+      'electron-ghostty'
+    ),
+    to: 'horca-ghostty',
+    filter: [
+      'addon.js',
+      'host.js',
+      'index.js',
+      'surface-pixels.js',
+      'preload.js',
+      'protocol.js',
+      'package.json',
+      'LICENSE',
+      'build/Release/ghostty_renderer.node'
+    ]
+  })
+}
+
 function applyDownstreamDistribution(config) {
   if (!isDownstreamBuild()) {
     return config
@@ -161,6 +189,7 @@ function applyDownstreamDistribution(config) {
     rewriteResourceDest(config.win.extraResources, 'orca.cmd', `bin/${identity.publicCli}.cmd`)
     rewriteResourceDest(config.win.extraResources, 'orca.exe', `bin/${identity.publicCli}.exe`)
     addBundledHerdr(config.win.extraResources)
+    addHorcaGhostty(config.win.extraResources)
   }
 
   if (config.nsis) {
@@ -173,6 +202,7 @@ function applyDownstreamDistribution(config) {
     rewriteResourceDest(config.mac.extraResources, 'bin/orca', `bin/${identity.publicCli}`)
     rewriteComputerUseHelper(config.mac.extraResources, identity.productName)
     addBundledHerdr(config.mac.extraResources)
+    addHorcaGhostty(config.mac.extraResources)
   }
 
   if (config.dmg) {
@@ -194,6 +224,7 @@ function applyDownstreamDistribution(config) {
       `bin/${identity.publicCli}`
     )
     addBundledHerdr(config.linux.extraResources)
+    addHorcaGhostty(config.linux.extraResources)
     if (Array.isArray(config.linux.extraResources)) {
       for (const resource of config.linux.extraResources) {
         if (

@@ -4,6 +4,7 @@ import { GhosttyRenderer } from './ghostty-renderer'
 import { GhosttyTerminal } from './ghostty-terminal'
 import { applyGhosttyColorTheme, rgbToCss } from './ghostty-color-theme'
 import { getGhosttyVtHostOrThrow } from './host-singleton'
+import { primeGhosttyVtHostForTests } from './prime-host-for-tests'
 
 const SOLARIZED_LIGHT = {
   background: '#fdf6e3',
@@ -67,6 +68,7 @@ describe('GhosttyRenderer', () => {
   let renderer: GhosttyRenderer | undefined
 
   beforeAll(() => {
+    primeGhosttyVtHostForTests()
     getGhosttyVtHostOrThrow()
   })
 

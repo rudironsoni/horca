@@ -1,0 +1,85 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Horca D2 <horca@local>
+Date: Wed, 23 Sep 2026 00:00:00 +0000
+Subject: [PATCH] export the surface hyperlink under a pixel
+
+The pinned C API can run select_all and search. It cannot
+return the OSC 8 URI under a pixel. Query Ghostty's own
+hyperlink data and return that string.
+
+---
+diff --git a/include/ghostty.h b/include/ghostty.h
+--- a/include/ghostty.h
++++ b/include/ghostty.h
+@@ -1206,6 +1206,10 @@
+                                                  uint16_t);
+ GHOSTTY_API void ghostty_surface_split_equalize(ghostty_surface_t);
+ GHOSTTY_API bool ghostty_surface_binding_action(ghostty_surface_t, const char*, uintptr_t);
++GHOSTTY_API bool ghostty_surface_hyperlink_at(ghostty_surface_t,
++                                                 double,
++                                                 double,
++                                                 ghostty_text_s*);
+ GHOSTTY_API void ghostty_surface_complete_clipboard_request(ghostty_surface_t,
+                                                                const char*,
+                                                                void*,
+diff --git a/src/Surface.zig b/src/Surface.zig
+--- a/src/Surface.zig
++++ b/src/Surface.zig
+@@ -4472,6 +4472,28 @@
+     );
+ }
+ 
++pub fn hyperlinkUriAt(self: *Surface, x: f64, y: f64, alloc: Allocator) !?[:0]const u8 {
++    self.renderer_state.mutex.lock();
++    defer self.renderer_state.mutex.unlock();
++
++    const screen: *terminal.Screen = self.renderer_state.terminal.screens.active;
++    const point = self.posToViewport(x, y);
++    const pin = screen.pages.pin(.{ .viewport = point }) orelse return null;
++    if (self.osc8URI(pin)) |uri| return try alloc.dupeZ(u8, uri);
++
++    const link = try self.linkAtPin(pin, null) orelse return null;
++    switch (link.action) {
++        ._open_osc8 => {
++            const uri = self.osc8URI(link.selection.start()) orelse return null;
++            return try alloc.dupeZ(u8, uri);
++        },
++        .open => return try screen.selectionString(alloc, .{
++            .sel = link.selection,
++            .trim = false,
++        }),
++    }
++}
++
+ /// Return the URI for an OSC8 hyperlink at the given position or null
+ /// if there is no hyperlink.
+ fn osc8URI(self: *Surface, pin: terminal.Pin) ?[]const u8 {
+diff --git a/src/apprt/embedded.zig b/src/apprt/embedded.zig
+--- a/src/apprt/embedded.zig
++++ b/src/apprt/embedded.zig
+@@ -2164,6 +2164,25 @@
+         };
+     }
+ 
++    export fn ghostty_surface_hyperlink_at(
++        ptr: *Surface,
++        x: f64,
++        y: f64,
++        result: *Text,
++    ) bool {
++        const uri = ptr.core_surface.hyperlinkUriAt(x, y, global.alloc) catch return false;
++        const text = uri orelse return false;
++        result.* = .{
++            .tl_px_x = -1,
++            .tl_px_y = -1,
++            .offset_start = 0,
++            .offset_len = 0,
++            .text = text.ptr,
++            .text_len = text.len,
++        };
++        return true;
++    }
++
+     /// Complete a clipboard read request started via the read callback.
+     /// This can only be called once for a given request. Once it is called
+     /// with a request the request pointer will be invalidated.

@@ -1,0 +1,32 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Horca D2 <horca@local>
+Date: Sun, 20 Sep 2026 00:00:00 +0000
+Subject: [PATCH] build: add libghostty step for static archive only
+
+The default install graph also compiles the libghostty-vt dylib, which
+fails on MacOSX27 libcxx (INFINITY). Embedders that only need
+libghostty.a can `zig build libghostty`.
+---
+ build.zig | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/build.zig b/build.zig
+index 929f5fd..b4c1e00 100644
+--- a/build.zig
++++ b/build.zig
+@@ -203,6 +203,13 @@ pub fn build(b: *std.Build) !void {
+             // the xcframework) can link the full library.
+             lib_static.installHeader();
+             lib_static.install("libghostty.a");
++
++            const libghostty_step = b.step("libghostty", "Install static libghostty.a only");
++            libghostty_step.dependOn(&b.addInstallLibFile(lib_static.output, "libghostty.a").step);
++            libghostty_step.dependOn(&b.addInstallHeaderFile(
++                b.path("include/ghostty.h"),
++                "ghostty.h",
++            ).step);
+         }
+     }
+ 
+-- 
+2.50.0

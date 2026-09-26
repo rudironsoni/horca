@@ -59,8 +59,8 @@ describe('Horca terminal backend settings', () => {
   it('puts the Herdr and PATH defaults first and shows the shared Horca session', () => {
     render(<HorcaTerminalBackendSection />)
 
-    expect(optionLabels('Default terminal backend')).toEqual(['Herdr', 'Orca'])
-    expect(optionLabels('Floating terminal backend')).toEqual(['Inherit', 'Herdr', 'Orca'])
+    expect(optionLabels('Default terminal backend')).toEqual(['Herdr', 'Horca'])
+    expect(optionLabels('Floating terminal backend')).toEqual(['Inherit', 'Herdr', 'Horca'])
     expect(optionLabels('Herdr executable source')).toEqual(['From PATH', 'Bundled', 'Custom'])
     expect((screen.getByLabelText('Shared Herdr session name') as HTMLInputElement).value).toBe(
       'horca'
@@ -77,6 +77,6 @@ describe('Horca terminal backend settings', () => {
       />
     )
 
-    expect(optionLabels('Project terminal backend')).toEqual(['Inherit', 'Herdr', 'Orca'])
+    expect(optionLabels('Project terminal backend')).toEqual(['Inherit', 'Herdr', 'Horca'])
   })
 })
