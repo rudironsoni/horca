@@ -189,6 +189,15 @@ export function tailLines(text) {
   }
 }
 
+export function markerOnGrid(serialized, marker) {
+  return tailLines(serialized).some((line) => {
+    if (!line.includes(marker)) {
+      return false
+    }
+    return !/\bprintf\b|\bpython3\b|PS1=/.test(line)
+  })
+}
+
 export function smokeKeyOnMarkerLine(text) {
   try {
     const tail = JSON.parse(text)?.result?.terminal?.tail
@@ -384,16 +393,33 @@ export async function awaitHittableRect(session, slot) {
   )
 }
 
-export async function containGhosttyCanvases(session) {
+export async function containGhosttySlot(session, slot) {
   await evaluate(
     session,
     `(() => {
-      for (const node of document.querySelectorAll('canvas[data-ghostty]')) {
-        node.style.width = '100%'
-        node.style.height = '100%'
-        node.style.maxWidth = '100%'
-      }
+      const node = document.querySelector(${JSON.stringify(`canvas[data-ghostty="${slot}"]`)})
+      if (!node || node.dataset.horcaSmokeContained === '1') return
+      node.style.width = '800px'
+      node.style.height = '480px'
+      node.style.maxWidth = '800px'
+      node.style.flex = '0 0 auto'
+      node.dataset.horcaSmokeContained = '1'
     })()`,
+    5_000
+  )
+}
+
+export async function releaseStuckSession(session) {
+  await releaseMeta(session)
+  await sendKey(session, {
+    key: 'Escape',
+    code: 'Escape',
+    windowsVirtualKeyCode: 27,
+    nativeVirtualKeyCode: 53
+  })
+  await session.call(
+    'Input.dispatchMouseEvent',
+    { type: 'mouseReleased', x: 20, y: 20, button: 'left', clickCount: 1 },
     5_000
   )
 }
@@ -829,12 +855,12 @@ export async function openOwnedTerminal(ctx, { command, marker, markerTimeout = 
   if (marker) {
     await pollUntil(`${marker} was not on the new terminal`, markerTimeout, async () => {
       const screen = await readScreen(ctx, handle)
-      return screen.includes(marker) ? screen : null
+      const output = await readOutput(ctx, handle)
+      return markerOnGrid(screen, marker) || markerOnGrid(output, marker) ? screen : null
     })
   }
   const slot = await pollUntil(`Ghostty slot did not appear for ${command}`, 12_000, async () => {
     const slots = await ghosttySlots(ctx.session)
-    await containGhosttyCanvases(ctx.session)
     const fresh = slots.filter((item) => !slotsBefore.includes(item))
     for (const item of fresh) {
       const rect = await ghosttyRect(ctx.session, item)
@@ -844,13 +870,26 @@ export async function openOwnedTerminal(ctx, { command, marker, markerTimeout = 
     }
     return null
   })
+  await containGhosttySlot(ctx.session, slot)
+  const rect = await awaitHittableRect(ctx.session, slot)
   if (focus) {
     await focusGhosttySlot(ctx.session, slot)
     await activateHorca()
     await releaseMeta(ctx.session)
+    const clickX = rect.x + 12
+    const clickY = rect.y + 12
+    await ctx.session.call(
+      'Input.dispatchMouseEvent',
+      { type: 'mousePressed', x: clickX, y: clickY, button: 'left', clickCount: 1 },
+      15_000
+    )
+    await ctx.session.call(
+      'Input.dispatchMouseEvent',
+      { type: 'mouseReleased', x: clickX, y: clickY, button: 'left', clickCount: 1 },
+      15_000
+    )
   }
   await ensureWorkbenchOnce(ctx)
-  await awaitHittableRect(ctx.session, slot)
   return {
     handle,
     slot,

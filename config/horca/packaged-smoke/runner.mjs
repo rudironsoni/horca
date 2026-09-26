@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { boot } from './boot.mjs'
-import { closeTabsOpenedSince } from './helpers.mjs'
+import { closeTabsOpenedSince, releaseStuckSession } from './helpers.mjs'
 import * as ime from './probes/ime.mjs'
 import * as input from './probes/input.mjs'
 import * as lifecycle from './probes/lifecycle.mjs'
@@ -18,8 +18,12 @@ import * as selection from './probes/selection.mjs'
 export const probes = [input, paste, ime, mouse, selection, scroll, links, search, resize, lifecycle, multipane, restore]
 
 export async function runPackagedSmoke({ executablePath, only = '' }) {
-  const selected = only ? probes.filter((probe) => probe.id === only) : probes
-  if (only && selected.length !== 1) {
+  const wanted = String(only || '')
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean)
+  const selected = wanted.length ? probes.filter((probe) => wanted.includes(probe.id)) : probes
+  if (wanted.length && selected.length !== wanted.length) {
     throw new Error(`Unknown smoke probe: ${only}`)
   }
   const ctx = await boot(executablePath)
@@ -29,6 +33,7 @@ export async function runPackagedSmoke({ executablePath, only = '' }) {
       ctx.marker = ''
       try {
         await closeTabsOpenedSince(ctx, ctx.bootTabs)
+        await releaseStuckSession(ctx.session)
         const marker = await probe.run(ctx)
         console.log(`SMOKE_EVIDENCE ${JSON.stringify({ capability: probe.id, pass: true, marker: marker || ctx.marker })}`)
       } catch (error) {

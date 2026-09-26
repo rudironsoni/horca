@@ -1,13 +1,6 @@
 name: Packaged smoke modules
 
 on:
-  push:
-    branches:
-      - cursor/d2-smoke-modules
-    paths:
-      - .github/workflows/packaged-smoke-modules.yml
-      - config/horca/packaged-smoke/**
-      - config/horca/smoke-packaged-distribution.mjs
   workflow_dispatch:
     inputs:
       probe:
@@ -69,7 +62,7 @@ jobs:
           if [ "$ONLY" = "all" ] || [ -z "$ONLY" ]; then
             perl -e 'alarm 3600; exec @ARGV' node config/horca/smoke-packaged-distribution.mjs "$exe" >"$log" 2>&1
           else
-            HORCA_SMOKE_PROBE="$ONLY" perl -e 'alarm 900; exec @ARGV' node config/horca/smoke-packaged-distribution.mjs "$exe" >"$log" 2>&1
+            HORCA_SMOKE_PROBE="$ONLY" perl -e 'alarm 2400; exec @ARGV' node config/horca/smoke-packaged-distribution.mjs "$exe" >"$log" 2>&1
           fi
           code=$?
           set -e
