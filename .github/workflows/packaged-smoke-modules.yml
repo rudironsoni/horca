@@ -1,6 +1,11 @@
 name: Packaged smoke modules
 
 on:
+  push:
+    branches:
+      - cursor/d2-smoke-modules
+    paths:
+      - .github/workflows/packaged-smoke-modules.yml
   workflow_dispatch:
     inputs:
       probe:
@@ -35,7 +40,8 @@ jobs:
           xattr -dr com.apple.quarantine artifacts || true
       - name: Run modular probes
         env:
-          ONLY: ${{ github.event.inputs.probe || 'all' }}
+          # Push reruns the probes that never reached their own fixture. Dispatch with probe=all runs every probe.
+          ONLY: ${{ github.event.inputs.probe || 'selection,scroll,search,lifecycle,multipane,restore' }}
         run: |
           set -euo pipefail
           dmg="$PWD/artifacts/horca-macos-arm64.dmg"
