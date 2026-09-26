@@ -6812,6 +6812,720 @@
         "mustNotOccur": "'Orca allows terminal-launched developer tools"
       },
       "reason": "macOS privacy prompts use the Horca product name"
+    },
+    {
+      "id": "d2-brand-web-connect-server-name",
+      "target": "src/renderer/src/web/WebConnect.tsx",
+      "mode": "substitute",
+      "find": "existingEnvironment?.name ?? 'Orca Server'",
+      "replace": "existingEnvironment?.name ?? 'Horca Server'",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "existingEnvironment?.name ?? 'Orca Server'",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "existingEnvironment?.name ?? 'Horca Server'"
+      },
+      "reason": "Web pairing default server name says Horca"
+    },
+    {
+      "id": "d2-brand-web-connect-invalid-pairing",
+      "target": "src/renderer/src/web/WebConnect.tsx",
+      "mode": "substitute",
+      "find": "setError('Enter a valid Orca pairing URL or pairing code.')",
+      "replace": "setError('Enter a valid Horca pairing URL or pairing code.')",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "setError('Enter a valid Orca pairing URL or pairing code.')",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "setError('Enter a valid Horca pairing URL or pairing code.')"
+      },
+      "reason": "Web pairing validation copy says Horca"
+    },
+    {
+      "id": "d2-brand-web-connect-mobile-scope",
+      "target": "src/renderer/src/web/WebConnect.tsx",
+      "mode": "substitute",
+      "find": "'This QR code grants limited (mobile) access. To use the full web app, open the browser access link from Settings → Runtime Environments → Share this Orca server → New Link.'",
+      "replace": "'This QR code grants limited (mobile) access. To use the full web app, open the browser access link from Settings → Runtime Environments → Share this Horca server → New Link.'",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "'This QR code grants limited (mobile) access. To use the full web app, open the browser access link from Settings → Runtime Environments → Share this Orca server → New Link.'",
+        "occursExactly": 2
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustNotOccur": "'This QR code grants limited (mobile) access. To use the full web app, open the browser access link from Settings → Runtime Environments → Share this Orca server → New Link.'"
+      },
+      "reason": "Web pairing mobile-scope error says Horca"
+    },
+    {
+      "id": "d2-brand-web-connect-mixed-content",
+      "target": "src/renderer/src/web/WebConnect.tsx",
+      "mode": "substitute",
+      "find": "'This HTTPS page cannot connect to a plain ws:// Orca server. Open the web client over HTTP or pair with a wss:// endpoint.'",
+      "replace": "'This HTTPS page cannot connect to a plain ws:// Horca server. Open the web client over HTTP or pair with a wss:// endpoint.'",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "'This HTTPS page cannot connect to a plain ws:// Orca server. Open the web client over HTTP or pair with a wss:// endpoint.'",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "'This HTTPS page cannot connect to a plain ws:// Horca server. Open the web client over HTTP or pair with a wss:// endpoint.'"
+      },
+      "reason": "Web pairing mixed-content error says Horca"
+    },
+    {
+      "id": "d2-brand-web-connect-title",
+      "target": "src/renderer/src/web/WebConnect.tsx",
+      "mode": "substitute",
+      "find": "translate('auto.web.WebConnect.e3bcd082ac', 'Connect to Orca')",
+      "replace": "translate('auto.web.WebConnect.e3bcd082ac', 'Connect to Horca')",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "translate('auto.web.WebConnect.e3bcd082ac', 'Connect to Orca')",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "translate('auto.web.WebConnect.e3bcd082ac', 'Connect to Horca')"
+      },
+      "reason": "Web pairing screen title says Horca"
+    },
+    {
+      "id": "d2-brand-web-connect-hint",
+      "target": "src/renderer/src/web/WebConnect.tsx",
+      "mode": "substitute",
+      "find": "'Paste a pairing URL from an Orca server that this browser can reach.'",
+      "replace": "'Paste a pairing URL from a Horca server that this browser can reach.'",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "'Paste a pairing URL from an Orca server that this browser can reach.'",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "'Paste a pairing URL from a Horca server that this browser can reach.'"
+      },
+      "reason": "Web pairing hint says Horca"
+    },
+    {
+      "id": "d2-brand-web-startup-server-name",
+      "target": "src/renderer/src/web/main.tsx",
+      "mode": "substitute",
+      "find": "name: 'Orca Server',",
+      "replace": "name: 'Horca Server',",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "name: 'Orca Server',",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "name: 'Horca Server',"
+      },
+      "reason": "Web pairing auto-save name says Horca"
+    },
+    {
+      "id": "d2-brand-web-stored-server-name",
+      "target": "src/renderer/src/web/web-runtime-environment.ts",
+      "mode": "substitute",
+      "find": "name: args.name.trim() || 'Orca Server',",
+      "replace": "name: args.name.trim() || 'Horca Server',",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "name: args.name.trim() || 'Orca Server',",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "name: args.name.trim() || 'Horca Server',"
+      },
+      "reason": "Stored web pairing name says Horca"
+    },
+    {
+      "id": "d2-brand-web-unknown-environment",
+      "target": "src/renderer/src/web/preload-api/web-runtime-session.ts",
+      "mode": "substitute",
+      "find": "throw new Error(`Unknown Orca runtime environment: ${selector}`)",
+      "replace": "throw new Error(`Unknown Horca runtime environment: ${selector}`)",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "throw new Error(`Unknown Orca runtime environment: ${selector}`)",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "throw new Error(`Unknown Horca runtime environment: ${selector}`)"
+      },
+      "reason": "Web pairing unknown-environment error says Horca"
+    },
+    {
+      "id": "d2-brand-web-pair-first",
+      "target": "src/renderer/src/web/preload-api/web-runtime-session.ts",
+      "mode": "substitute",
+      "find": "throw new Error('Pair this web client with an Orca server first.')",
+      "replace": "throw new Error('Pair this web client with a Horca server first.')",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "throw new Error('Pair this web client with an Orca server first.')",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "throw new Error('Pair this web client with a Horca server first.')"
+      },
+      "reason": "Web pairing required error says Horca"
+    },
+    {
+      "id": "d2-brand-web-server-changed",
+      "target": "src/renderer/src/web/preload-api/web-runtime-session.ts",
+      "mode": "substitute",
+      "find": "throw new Error('The paired Orca server changed while the request was in progress.')",
+      "replace": "throw new Error('The paired Horca server changed while the request was in progress.')",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "throw new Error('The paired Orca server changed while the request was in progress.')",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "throw new Error('The paired Horca server changed while the request was in progress.')"
+      },
+      "reason": "Web pairing server-changed error says Horca"
+    },
+    {
+      "id": "d2-brand-web-invalid-pairing-code",
+      "target": "src/renderer/src/web/preload-api/web-runtime-environments-api.ts",
+      "mode": "substitute",
+      "find": "throw new Error('Invalid Orca pairing code.')",
+      "replace": "throw new Error('Invalid Horca pairing code.')",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "throw new Error('Invalid Orca pairing code.')",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "throw new Error('Invalid Horca pairing code.')"
+      },
+      "reason": "Web pairing code error says Horca"
+    },
+    {
+      "id": "d2-brand-web-cannot-reach",
+      "target": "src/renderer/src/web/preload-api/web-runtime-environments-api.ts",
+      "mode": "substitute",
+      "find": "'Cannot reach Orca at {{endpoint}}.',",
+      "replace": "'Cannot reach Horca at {{endpoint}}.',",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "'Cannot reach Orca at {{endpoint}}.',",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "'Cannot reach Horca at {{endpoint}}.',"
+      },
+      "reason": "Web pairing unreachable error says Horca"
+    },
+    {
+      "id": "d2-brand-web-save-failed",
+      "target": "src/renderer/src/web/preload-api/web-runtime-environments-api.ts",
+      "mode": "substitute",
+      "find": "'Orca verified the host but could not save it. Check browser storage and try again.'",
+      "replace": "'Horca verified the host but could not save it. Check browser storage and try again.'",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "'Orca verified the host but could not save it. Check browser storage and try again.'",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "'Horca verified the host but could not save it. Check browser storage and try again.'"
+      },
+      "reason": "Web pairing save-failed error says Horca"
+    },
+    {
+      "id": "d2-brand-web-app-name",
+      "target": "src/renderer/src/web/preload-api/web-app-api.ts",
+      "mode": "substitute",
+      "find": "name: 'Orca',",
+      "replace": "name: 'Horca',",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "name: 'Orca',",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "name: 'Horca',"
+      },
+      "reason": "Web app name shown to users says Horca"
+    },
+    {
+      "id": "d2-brand-pairing-invalid-input",
+      "target": "src/shared/remote-pairing-address.ts",
+      "mode": "substitute",
+      "find": "message: 'Enter an Orca access link or bare pairing code.'",
+      "replace": "message: 'Enter a Horca access link or bare pairing code.'",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "message: 'Enter an Orca access link or bare pairing code.'",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "message: 'Enter a Horca access link or bare pairing code.'"
+      },
+      "reason": "Pairing validation copy says Horca"
+    },
+    {
+      "id": "d2-brand-pairing-mobile-only",
+      "target": "src/shared/remote-pairing-address.ts",
+      "mode": "substitute",
+      "find": "message: 'This link grants mobile-only access. Generate a link for another Orca client.'",
+      "replace": "message: 'This link grants mobile-only access. Generate a link for another Horca client.'",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "message: 'This link grants mobile-only access. Generate a link for another Orca client.'",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "message: 'This link grants mobile-only access. Generate a link for another Horca client.'"
+      },
+      "reason": "Pairing mobile-only copy says Horca"
+    },
+    {
+      "id": "d2-brand-pairing-copy-invalid-input",
+      "target": "src/renderer/src/lib/remote-pairing-copy.ts",
+      "mode": "substitute",
+      "find": "'Enter an Orca access link or bare pairing code.'",
+      "replace": "'Enter a Horca access link or bare pairing code.'",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "'Enter an Orca access link or bare pairing code.'",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "'Enter a Horca access link or bare pairing code.'"
+      },
+      "reason": "Pairing invalid-input copy says Horca"
+    },
+    {
+      "id": "d2-brand-pairing-copy-mobile-only",
+      "target": "src/renderer/src/lib/remote-pairing-copy.ts",
+      "mode": "substitute",
+      "find": "'This link grants mobile-only access. Generate a link for another Orca client.'",
+      "replace": "'This link grants mobile-only access. Generate a link for another Horca client.'",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "'This link grants mobile-only access. Generate a link for another Orca client.'",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "'This link grants mobile-only access. Generate a link for another Horca client.'"
+      },
+      "reason": "Pairing mobile-only copy says Horca"
+    },
+    {
+      "id": "d2-brand-pairing-copy-identity-mismatch",
+      "target": "src/renderer/src/lib/remote-pairing-copy.ts",
+      "mode": "substitute",
+      "find": "'Orca reached {{endpoint}}, but that host does not match this link. Generate a new link on the other host.',",
+      "replace": "'Horca reached {{endpoint}}, but that host does not match this link. Generate a new link on the other host.',",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "'Orca reached {{endpoint}}, but that host does not match this link. Generate a new link on the other host.',",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "'Horca reached {{endpoint}}, but that host does not match this link. Generate a new link on the other host.',"
+      },
+      "reason": "Pairing identity-mismatch copy says Horca"
+    },
+    {
+      "id": "d2-brand-pairing-copy-endpoint-name",
+      "target": "src/renderer/src/lib/remote-pairing-copy.ts",
+      "mode": "substitute",
+      "find": "{ endpoint: endpoint ?? 'Orca' }",
+      "replace": "{ endpoint: endpoint ?? 'Horca' }",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "{ endpoint: endpoint ?? 'Orca' }",
+        "occursExactly": 2
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustNotOccur": "{ endpoint: endpoint ?? 'Orca' }"
+      },
+      "reason": "Pairing endpoint fallback name says Horca"
+    },
+    {
+      "id": "d2-brand-pairing-copy-update",
+      "target": "src/renderer/src/lib/remote-pairing-copy.ts",
+      "mode": "substitute",
+      "find": "'Update Orca on this device and the other host, then try again.'",
+      "replace": "'Update Horca on this device and the other host, then try again.'",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "'Update Orca on this device and the other host, then try again.'",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "'Update Horca on this device and the other host, then try again.'"
+      },
+      "reason": "Pairing protocol-incompatible copy says Horca"
+    },
+    {
+      "id": "d2-brand-pairing-copy-save-failed",
+      "target": "src/renderer/src/lib/remote-pairing-copy.ts",
+      "mode": "substitute",
+      "find": "'The host was verified, but Orca could not save it. Check the name and local settings storage, then try again.'",
+      "replace": "'The host was verified, but Horca could not save it. Check the name and local settings storage, then try again.'",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "'The host was verified, but Orca could not save it. Check the name and local settings storage, then try again.'",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "'The host was verified, but Horca could not save it. Check the name and local settings storage, then try again.'"
+      },
+      "reason": "Pairing save-failed copy says Horca"
+    },
+    {
+      "id": "d2-brand-pairing-copy-unreachable",
+      "target": "src/renderer/src/lib/remote-pairing-copy.ts",
+      "mode": "substitute",
+      "find": "'Make sure Orca is running on the other host and that the network or SSH tunnel can reach {{endpoint}}.',",
+      "replace": "'Make sure Horca is running on the other host and that the network or SSH tunnel can reach {{endpoint}}.',",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "'Make sure Orca is running on the other host and that the network or SSH tunnel can reach {{endpoint}}.',",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "'Make sure Horca is running on the other host and that the network or SSH tunnel can reach {{endpoint}}.',"
+      },
+      "reason": "Pairing unreachable copy says Horca"
+    },
+    {
+      "id": "d2-brand-crash-dialog-title-recoverable",
+      "target": "src/renderer/src/components/crash-report/CrashReportDialogSurface.tsx",
+      "mode": "substitute",
+      "find": "? 'Orca hit a recoverable UI error'",
+      "replace": "? 'Horca hit a recoverable UI error'",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "? 'Orca hit a recoverable UI error'",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "? 'Horca hit a recoverable UI error'"
+      },
+      "reason": "Crash dialog recoverable title says Horca"
+    },
+    {
+      "id": "d2-brand-crash-dialog-title-closed",
+      "target": "src/renderer/src/components/crash-report/CrashReportDialogSurface.tsx",
+      "mode": "substitute",
+      "find": ": 'Orca closed unexpectedly'",
+      "replace": ": 'Horca closed unexpectedly'",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": ": 'Orca closed unexpectedly'",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": ": 'Horca closed unexpectedly'"
+      },
+      "reason": "Crash dialog closed title says Horca"
+    },
+    {
+      "id": "d2-brand-crash-dialog-notes",
+      "target": "src/renderer/src/components/crash-report/CrashReportDialogSurface.tsx",
+      "mode": "substitute",
+      "find": ": 'Optional: what were you doing before Orca closed?'",
+      "replace": ": 'Optional: what were you doing before Horca closed?'",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": ": 'Optional: what were you doing before Orca closed?'",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": ": 'Optional: what were you doing before Horca closed?'"
+      },
+      "reason": "Crash dialog notes placeholder says Horca"
+    },
+    {
+      "id": "d2-brand-crash-dialog-product-label",
+      "target": "src/renderer/src/components/crash-report/CrashReportDialogSurface.tsx",
+      "mode": "substitute",
+      "find": "{translate('auto.components.crash.report.CrashReportDialog.835037edc9', 'Orca')}{' '}",
+      "replace": "{translate('auto.components.crash.report.CrashReportDialog.835037edc9', 'Horca')}{' '}",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "{translate('auto.components.crash.report.CrashReportDialog.835037edc9', 'Orca')}{' '}",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "{translate('auto.components.crash.report.CrashReportDialog.835037edc9', 'Horca')}{' '}"
+      },
+      "reason": "Crash dialog product label says Horca"
+    },
+    {
+      "id": "d2-brand-crash-gpu-restart-title",
+      "target": "src/main/crash-reporting/gpu-fallback-restart-prompt.ts",
+      "mode": "substitute",
+      "find": "title: 'Restart Orca in Safe Graphics Mode?',",
+      "replace": "title: 'Restart Horca in Safe Graphics Mode?',",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "title: 'Restart Orca in Safe Graphics Mode?',",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "title: 'Restart Horca in Safe Graphics Mode?',"
+      },
+      "reason": "Graphics crash dialog title says Horca"
+    },
+    {
+      "id": "d2-brand-crash-gpu-restart-message",
+      "target": "src/main/crash-reporting/gpu-fallback-restart-prompt.ts",
+      "mode": "substitute",
+      "find": "message: \"Orca's graphics process has crashed repeatedly.\",",
+      "replace": "message: \"Horca's graphics process has crashed repeatedly.\",",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "message: \"Orca's graphics process has crashed repeatedly.\",",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "message: \"Horca's graphics process has crashed repeatedly.\","
+      },
+      "reason": "Graphics crash dialog message says Horca"
+    },
+    {
+      "id": "d2-brand-crash-gpu-restart-detail",
+      "target": "src/main/crash-reporting/gpu-fallback-restart-prompt.ts",
+      "mode": "substitute",
+      "find": "'Safe graphics mode disables hardware acceleration and WebGL for this Orca version. Terminals and 3D content may render more slowly. Keep Running leaves graphics settings unchanged.'",
+      "replace": "'Safe graphics mode disables hardware acceleration and WebGL for this Horca version. Terminals and 3D content may render more slowly. Keep Running leaves graphics settings unchanged.'",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "'Safe graphics mode disables hardware acceleration and WebGL for this Orca version. Terminals and 3D content may render more slowly. Keep Running leaves graphics settings unchanged.'",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "'Safe graphics mode disables hardware acceleration and WebGL for this Horca version. Terminals and 3D content may render more slowly. Keep Running leaves graphics settings unchanged.'"
+      },
+      "reason": "Graphics crash dialog detail says Horca"
+    },
+    {
+      "id": "d2-brand-crash-gpu-recovered",
+      "target": "src/main/crash-reporting/gpu-fallback-recovered-launch.ts",
+      "mode": "substitute",
+      "find": "message: 'Orca recovered in Safe Graphics Mode.',",
+      "replace": "message: 'Horca recovered in Safe Graphics Mode.',",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "message: 'Orca recovered in Safe Graphics Mode.',",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "message: 'Horca recovered in Safe Graphics Mode.',"
+      },
+      "reason": "Graphics recovery dialog says Horca"
+    },
+    {
+      "id": "d2-brand-crash-recovery-stalled",
+      "target": "src/main/window/renderer-recovery-prompt.ts",
+      "mode": "substitute",
+      "find": "'Orca reloaded the window after a crash, but it never finished loading.'",
+      "replace": "'Horca reloaded the window after a crash, but it never finished loading.'",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "'Orca reloaded the window after a crash, but it never finished loading.'",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "'Horca reloaded the window after a crash, but it never finished loading.'"
+      },
+      "reason": "Renderer crash recovery dialog says Horca"
+    },
+    {
+      "id": "d2-brand-crash-recovery-loop",
+      "target": "src/main/window/renderer-recovery-prompt.ts",
+      "mode": "substitute",
+      "find": "'Orca tried to recover {{recoveryCount}} times in a row without success.',",
+      "replace": "'Horca tried to recover {{recoveryCount}} times in a row without success.',",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "'Orca tried to recover {{recoveryCount}} times in a row without success.',",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "'Horca tried to recover {{recoveryCount}} times in a row without success.',"
+      },
+      "reason": "Renderer crash-loop dialog says Horca"
+    },
+    {
+      "id": "d2-brand-crash-recovery-title",
+      "target": "src/main/window/renderer-recovery-prompt.ts",
+      "mode": "substitute",
+      "find": "title: translateMain('rendererRecovery.title', 'Orca keeps failing to load'),",
+      "replace": "title: translateMain('rendererRecovery.title', 'Horca keeps failing to load'),",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "title: translateMain('rendererRecovery.title', 'Orca keeps failing to load'),",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "title: translateMain('rendererRecovery.title', 'Horca keeps failing to load'),"
+      },
+      "reason": "Renderer crash recovery title says Horca"
+    },
+    {
+      "id": "d2-brand-mobile-app-name",
+      "target": "mobile/app.json",
+      "mode": "substitute",
+      "find": "    \"name\": \"Orca\",",
+      "replace": "    \"name\": \"Horca\",",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "    \"name\": \"Orca\",",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "    \"name\": \"Horca\","
+      },
+      "reason": "Mobile app name shown to users says Horca"
+    },
+    {
+      "id": "d2-brand-mobile-local-network",
+      "target": "mobile/app.json",
+      "mode": "substitute",
+      "find": "\"NSLocalNetworkUsageDescription\": \"Orca connects to the desktop app on your LAN.\",",
+      "replace": "\"NSLocalNetworkUsageDescription\": \"Horca connects to the desktop app on your LAN.\",",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "\"NSLocalNetworkUsageDescription\": \"Orca connects to the desktop app on your LAN.\",",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "\"NSLocalNetworkUsageDescription\": \"Horca connects to the desktop app on your LAN.\","
+      },
+      "reason": "Mobile local-network prompt says Horca"
+    },
+    {
+      "id": "d2-brand-mobile-microphone",
+      "target": "mobile/app.json",
+      "mode": "substitute",
+      "find": "\"NSMicrophoneUsageDescription\": \"Allow Orca to record voice dictation and transcribe it on your paired desktop.\",",
+      "replace": "\"NSMicrophoneUsageDescription\": \"Allow Horca to record voice dictation and transcribe it on your paired desktop.\",",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "\"NSMicrophoneUsageDescription\": \"Allow Orca to record voice dictation and transcribe it on your paired desktop.\",",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "\"NSMicrophoneUsageDescription\": \"Allow Horca to record voice dictation and transcribe it on your paired desktop.\","
+      },
+      "reason": "Mobile microphone prompt says Horca"
+    },
+    {
+      "id": "d2-brand-mobile-photos",
+      "target": "mobile/app.json",
+      "mode": "substitute",
+      "find": "\"NSPhotoLibraryUsageDescription\": \"Allow Orca to attach photos from your library to a terminal session on your paired desktop.\",",
+      "replace": "\"NSPhotoLibraryUsageDescription\": \"Allow Horca to attach photos from your library to a terminal session on your paired desktop.\",",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "\"NSPhotoLibraryUsageDescription\": \"Allow Orca to attach photos from your library to a terminal session on your paired desktop.\",",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "\"NSPhotoLibraryUsageDescription\": \"Allow Horca to attach photos from your library to a terminal session on your paired desktop.\","
+      },
+      "reason": "Mobile photo-library prompt says Horca"
+    },
+    {
+      "id": "d2-brand-mobile-camera-permission",
+      "target": "mobile/app.json",
+      "mode": "substitute",
+      "find": "\"cameraPermission\": \"Allow Orca to use the camera for QR code scanning.\",",
+      "replace": "\"cameraPermission\": \"Allow Horca to use the camera for QR code scanning.\",",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "\"cameraPermission\": \"Allow Orca to use the camera for QR code scanning.\",",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "\"cameraPermission\": \"Allow Horca to use the camera for QR code scanning.\","
+      },
+      "reason": "Mobile camera prompt says Horca"
+    },
+    {
+      "id": "d2-brand-mobile-mic-permission",
+      "target": "mobile/app.json",
+      "mode": "substitute",
+      "find": "\"microphonePermission\": \"Allow Orca to use your microphone for voice dictation sent to your paired desktop for transcription.\",",
+      "replace": "\"microphonePermission\": \"Allow Horca to use your microphone for voice dictation sent to your paired desktop for transcription.\",",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "\"microphonePermission\": \"Allow Orca to use your microphone for voice dictation sent to your paired desktop for transcription.\",",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "\"microphonePermission\": \"Allow Horca to use your microphone for voice dictation sent to your paired desktop for transcription.\","
+      },
+      "reason": "Mobile microphone plugin prompt says Horca"
+    },
+    {
+      "id": "d2-brand-mobile-photos-permission",
+      "target": "mobile/app.json",
+      "mode": "substitute",
+      "find": "\"photosPermission\": \"Allow Orca to attach photos from your library to a terminal session on your paired desktop.\"",
+      "replace": "\"photosPermission\": \"Allow Horca to attach photos from your library to a terminal session on your paired desktop.\"",
+      "precondition": {
+        "kind": "text-sentinel",
+        "find": "\"photosPermission\": \"Allow Orca to attach photos from your library to a terminal session on your paired desktop.\"",
+        "occursExactly": 1
+      },
+      "postcondition": {
+        "kind": "text-sentinel",
+        "mustOccurExactlyOnce": "\"photosPermission\": \"Allow Horca to attach photos from your library to a terminal session on your paired desktop.\""
+      },
+      "reason": "Mobile photos plugin prompt says Horca"
     }
   ]
 }
