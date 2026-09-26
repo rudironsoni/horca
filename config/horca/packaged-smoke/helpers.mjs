@@ -432,6 +432,49 @@ export async function focusGhosttySlot(session, slot) {
   )
 }
 
+export async function clickGhosttySlot(session, slot) {
+  const rect = await awaitHittableRect(session, slot)
+  await focusGhosttySlot(session, slot)
+  await activateHorca()
+  await releaseMeta(session)
+  const clickX = rect.x + 12
+  const clickY = rect.y + 12
+  await session.call(
+    'Input.dispatchMouseEvent',
+    { type: 'mousePressed', x: clickX, y: clickY, button: 'left', clickCount: 1 },
+    15_000
+  )
+  await session.call(
+    'Input.dispatchMouseEvent',
+    { type: 'mouseReleased', x: clickX, y: clickY, button: 'left', clickCount: 1 },
+    15_000
+  )
+  return rect
+}
+
+export async function revealMarkerOnScreen(ctx, term, marker) {
+  const deadline = Date.now() + 12_000
+  let nudged = 0
+  while (Date.now() < deadline) {
+    const screen = await readScreen(ctx, term.handle)
+    if (screen.includes(marker)) {
+      return screen
+    }
+    const output = await readOutput(ctx, term.handle)
+    if (output.includes(marker) && nudged < 10) {
+      const dy = nudged % 2 === 0 ? 900 : -900
+      await passthruCall(
+        ctx.session,
+        term.slot,
+        `if (api && api.scroll) api.scroll(slot, ${dy}); return true`
+      )
+      nudged += 1
+    }
+    await delay(200)
+  }
+  return null
+}
+
 export async function activateHorca() {
   try {
     execFileSync('osascript', ['-e', 'tell application "Horca" to activate'], { stdio: 'ignore' })
@@ -441,9 +484,14 @@ export async function activateHorca() {
 }
 
 export function clearProbeSelectionPlan(origin) {
+  const span = Math.max(24, origin.width - 8)
+  const bannerClip = Math.min(220, span)
+  // A drag to the CSS right edge misses the cell grid and clears the selection.
+  // Stay past the wrapped prompt and on the left, where a short drag already reads the row.
+  const covered = Math.min(span, Math.max(280, bannerClip + 48))
   return {
     rows: [8, 28, 48, 68, 88, 108].filter((offset) => offset < origin.height),
-    x2: origin.x + Math.max(24, origin.width - 8)
+    x2: origin.x + covered
   }
 }
 
@@ -635,18 +683,28 @@ export async function clickClearScreen(session, slot) {
 
 export async function closeNewestTerminalTab(session) {
   const before = await ghosttyCanvasCount(session)
-  const clicked = await evaluate(
-    session,
-    `(() => {
-      const button = [...document.querySelectorAll('button')].filter((entry) =>
-        (entry.getAttribute('aria-label') || entry.innerText || '').includes('Close tab')
-      ).at(-1)
-      if (!button) return false
-      button.click()
-      return true
-    })()`,
-    5_000
-  )
+  const deadline = Date.now() + 8_000
+  let clicked = false
+  while (Date.now() < deadline) {
+    clicked = Boolean(
+      await evaluate(
+        session,
+        `(() => {
+          const button = [...document.querySelectorAll('button')].filter((entry) =>
+            (entry.getAttribute('aria-label') || entry.innerText || '').includes('Close tab')
+          ).at(-1)
+          if (!button) return false
+          button.click()
+          return true
+        })()`,
+        5_000
+      )
+    )
+    if (clicked) {
+      break
+    }
+    await delay(150)
+  }
   if (!clicked) {
     throw new Error('Close tab button was not available')
   }
@@ -835,7 +893,7 @@ async function ensureWorkbenchOnce(ctx) {
   ctx.workbenchChecked = true
 }
 
-export async function openOwnedTerminal(ctx, { command, marker, markerTimeout = 15_000, focus = true }) {
+export async function openOwnedTerminal(ctx, { command, marker, markerTimeout = 15_000, focus = true, pointer = true }) {
   const labelsBefore = await tabLabels(ctx.session)
   const slotsBefore = await ghosttySlots(ctx.session)
   const created = runCli(ctx, [
@@ -871,23 +929,10 @@ export async function openOwnedTerminal(ctx, { command, marker, markerTimeout = 
     return null
   })
   await containGhosttySlot(ctx.session, slot)
-  const rect = await awaitHittableRect(ctx.session, slot)
-  if (focus) {
-    await focusGhosttySlot(ctx.session, slot)
-    await activateHorca()
-    await releaseMeta(ctx.session)
-    const clickX = rect.x + 12
-    const clickY = rect.y + 12
-    await ctx.session.call(
-      'Input.dispatchMouseEvent',
-      { type: 'mousePressed', x: clickX, y: clickY, button: 'left', clickCount: 1 },
-      15_000
-    )
-    await ctx.session.call(
-      'Input.dispatchMouseEvent',
-      { type: 'mouseReleased', x: clickX, y: clickY, button: 'left', clickCount: 1 },
-      15_000
-    )
+  if (pointer) {
+    await clickGhosttySlot(ctx.session, slot)
+  } else {
+    await awaitHittableRect(ctx.session, slot)
   }
   await ensureWorkbenchOnce(ctx)
   return {
@@ -903,7 +948,8 @@ export async function openShell(ctx, readyMarker) {
   const term = await openOwnedTerminal(ctx, {
     command: `PS1='runner$ '; printf '%s\\n' ${readyMarker}`,
     marker: readyMarker,
-    markerTimeout: 8_000
+    markerTimeout: 8_000,
+    pointer: false
   })
   try {
     const readyDeadline = Date.now() + 8_000
@@ -920,8 +966,7 @@ export async function openShell(ctx, readyMarker) {
         `Shell was not ready after ${readyMarker}: ${JSON.stringify(tailLines(output).slice(-8))}`
       )
     }
-    await focusGhosttySlot(ctx.session, term.slot)
-    await releaseMeta(ctx.session)
+    await clickGhosttySlot(ctx.session, term.slot)
     return term
   } catch (error) {
     try {

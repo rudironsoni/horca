@@ -1,7 +1,9 @@
 import {
+  clickGhosttySlot,
   clickLabeledControl,
   closeNewestTerminalTab,
   closePaneSlot,
+  containGhosttySlot,
   dragReadSelection,
   evaluate,
   focusGhosttySlot,
@@ -43,8 +45,8 @@ export async function run(ctx) {
     if (!splitSlot) {
       throw new Error('Split did not create a second Ghostty slot')
     }
-    await focusGhosttySlot(ctx.session, splitSlot)
-    await releaseMeta(ctx.session)
+    await containGhosttySlot(ctx.session, splitSlot)
+    await clickGhosttySlot(ctx.session, splitSlot)
     await sendLine(ctx.session, 'python3 cwdprobe')
     const childCwd = await pollUntil('Split pane cwd was not printed', 8_000, async () => {
       const selected = await dragReadSelection(ctx.session, splitSlot)

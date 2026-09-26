@@ -3,8 +3,8 @@ import {
   evaluate,
   passthruCall,
   pollUntil,
-  readScreen,
   releaseMeta,
+  revealMarkerOnScreen,
   saw,
   sendKey,
   sendLine,
@@ -20,10 +20,10 @@ export async function run(ctx) {
   return withTerminal(ctx, { shell: 'SEARCH_SHELL_READY' }, async (term) => {
     await releaseMeta(ctx.session)
     await sendLine(ctx.session, 'python3 fillprobe')
-    await pollUntil('Fill probe did not paint SEARCHHORCA', 8_000, async () => {
-      const screen = await readScreen(ctx, term.handle)
-      return screen.includes('SEARCHHORCA') ? screen : null
-    })
+    const painted = await revealMarkerOnScreen(ctx, term, 'SEARCHHORCA')
+    if (!painted) {
+      throw new Error('Fill probe did not paint SEARCHHORCA: null')
+    }
     await sendKey(ctx.session, {
       key: 'f',
       code: 'KeyF',

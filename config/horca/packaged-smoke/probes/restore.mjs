@@ -23,6 +23,26 @@ import {
   wheelAt
 } from '../helpers.mjs'
 
+async function clickReconnect(session) {
+  if (await clickLabeledControl(session, 'Reconnect')) {
+    return true
+  }
+  return Boolean(
+    await evaluate(
+      session,
+      `(() => {
+        const button = [...document.querySelectorAll('button')].find((entry) =>
+          /reconnect/i.test(entry.innerText || entry.getAttribute('aria-label') || entry.getAttribute('title') || '')
+        )
+        if (!button) return false
+        button.click()
+        return true
+      })()`,
+      5_000
+    )
+  )
+}
+
 export const id = 'restore'
 
 export const precondition =
@@ -52,7 +72,7 @@ export async function run(ctx) {
       )
       return marker || null
     })
-    if (!(await clickLabeledControl(ctx.session, 'Reconnect'))) {
+    if (!(await clickReconnect(ctx.session))) {
       throw new Error(`SSH reconnect control was not clickable: ${reconnect}`)
     }
     const restoredSsh = await pollUntil('SSH reconnect did not keep the scrollback', 8_000, async () => {

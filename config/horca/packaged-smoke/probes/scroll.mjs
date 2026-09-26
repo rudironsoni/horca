@@ -5,6 +5,7 @@ import {
   readOutput,
   readScreen,
   releaseMeta,
+  revealMarkerOnScreen,
   saw,
   sendLine,
   tailLines,
@@ -21,10 +22,10 @@ export async function run(ctx) {
   return withTerminal(ctx, { shell: 'SCROLL_SHELL_READY' }, async (term) => {
     await releaseMeta(ctx.session)
     await sendLine(ctx.session, 'python3 fillprobe')
-    await pollUntil('Fill probe did not paint', 8_000, async () => {
-      const screen = await readScreen(ctx, term.handle)
-      return screen.includes('SCROLLBOT') ? screen : null
-    })
+    const painted = await revealMarkerOnScreen(ctx, term, 'SCROLLBOT')
+    if (!painted) {
+      throw new Error('Fill probe did not paint: null')
+    }
     const beforeWheel = tailLines(await readScreen(ctx, term.handle))
     const rect = await ghosttyRect(ctx.session, term.slot)
     if (!rect) {
