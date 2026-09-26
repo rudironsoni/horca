@@ -218,14 +218,39 @@ describe('ghostty selection', () => {
 
 describe('ghostty preload late canvas', () => {
   it('sends key, paste, composition, and mouse IPC after the canvas appears', () => {
-    const sent: Array<[string, { slot?: string; event?: { action?: number; text?: string }; text?: string }]> = []
+    const sent: Array<
+      [
+        string,
+        {
+          slot?: string
+          event?: { action?: number; text?: string }
+          text?: string
+          x?: number
+          y?: number
+          action?: number
+          button?: number
+        }
+      ]
+    > = []
     class El {
       tag: string
       attrs: Record<string, string> = {}
       children: El[] = []
       listeners: Record<string, Array<(event: Record<string, unknown>) => void>> = {}
+      parentNode: El | null = null
+      textContent = ''
+      style: Record<string, string> = {}
       constructor(tag: string) {
         this.tag = tag
+      }
+      appendChild(child: El) {
+        this.children.push(child)
+        child.parentNode = this
+        return child
+      }
+      removeChild(child: El) {
+        this.children = this.children.filter((entry) => entry !== child)
+        child.parentNode = null
       }
       setAttribute(name: string, value: string) {
         this.attrs[name] = value
@@ -279,8 +304,23 @@ describe('ghostty preload late canvas', () => {
     const windowObj = {
       document: {
         documentElement: root,
+        body,
+        createElement: (tag: string) => new El(tag),
         querySelectorAll: (sel: string) => root.querySelectorAll(sel),
-        querySelector: (sel: string) => root.querySelectorAll(sel)[0] ?? null,
+        querySelector: (sel: string) => {
+          if (sel === '[data-horca-ghostty-preedit]') {
+            const walk = (node: El): El | null => {
+              if (node.attrs['data-horca-ghostty-preedit'] !== undefined) return node
+              for (const child of node.children) {
+                const found = walk(child)
+                if (found) return found
+              }
+              return null
+            }
+            return walk(body)
+          }
+          return root.querySelectorAll(sel)[0] ?? null
+        },
         get activeElement() {
           return active
         }
@@ -367,7 +407,15 @@ describe('ghostty preload late canvas', () => {
       })
       windowObj.dispatch('paste', { clipboardData: { getData: () => 'é' } })
       expect(sent.some(([channel, payload]) => channel === 'electron-ghostty:text' && payload.text === 'é')).toBe(true)
-      windowObj.dispatch('compositionend', { data: '你' })
+      windowObj.dispatch('compositionupdate', { data: '한', target: canvas })
+      const preedit = body.children.find((node) => node.textContent === '한')
+      expect(preedit?.tag).toBe('div')
+      expect(preedit?.style.position).toBe('fixed')
+      expect(preedit?.style.left).toBe('0px')
+      expect(preedit?.style.top).toBe('0px')
+      expect(sent.some(([channel, payload]) => channel === 'electron-ghostty:text' && payload.text === '한')).toBe(false)
+      windowObj.dispatch('compositionend', { data: '你', target: canvas })
+      expect(body.children.some((node) => node.textContent === '한')).toBe(false)
       expect(sent.some(([channel, payload]) => channel === 'electron-ghostty:text' && payload.text === '你')).toBe(true)
       windowObj.dispatch('keyup', {
         code: 'KeyA',
@@ -384,6 +432,7 @@ describe('ghostty preload late canvas', () => {
         slot: 'pane-1',
         event: { action: 0, keycode: 0, unshiftedCodepoint: 97 }
       })
+      const beforeClick = sent.length
       canvas.listeners.mousedown?.[0]?.({
         button: 0,
         clientX: 4,
@@ -393,7 +442,34 @@ describe('ghostty preload late canvas', () => {
         altKey: false,
         metaKey: false
       })
-      expect(sent.some(([channel, payload]) => channel === 'electron-ghostty:mouse-button' && payload.slot === 'pane-1')).toBe(true)
+      const clickPos = sent.findIndex(
+        (entry, index) => index >= beforeClick && entry[0] === 'electron-ghostty:mouse-pos'
+      )
+      const clickButton = sent.findIndex(
+        (entry, index) => index >= beforeClick && entry[0] === 'electron-ghostty:mouse-button'
+      )
+      expect(clickPos).toBeGreaterThanOrEqual(beforeClick)
+      expect(clickButton).toBeGreaterThan(clickPos)
+      expect(sent[clickPos]?.[1]).toMatchObject({ slot: 'pane-1', x: 4, y: 5 })
+      expect(sent[clickButton]?.[1]).toMatchObject({ slot: 'pane-1', action: 1, button: 1 })
+      const beforeUp = sent.length
+      canvas.listeners.mouseup?.[0]?.({
+        button: 0,
+        clientX: 4,
+        clientY: 5,
+        shiftKey: false,
+        ctrlKey: false,
+        altKey: false,
+        metaKey: false
+      })
+      const upPos = sent.findIndex(
+        (entry, index) => index >= beforeUp && entry[0] === 'electron-ghostty:mouse-pos'
+      )
+      const upButton = sent.findIndex(
+        (entry, index) => index >= beforeUp && entry[0] === 'electron-ghostty:mouse-button'
+      )
+      expect(upButton).toBeGreaterThan(upPos)
+      expect(sent[upButton]?.[1]).toMatchObject({ slot: 'pane-1', action: 0, button: 1 })
       canvas.listeners.wheel?.[0]?.({
         deltaX: 0,
         deltaY: 12,

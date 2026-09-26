@@ -38,6 +38,8 @@ export function createOrcaPaneSurface(_appearance: OrcaPaneCompositorAppearance 
   canvas.tabIndex = 0
   canvas.setAttribute('data-ghostty', slot)
   canvas.style.display = 'block'
+  canvas.style.minWidth = '0'
+  canvas.style.minHeight = '0'
   const textarea = document.createElement('textarea')
   hideOrcaPaneHelperTextarea(textarea)
   const refreshRef = { current: (): void => undefined }
