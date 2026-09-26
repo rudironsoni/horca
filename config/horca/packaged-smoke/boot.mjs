@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import {
   delay,
+  containGhosttyCanvases,
   evaluate,
   installFixtures,
   openCdp,
@@ -86,6 +87,22 @@ export async function attachSession(ctx, port) {
   ctx.session = openCdp(page.webSocketDebuggerUrl)
   await ctx.session.call('Runtime.enable', {}, 10_000)
   console.log('CDP Runtime.enable ok')
+  try {
+    const { windowId } = await ctx.session.call('Browser.getWindowForTarget', {}, 5_000)
+    await ctx.session.call(
+      'Browser.setWindowBounds',
+      { windowId, bounds: { width: 1200, height: 800, windowState: 'normal' } },
+      5_000
+    )
+    console.log('WINDOW_BOUNDS 1200x800')
+  } catch (error) {
+    console.log(`WINDOW_BOUNDS ${error instanceof Error ? error.message : error}`)
+  }
+  try {
+    await containGhosttyCanvases(ctx.session)
+  } catch {
+    // The workbench canvas is created with the first terminal.
+  }
   await pollUntil('Packaged renderer title is not Horca', 20_000, async () => {
     const title = await evaluate(ctx.session, 'document.title', 5_000)
     console.log(`CDP document.title=${title}`)

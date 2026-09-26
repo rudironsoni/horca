@@ -387,6 +387,20 @@ export async function awaitHittableRect(session, slot) {
   )
 }
 
+export async function containGhosttyCanvases(session) {
+  await evaluate(
+    session,
+    `(() => {
+      for (const node of document.querySelectorAll('canvas[data-ghostty]')) {
+        node.style.width = '100%'
+        node.style.height = '100%'
+        node.style.maxWidth = '100%'
+      }
+    })()`,
+    5_000
+  )
+}
+
 export async function focusGhosttySlot(session, slot) {
   await evaluate(
     session,
@@ -823,6 +837,7 @@ export async function openOwnedTerminal(ctx, { command, marker, markerTimeout = 
   }
   const slot = await pollUntil(`Ghostty slot did not appear for ${command}`, 12_000, async () => {
     const slots = await ghosttySlots(ctx.session)
+    await containGhosttyCanvases(ctx.session)
     const fresh = slots.filter((item) => !slotsBefore.includes(item))
     for (const item of fresh) {
       const rect = await ghosttyRect(ctx.session, item)
@@ -855,10 +870,20 @@ export async function openShell(ctx, readyMarker) {
     markerTimeout: 8_000
   })
   try {
-    await pollUntil(`Shell was not ready after ${readyMarker}`, 8_000, async () => {
-      const output = await readOutput(ctx, term.handle)
-      return shellPromptAfter(output, readyMarker) ? output : null
-    })
+    const readyDeadline = Date.now() + 8_000
+    let output = ''
+    while (Date.now() < readyDeadline) {
+      output = await readOutput(ctx, term.handle)
+      if (shellPromptAfter(output, readyMarker)) {
+        break
+      }
+      await delay(150)
+    }
+    if (!shellPromptAfter(output, readyMarker)) {
+      throw new Error(
+        `Shell was not ready after ${readyMarker}: ${JSON.stringify(tailLines(output).slice(-8))}`
+      )
+    }
     await focusGhosttySlot(ctx.session, term.slot)
     await releaseMeta(ctx.session)
     return term
