@@ -1,0 +1,28 @@
+import os, sys, termios, tty, select, time
+sys.stdout.buffer.write(b"\x1b[?1002h\x1b[?1006hWHEEL_READY\r\n")
+sys.stdout.flush()
+fd = 0
+old = termios.tcgetattr(fd)
+tty.setraw(fd)
+
+def burst():
+    parts = [os.read(fd, 128)]
+    deadline = time.monotonic() + 0.25
+    while time.monotonic() < deadline:
+        ready, _, _ = select.select([fd], [], [], 0.03)
+        if not ready:
+            continue
+        parts.append(os.read(fd, 128))
+        deadline = time.monotonic() + 0.04
+    return b"".join(parts)
+
+try:
+    for _ in range(2):
+        sys.stdout.buffer.write(b"WHEELHEX " + burst().hex().encode() + b"\r\n")
+        sys.stdout.flush()
+finally:
+    sys.stdout.buffer.write(b"\x1b[?1002l\x1b[?1006l")
+    sys.stdout.flush()
+    termios.tcsetattr(fd, termios.TCSANOW, old)
+    sys.stdout.buffer.write(b"WHEEL_DONE\r\n")
+    sys.stdout.flush()

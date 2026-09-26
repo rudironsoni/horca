@@ -1,0 +1,26 @@
+import os, sys, termios, tty, select, time
+fd = 0
+old = termios.tcgetattr(fd)
+tty.setraw(fd)
+sys.stdout.buffer.write(b"PROBE_READY\r\n")
+sys.stdout.flush()
+
+def burst():
+    parts = [os.read(fd, 64)]
+    deadline = time.monotonic() + 0.08
+    while time.monotonic() < deadline:
+        ready, _, _ = select.select([fd], [], [], 0.02)
+        if not ready:
+            continue
+        parts.append(os.read(fd, 64))
+        deadline = time.monotonic() + 0.04
+    return b"".join(parts)
+
+try:
+    for _ in range(11):
+        sys.stdout.buffer.write(b"HEX " + burst().hex().encode() + b"\r\n")
+        sys.stdout.flush()
+finally:
+    termios.tcsetattr(fd, termios.TCSANOW, old)
+    sys.stdout.buffer.write(b"PROBE_DONE\r\n")
+    sys.stdout.flush()

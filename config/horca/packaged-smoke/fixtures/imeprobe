@@ -1,0 +1,23 @@
+import os, sys, termios, tty, select, time
+sys.stdout.buffer.write(b"IME_READY\r\n")
+sys.stdout.flush()
+fd = 0
+old = termios.tcgetattr(fd)
+tty.setraw(fd)
+
+def burst():
+    parts = [os.read(fd, 64)]
+    deadline = time.monotonic() + 0.25
+    while time.monotonic() < deadline:
+        ready, _, _ = select.select([fd], [], [], 0.03)
+        if not ready:
+            continue
+        parts.append(os.read(fd, 64))
+        deadline = time.monotonic() + 0.04
+    return b"".join(parts)
+
+try:
+    sys.stdout.buffer.write(b"IMEHEX " + burst().hex().encode() + b"\r\n")
+    sys.stdout.flush()
+finally:
+    termios.tcsetattr(fd, termios.TCSANOW, old)

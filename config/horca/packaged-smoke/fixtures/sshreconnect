@@ -1,0 +1,6 @@
+import subprocess, sys
+sys.stdout.buffer.write(b"SSHSCROLLHORCA\nSSH_READY\r\n")
+sys.stdout.flush()
+subprocess.call(["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=1", "-o", "ConnectionAttempts=1", "127.0.0.1", "true"])
+sys.stdout.buffer.write(b"SSHDROPPED\n")
+sys.stdout.flush()

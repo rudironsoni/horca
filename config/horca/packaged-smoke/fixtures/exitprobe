@@ -1,0 +1,5 @@
+import sys, time
+sys.stdout.buffer.write("EXIT_MARKER\n".encode())
+sys.stdout.flush()
+time.sleep(0.4)
+raise SystemExit(0)

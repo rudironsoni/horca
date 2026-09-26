@@ -1,0 +1,9 @@
+import os, sys
+path = os.getcwd() + "/linkfile"
+open(path, "w").write("link\n")
+sys.stdout.write("http://127.0.0.1/HORCALINK\n")
+sys.stdout.write(path + "\n")
+sys.stdout.write("http://127.0.0.1/HORCAWRAP" + ("w" * 180) + "\n")
+sys.stdout.buffer.write(b"\x1b]8;;http://127.0.0.1/OSC8HORCA\x1b\\OSC8HORCA\x1b]8;;\x1b\\\n")
+sys.stdout.write("LINK_READY\n")
+sys.stdout.flush()
