@@ -1,0 +1,132 @@
+name: Horca shutdown harness
+
+# macos-15 runner for the six Electron PTY shutdown modes.
+# Does not call horca_release.yml, publish, sign, or notarize.
+
+on:
+  push:
+    branches: [cursor/d2-quit-lifecycle]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: horca-shutdown-harness-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  shutdown:
+    if: github.repository == 'rudironsoni/horca'
+    runs-on: macos-15
+    timeout-minutes: 90
+    env:
+      NODE_OPTIONS: --max-old-space-size=4096
+      pnpm_config_verify_deps_before_run: 'false'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
+        with:
+          run_install: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: package.json
+      - name: Require the adversarial second quit in source
+        run: |
+          node --input-type=module -e '
+            import { readFileSync } from "node:fs"
+            const source = readFileSync("native/horca-ghostty/harness/pty-backend/production-shutdown.js", "utf8")
+            if (!source.includes("if (MODE === \"adversarial\")")) {
+              console.error("adversarial mode is missing")
+              process.exit(1)
+            }
+            if (!/app\.quit\(\);\s*app\.quit\(\);/.test(source)) {
+              console.error("adversarial does not issue a second app.quit()")
+              process.exit(1)
+            }
+          '
+      - name: Fetch pinned Orca
+        run: node scripts/fetch-upstream.mjs
+      - name: Materialize disposable Orca worktree
+        id: materialize
+        run: node scripts/materialize.mjs
+      - name: Apply overlays
+        run: |
+          WT=$(cat .cache/release-worktree-path)
+          test -d "$WT"
+          node scripts/apply-overlays.mjs "$WT"
+          node scripts/verify-overlay.mjs "$WT"
+      - name: Install Electron and native PTY modules
+        working-directory: ${{ steps.materialize.outputs.worktree_path }}
+        run: pnpm install:release
+      - name: Production shutdown harness
+        timeout-minutes: 20
+        env:
+          WT: ${{ steps.materialize.outputs.worktree_path }}
+        run: |
+          test -d "$WT"
+          electron="$WT/node_modules/electron/dist/Electron.app/Contents/MacOS/Electron"
+          test -x "$electron"
+          script=native/horca-ghostty/harness/pty-backend/production-shutdown.js
+          test -f "$script"
+          for mode in single natural inflight four adversarial whenready; do
+            log="$RUNNER_TEMP/horca-shutdown-$mode.log"
+            set +e
+            if [ "$mode" = "adversarial" ]; then
+              # Diagnostic only. Prints Napi::Error::what() if this mode aborts.
+              # Does not change the harness, the PTY order, or the exit check.
+              HORCA_ORCA_WT="$WT" HORCA_SHUTDOWN_MODE="$mode" \
+                perl -e 'alarm 120; exec @ARGV' \
+                bash native/horca-ghostty/harness/pty-backend/adversarial-terminate-diagnostic.sh \
+                "$electron" >"$log" 2>&1
+            else
+              HORCA_ORCA_WT="$WT" HORCA_SHUTDOWN_MODE="$mode" \
+                perl -e 'alarm 120; exec @ARGV' "$electron" "$script" >"$log" 2>&1
+            fi
+            status=$?
+            set -e
+            echo "----- mode $mode exit $status -----"
+            cat "$log"
+            if [ "$status" -ne 0 ]; then
+              echo "::error::shutdown mode $mode exited $status"
+              exit 1
+            fi
+            if grep -q '"ok":false' "$log"; then
+              echo "::error::shutdown mode $mode printed ok:false"
+              exit 1
+            fi
+            if ! grep -q '"ok":true' "$log"; then
+              echo "::error::shutdown mode $mode did not print ok:true"
+              exit 1
+            fi
+          done
+          export ADV_LOG="$RUNNER_TEMP/horca-shutdown-adversarial.log"
+          node --input-type=module -e '
+            import { readFileSync } from "node:fs"
+            const log = readFileSync(process.env.ADV_LOG, "utf8")
+            const line = log.split("\n").find((entry) => entry.includes("\"mode\":\"adversarial\"") && entry.includes("\"seq\""))
+            if (!line) {
+              console.error("adversarial log has no completion seq")
+              process.exit(1)
+            }
+            const report = JSON.parse(line)
+            const seq = report.seq ?? []
+            const prevented = seq.filter((entry) => entry.e === "QUIT_PREVENTED_TEARDOWN")
+            const begun = seq.find((entry) => entry.e === "TERMINAL_HOST_SHUTDOWN_BEGUN")
+            const disposed = seq.find((entry) => entry.e === "SUBPROCESS_HANDLE_DISPOSED")
+            const resolved = seq.find((entry) => entry.e === "TERMINAL_HOST_SHUTDOWN_RESOLVED")
+            const exited = seq.find((entry) => entry.e === "NATIVE_NODE_PTY_EXIT")
+            if (report.ok !== true || prevented.length < 2 || !begun || !disposed || !resolved || !exited) {
+              console.error("adversarial completion events do not show a second quit before dispose")
+              console.error(JSON.stringify(seq))
+              process.exit(1)
+            }
+            const second = prevented[1]
+            if (!(second.n > begun.n && second.n < disposed.n && exited.n < disposed.n && disposed.n < resolved.n)) {
+              console.error("QUIT_PREVENTED_TEARDOWN is not before dispose completed")
+              console.error(JSON.stringify(seq))
+              process.exit(1)
+            }
+            console.log("adversarial second quit prevented teardown before dispose")
+          '
