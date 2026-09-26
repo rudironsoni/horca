@@ -847,6 +847,35 @@ function tailLines(text) {
   }
 }
 
+function formatShellReturnDump(screenText, outputText) {
+  const screenRows = tailLines(screenText)
+  const outputRows = tailLines(outputText)
+  let pasteAt = -1
+  for (let index = 0; index < outputRows.length; index += 1) {
+    if (outputRows[index].includes('pasteprobe')) {
+      pasteAt = index
+    }
+  }
+  const tailRows = pasteAt >= 0 ? outputRows.slice(pasteAt) : outputRows
+  const lines = [`SCREEN ${screenRows.length}`]
+  if (screenRows.length === 0) {
+    lines.push(String(screenText))
+  } else {
+    screenRows.forEach((row, index) => {
+      lines.push(`SCREEN ${index} ${JSON.stringify(row)}`)
+    })
+  }
+  lines.push(`TAIL ${pasteAt >= 0 ? pasteAt : 'absent'} ${tailRows.length}`)
+  if (outputRows.length === 0) {
+    lines.push(String(outputText))
+  } else {
+    tailRows.forEach((row, index) => {
+      lines.push(`TAIL ${index} ${JSON.stringify(row)}`)
+    })
+  }
+  return lines.join('\n')
+}
+
 function writeClipboard(text) {
   execFileSync('pbcopy', { input: text })
 }
@@ -1127,7 +1156,10 @@ async function probePackagedBehaviors(ctx) {
     await new Promise((resolveDelay) => setTimeout(resolveDelay, 150))
   }
   if (!shellPromptAfter(shellSample, 'PASTE_OK')) {
-    throw new Error(`Paste probe did not return the shell: ${shellSample.slice(0, 800)}`)
+    const outputSample = await readOutput(handle)
+    throw new Error(
+      `Paste probe did not return the shell:\n${formatShellReturnDump(shellSample, outputSample)}`
+    )
   }
   // Cmd+V set the meta modifier. The packaged canvas drops keydowns while metaKey is set.
   await session.call(
