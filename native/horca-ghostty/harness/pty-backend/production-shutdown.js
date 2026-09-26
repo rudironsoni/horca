@@ -17,17 +17,40 @@ const mark = (e, sessionId) => {
   seq.push(entry);
 };
 
+function firstN(event, sessionId) {
+  for (const entry of seq) {
+    if (entry.e !== event) continue;
+    if (sessionId && entry.sessionId !== sessionId) continue;
+    return entry.n;
+  }
+  return 0;
+}
+
 function exitPrecedesDispose(ids) {
   if (!ids.length) return false;
   return ids.every((sessionId) => {
-    let exitN = 0;
-    let disposeN = 0;
-    for (const entry of seq) {
-      if (entry.sessionId !== sessionId) continue;
-      if (!exitN && entry.e === 'NATIVE_NODE_PTY_EXIT') exitN = entry.n;
-      if (!disposeN && entry.e === 'SUBPROCESS_HANDLE_DISPOSED') disposeN = entry.n;
-    }
+    const exitN = firstN('NATIVE_NODE_PTY_EXIT', sessionId);
+    const disposeN = firstN('SUBPROCESS_HANDLE_DISPOSED', sessionId);
     return exitN > 0 && disposeN > 0 && exitN < disposeN;
+  });
+}
+
+// Completion order, not a timer. Electron may quit only after this is true.
+function shutdownOrderOk() {
+  const prevented = seq.filter((entry) => entry.e === 'QUIT_PREVENTED_TEARDOWN');
+  const begun = firstN('TERMINAL_HOST_SHUTDOWN_BEGUN');
+  const resolved = firstN('TERMINAL_HOST_SHUTDOWN_RESOLVED');
+  if (!begun || !resolved || prevented.length < 1) return false;
+  if (!(prevented[0].n < begun && begun < resolved)) return false;
+  // adversarial must quit again while dispose is in flight. One quit is a fail.
+  if (MODE === 'adversarial') {
+    if (prevented.length < 2) return false;
+    if (!(prevented[1].n > begun && prevented[1].n < resolved)) return false;
+  }
+  if (!exitPrecedesDispose(sessionIds)) return false;
+  return sessionIds.every((sessionId) => {
+    const disposeN = firstN('SUBPROCESS_HANDLE_DISPOSED', sessionId);
+    return disposeN > 0 && disposeN < resolved;
   });
 }
 
@@ -119,22 +142,26 @@ let disposeInFlight = false;
 function armWillQuitBarrier() {
   app.on('will-quit', (event) => {
     if (quitArmed) {
-      // A second quit while dispose is running must not let Electron
-      // leave. pty.node delivers exit on a ThreadSafeFunction; freeing
-      // the environment first aborts in ThrowAsJavaScriptException.
-      if (disposeInFlight) event.preventDefault();
+      // A later quit while dispose is running must not let Electron leave.
+      // pty.node delivers exit on a ThreadSafeFunction; freeing the
+      // environment first aborts in ThrowAsJavaScriptException.
+      if (disposeInFlight) {
+        event.preventDefault();
+        mark('QUIT_PREVENTED_TEARDOWN');
+      }
       return;
     }
     event.preventDefault();
+    mark('QUIT_PREVENTED_TEARDOWN');
     quitArmed = true;
     disposeInFlight = true;
+    mark('TERMINAL_HOST_SHUTDOWN_BEGUN');
     const run = host ? host.dispose() : Promise.resolve();
     run
       .then(() => {
-        disposeInFlight = false;
         hostShutdownResolved = true;
         mark('TERMINAL_HOST_SHUTDOWN_RESOLVED');
-        const ok = exitPrecedesDispose(sessionIds);
+        const ok = shutdownOrderOk();
         console.log(
           JSON.stringify({
             ok,
@@ -147,6 +174,8 @@ function armWillQuitBarrier() {
           app.exit(1);
           return;
         }
+        // Host shutdown has resolved. This quit is the one that may exit.
+        disposeInFlight = false;
         app.quit();
       })
       .catch((err) => {
@@ -202,9 +231,13 @@ app.whenReady().then(async () => {
     host.write(s.id, '\x03');
   }
 
-  // adversarial matches single, natural, inflight, and four: one quit
-  // starts dispose. will-quit calls app.quit() again only after dispose
-  // resolves, and never from will-quit while dispose is in flight.
+  if (MODE === 'adversarial') {
+    // Second quit is synchronous, before dispose can resolve, so will-quit
+    // runs again while shutdown is in flight and must preventDefault.
+    app.quit();
+    app.quit();
+    return;
+  }
   app.quit();
 }).catch((err) => {
   console.error('whenReady', err && err.stack || err);
