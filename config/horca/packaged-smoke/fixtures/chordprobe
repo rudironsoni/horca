@@ -3,6 +3,8 @@ sys.stdout.buffer.write(b"CHORD_READY\r\n")
 sys.stdout.flush()
 sys.stdout.buffer.write(b"\x1b[<u\x1b[>31u")
 sys.stdout.flush()
+sys.stdout.buffer.write(b"CHORD_READY\n")
+sys.stdout.flush()
 fd = 0
 old = termios.tcgetattr(fd)
 tty.setraw(fd)

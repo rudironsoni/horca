@@ -73,6 +73,11 @@ jobs:
           code=$?
           set -e
           grep 'SMOKE_EVIDENCE ' "$log" | tee smoke-logs/summary.txt || true
+          if grep -q 'SMOKE_EVIDENCE ' "$log"; then
+            while IFS= read -r line; do
+              echo "::error title=SMOKE_EVIDENCE::${line//%/%25}"
+            done < smoke-logs/summary.txt
+          fi
           if ! grep -q 'SMOKE_EVIDENCE ' "$log"; then
             echo "SMOKE_EVIDENCE {\"capability\":\"boot\",\"pass\":false,\"marker\":\"no evidence exit ${code}\"}" | tee smoke-logs/summary.txt
           fi
