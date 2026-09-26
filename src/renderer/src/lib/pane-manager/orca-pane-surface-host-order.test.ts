@@ -16,6 +16,8 @@ describe('Ghostty compositor surface does not require WASM host', () => {
     const surface = createOrcaPaneSurface(appearance)
     expect(surface.canvas.className).toBe('orca-terminal-canvas')
     expect(surface.canvas.getAttribute('data-ghostty')).toMatch(/^pane-\d+$/)
+    expect(surface.canvas.style.minWidth).toBe('0')
+    expect(surface.canvas.style.minHeight).toBe('0')
     expect(surface.canvas.getContext).toBeTypeOf('function')
   })
 })

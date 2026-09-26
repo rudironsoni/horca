@@ -155,6 +155,7 @@ function addHorcaGhostty(resources) {
       'host.js',
       'index.js',
       'surface-pixels.js',
+      'preedit-overlay.js',
       'preload.js',
       'protocol.js',
       'package.json',

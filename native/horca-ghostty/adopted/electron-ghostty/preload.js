@@ -17,6 +17,8 @@
  * ghostty reflows the grid + resizes the PTY (SIGWINCH).
  */
 const { sharedTexture, ipcRenderer } = require('electron');
+const { reportedCssBox } = require('./surface-pixels');
+const { syncGhosttyPreedit } = require('./preedit-overlay');
 
 const CH = (name) => `electron-ghostty:${name}`;
 
@@ -86,6 +88,10 @@ function bindCanvas(canvas) {
   if (canvases.has(slot) && canvases.get(slot) === canvas) return;
   canvases.set(slot, canvas);
   if (!canvas.hasAttribute('tabindex')) canvas.setAttribute('tabindex', '0');
+  // A canvas bitmap is the flex min-content size, so an inline width cannot
+  // shrink the grid until min-width is 0.
+  canvas.style.minWidth = '0';
+  canvas.style.minHeight = '0';
 
   const rel = (e) => {
     const r = canvas.getBoundingClientRect();
@@ -99,25 +105,30 @@ function bindCanvas(canvas) {
   }, { passive: false });
 
   const GHOSTTY_BUTTON = [1, 3, 2, 4, 5];
+  const sendButton = (e, action) => {
+    // Ghostty reports the click at the last cursor position. A wheel leaves
+    // that position on a different cell, and a button event alone is dropped
+    // or swallowed there. Move first, then press or release.
+    send('mouse-pos', slot, { ...rel(e), mods: domMods(e) });
+    send('mouse-button', slot, {
+      action, button: GHOSTTY_BUTTON[e.button] ?? 0, mods: domMods(e),
+    });
+  };
   canvas.addEventListener('mousedown', (e) => {
     canvas.focus();
-    send('mouse-button', slot, {
-      action: 1, button: GHOSTTY_BUTTON[e.button] ?? 0, mods: domMods(e),
-    });
+    sendButton(e, 1);
   });
   canvas.addEventListener('mouseup', (e) => {
-    send('mouse-button', slot, {
-      action: 0, button: GHOSTTY_BUTTON[e.button] ?? 0, mods: domMods(e),
-    });
+    sendButton(e, 0);
   });
   canvas.addEventListener('mousemove', (e) => {
     send('mouse-pos', slot, { ...rel(e), mods: domMods(e) });
   });
 
   const reportSize = () => {
-    const r = canvas.getBoundingClientRect();
-    if (r.width > 0 && r.height > 0)
-      send('resize', slot, { cssWidth: r.width, cssHeight: r.height });
+    const box = reportedCssBox(canvas.getBoundingClientRect(), canvas.style);
+    if (box.width > 0 && box.height > 0)
+      send('resize', slot, { cssWidth: box.width, cssHeight: box.height });
   };
   new ResizeObserver(reportSize).observe(canvas);
   requestAnimationFrame(() => requestAnimationFrame(() => {
@@ -194,10 +205,22 @@ window.addEventListener('DOMContentLoaded', () => {
     if (text) send('text', slot, { text });
   });
 
-  // IME: composed text (CJK conversion commit, dead-key accents,
-  // emoji picker) goes through the cooked-text path — the same one
-  // paste uses — once composition finishes.
+  // IME: draw the open preedit over the canvas. The commit still goes
+  // through the cooked-text path once composition finishes.
+  const preeditCanvas = (event) => {
+    const target = event.target;
+    if (target && canvases.get(slotOf(target)) === target) return target;
+    const slot = focusedSlot();
+    return slot === null ? null : canvases.get(slot) ?? null;
+  };
+  window.addEventListener('compositionstart', (e) => {
+    syncGhosttyPreedit(document, preeditCanvas(e), '');
+  });
+  window.addEventListener('compositionupdate', (e) => {
+    syncGhosttyPreedit(document, preeditCanvas(e), e.data || '');
+  });
   window.addEventListener('compositionend', (e) => {
+    syncGhosttyPreedit(document, preeditCanvas(e), '');
     const slot = focusedSlot();
     if (slot === null) return;
     if (e.data) send('text', slot, { text: e.data });
