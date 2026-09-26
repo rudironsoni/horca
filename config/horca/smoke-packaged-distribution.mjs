@@ -453,7 +453,9 @@ try:
     sys.stdout.flush()
 finally:
     termios.tcsetattr(fd, termios.TCSANOW, old)
-    sys.stdout.buffer.write(b"\\x1b[?2004lPASTE_DONE\\r\\n")
+    sys.stdout.buffer.write(b"PASTE_DONE\\r\\n")
+    sys.stdout.flush()
+    sys.stdout.buffer.write(b"\\x1b[?2004l")
     sys.stdout.flush()
 `
 const EXIT_SOURCE = `import sys, time
@@ -1081,10 +1083,21 @@ async function probePackagedBehaviors(ctx) {
   }
 
   await focusGhosttySlot(session, slot)
-  await pollUntil('Paste probe did not return the shell', 8_000, async () => {
-    const screen = await readScreen(handle)
-    return screen.includes('PASTE_DONE') ? screen : null
-  })
+  // PASTE_DONE is printed after the tty restore. The rendered screen missed it
+  // when it shared a write with the bracketed-paste reset, so also accept the
+  // PTY transcript, which still contains a marker the grid did not show.
+  const pasteDoneDeadline = Date.now() + 8_000
+  let pasteDoneSample = ''
+  while (Date.now() < pasteDoneDeadline) {
+    pasteDoneSample = `${await readScreen(handle)}\n${await readOutput(handle)}`
+    if (pasteDoneSample.includes('PASTE_DONE')) {
+      break
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 150))
+  }
+  if (!pasteDoneSample.includes('PASTE_DONE')) {
+    throw new Error(`Paste probe did not return the shell: ${pasteDoneSample.slice(0, 800)}`)
+  }
   // Cmd+V set the meta modifier. The packaged canvas drops keydowns while metaKey is set.
   await session.call(
     'Input.dispatchKeyEvent',
