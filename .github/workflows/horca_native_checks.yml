@@ -69,7 +69,7 @@ jobs:
         env:
           WT: ${{ steps.materialize.outputs.worktree_path }}
         run: |
-          electron=$(node -e "process.chdir(process.env.WT); process.stdout.write(require('electron'))")
+          electron=$(cd "$WT" && node -p "require('electron')")
           test -x "$electron"
           "$electron" native/horca-ghostty/harness/electron-43/addon-load.js
 
