@@ -432,13 +432,15 @@ export async function focusGhosttySlot(session, slot) {
   )
 }
 
-export async function clickGhosttySlot(session, slot) {
+export async function clickGhosttySlot(session, slot, point = {}) {
   const rect = await awaitHittableRect(session, slot)
   await focusGhosttySlot(session, slot)
   await activateHorca()
   await releaseMeta(session)
-  const clickX = rect.x + 12
-  const clickY = rect.y + 12
+  const offsetX = Number.isFinite(point.x) ? point.x : 12
+  const offsetY = Number.isFinite(point.y) ? point.y : 12
+  const clickX = rect.x + Math.min(Math.max(8, offsetX), Math.max(8, rect.width - 4))
+  const clickY = rect.y + Math.min(Math.max(8, offsetY), Math.max(8, rect.height - 4))
   await session.call(
     'Input.dispatchMouseEvent',
     { type: 'mousePressed', x: clickX, y: clickY, button: 'left', clickCount: 1 },
@@ -461,18 +463,39 @@ export async function revealMarkerOnScreen(ctx, term, marker) {
       return screen
     }
     const output = await readOutput(ctx, term.handle)
-    if (output.includes(marker) && nudged < 10) {
-      const dy = nudged % 2 === 0 ? 900 : -900
-      await passthruCall(
-        ctx.session,
-        term.slot,
-        `if (api && api.scroll) api.scroll(slot, ${dy}); return true`
-      )
+    const started =
+      output.includes(marker) ||
+      screen.includes('SCROLLTOP') ||
+      screen.includes('SCROLLROW') ||
+      screen.includes('SEARCHHORCA')
+    if (started && nudged < 16) {
+      const rect = await ghosttyRect(ctx.session, term.slot)
+      if (rect) {
+        await wheelAt(ctx.session, rect, 1600)
+      }
       nudged += 1
     }
-    await delay(200)
+    await delay(150)
   }
   return null
+}
+
+export async function paintFillOnScreen(ctx, term, marker) {
+  await releaseMeta(ctx.session)
+  await sendLine(ctx.session, 'python3 fillprobe')
+  let painted = await revealMarkerOnScreen(ctx, term, marker)
+  if (painted) {
+    return painted
+  }
+  const output = await readOutput(ctx, term.handle)
+  const screen = await readScreen(ctx, term.handle)
+  if (!output.includes(marker) && !screen.includes('SCROLLTOP') && !screen.includes('SCROLLROW')) {
+    await clickGhosttySlot(ctx.session, term.slot)
+    await releaseMeta(ctx.session)
+    await sendLine(ctx.session, 'python3 fillprobe')
+    painted = await revealMarkerOnScreen(ctx, term, marker)
+  }
+  return painted
 }
 
 export async function activateHorca() {

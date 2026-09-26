@@ -1,13 +1,14 @@
 import {
   clickLabeledControl,
   evaluate,
+  paintFillOnScreen,
   passthruCall,
   pollUntil,
-  releaseMeta,
-  revealMarkerOnScreen,
+  readOutput,
+  readScreen,
   saw,
   sendKey,
-  sendLine,
+  tailLines,
   withTerminal
 } from '../helpers.mjs'
 
@@ -18,11 +19,13 @@ export const precondition =
 
 export async function run(ctx) {
   return withTerminal(ctx, { shell: 'SEARCH_SHELL_READY' }, async (term) => {
-    await releaseMeta(ctx.session)
-    await sendLine(ctx.session, 'python3 fillprobe')
-    const painted = await revealMarkerOnScreen(ctx, term, 'SEARCHHORCA')
+    const painted = await paintFillOnScreen(ctx, term, 'SEARCHHORCA')
     if (!painted) {
-      throw new Error('Fill probe did not paint SEARCHHORCA: null')
+      const screen = await readScreen(ctx, term.handle)
+      const output = await readOutput(ctx, term.handle)
+      throw new Error(
+        `Fill probe did not paint SEARCHHORCA: null top=${screen.includes('SCROLLTOP')} out=${output.includes('SEARCHHORCA')} tail=${JSON.stringify(tailLines(screen).slice(-3)).slice(0, 180)}`
+      )
     }
     await sendKey(ctx.session, {
       key: 'f',

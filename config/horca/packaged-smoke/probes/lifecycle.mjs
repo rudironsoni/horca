@@ -127,26 +127,6 @@ export async function run(ctx) {
       throw new Error(`Running cat close did not ask: ${JSON.stringify(dialogText)}`)
     }
     saw(ctx, 'CHROME_CLOSE_DIALOG Stop and Close')
-    const closeDeadline = Date.now() + 2_000
-    let closeShown = false
-    while (Date.now() < closeDeadline) {
-      closeShown = Boolean(
-        await evaluate(
-          ctx.session,
-          `[...document.querySelectorAll('button')].some((entry) =>
-            (entry.getAttribute('aria-label') || entry.innerText || '').includes('Close tab')
-          )`,
-          5_000
-        )
-      )
-      if (closeShown) {
-        break
-      }
-      await delay(150)
-    }
-    if (!closeShown) {
-      await openOwnedTerminal(ctx, { command: 'printf CLOSEIDLE', marker: 'CLOSEIDLE', focus: false })
-    }
   } catch (error) {
     try {
       await busy.close()
@@ -156,6 +136,7 @@ export async function run(ctx) {
     throw error
   }
 
+  await openOwnedTerminal(ctx, { command: 'printf CLOSEIDLE', marker: 'CLOSEIDLE' })
   const closesBefore = await ghosttyCanvasCount(ctx.session)
   await closeNewestTerminalTab(ctx.session)
   const closesAfter = await ghosttyCanvasCount(ctx.session)

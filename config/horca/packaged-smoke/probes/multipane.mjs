@@ -3,15 +3,16 @@ import {
   clickLabeledControl,
   closeNewestTerminalTab,
   closePaneSlot,
-  containGhosttySlot,
   dragReadSelection,
   evaluate,
   focusGhosttySlot,
   ghosttyCanvasCount,
+  ghosttyRect,
   ghosttySlots,
   keepGhosttyCanvases,
   openContextMenu,
   openOwnedTerminal,
+  passthruCall,
   pollUntil,
   readScreen,
   releaseMeta,
@@ -19,6 +20,25 @@ import {
   sendLine,
   withTerminal
 } from '../helpers.mjs'
+
+async function readSlotText(session, slot) {
+  const dragged = String((await dragReadSelection(session, slot)) ?? '')
+  if (dragged.includes('CWDHORCA') || dragged.includes('ONLYFOCUS')) {
+    return dragged
+  }
+  await passthruCall(session, slot, `if (api && api.selectAll) api.selectAll(slot); return true`)
+  const selected = String(
+    (await evaluate(
+      session,
+      `(() => {
+        const api = window.api && window.api.horcaGhosttyPassthru
+        return api && api.readSelection ? String(api.readSelection(${JSON.stringify(slot)})) : ''
+      })()`,
+      5_000
+    )) ?? ''
+  )
+  return selected || dragged
+}
 
 export const id = 'multipane'
 
@@ -45,11 +65,14 @@ export async function run(ctx) {
     if (!splitSlot) {
       throw new Error('Split did not create a second Ghostty slot')
     }
-    await containGhosttySlot(ctx.session, splitSlot)
-    await clickGhosttySlot(ctx.session, splitSlot)
+    const splitRect = await ghosttyRect(ctx.session, splitSlot)
+    await clickGhosttySlot(ctx.session, splitSlot, {
+      x: splitRect ? Math.min(40, splitRect.width / 2) : 24,
+      y: splitRect ? Math.min(40, splitRect.height / 2) : 24
+    })
     await sendLine(ctx.session, 'python3 cwdprobe')
     const childCwd = await pollUntil('Split pane cwd was not printed', 8_000, async () => {
-      const selected = await dragReadSelection(ctx.session, splitSlot)
+      const selected = await readSlotText(ctx.session, splitSlot)
       const match = String(selected).match(/CWDHORCA (\S+)/)
       return match ? match[1] : null
     })
@@ -58,7 +81,7 @@ export async function run(ctx) {
     }
     await sendLine(ctx.session, 'printf ONLYFOCUS')
     const childSawFocus = await pollUntil('Focused pane did not echo its key', 6_000, async () => {
-      const selected = await dragReadSelection(ctx.session, splitSlot)
+      const selected = await readSlotText(ctx.session, splitSlot)
       return String(selected).includes('ONLYFOCUS') ? selected : null
     })
     const parentSawFocus = await readScreen(ctx, term.handle)

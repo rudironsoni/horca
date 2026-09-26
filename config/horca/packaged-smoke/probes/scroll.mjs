@@ -1,11 +1,11 @@
 import {
   evaluate,
   ghosttyRect,
+  paintFillOnScreen,
   pollUntil,
   readOutput,
   readScreen,
   releaseMeta,
-  revealMarkerOnScreen,
   saw,
   sendLine,
   tailLines,
@@ -20,11 +20,13 @@ export const precondition =
 
 export async function run(ctx) {
   return withTerminal(ctx, { shell: 'SCROLL_SHELL_READY' }, async (term) => {
-    await releaseMeta(ctx.session)
-    await sendLine(ctx.session, 'python3 fillprobe')
-    const painted = await revealMarkerOnScreen(ctx, term, 'SCROLLBOT')
+    const painted = await paintFillOnScreen(ctx, term, 'SCROLLBOT')
     if (!painted) {
-      throw new Error('Fill probe did not paint: null')
+      const screen = await readScreen(ctx, term.handle)
+      const output = await readOutput(ctx, term.handle)
+      throw new Error(
+        `Fill probe did not paint: null top=${screen.includes('SCROLLTOP')} out=${output.includes('SCROLLBOT')} tail=${JSON.stringify(tailLines(screen).slice(-3)).slice(0, 180)}`
+      )
     }
     const beforeWheel = tailLines(await readScreen(ctx, term.handle))
     const rect = await ghosttyRect(ctx.session, term.slot)

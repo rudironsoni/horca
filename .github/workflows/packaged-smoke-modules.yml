@@ -40,7 +40,7 @@ jobs:
           xattr -dr com.apple.quarantine artifacts || true
       - name: Run modular probes
         env:
-          # Push reruns the harness probes that still never reach the behavior. Dispatch with probe=all runs every probe.
+          # Push reruns scroll, search, lifecycle, multipane, and restore. Dispatch with probe=all runs every probe.
           ONLY: ${{ github.event.inputs.probe || 'scroll,search,lifecycle,multipane,restore' }}
         run: |
           set -euo pipefail
