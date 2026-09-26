@@ -40,8 +40,8 @@ jobs:
           xattr -dr com.apple.quarantine artifacts || true
       - name: Run modular probes
         env:
-          # Push reruns input and links on the signed DMG. Dispatch with probe=all runs every probe.
-          ONLY: ${{ github.event.inputs.probe || 'input,links' }}
+          # Push reruns the chord shell on the signed DMG. Dispatch with probe=all runs every probe.
+          ONLY: ${{ github.event.inputs.probe || 'input' }}
         run: |
           set -euo pipefail
           dmg="$PWD/artifacts/horca-macos-arm64.dmg"

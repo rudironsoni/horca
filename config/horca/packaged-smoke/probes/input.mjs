@@ -8,6 +8,7 @@ import {
   ghosttyCanvasCount,
   ghosttyRect,
   ghosttySlots,
+  passthruCall,
   pollUntil,
   readOutput,
   readScreen,
@@ -187,46 +188,16 @@ async function runKeys(ctx) {
   )
 }
 
-async function submitChordCommand(session) {
-  const text = 'python3 chordprobe'
-  for (const char of text) {
-    if (char === ' ') {
-      await sendKey(session, {
-        key: ' ',
-        code: 'Space',
-        text: ' ',
-        unmodifiedText: ' ',
-        windowsVirtualKeyCode: 32,
-        nativeVirtualKeyCode: 49
-      })
-    } else if (/[0-9]/.test(char)) {
-      const digitCode = { 0: 29, 1: 18, 2: 19, 3: 20, 4: 21, 5: 23, 6: 22, 7: 26, 8: 28, 9: 25 }
-      await sendKey(session, {
-        key: char,
-        code: `Digit${char}`,
-        text: char,
-        unmodifiedText: char,
-        windowsVirtualKeyCode: char.charCodeAt(0),
-        nativeVirtualKeyCode: digitCode[char]
-      })
-    } else {
-      await sendKey(session, {
-        key: char,
-        code: `Key${char.toUpperCase()}`,
-        text: char,
-        unmodifiedText: char,
-        windowsVirtualKeyCode: char.toUpperCase().charCodeAt(0),
-        nativeVirtualKeyCode: 0
-      })
-    }
-    await delay(20)
+async function releaseChordModifiers(session) {
+  const ups = [
+    { key: 'Meta', code: 'MetaLeft', windowsVirtualKeyCode: 91, nativeVirtualKeyCode: 55 },
+    { key: 'Alt', code: 'AltLeft', windowsVirtualKeyCode: 18, nativeVirtualKeyCode: 58 },
+    { key: 'Control', code: 'ControlLeft', windowsVirtualKeyCode: 17, nativeVirtualKeyCode: 59 },
+    { key: 'Shift', code: 'ShiftLeft', windowsVirtualKeyCode: 16, nativeVirtualKeyCode: 56 }
+  ]
+  for (const key of ups) {
+    await session.call('Input.dispatchKeyEvent', { type: 'keyUp', modifiers: 0, ...key }, 15_000)
   }
-  await sendKey(session, {
-    key: 'Enter',
-    code: 'Enter',
-    windowsVirtualKeyCode: 13,
-    nativeVirtualKeyCode: 36
-  })
 }
 
 async function collectChordOutput(ctx, handle) {
@@ -252,8 +223,27 @@ async function runChords(ctx) {
     if (!shellPromptAfter(ready, 'CHORD_SHELL_READY')) {
       throw new Error('Chord shell was not ready on its own terminal')
     }
-    await submitChordCommand(ctx.session)
-    const chordOutput = await collectChordOutput(ctx, term.handle)
+    await releaseChordModifiers(ctx.session)
+    const pasted = await passthruCall(
+      ctx.session,
+      term.slot,
+      `if (api && api.pasteText) { api.pasteText(slot, 'python3 chordprobe\\n'); return true } return false`
+    )
+    if (!pasted) {
+      await sendLine(ctx.session, 'python3 chordprobe')
+    }
+    await delay(1200)
+    let chordOutput = await readOutput(ctx, term.handle)
+    if (chordLaunchState(chordOutput) === 'unsubmitted') {
+      await releaseChordModifiers(ctx.session)
+      await sendKey(ctx.session, {
+        key: 'Enter',
+        code: 'Enter',
+        windowsVirtualKeyCode: 13,
+        nativeVirtualKeyCode: 36
+      })
+    }
+    chordOutput = await collectChordOutput(ctx, term.handle)
     const classified = classifyChordStart(chordOutput)
     if (!classified.chordReady) {
       const launch = chordLaunchState(chordOutput)
