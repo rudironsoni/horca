@@ -114,15 +114,24 @@ async function bufferRoundtrip(host, id, getOutput) {
 let hostShutdownResolved = false;
 let host = null;
 let quitArmed = false;
+let disposeInFlight = false;
 
 function armWillQuitBarrier() {
   app.on('will-quit', (event) => {
-    if (quitArmed) return;
+    if (quitArmed) {
+      // A second quit while dispose is running must not let Electron
+      // leave. pty.node delivers exit on a ThreadSafeFunction; freeing
+      // the environment first aborts in ThrowAsJavaScriptException.
+      if (disposeInFlight) event.preventDefault();
+      return;
+    }
     event.preventDefault();
     quitArmed = true;
+    disposeInFlight = true;
     const run = host ? host.dispose() : Promise.resolve();
     run
       .then(() => {
+        disposeInFlight = false;
         hostShutdownResolved = true;
         mark('TERMINAL_HOST_SHUTDOWN_RESOLVED');
         const ok = exitPrecedesDispose(sessionIds);
@@ -141,6 +150,7 @@ function armWillQuitBarrier() {
         app.quit();
       })
       .catch((err) => {
+        disposeInFlight = false;
         console.error('host.dispose', err && err.stack || err);
         app.exit(1);
       });
@@ -192,11 +202,9 @@ app.whenReady().then(async () => {
     host.write(s.id, '\x03');
   }
 
-  if (MODE === 'adversarial') {
-    app.quit();
-    app.quit();
-    return;
-  }
+  // adversarial matches single, natural, inflight, and four: one quit
+  // starts dispose. will-quit calls app.quit() again only after dispose
+  // resolves, and never from will-quit while dispose is in flight.
   app.quit();
 }).catch((err) => {
   console.error('whenReady', err && err.stack || err);
