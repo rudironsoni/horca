@@ -200,17 +200,17 @@ async function releaseChordModifiers(session) {
   }
 }
 
-async function collectChordOutput(ctx, handle) {
+async function collectChordScreen(ctx, handle) {
   const deadline = Date.now() + 8_000
-  let chordOutput = ''
+  let chordScreen = ''
   while (Date.now() < deadline) {
-    chordOutput = await readOutput(ctx, handle)
-    if (classifyChordStart(chordOutput).chordReady) {
-      return chordOutput
+    chordScreen = await readScreen(ctx, handle)
+    if (classifyChordStart(chordScreen).chordReady) {
+      return chordScreen
     }
     await delay(150)
   }
-  return chordOutput
+  return chordScreen
 }
 
 async function runChords(ctx) {
@@ -233,8 +233,9 @@ async function runChords(ctx) {
       await sendLine(ctx.session, 'python3 chordprobe')
     }
     await delay(1200)
-    let chordOutput = await readOutput(ctx, term.handle)
-    if (chordLaunchState(chordOutput) === 'unsubmitted') {
+    let chordScreen = await readScreen(ctx, term.handle)
+    const started = String(chordScreen).includes('CHORD_READY') || String(chordScreen).includes('CHORDHEX')
+    if (!started && chordLaunchState(chordScreen) === 'unsubmitted') {
       await releaseChordModifiers(ctx.session)
       await sendKey(ctx.session, {
         key: 'Enter',
@@ -243,12 +244,15 @@ async function runChords(ctx) {
         nativeVirtualKeyCode: 36
       })
     }
-    chordOutput = await collectChordOutput(ctx, term.handle)
-    const classified = classifyChordStart(chordOutput)
+    chordScreen = await collectChordScreen(ctx, term.handle)
+    const classified = classifyChordStart(chordScreen)
     if (!classified.chordReady) {
-      const launch = chordLaunchState(chordOutput)
+      const stream = await readOutput(ctx, term.handle)
+      const launch = chordLaunchState(stream)
       ctx.marker = classified.marker
-      throw new Error(`${classified.marker}; ${launch}\n${formatChordStartDump(chordOutput)}`)
+      throw new Error(
+        `${classified.marker}; ${launch}\n${formatChordStartDump(chordScreen)}\n${formatChordStartDump(stream)}`
+      )
     }
     saw(ctx, classified.marker)
     const nextChord = async (label, send, accept) => {
