@@ -823,7 +823,14 @@ export async function openOwnedTerminal(ctx, { command, marker, markerTimeout = 
   }
   const slot = await pollUntil(`Ghostty slot did not appear for ${command}`, 12_000, async () => {
     const slots = await ghosttySlots(ctx.session)
-    return slots.find((item) => !slotsBefore.includes(item)) || null
+    const fresh = slots.filter((item) => !slotsBefore.includes(item))
+    for (const item of fresh) {
+      const rect = await ghosttyRect(ctx.session, item)
+      if (rect && rect.width > 2 && rect.height > 2) {
+        return item
+      }
+    }
+    return null
   })
   if (focus) {
     await focusGhosttySlot(ctx.session, slot)
@@ -843,7 +850,7 @@ export async function openOwnedTerminal(ctx, { command, marker, markerTimeout = 
 
 export async function openShell(ctx, readyMarker) {
   const term = await openOwnedTerminal(ctx, {
-    command: `printf ${readyMarker}`,
+    command: `printf '%s\\n' ${readyMarker}`,
     marker: readyMarker,
     markerTimeout: 8_000
   })
