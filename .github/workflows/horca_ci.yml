@@ -20,6 +20,12 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      gpu_lifetime:
+        description: Run the macOS Ghostty GPU lifetime fixture
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -160,3 +166,73 @@ jobs:
           unzip -Z1 "$APK" | grep -Fx 'lib/arm64-v8a/libexpolibghostty.so'
           unzip -Z1 "$APK" | grep -Fx 'lib/x86_64/libexpolibghostty.so'
           "$ANDROID_HOME/build-tools/36.0.0/zipalign" -c -P 16 -v 4 "$APK"
+
+  gpu-lifetime:
+    if: >-
+      github.repository == 'rudironsoni/horca' &&
+      ((github.event_name == 'workflow_dispatch' && inputs.gpu_lifetime == true) ||
+       github.event.pull_request.head.ref == 'cursor/d2-gpu-lifetime')
+    runs-on: macos-15
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 24
+
+      - name: Build host-arch Ghostty addon
+        run: |
+          arch=$(uname -m)
+          if [ "$arch" = "arm64" ]; then
+            export HORCA_GHOSTTY_ARCHS=arm64
+          else
+            export HORCA_GHOSTTY_ARCHS=x64
+          fi
+          node scripts/build-horca-ghostty-macos-addon.mjs
+          test -f native/horca-ghostty/adopted/electron-ghostty/build/Release/ghostty_renderer.node
+
+      - name: Install Electron 43 runtime
+        working-directory: ${{ runner.temp }}
+        run: |
+          rm -rf electron-runtime
+          mkdir electron-runtime
+          cd electron-runtime
+          case "$(uname -m)" in
+            arm64) arch=arm64 ;;
+            x86_64) arch=x64 ;;
+            *) echo "unsupported arch $(uname -m)" >&2; exit 1 ;;
+          esac
+          curl -fsSL -o electron.zip \
+            "https://github.com/electron/electron/releases/download/v43.7.0/electron-v43.7.0-darwin-${arch}.zip"
+          unzip -q electron.zip -d dist
+          electron="$PWD/dist/Electron.app/Contents/MacOS/Electron"
+          test -x "$electron"
+          echo "HORCA_ELECTRON=$electron" >> "$GITHUB_ENV"
+
+      - name: Run GPU lifetime fixture
+        run: |
+          electron="$HORCA_ELECTRON"
+          test -x "$electron"
+          out="$RUNNER_TEMP/horca-gpu-lifetime.json"
+          set +e
+          HORCA_GPU_LIFETIME_OUT="$out" \
+            HORCA_GPU_LIFETIME_SHA="${{ github.event.pull_request.head.sha || github.sha }}" \
+            perl -e 'alarm 300; exec @ARGV' "$electron" native/horca-ghostty/harness/gpu-lifetime/run.js
+          status=$?
+          set -e
+          if [ -f "$out" ]; then
+            cp "$out" horca-gpu-lifetime.json
+            cat horca-gpu-lifetime.json
+            node -e 'const d=require("./horca-gpu-lifetime.json"); if(!d.ok||!d.classification||!d.settled||!d.capProbe) process.exit(1)'
+          fi
+          exit "$status"
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: horca-gpu-lifetime
+          path: horca-gpu-lifetime.json
+          if-no-files-found: warn

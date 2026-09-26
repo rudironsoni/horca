@@ -38,6 +38,7 @@
 #include <CoreFoundation/CoreFoundation.h>
 #include <IOSurface/IOSurface.h>
 #include <mach/mach.h>
+#include <mach/task.h>
 #include <servers/bootstrap.h>
 
 #include <ghostty.h>
@@ -84,6 +85,57 @@ typedef struct Event {
 
 static bool g_inited = false;
 static volatile bool g_wakeup = false;
+
+/* Observation only. These counts are the live native surfaces and the
+ * IOSurface retains this addon still holds. They do not cap creation. */
+#define CENSUS_IOSURFACE_CAP 128
+static int g_live_surfaces = 0;
+static int g_retained_frames = 0;
+static uint64_t g_retained_iosurface_bytes = 0;
+static uint32_t g_live_iosurface_ids[CENSUS_IOSURFACE_CAP];
+static int g_live_iosurface_n = 0;
+
+static void census_surface_created(void) { g_live_surfaces += 1; }
+
+static void census_surface_freed(void) {
+  if (g_live_surfaces > 0) g_live_surfaces -= 1;
+}
+
+static void census_frame_released(void *surf) {
+  if (!surf) return;
+  if (g_retained_frames > 0) g_retained_frames -= 1;
+  uint64_t bytes = (uint64_t)IOSurfaceGetAllocSize((IOSurfaceRef)surf);
+  if (g_retained_iosurface_bytes >= bytes) g_retained_iosurface_bytes -= bytes;
+  else g_retained_iosurface_bytes = 0;
+  uint32_t id = (uint32_t)IOSurfaceGetID((IOSurfaceRef)surf);
+  for (int i = 0; i < g_live_iosurface_n; i++) {
+    if (g_live_iosurface_ids[i] == id) {
+      g_live_iosurface_ids[i] = g_live_iosurface_ids[g_live_iosurface_n - 1];
+      g_live_iosurface_n -= 1;
+      break;
+    }
+  }
+}
+
+static void census_frame_retained(void *surf) {
+  if (!surf) return;
+  g_retained_frames += 1;
+  g_retained_iosurface_bytes +=
+      (uint64_t)IOSurfaceGetAllocSize((IOSurfaceRef)surf);
+  if (g_live_iosurface_n < CENSUS_IOSURFACE_CAP) {
+    g_live_iosurface_ids[g_live_iosurface_n++] =
+        (uint32_t)IOSurfaceGetID((IOSurfaceRef)surf);
+  }
+}
+
+static uint64_t census_phys_footprint(void) {
+  task_vm_info_data_t info;
+  mach_msg_type_number_t count = TASK_VM_INFO_COUNT;
+  kern_return_t kr =
+      task_info(mach_task_self(), TASK_VM_INFO, (task_info_t)&info, &count);
+  if (kr != KERN_SUCCESS) return 0;
+  return info.phys_footprint;
+}
 
 typedef struct {
   ghostty_app_t app;      /* one app per session keeps lifecycle simple */
@@ -248,10 +300,12 @@ static void session_dispose(Session *s) {
   s->ev_head = s->ev_tail = NULL;
   pthread_mutex_unlock(&s->ev_mu);
   if (s->last_surface) {
+    census_frame_released(s->last_surface);
     CFRelease(s->last_surface);
     s->last_surface = NULL;
   }
   if (s->surface) {
+    census_surface_freed();
     ghostty_surface_free(s->surface);
     s->surface = NULL;
   }
@@ -445,6 +499,7 @@ static napi_value Create(napi_env env, napi_callback_info info) {
   napi_value external;
   NAPI_CALL(env,
             napi_create_external(env, s, session_finalize, NULL, &external));
+  census_surface_created();
   return external;
 }
 
@@ -628,8 +683,12 @@ static napi_value Frame(napi_env env, napi_callback_info info) {
     return null_val;
   }
 
-  if (s->last_surface) CFRelease(s->last_surface);
+  if (s->last_surface) {
+    census_frame_released(s->last_surface);
+    CFRelease(s->last_surface);
+  }
   s->last_surface = frame.iosurface; /* keep +1 until next frame() */
+  census_frame_retained(s->last_surface);
 
   napi_value result, v, handle;
   NAPI_CALL(env, napi_create_object(env, &result));
@@ -1179,9 +1238,33 @@ static napi_value ProcessExited(napi_env env, napi_callback_info info) {
   return out;
 }
 
+/** resourceCensus() — live surfaces, retained IOSurface frames, footprint. */
+static napi_value ResourceCensus(napi_env env, napi_callback_info info) {
+  (void)info;
+  napi_value result, v, ids;
+  NAPI_CALL(env, napi_create_object(env, &result));
+  NAPI_CALL(env, napi_create_int32(env, g_live_surfaces, &v));
+  NAPI_CALL(env, napi_set_named_property(env, result, "liveSurfaces", v));
+  NAPI_CALL(env, napi_create_int32(env, g_retained_frames, &v));
+  NAPI_CALL(env, napi_set_named_property(env, result, "retainedFrames", v));
+  NAPI_CALL(env, napi_create_double(env, (double)g_retained_iosurface_bytes, &v));
+  NAPI_CALL(env, napi_set_named_property(env, result, "retainedIoSurfaceBytes", v));
+  NAPI_CALL(env, napi_create_double(env, (double)census_phys_footprint(), &v));
+  NAPI_CALL(env, napi_set_named_property(env, result, "physFootprint", v));
+  NAPI_CALL(env, napi_create_array(env, &ids));
+  for (int i = 0; i < g_live_iosurface_n; i++) {
+    NAPI_CALL(env, napi_create_uint32(env, g_live_iosurface_ids[i], &v));
+    NAPI_CALL(env, napi_set_element(env, ids, (uint32_t)i, v));
+  }
+  NAPI_CALL(env, napi_set_named_property(env, result, "liveIoSurfaceIds", ids));
+  return result;
+}
+
 static napi_value Init(napi_env env, napi_value exports) {
   napi_property_descriptor props[] = {
       {"init", NULL, InitGhostty, NULL, NULL, NULL, napi_default, NULL},
+      {"resourceCensus", NULL, ResourceCensus, NULL, NULL, NULL, napi_default,
+       NULL},
       {"pumpMainQueue", NULL, PumpMainQueue, NULL, NULL, NULL, napi_default,
        NULL},
       {"create", NULL, Create, NULL, NULL, NULL, napi_default, NULL},
