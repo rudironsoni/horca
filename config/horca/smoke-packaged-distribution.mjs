@@ -876,6 +876,28 @@ function formatShellReturnDump(screenText, outputText) {
   return lines.join('\n')
 }
 
+function formatChordStartDump(screenText) {
+  let terminal = null
+  try {
+    terminal = JSON.parse(screenText)?.result?.terminal ?? null
+  } catch {
+    terminal = null
+  }
+  const source =
+    terminal && Object.prototype.hasOwnProperty.call(terminal, 'source') ? terminal.source : undefined
+  const lines = [`source ${source === undefined ? 'absent' : JSON.stringify(source)}`]
+  const tail = Array.isArray(terminal?.tail) ? terminal.tail.map((line) => String(line)) : null
+  if (!tail) {
+    lines.push(String(screenText))
+    return lines.join('\n')
+  }
+  lines.push(`TAIL ${tail.length}`)
+  tail.forEach((row, index) => {
+    lines.push(`TAIL ${index} ${JSON.stringify(row)}`)
+  })
+  return lines.join('\n')
+}
+
 function writeClipboard(text) {
   execFileSync('pbcopy', { input: text })
 }
@@ -1184,7 +1206,7 @@ async function probePackagedBehaviors(ctx) {
     await new Promise((resolveDelay) => setTimeout(resolveDelay, 150))
   }
   if (!chordScreen.includes('CHORD_READY')) {
-    throw new Error(`Chord probe did not start: ${chordScreen.slice(0, 800)}`)
+    throw new Error(`Chord probe did not start:\n${formatChordStartDump(chordScreen)}`)
   }
   await nextChord(
     'CHORD_CTRL_ENTER',
