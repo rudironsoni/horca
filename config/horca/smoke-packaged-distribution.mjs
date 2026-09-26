@@ -1196,17 +1196,19 @@ async function probePackagedBehaviors(ctx) {
     15_000
   )
   await sendLine(session, 'python3 chordprobe')
+  // The screen can still end on PASTE_OK after the command is typed. Gate
+  // CHORD_READY on the same terminal-read buffer that passed shellPromptAfter.
   const chordStartDeadline = Date.now() + 8_000
-  let chordScreen = ''
+  let chordOutput = ''
   while (Date.now() < chordStartDeadline) {
-    chordScreen = await readScreen(handle)
-    if (chordScreen.includes('CHORD_READY')) {
+    chordOutput = await readOutput(handle)
+    if (chordOutput.includes('CHORD_READY')) {
       break
     }
     await new Promise((resolveDelay) => setTimeout(resolveDelay, 150))
   }
-  if (!chordScreen.includes('CHORD_READY')) {
-    throw new Error(`Chord probe did not start:\n${formatChordStartDump(chordScreen)}`)
+  if (!chordOutput.includes('CHORD_READY')) {
+    throw new Error(`Chord probe did not start:\n${formatChordStartDump(chordOutput)}`)
   }
   await nextChord(
     'CHORD_CTRL_ENTER',
