@@ -1,0 +1,97 @@
+name: Packaged smoke modules
+
+on:
+  push:
+    branches:
+      - cursor/d2-smoke-modules
+    paths:
+      - .github/workflows/packaged-smoke-modules.yml
+      - config/horca/packaged-smoke/**
+      - config/horca/smoke-packaged-distribution.mjs
+  workflow_dispatch:
+    inputs:
+      probe:
+        description: Probe id, or all
+        required: false
+        default: all
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: packaged-smoke-modules-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  probes:
+    runs-on: macos-15
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: package.json
+      - name: Download signed DMGs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run download 36243511999 --repo rudironsoni/horca --name horca-macos --dir artifacts
+          test -f artifacts/horca-macos-arm64.dmg
+          xattr -dr com.apple.quarantine artifacts || true
+      - name: Run modular probes
+        env:
+          ONLY: ${{ github.event.inputs.probe || 'all' }}
+        run: |
+          set -euo pipefail
+          dmg="$PWD/artifacts/horca-macos-arm64.dmg"
+          mount=$(hdiutil attach -nobrowse -readonly "$dmg" | grep -o '/Volumes/.*' | tail -1)
+          test -n "$mount"
+          app=$(find "$mount" -name Horca.app -type d -maxdepth 2 | head -1)
+          test -d "$app"
+          xattr -dr com.apple.quarantine "$app" || true
+          exe="$app/Contents/MacOS/Horca"
+          test -x "$exe"
+          echo "app=$app"
+          mkdir -p smoke-logs
+          cleanup() {
+            killall Horca >/dev/null 2>&1 || true
+            if [ -n "${mount:-}" ]; then
+              hdiutil detach "$mount" -quiet || true
+            fi
+          }
+          trap cleanup EXIT
+          if [ "$ONLY" = "all" ] || [ -z "$ONLY" ]; then
+            probes="input paste ime mouse selection scroll links search resize lifecycle multipane restore"
+          else
+            probes="$ONLY"
+          fi
+          fail=0
+          : > smoke-logs/summary.txt
+          for probe in $probes; do
+            killall Horca >/dev/null 2>&1 || true
+            log="smoke-logs/${probe}.log"
+            set +e
+            HORCA_SMOKE_PROBE="$probe" perl -e 'alarm 900; exec @ARGV' node config/horca/smoke-packaged-distribution.mjs "$exe" >"$log" 2>&1
+            code=$?
+            set -e
+            evidence=$(grep 'SMOKE_EVIDENCE ' "$log" | tail -1 || true)
+            if [ -z "$evidence" ]; then
+              tail=$(tail -n 20 "$log" | tr '\n' ' ' | sed 's/"/'"'"'/g')
+              evidence="SMOKE_EVIDENCE {\"capability\":\"${probe}\",\"pass\":false,\"marker\":\"no evidence exit ${code} ${tail}\"}"
+              echo "$evidence" >> "$log"
+            fi
+            echo "$evidence" | tee -a smoke-logs/summary.txt
+            if [ "$code" -ne 0 ]; then
+              fail=1
+            fi
+          done
+          echo "SMOKE_MODULES_FAIL=$fail" | tee -a smoke-logs/summary.txt
+          exit "$fail"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: smoke-module-logs
+          path: smoke-logs/
+          if-no-files-found: warn
