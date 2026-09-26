@@ -29,6 +29,11 @@ const GPU_PLATEAU_KB = 128 * 1024;
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+app.on('window-all-closed', () => {
+  // The pane fixture closes its window before the cap probe. Electron's
+  // default is to quit here, which would drop the rest of the measurement.
+});
+
 const report = {
   ok: false,
   sha: process.env.HORCA_GPU_LIFETIME_SHA || null,

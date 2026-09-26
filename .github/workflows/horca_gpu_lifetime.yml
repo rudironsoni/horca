@@ -62,13 +62,15 @@ jobs:
           test -x "$electron"
           out="$RUNNER_TEMP/horca-gpu-lifetime.json"
           set +e
-          HORCA_GPU_LIFETIME_OUT="$out" HORCA_GPU_LIFETIME_SHA="${{ github.sha }}" \
+          HORCA_GPU_LIFETIME_OUT="$out" \
+            HORCA_GPU_LIFETIME_SHA="${{ github.event.pull_request.head.sha || github.sha }}" \
             perl -e 'alarm 300; exec @ARGV' "$electron" native/horca-ghostty/harness/gpu-lifetime/run.js
           status=$?
           set -e
           if [ -f "$out" ]; then
             cp "$out" horca-gpu-lifetime.json
             cat horca-gpu-lifetime.json
+            node -e 'const d=require("./horca-gpu-lifetime.json"); if(!d.ok||!d.classification||!d.settled||!d.capProbe) process.exit(1)'
           fi
           exit "$status"
 
