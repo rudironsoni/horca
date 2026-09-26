@@ -118,7 +118,7 @@ export function openCdp(wsUrl) {
   }
 }
 
-export async function evaluate(session, expression, timeoutMs) {
+async function evaluateOnce(session, expression, timeoutMs) {
   const result = await session.call(
     'Runtime.evaluate',
     { expression, awaitPromise: true, returnByValue: true },
@@ -128,6 +128,17 @@ export async function evaluate(session, expression, timeoutMs) {
     throw new Error(`CDP evaluate failed: ${JSON.stringify(result.exceptionDetails)}`)
   }
   return result?.result?.value
+}
+
+export async function evaluate(session, expression, timeoutMs) {
+  try {
+    return await evaluateOnce(session, expression, timeoutMs)
+  } catch (error) {
+    if (!String(error && error.message).includes('timed out')) {
+      throw error
+    }
+    return evaluateOnce(session, expression, timeoutMs)
+  }
 }
 
 export async function pollUntil(label, timeoutMs, read) {

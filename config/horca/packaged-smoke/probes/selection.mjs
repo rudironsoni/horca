@@ -205,21 +205,21 @@ export async function run(ctx) {
     if (!copyClicked) {
       throw new Error('Copy menu item was not clickable')
     }
-    const copied = await pollUntil('Copy menu did not put HORCA on the clipboard', 4_000, async () => {
-      let value = ''
+    const copyDeadline = Date.now() + 4_000
+    let copied = ''
+    while (Date.now() < copyDeadline) {
       try {
-        value = execFileSync('pbpaste', { encoding: 'utf8' })
+        copied = execFileSync('pbpaste', { encoding: 'utf8' })
       } catch {
-        value = ''
+        copied = ''
       }
-      return value.includes('HORCA') ? value : null
-    })
-    if (!String(copied).includes('HORCA')) {
-      const noted = await evaluate(
-        ctx.session,
-        `window.__horcaCopy || { ran: false, text: '' }`,
-        5_000
-      )
+      if (copied.includes('HORCA')) {
+        break
+      }
+      await delay(150)
+    }
+    if (!copied.includes('HORCA')) {
+      const noted = await evaluate(ctx.session, `window.__horcaCopy || { ran: false, text: '' }`, 5_000)
       const ran = Boolean(noted && noted.ran)
       const wrote = noted && noted.text ? String(noted.text) : ''
       throw new Error(

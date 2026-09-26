@@ -64,8 +64,9 @@ export async function run(ctx) {
     const file = uris.find((uri) => uri.includes('linkfile'))
     const wrapped = uris.find((uri) => uri.includes('HORCAWRAP') && uri.includes('www'))
     const osc8 = uris.find((uri) => uri.includes('http://127.0.0.1/OSC8HORCA'))
+    const osc8Cell = await readOsc8Cell(ctx, term, linkRect)
+    saw(ctx, `OSC8_CELL ${osc8Cell}`)
     if (!http || !file || !wrapped || !osc8) {
-      const osc8Cell = await readOsc8Cell(ctx, term, linkRect)
       throw new Error(
         `Link hits missed http=${Boolean(http)} file=${Boolean(file)} wrapped=${Boolean(wrapped)} osc8=${Boolean(osc8)} osc8Cell=${osc8Cell}`
       )
