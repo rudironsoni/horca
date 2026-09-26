@@ -2,7 +2,7 @@ name: 'Horca: Stable Release'
 
 on:
   push:
-    branches: [main]
+    branches: [main, feat/d2-ghostty-gpu]
   workflow_dispatch:
     inputs:
       publish:
