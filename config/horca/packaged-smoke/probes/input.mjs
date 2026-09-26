@@ -1,4 +1,4 @@
-import { classifyChordStart } from '../chord-evidence.mjs'
+import { chordLaunchState, classifyChordStart } from '../chord-evidence.mjs'
 import {
   closePaneSlot,
   delay,
@@ -210,12 +210,13 @@ async function runChords(ctx) {
     if (!shellPromptAfter(ready, 'CHORD_SHELL_READY')) {
       throw new Error('Chord shell was not ready on its own terminal')
     }
-    await sendLine(ctx.session, 'python3 chordprobe')
+    await sendLine(ctx.session, 'python3 chordprobe', { text: '\r' })
     const chordOutput = await collectChordOutput(ctx, term.handle)
     const classified = classifyChordStart(chordOutput)
     if (!classified.chordReady) {
+      const launch = chordLaunchState(chordOutput)
       ctx.marker = classified.marker
-      throw new Error(`${classified.marker}\n${formatChordStartDump(chordOutput)}`)
+      throw new Error(`${classified.marker}; ${launch}\n${formatChordStartDump(chordOutput)}`)
     }
     saw(ctx, classified.marker)
     const nextChord = async (label, send, accept) => {

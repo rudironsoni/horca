@@ -165,6 +165,30 @@ export async function run(ctx) {
     if (!sawCopy) {
       throw new Error('Copy menu item did not open')
     }
+    await evaluate(
+      ctx.session,
+      `(() => {
+        const note = { ran: false, text: '' }
+        window.__horcaCopy = note
+        document.addEventListener('copy', (event) => {
+          note.ran = true
+          const data = event.clipboardData && event.clipboardData.getData('text/plain')
+          if (data) note.text = String(data)
+        }, true)
+        const clip = navigator.clipboard
+        if (clip && typeof clip.writeText === 'function' && !clip.__horcaCopyWrapped) {
+          const writeText = clip.writeText.bind(clip)
+          clip.writeText = (text) => {
+            note.ran = true
+            note.text = String(text)
+            return writeText(text)
+          }
+          clip.__horcaCopyWrapped = true
+        }
+        return true
+      })()`,
+      5_000
+    )
     const copyClicked = await evaluate(
       ctx.session,
       `(() => {
@@ -191,7 +215,16 @@ export async function run(ctx) {
       return value.includes('HORCA') ? value : null
     })
     if (!String(copied).includes('HORCA')) {
-      throw new Error(`Copy menu did not put HORCA on the clipboard: ${JSON.stringify(copied).slice(0, 200)}`)
+      const noted = await evaluate(
+        ctx.session,
+        `window.__horcaCopy || { ran: false, text: '' }`,
+        5_000
+      )
+      const ran = Boolean(noted && noted.ran)
+      const wrote = noted && noted.text ? String(noted.text) : ''
+      throw new Error(
+        `Copy menu did not put HORCA on the clipboard: ${JSON.stringify(copied).slice(0, 80)} handler=${ran} wrote=${JSON.stringify(wrote).slice(0, 120)}`
+      )
     }
     saw(ctx, 'CHROME_COPY HORCA')
 

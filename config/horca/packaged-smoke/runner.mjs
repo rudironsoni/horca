@@ -38,7 +38,7 @@ export async function runPackagedSmoke({ executablePath, only = '' }) {
         console.log(`SMOKE_EVIDENCE ${JSON.stringify({ capability: probe.id, pass: true, marker: marker || ctx.marker })}`)
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error)
-        const marker = message.split('\n')[0].slice(0, 1800)
+        const marker = message.replace(/\n/g, ' | ').slice(0, 1800)
         console.log(`SMOKE_EVIDENCE ${JSON.stringify({ capability: probe.id, pass: false, marker })}`)
         failures.push(probe.id)
       }

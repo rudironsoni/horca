@@ -311,7 +311,7 @@ export async function releaseMeta(session) {
   )
 }
 
-export async function sendLine(session, text) {
+export async function sendLine(session, text, enter = {}) {
   for (const char of text) {
     if (char === ' ') {
       await sendKey(session, { key: ' ', code: 'Space', text: ' ', windowsVirtualKeyCode: 32, nativeVirtualKeyCode: 49 })
@@ -341,7 +341,13 @@ export async function sendLine(session, text) {
       nativeVirtualKeyCode: 0
     })
   }
-  await sendKey(session, { key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13, nativeVirtualKeyCode: 36 })
+  await sendKey(session, {
+    key: 'Enter',
+    code: 'Enter',
+    windowsVirtualKeyCode: 13,
+    nativeVirtualKeyCode: 36,
+    ...(enter.text ? { text: enter.text, unmodifiedText: enter.text } : {})
+  })
 }
 
 export async function ghosttyCanvasCount(session) {

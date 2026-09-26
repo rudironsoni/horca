@@ -1,13 +1,31 @@
 import {
   evaluate,
   ghosttyRect,
+  passthruCall,
   pollUntil,
   readScreen,
   releaseMeta,
   saw,
   sendLine,
+  tailLines,
   withTerminal
 } from '../helpers.mjs'
+
+async function readOsc8Cell(ctx, term, rect) {
+  const rows = tailLines(await readScreen(ctx, term.handle))
+  const index = rows.findIndex((line) => line.includes('OSC8HORCA'))
+  if (index < 0 || !rect || rect.height < 2 || rows.length < 1) {
+    return 'present=false row=missing'
+  }
+  const y = Math.min(rect.height - 1, (index + 0.5) * (rect.height / rows.length))
+  const uri = await passthruCall(
+    ctx.session,
+    term.slot,
+    `return api && api.hyperlinkAt ? String(api.hyperlinkAt(slot, 8, ${Number(y.toFixed(1))}) || '') : ''`
+  )
+  const id = String(uri || '')
+  return `present=${id.length > 0} id=${JSON.stringify(id).slice(0, 80)} row=${index} y=${Math.round(y)}`
+}
 
 export const id = 'links'
 
@@ -47,8 +65,9 @@ export async function run(ctx) {
     const wrapped = uris.find((uri) => uri.includes('HORCAWRAP') && uri.includes('www'))
     const osc8 = uris.find((uri) => uri.includes('http://127.0.0.1/OSC8HORCA'))
     if (!http || !file || !wrapped || !osc8) {
+      const osc8Cell = await readOsc8Cell(ctx, term, linkRect)
       throw new Error(
-        `Link hits missed http=${Boolean(http)} file=${Boolean(file)} wrapped=${Boolean(wrapped)} osc8=${Boolean(osc8)}`
+        `Link hits missed http=${Boolean(http)} file=${Boolean(file)} wrapped=${Boolean(wrapped)} osc8=${Boolean(osc8)} osc8Cell=${osc8Cell}`
       )
     }
     await evaluate(

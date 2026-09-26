@@ -11,12 +11,29 @@ import {
   readClipboard,
   readScreen,
   releaseMeta,
+  tailLines,
   saw,
   sendKey,
   sendLine,
   withTerminal,
   writeClipboard
 } from '../helpers.mjs'
+
+function startupWriter(serialized) {
+  const rows = tailLines(serialized)
+  const bad = rows.find((row) => row.includes('STARTUP_BAD')) || ''
+  const hexMatch = bad.match(/STARTUP_BAD\s+([0-9a-f]+)/i)
+  const hex = hexMatch ? hexMatch[1] : ''
+  const bracketed = hex.includes('1b5b3230307e')
+  const commandInBytes = hex.includes(Buffer.from('startupprobe').toString('hex'))
+  if (bracketed) {
+    return `writer=pasteText hex=${hex.slice(0, 96)}`
+  }
+  if (commandInBytes) {
+    return `writer=writePty hex=${hex.slice(0, 96)}`
+  }
+  return `writer=none hex=${hex.slice(0, 96)} line=${JSON.stringify(bad).slice(0, 160)}`
+}
 
 export const id = 'paste'
 
@@ -83,13 +100,11 @@ export async function run(ctx) {
     const startupVerdict = await pollUntil('Startup paste was not bracketed', 8_000, async () => {
       const screen = await readScreen(ctx, startup.handle)
       if (screen.includes('STARTUP_OK')) return 'STARTUP_OK'
-      if (screen.includes('STARTUP_BAD')) {
-        return screen.slice(screen.indexOf('STARTUP_BAD'), screen.indexOf('STARTUP_BAD') + 140)
-      }
+      if (screen.includes('STARTUP_BAD')) return screen
       return null
     })
     if (startupVerdict !== 'STARTUP_OK') {
-      throw new Error(`Startup command paste was not bracketed: ${startupVerdict}`)
+      throw new Error(`Startup command paste was not bracketed: STARTUP_BAD ${startupWriter(startupVerdict)}`)
     }
     saw(ctx, 'PASTE_STARTUP STARTUP_OK')
   } finally {
