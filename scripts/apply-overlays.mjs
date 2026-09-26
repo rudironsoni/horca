@@ -1,5 +1,6 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync, cpSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 
 const ROOT = resolve(import.meta.dirname, '..')
@@ -95,6 +96,14 @@ function main(worktreePath) {
 
   for (const override of overrides) {
     const { target, mode } = override
+    if (mode === 'rewrite-product-copy') {
+      const script = resolve(ROOT, 'scripts/rewrite-visible-product-copy.mjs')
+      const result = spawnSync(process.execPath, [script, worktreePath], { stdio: 'inherit' })
+      if (result.status !== 0) {
+        throw new Error(`HORCA_OVERLAY_PRODUCT_COPY_FAILED: exit ${result.status}`)
+      }
+      continue
+    }
     if (!target) throw new Error('Overlay missing target')
 
     const targetPath = resolve(worktreePath, target)

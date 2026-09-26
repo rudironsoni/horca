@@ -7526,6 +7526,12 @@
         "mustOccurExactlyOnce": "\"photosPermission\": \"Allow Horca to attach photos from your library to a terminal session on your paired desktop.\""
       },
       "reason": "Mobile photos plugin prompt says Horca"
+    },
+    {
+      "id": "d2-brand-rewrite-visible-product-copy",
+      "mode": "rewrite-product-copy",
+      "target": "src",
+      "reason": "User-visible product copy in locales and hardcoded strings says Horca"
     }
   ]
 }
