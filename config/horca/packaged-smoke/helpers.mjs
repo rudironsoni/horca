@@ -468,10 +468,10 @@ export async function revealMarkerOnScreen(ctx, term, marker) {
       screen.includes('SCROLLTOP') ||
       screen.includes('SCROLLROW') ||
       screen.includes('SEARCHHORCA')
-    if (started && nudged < 16) {
+    if (started && nudged < 6) {
       const rect = await ghosttyRect(ctx.session, term.slot)
       if (rect) {
-        await wheelAt(ctx.session, rect, 1600)
+        await wheelAt(ctx.session, rect, 600)
       }
       nudged += 1
     }

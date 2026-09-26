@@ -18,8 +18,28 @@ import {
   releaseMeta,
   saw,
   sendLine,
+  tailLines,
   withTerminal
 } from '../helpers.mjs'
+
+function cwdPrinted(text) {
+  const rows = text.includes('CWDHORCA') && !text.trim().startsWith('{')
+    ? String(text).split(/\r?\n/)
+    : tailLines(text)
+  const index = rows.findIndex((line) => String(line).includes('CWDHORCA '))
+  if (index < 0) {
+    return null
+  }
+  let path = String(rows[index]).slice(String(rows[index]).indexOf('CWDHORCA ') + 'CWDHORCA '.length).trim()
+  for (let cursor = index + 1; cursor < rows.length; cursor += 1) {
+    const line = String(rows[cursor]).trim()
+    if (!line || line.includes('runner$') || line.includes('CWDHORCA') || /\bpython3\b|\bprintf\b/.test(line)) {
+      break
+    }
+    path += line
+  }
+  return path || null
+}
 
 async function readSlotText(session, slot) {
   const dragged = String((await dragReadSelection(session, slot)) ?? '')
@@ -49,10 +69,9 @@ export async function run(ctx) {
   await withTerminal(ctx, { shell: 'PANE_SHELL_READY' }, async (term) => {
     await releaseMeta(ctx.session)
     await sendLine(ctx.session, 'python3 cwdprobe')
-    const parentCwd = await pollUntil('Parent cwd was not printed', 6_000, async () => {
-      const match = String(await readScreen(ctx, term.handle)).match(/CWDHORCA (\S+)/)
-      return match ? match[1] : null
-    })
+    const parentCwd = await pollUntil('Parent cwd was not printed', 6_000, async () =>
+      cwdPrinted(await readScreen(ctx, term.handle))
+    )
     const beforeSplit = await ghosttyCanvasCount(ctx.session)
     if (!(await clickLabeledControl(ctx.session, 'Split Terminal Right'))) {
       throw new Error('Split Terminal Right was not clickable')
@@ -71,11 +90,9 @@ export async function run(ctx) {
       y: splitRect ? Math.min(40, splitRect.height / 2) : 24
     })
     await sendLine(ctx.session, 'python3 cwdprobe')
-    const childCwd = await pollUntil('Split pane cwd was not printed', 8_000, async () => {
-      const selected = await readSlotText(ctx.session, splitSlot)
-      const match = String(selected).match(/CWDHORCA (\S+)/)
-      return match ? match[1] : null
-    })
+    const childCwd = await pollUntil('Split pane cwd was not printed', 8_000, async () =>
+      cwdPrinted(await readSlotText(ctx.session, splitSlot))
+    )
     if (childCwd !== parentCwd) {
       throw new Error(`Split cwd did not match the parent: parent=${parentCwd} child=${childCwd}`)
     }
