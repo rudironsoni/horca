@@ -44,9 +44,15 @@ jobs:
           rm -rf electron-runtime
           mkdir electron-runtime
           cd electron-runtime
-          npm init -y
-          npm install --no-save electron@43.7.0
-          electron=$(node -p "require('electron')")
+          case "$(uname -m)" in
+            arm64) arch=arm64 ;;
+            x86_64) arch=x64 ;;
+            *) echo "unsupported arch $(uname -m)" >&2; exit 1 ;;
+          esac
+          curl -fsSL -o electron.zip \
+            "https://github.com/electron/electron/releases/download/v43.7.0/electron-v43.7.0-darwin-${arch}.zip"
+          unzip -q electron.zip -d dist
+          electron="$PWD/dist/Electron.app/Contents/MacOS/Electron"
           test -x "$electron"
           echo "HORCA_ELECTRON=$electron" >> "$GITHUB_ENV"
 
