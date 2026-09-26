@@ -188,9 +188,9 @@ function smokeKeyOnMarkerLine(text) {
   }
 }
 
-function shellPromptAfter(screen, marker) {
+function shellPromptAfter(text, marker) {
   try {
-    const tail = JSON.parse(screen)?.result?.terminal?.tail
+    const tail = JSON.parse(text)?.result?.terminal?.tail
     if (!Array.isArray(tail)) {
       return false
     }
@@ -205,7 +205,7 @@ function shellPromptAfter(screen, marker) {
       return false
     }
     for (let index = markerAt + 1; index < rows.length; index += 1) {
-      if (/[$%]\s*$/.test(rows[index])) {
+      if (rows[index].includes('runner$')) {
         return true
       }
     }
@@ -1142,23 +1142,22 @@ async function probePackagedBehaviors(ctx) {
   }
 
   await focusGhosttySlot(session, slot)
-  // PASTE_OK is flushed while the tty is still raw, before tcsetattr, and the
-  // packaged screen read showed that line. PASTE_DONE shares the flush, so it
-  // is not a restored shell. Type the next command only after a prompt row
-  // is drawn beneath PASTE_OK.
+  // The rendered screen ends on PASTE_OK. The terminal-read tail already has
+  // PASTE_OK and the shell prompt (`runner$`); PASTE_DONE is in that tail and
+  // not on the screen. Type the next command only after that tail prompt.
   const shellDeadline = Date.now() + 8_000
   let shellSample = ''
   while (Date.now() < shellDeadline) {
-    shellSample = await readScreen(handle)
+    shellSample = await readOutput(handle)
     if (shellPromptAfter(shellSample, 'PASTE_OK')) {
       break
     }
     await new Promise((resolveDelay) => setTimeout(resolveDelay, 150))
   }
   if (!shellPromptAfter(shellSample, 'PASTE_OK')) {
-    const outputSample = await readOutput(handle)
+    const screenSample = await readScreen(handle)
     throw new Error(
-      `Paste probe did not return the shell:\n${formatShellReturnDump(shellSample, outputSample)}`
+      `Paste probe did not return the shell:\n${formatShellReturnDump(screenSample, shellSample)}`
     )
   }
   // Cmd+V set the meta modifier. The packaged canvas drops keydowns while metaKey is set.
