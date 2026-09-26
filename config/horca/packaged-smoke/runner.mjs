@@ -23,23 +23,22 @@ export async function runPackagedSmoke({ executablePath, only = '' }) {
     throw new Error(`Unknown smoke probe: ${only}`)
   }
   const ctx = await boot(executablePath)
-  let failed = null
+  const failures = []
   try {
     for (const probe of selected) {
-      await closeTabsOpenedSince(ctx, ctx.bootTabs)
       ctx.marker = ''
       try {
+        await closeTabsOpenedSince(ctx, ctx.bootTabs)
         const marker = await probe.run(ctx)
         console.log(`SMOKE_EVIDENCE ${JSON.stringify({ capability: probe.id, pass: true, marker: marker || ctx.marker })}`)
       } catch (error) {
-        const marker = ctx.marker || (error instanceof Error ? error.message : String(error))
+        const message = error instanceof Error ? error.message : String(error)
+        const marker = message.split('\n')[0].slice(0, 500)
         console.log(`SMOKE_EVIDENCE ${JSON.stringify({ capability: probe.id, pass: false, marker })}`)
-        const wrapped = new Error(`capability ${probe.id} failed: ${marker}`)
-        wrapped.cause = error
-        throw wrapped
+        failures.push(probe.id)
       }
     }
-    if (!only) {
+    if (!only && failures.length === 0) {
       if (existsSync(join(ctx.home, '.orca'))) {
         throw new Error(`Horca created the official Orca state root: ${join(ctx.home, '.orca')}`)
       }
@@ -47,9 +46,9 @@ export async function runPackagedSmoke({ executablePath, only = '' }) {
         'Packaged Horca smoke passed: title, renderer, key, modifier, selection, resize, multi-pane, enter, backspace, tab, arrow, home, page, function, unicode, alt-screen, no Herdr'
       )
     }
-  } catch (error) {
-    failed = error
-    throw error
+    if (failures.length > 0) {
+      throw new Error(`capabilities failed: ${failures.join(', ')}`)
+    }
   } finally {
     if (ctx.session) {
       try {
@@ -60,9 +59,6 @@ export async function runPackagedSmoke({ executablePath, only = '' }) {
     }
     if (ctx.app && ctx.app.exitCode === null) {
       ctx.app.kill('SIGKILL')
-    }
-    if (failed) {
-      // The thrown error is the capability result. The app is already stopped.
     }
   }
 }

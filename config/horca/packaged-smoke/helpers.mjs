@@ -364,6 +364,29 @@ export async function ghosttyRect(session, slot) {
   )
 }
 
+export async function awaitHittableRect(session, slot) {
+  const deadline = Date.now() + 8_000
+  let rect = null
+  while (Date.now() < deadline) {
+    rect = await ghosttyRect(session, slot)
+    if (rect && rect.width > 2 && rect.height > 2) {
+      return rect
+    }
+    await delay(200)
+  }
+  const described = await evaluate(
+    session,
+    `(() => [...document.querySelectorAll('canvas')].map((node) => {
+      const rect = node.getBoundingClientRect()
+      return { x: rect.x, y: rect.y, width: rect.width, height: rect.height, slot: node.getAttribute('data-ghostty') }
+    }))()`,
+    5_000
+  )
+  throw new Error(
+    `Packaged Ghostty canvas is not hittable: ${JSON.stringify({ slot, rect, described })}`
+  )
+}
+
 export async function focusGhosttySlot(session, slot) {
   await evaluate(
     session,
@@ -808,6 +831,7 @@ export async function openOwnedTerminal(ctx, { command, marker, markerTimeout = 
     await releaseMeta(ctx.session)
   }
   await ensureWorkbenchOnce(ctx)
+  await awaitHittableRect(ctx.session, slot)
   return {
     handle,
     slot,
