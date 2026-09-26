@@ -188,6 +188,33 @@ function smokeKeyOnMarkerLine(text) {
   }
 }
 
+function shellPromptAfter(screen, marker) {
+  try {
+    const tail = JSON.parse(screen)?.result?.terminal?.tail
+    if (!Array.isArray(tail)) {
+      return false
+    }
+    const rows = tail.map((line) => String(line))
+    let markerAt = -1
+    for (let index = 0; index < rows.length; index += 1) {
+      if (rows[index].includes(marker)) {
+        markerAt = index
+      }
+    }
+    if (markerAt < 0) {
+      return false
+    }
+    for (let index = markerAt + 1; index < rows.length; index += 1) {
+      if (/[$%]\s*$/.test(rows[index])) {
+        return true
+      }
+    }
+    return false
+  } catch {
+    return false
+  }
+}
+
 async function readScreen(handle) {
   try {
     return JSON.stringify(runCli(['terminal', 'read', '--terminal', handle, '--screen', '--json']))
@@ -1086,19 +1113,21 @@ async function probePackagedBehaviors(ctx) {
   }
 
   await focusGhosttySlot(session, slot)
-  // PASTE_DONE is printed with PASTE_OK, before the tty restore. Accept it
-  // from the rendered screen or the PTY transcript.
-  const pasteDoneDeadline = Date.now() + 8_000
-  let pasteDoneSample = ''
-  while (Date.now() < pasteDoneDeadline) {
-    pasteDoneSample = `${await readScreen(handle)}\n${await readOutput(handle)}`
-    if (pasteDoneSample.includes('PASTE_DONE')) {
+  // PASTE_OK is flushed while the tty is still raw, before tcsetattr, and the
+  // packaged screen read showed that line. PASTE_DONE shares the flush, so it
+  // is not a restored shell. Type the next command only after a prompt row
+  // is drawn beneath PASTE_OK.
+  const shellDeadline = Date.now() + 8_000
+  let shellSample = ''
+  while (Date.now() < shellDeadline) {
+    shellSample = await readScreen(handle)
+    if (shellPromptAfter(shellSample, 'PASTE_OK')) {
       break
     }
     await new Promise((resolveDelay) => setTimeout(resolveDelay, 150))
   }
-  if (!pasteDoneSample.includes('PASTE_DONE')) {
-    throw new Error(`Paste probe did not return the shell: ${pasteDoneSample.slice(0, 800)}`)
+  if (!shellPromptAfter(shellSample, 'PASTE_OK')) {
+    throw new Error(`Paste probe did not return the shell: ${shellSample.slice(0, 800)}`)
   }
   // Cmd+V set the meta modifier. The packaged canvas drops keydowns while metaKey is set.
   await session.call(
