@@ -39,15 +39,21 @@ jobs:
           test -f native/horca-ghostty/adopted/electron-ghostty/build/Release/ghostty_renderer.node
 
       - name: Install Electron 43 runtime
+        working-directory: ${{ runner.temp }}
         run: |
-          mkdir -p .cache/gpu-lifetime-electron
-          npm init -y --prefix .cache/gpu-lifetime-electron
-          npm install --prefix .cache/gpu-lifetime-electron --no-save electron@43.7.0
-          test -x .cache/gpu-lifetime-electron/node_modules/electron/dist/Electron.app/Contents/MacOS/Electron
+          rm -rf electron-runtime
+          mkdir electron-runtime
+          cd electron-runtime
+          npm init -y
+          npm install --no-save electron@43.7.0
+          electron=$(node -p "require('electron')")
+          test -x "$electron"
+          echo "HORCA_ELECTRON=$electron" >> "$GITHUB_ENV"
 
       - name: Run GPU lifetime fixture
         run: |
-          electron=".cache/gpu-lifetime-electron/node_modules/electron/dist/Electron.app/Contents/MacOS/Electron"
+          electron="$HORCA_ELECTRON"
+          test -x "$electron"
           out="$RUNNER_TEMP/horca-gpu-lifetime.json"
           set +e
           HORCA_GPU_LIFETIME_OUT="$out" HORCA_GPU_LIFETIME_SHA="${{ github.sha }}" \
